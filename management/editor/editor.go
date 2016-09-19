@@ -6,9 +6,9 @@ import "bytes"
 
 // Editable ensures data is editable
 type Editable interface {
+	ContentID() int
 	Editor() *Editor
-	NewViewBuffer()
-	Render() []byte
+	MarshalEditor() ([]byte, error)
 }
 
 // Editor is a view containing fields to manage content
@@ -25,15 +25,15 @@ type Field struct {
 // New takes editable content and any number of Field funcs to describe the edit
 // page for any content struct added by a user
 func New(post Editable, fields ...Field) ([]byte, error) {
-	post.NewViewBuffer()
-
 	editor := post.Editor()
+
+	editor.ViewBuf = &bytes.Buffer{}
 
 	for _, f := range fields {
 		addFieldToEditorView(editor, f)
 	}
 
-	return post.Render(), nil
+	return editor.ViewBuf.Bytes(), nil
 }
 
 func addFieldToEditorView(e *Editor, f Field) {

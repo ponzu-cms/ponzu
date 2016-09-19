@@ -1,15 +1,15 @@
-package main
+package content
 
 import (
-	"bytes"
 	"fmt"
-	"net/http"
 
-	"github.com/nilslice/cms/editor"
+	"github.com/nilslice/cms/management/editor"
+	"github.com/nilslice/cms/system/db"
 )
 
 // Post is the generic content struct
 type Post struct {
+	db.Item
 	editor editor.Editor
 
 	Title     []byte `json:"title"`
@@ -18,23 +18,18 @@ type Post struct {
 	Timestamp []byte `json:"timestamp"`
 }
 
+func init() {
+	Types["Post"] = Post{}
+}
+
+// ContentID partially implements editor.Editable
+func (p Post) ContentID() int { return p.ID }
+
 // Editor partially implements editor.Editable
-func (p *Post) Editor() *editor.Editor {
-	return &p.editor
-}
+func (p Post) Editor() *editor.Editor { return &p.editor }
 
-// NewViewBuffer partially implements editor.Editable
-func (p *Post) NewViewBuffer() {
-	p.editor.ViewBuf = &bytes.Buffer{}
-}
-
-// Render partially implements editor.Editable
-func (p *Post) Render() []byte {
-	return p.editor.ViewBuf.Bytes()
-}
-
-// EditView writes a buffer of html to edit a Post
-func (p Post) EditView() ([]byte, error) {
+// MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
+func (p Post) MarshalEditor() ([]byte, error) {
 	view, err := editor.New(&p,
 		editor.Field{
 			View: editor.Input("Title", &p, map[string]string{
@@ -69,25 +64,4 @@ func (p Post) EditView() ([]byte, error) {
 	}
 
 	return view, nil
-}
-
-func (p Post) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set("Content-type", "text/html")
-	resp, err := p.EditView()
-	if err != nil {
-		fmt.Println(err)
-	}
-	res.Write(resp)
-}
-
-func main() {
-	p := Post{
-		Content:   []byte("<h3>H</h3>ello. My name is <em>Steve</em>."),
-		Title:     []byte("Profound introduction"),
-		Author:    []byte("Steve Manuel"),
-		Timestamp: []byte("2016-09-16"),
-	}
-
-	http.ListenAndServe(":8080", p)
-
 }
