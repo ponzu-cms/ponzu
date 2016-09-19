@@ -10,16 +10,9 @@ import (
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func Input(fieldName string, p interface{}, attrs map[string]string) []byte {
-	var wrapInLabel = true
-	label, found := attrs["label"]
-	if !found {
-		wrapInLabel = false
-		label = ""
-	}
+	e := newElement("input", attrs["label"], fieldName, p, attrs)
 
-	e := newElement("input", label, fieldName, p, attrs)
-
-	return domElementSelfClose(e, wrapInLabel)
+	return domElementSelfClose(e)
 }
 
 // Textarea returns the []byte of a <textarea> HTML element with a label.
@@ -27,16 +20,9 @@ func Input(fieldName string, p interface{}, attrs map[string]string) []byte {
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
-	var wrapInLabel = true
-	label, found := attrs["label"]
-	if !found {
-		wrapInLabel = false
-		label = ""
-	}
+	e := newElement("textarea", attrs["label"], fieldName, p, attrs)
 
-	e := newElement("textarea", label, fieldName, p, attrs)
-
-	return domElement(e, wrapInLabel)
+	return domElement(e)
 }
 
 type element struct {
@@ -50,8 +36,8 @@ type element struct {
 
 // domElementSelfClose is a special DOM element which is parsed as a
 // self-closing tag and thus needs to be created differently
-func domElementSelfClose(e *element, wrapInLabel bool) []byte {
-	if wrapInLabel {
+func domElementSelfClose(e *element) []byte {
+	if e.label != "" {
 		e.viewBuf.Write([]byte(`<label>` + e.label + `</label>`))
 	}
 	e.viewBuf.Write([]byte(`<` + e.TagName + ` value="`))
@@ -67,8 +53,8 @@ func domElementSelfClose(e *element, wrapInLabel bool) []byte {
 }
 
 // domElement creates a DOM element
-func domElement(e *element, wrapInLabel bool) []byte {
-	if wrapInLabel {
+func domElement(e *element) []byte {
+	if e.label != "" {
 		e.viewBuf.Write([]byte(`<label>` + e.label + `</label>`))
 	}
 	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
