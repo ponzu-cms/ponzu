@@ -18,7 +18,7 @@ type Post struct {
 }
 
 func init() {
-	Types["Post"] = &Post{}
+	Types["Post"] = func() interface{} { return new(Post) }
 }
 
 // ContentID partially implements editor.Editable
@@ -28,30 +28,30 @@ func (p *Post) ContentID() int { return p.ID }
 func (p *Post) Editor() *editor.Editor { return &p.editor }
 
 // MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
-func (p Post) MarshalEditor() ([]byte, error) {
-	view, err := editor.New(&p,
+func (p *Post) MarshalEditor() ([]byte, error) {
+	view, err := editor.New(p,
 		editor.Field{
-			View: editor.Input("Title", &p, map[string]string{
+			View: editor.Input("Title", p, map[string]string{
 				"label":       "Post Title",
 				"type":        "text",
 				"placeholder": "Enter your Post Title here",
 			}),
 		},
 		editor.Field{
-			View: editor.Textarea("Content", &p, map[string]string{
+			View: editor.Textarea("Content", p, map[string]string{
 				"label":       "Content",
 				"placeholder": "Add the content of your post here",
 			}),
 		},
 		editor.Field{
-			View: editor.Input("Author", &p, map[string]string{
+			View: editor.Input("Author", p, map[string]string{
 				"label":       "Author",
 				"type":        "text",
 				"placeholder": "Enter the author name here",
 			}),
 		},
 		editor.Field{
-			View: editor.Input("Timestamp", &p, map[string]string{
+			View: editor.Input("Timestamp", p, map[string]string{
 				"label": "Publish Date",
 				"type":  "date",
 			}),
