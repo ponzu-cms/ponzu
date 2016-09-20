@@ -26,8 +26,6 @@ func main() {
 			post := contentType()
 
 			if i != "" {
-				fmt.Println("Need to show post id:", i, "(", t, ")")
-
 				data, err := db.Get(t + ":" + i)
 				if err != nil {
 					fmt.Println(err)
@@ -62,8 +60,6 @@ func main() {
 
 			cid := req.FormValue("id")
 			t := req.FormValue("type")
-			fmt.Println("query data: t=", t, "id=", cid)
-
 			id, err := db.Set(t+":"+cid, req.PostForm)
 			if err != nil {
 				fmt.Println(err)
@@ -71,11 +67,11 @@ func main() {
 				return
 			}
 
-			fmt.Println(t, "post created:", id)
 			scheme := req.URL.Scheme
 			host := req.URL.Host
 			path := req.URL.Path
-			desURL := scheme + host + path + "?type=" + t + "&id=" + fmt.Sprintf("%d", id)
+			id = fmt.Sprintf("%d", id)
+			desURL := scheme + host + path + "?type=" + t + "&id=" + id
 			http.Redirect(res, req, desURL, http.StatusFound)
 		}
 	})
