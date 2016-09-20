@@ -30,7 +30,7 @@ type element struct {
 	Attrs   map[string]string
 	Name    string
 	label   string
-	data    []byte
+	data    string
 	viewBuf *bytes.Buffer
 }
 
@@ -41,10 +41,10 @@ func domElementSelfClose(e *element) []byte {
 		e.viewBuf.Write([]byte(`<label>` + e.label + `</label>`))
 	}
 	e.viewBuf.Write([]byte(`<` + e.TagName + ` value="`))
-	e.viewBuf.Write(append(e.data, []byte(`" `)...))
+	e.viewBuf.Write([]byte(e.data + `" `))
 
 	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `"`))
+		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
 	}
 	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
 	e.viewBuf.Write([]byte(` />`))
@@ -60,7 +60,7 @@ func domElement(e *element) []byte {
 	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
 
 	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `"`))
+		e.viewBuf.Write([]byte(attr + `="` + string(value) + `" `))
 	}
 	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
 	e.viewBuf.Write([]byte(` >`))
@@ -85,10 +85,10 @@ func tagNameFromStructField(name string, post interface{}) string {
 	return tag
 }
 
-func valueFromStructField(name string, post interface{}) []byte {
+func valueFromStructField(name string, post interface{}) string {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
 
-	return field.Bytes()
+	return field.String()
 }
 
 func newElement(tagName, label, fieldName string, p interface{}, attrs map[string]string) *element {

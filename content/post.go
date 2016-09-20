@@ -4,29 +4,28 @@ import (
 	"fmt"
 
 	"github.com/nilslice/cms/management/editor"
-	"github.com/nilslice/cms/system/db"
 )
 
 // Post is the generic content struct
 type Post struct {
-	db.Item
+	Item
 	editor editor.Editor
 
-	Title     []byte `json:"title"`
-	Content   []byte `json:"content"`
-	Author    []byte `json:"author"`
-	Timestamp []byte `json:"timestamp"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Author    string `json:"author"`
+	Timestamp string `json:"timestamp"`
 }
 
 func init() {
-	Types["Post"] = Post{}
+	Types["Post"] = &Post{}
 }
 
 // ContentID partially implements editor.Editable
-func (p Post) ContentID() int { return p.ID }
+func (p *Post) ContentID() int { return p.ID }
 
 // Editor partially implements editor.Editable
-func (p Post) Editor() *editor.Editor { return &p.editor }
+func (p *Post) Editor() *editor.Editor { return &p.editor }
 
 // MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
 func (p Post) MarshalEditor() ([]byte, error) {
