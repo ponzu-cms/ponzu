@@ -160,6 +160,21 @@ func Get(target string) ([]byte, error) {
 
 // GetAll retrives all items from the database within the provided namespace
 func GetAll(namespace string) [][]byte {
+	var posts [][]byte
+	store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(namespace))
 
-	return nil
+		len := b.Stats().KeyN
+		posts = make([][]byte, 0, len)
+
+		b.ForEach(func(k, v []byte) error {
+			posts = append(posts, v)
+
+			return nil
+		})
+
+		return nil
+	})
+
+	return posts
 }

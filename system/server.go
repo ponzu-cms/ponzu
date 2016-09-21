@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,10 +9,46 @@ import (
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/management/editor"
 	"github.com/nilslice/cms/management/manager"
+	"github.com/nilslice/cms/system/admin"
 	"github.com/nilslice/cms/system/db"
 )
 
 func main() {
+	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
+		adminView := admin.Admin(nil)
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(adminView)
+	})
+
+	http.HandleFunc("/admin/posts", func(res http.ResponseWriter, req *http.Request) {
+		q := req.URL.Query()
+		t := q.Get("type")
+		if t == "" {
+			res.WriteHeader(http.StatusBadRequest)
+		}
+
+		posts := db.GetAll(t)
+		b := &bytes.Buffer{}
+		p := content.Types[t]().(editor.Editable)
+
+		html := `<a href="/admin/edit?type=` + t + `" class="button">New ` + t + `</a>
+			<ul class="posts">`
+		for i := range posts {
+			json.Unmarshal(posts[i], &p)
+			post := `<li><a href="/admin/edit?type=` +
+				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
+				`">` + p.ContentName() + `</a></li>`
+			b.Write([]byte(post))
+		}
+		html = html + b.String()
+
+		adminView := admin.Admin([]byte(html))
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(adminView)
+	})
+
 	http.HandleFunc("/admin/edit", func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
@@ -41,14 +78,15 @@ func main() {
 				}
 			}
 
-			view, err := manager.Manage(post.(editor.Editable), t)
+			m, err := manager.Manage(post.(editor.Editable), t)
+			adminView := admin.Admin(m)
 			if err != nil {
 				fmt.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			res.Header().Set("Content-Type", "text/html")
-			res.Write(view)
+			res.Write(adminView)
 
 		case http.MethodPost:
 			err := req.ParseForm()

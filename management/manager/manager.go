@@ -8,11 +8,11 @@ import (
 	"github.com/nilslice/cms/management/editor"
 )
 
-var html = `
+const managerHTML = `
 <a href="/admin/edit?type={{.Kind}}" class="button">New {{.Kind}}</a>
-<div class="manager">
+<div class="editor">
     <form method="post" action="/admin/edit">
-        {{.Editor}}
+        {{ .Editor }}
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
         <input type="submit" value="Save"/>
@@ -20,7 +20,7 @@ var html = `
 </div>
 `
 
-type form struct {
+type manager struct {
 	ID     int
 	Kind   string
 	Editor template.HTML
@@ -33,7 +33,7 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 		return nil, fmt.Errorf("Couldn't marshal editor for content %T. %s", e, err.Error())
 	}
 
-	f := form{
+	m := manager{
 		ID:     e.ContentID(),
 		Kind:   typeName,
 		Editor: template.HTML(v),
@@ -41,8 +41,8 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 
 	// execute html template into buffer for func return val
 	buf := &bytes.Buffer{}
-	tmpl := template.Must(template.New("manager").Parse(html))
-	tmpl.Execute(buf, f)
+	tmpl := template.Must(template.New("manager").Parse(managerHTML))
+	tmpl.Execute(buf, m)
 
 	return buf.Bytes(), nil
 }

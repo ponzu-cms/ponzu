@@ -24,6 +24,9 @@ func init() {
 // ContentID partially implements editor.Editable
 func (p *Post) ContentID() int { return p.ID }
 
+// ContentName partially implements editor.Editable
+func (p *Post) ContentName() string { return p.Title }
+
 // Editor partially implements editor.Editable
 func (p *Post) Editor() *editor.Editor { return &p.editor }
 

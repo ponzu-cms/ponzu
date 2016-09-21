@@ -7,6 +7,7 @@ import "bytes"
 // Editable ensures data is editable
 type Editable interface {
 	ContentID() int
+	ContentName() string
 	Editor() *Editor
 	MarshalEditor() ([]byte, error)
 }
