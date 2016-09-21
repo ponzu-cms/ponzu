@@ -70,8 +70,8 @@ func main() {
 			scheme := req.URL.Scheme
 			host := req.URL.Host
 			path := req.URL.Path
-			id = fmt.Sprintf("%d", id)
-			desURL := scheme + host + path + "?type=" + t + "&id=" + id
+			sid := fmt.Sprintf("%d", id)
+			desURL := scheme + host + path + "?type=" + t + "&id=" + sid
 			http.Redirect(res, req, desURL, http.StatusFound)
 		}
 	})
