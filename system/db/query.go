@@ -12,6 +12,8 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
 	"github.com/nilslice/cms/content"
+	"github.com/nilslice/cms/management/editor"
+	"github.com/nilslice/cms/management/manager"
 )
 
 var store *bolt.DB
@@ -22,6 +24,19 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// initialize db with all content type buckets
+	store.Update(func(tx *bolt.Tx) error {
+		for t := range content.Types {
+			_, err := tx.CreateBucketIfNotExists([]byte(t))
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
 }
 
 // Set inserts or updates values in the database.
@@ -30,8 +45,13 @@ func Set(target string, data url.Values) (int, error) {
 	t := strings.Split(target, ":")
 	ns, id := t[0], t[1]
 
-	// check if content has an id, and if not get new one from target bucket
-	if len(id) == 0 {
+	// check if content id == -1 (indicating new post).
+	// if so, run an insert which will assign the next auto incremented int.
+	// this is done because boltdb begins its bucket auto increment value at 0,
+	// which is the zero-value of an int in the Item struct field for ID.
+	// this is a problem when the original first post (with auto ID = 0) gets
+	// overwritten by any new post, originally having no ID, defauting to 0.
+	if id == "-1" {
 		return insert(ns, data)
 	}
 
@@ -124,6 +144,12 @@ func toJSON(ns string, data url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	slug, err := manager.Slug(post.(editor.Editable))
+	if err != nil {
+		return nil, err
+	}
+	post.(editor.Editable).SetSlug(slug)
 
 	// marshall content struct to json for db storage
 	j, err := json.Marshal(post)

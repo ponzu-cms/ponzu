@@ -6,8 +6,10 @@ import "bytes"
 
 // Editable ensures data is editable
 type Editable interface {
+	SetContentID(id int)
 	ContentID() int
 	ContentName() string
+	SetSlug(slug string)
 	Editor() *Editor
 	MarshalEditor() ([]byte, error)
 }
@@ -23,9 +25,9 @@ type Field struct {
 	View []byte
 }
 
-// New takes editable content and any number of Field funcs to describe the edit
+// Form takes editable content and any number of Field funcs to describe the edit
 // page for any content struct added by a user
-func New(post Editable, fields ...Field) ([]byte, error) {
+func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor := post.Editor()
 
 	editor.ViewBuf = &bytes.Buffer{}

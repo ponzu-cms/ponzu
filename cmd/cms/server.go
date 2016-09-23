@@ -13,7 +13,7 @@ import (
 	"github.com/nilslice/cms/system/db"
 )
 
-func main() {
+func init() {
 	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
 		adminView := admin.Admin(nil)
 
@@ -76,6 +76,8 @@ func main() {
 					res.WriteHeader(http.StatusInternalServerError)
 					return
 				}
+			} else {
+				post.(editor.Editable).SetContentID(-1)
 			}
 
 			m, err := manager.Manage(post.(editor.Editable), t)
@@ -113,7 +115,8 @@ func main() {
 			http.Redirect(res, req, desURL, http.StatusFound)
 		}
 	})
+}
 
+func serve() {
 	http.ListenAndServe(":8080", nil)
-
 }
