@@ -11,7 +11,7 @@ $ cms <option> <params>
 
 Options: 
 generate, gen, g:
-    Generate a new content type file with boilerplat code to implement
+    Generate a new content type file with boilerplate code to implement
     the editor.Editable interface. Must be given one (1) parameter of
     the name of the type for the new content.
 
