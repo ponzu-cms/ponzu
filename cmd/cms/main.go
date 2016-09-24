@@ -67,8 +67,7 @@ func main() {
 	args := flag.Args()
 
 	if len(args) < 1 {
-		flag.PrintDefaults()
-		fmt.Println("should print defaults")
+		flag.Usage()
 		os.Exit(0)
 	}
 
