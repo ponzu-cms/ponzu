@@ -18,7 +18,8 @@ import (
 
 var store *bolt.DB
 
-func init() {
+// Init creates a db connection and initializes db with required info
+func Init() {
 	var err error
 	store, err = bolt.Open("store.db", 0666, nil)
 	if err != nil {

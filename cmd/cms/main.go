@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/nilslice/cms/system/db"
 )
 
 var usage = `
@@ -95,6 +97,7 @@ func main() {
 			os.Exit(1)
 		}
 	case "serve", "s":
+		db.Init()
 		serve()
 
 	case "":
