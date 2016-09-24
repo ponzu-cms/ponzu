@@ -222,6 +222,7 @@ func createProjInDir(path string) error {
 		networkClone := exec.Command("git", "clone", network, path)
 		networkClone.Stdout = os.Stdout
 		networkClone.Stderr = os.Stderr
+
 		err = networkClone.Start()
 		if err != nil {
 			fmt.Println("Network clone failed to start. Try again and make sure you have a network connection.")
