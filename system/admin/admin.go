@@ -4,7 +4,6 @@ package admin
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 
 	"github.com/nilslice/cms/content"
@@ -54,8 +53,6 @@ func Admin(manager []byte) []byte {
 		Types:   content.Types,
 		Subview: template.HTML(manager),
 	}
-
-	fmt.Println(a.Types)
 
 	buf := &bytes.Buffer{}
 	tmpl := template.Must(template.New("admin").Parse(adminHTML))

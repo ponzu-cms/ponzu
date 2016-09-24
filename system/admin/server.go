@@ -1,4 +1,4 @@
-package main
+package admin
 
 import (
 	"bytes"
@@ -9,13 +9,12 @@ import (
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/management/editor"
 	"github.com/nilslice/cms/management/manager"
-	"github.com/nilslice/cms/system/admin"
 	"github.com/nilslice/cms/system/db"
 )
 
 func init() {
 	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
-		adminView := admin.Admin(nil)
+		adminView := Admin(nil)
 
 		res.Header().Set("Content-Type", "text/html")
 		res.Write(adminView)
@@ -43,7 +42,7 @@ func init() {
 		}
 		html = html + b.String()
 
-		adminView := admin.Admin([]byte(html))
+		adminView := Admin([]byte(html))
 
 		res.Header().Set("Content-Type", "text/html")
 		res.Write(adminView)
@@ -81,7 +80,7 @@ func init() {
 			}
 
 			m, err := manager.Manage(post.(editor.Editable), t)
-			adminView := admin.Admin(m)
+			adminView := Admin(m)
 			if err != nil {
 				fmt.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -117,6 +116,7 @@ func init() {
 	})
 }
 
-func serve() {
-	http.ListenAndServe(":8080", nil)
+// Run starts the Admin system on the port provided
+func Run(port string) {
+	http.ListenAndServe(":"+port, nil)
 }
