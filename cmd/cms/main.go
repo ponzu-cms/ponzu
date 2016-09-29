@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nilslice/cms/system/api"
+	"github.com/nilslice/cms/system/admin"
 	"github.com/nilslice/cms/system/db"
 )
 
@@ -98,8 +98,8 @@ func main() {
 		}
 	case "serve", "s":
 		db.Init()
-		// admin.Run("8080")
-		api.Run("8000")
+		admin.Run("8080")
+		// api.Run("8000")
 
 	case "":
 		flag.PrintDefaults()
