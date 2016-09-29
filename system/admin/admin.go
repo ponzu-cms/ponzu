@@ -14,14 +14,20 @@ const adminHTML = `<!doctype html>
     <head>
         <title>CMS</title>
         <style type="text/css">
-            label {
+            form {
                 display: block;
-                margin-top: 11px;
+                margin: 11px 0;
             }
-            input {
+            label {
+            }
+            input, textarea, select {
                 display: block;
-                margin-bottom: 11px;
+                margin: 11px 0 22px 0;
                 padding: 2px;
+            }
+            input[type=checkbox] {
+                display: inline-block;
+                margin-left: 11px;
             }
         </style>
     </head>
