@@ -13,7 +13,7 @@ import (
 // Slug returns a URL friendly string from the title of a post item
 func Slug(e editor.Editable) (string, error) {
 	// get the name of the post item
-	name := e.ContentName()
+	name := strings.TrimSpace(e.ContentName())
 
 	// filter out non-alphanumeric character or non-whitespace
 	slug, err := stringToSlug(name)
