@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/management/editor"
@@ -99,6 +100,28 @@ func init() {
 
 			cid := req.FormValue("id")
 			t := req.FormValue("type")
+
+			// check for any multi-value fields (ex. checkbox fields)
+			// and correctly format for db storage. Essentially, we need
+			// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+			var discardKeys []string
+			for k, v := range req.PostForm {
+				if strings.Contains(k, ".") {
+					key := strings.Split(k, ".")[0]
+
+					if req.PostForm.Get(key) == "" {
+						req.PostForm.Set(key, v[0])
+						discardKeys = append(discardKeys, k)
+					} else {
+						req.PostForm.Add(key, v[0])
+					}
+				}
+			}
+
+			for _, discardKey := range discardKeys {
+				req.PostForm.Del(discardKey)
+			}
+
 			id, err := db.Set(t+":"+cid, req.PostForm)
 			if err != nil {
 				fmt.Println(err)
