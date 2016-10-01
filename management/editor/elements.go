@@ -117,11 +117,15 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 
 	i := 0
 	for k, v := range options {
+		inputAttrs := map[string]string{
+			"type":  "checkbox",
+			"value": k,
+		}
+
 		// check if k is in the pre-checked values and set to checked
-		var val string
 		for _, x := range checked {
 			if k == x {
-				val = "true"
+				inputAttrs["checked"] = "true"
 			}
 		}
 
@@ -129,20 +133,11 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 		// func since this is for a multi-value name
 		input := &element{
 			TagName: "input",
-			Attrs: map[string]string{
-				"type":    "checkbox",
-				"checked": val,
-				"value":   k,
-			},
+			Attrs:   inputAttrs,
 			Name:    tagNameFromStructFieldMulti(fieldName, i, p),
 			label:   v,
 			data:    "",
 			viewBuf: &bytes.Buffer{},
-		}
-
-		// if checked == false, delete it from input.Attrs for clarity
-		if input.Attrs["checked"] == "" {
-			delete(input.Attrs, "checked")
 		}
 
 		opts = append(opts, input)
