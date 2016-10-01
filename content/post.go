@@ -11,10 +11,12 @@ type Post struct {
 	Item
 	editor editor.Editor
 
-	Title     string `json:"title"`
-	Content   string `json:"content"`
-	Author    string `json:"author"`
-	Timestamp string `json:"timestamp"`
+	Title      string   `json:"title"`
+	Content    string   `json:"content"`
+	Author     string   `json:"author"`
+	Category   []string `json:"category"`
+	ThemeStyle string   `json:"theme"`
+	Timestamp  string   `json:"timestamp"`
 }
 
 func init() {
@@ -65,6 +67,23 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 				"label":       "Author",
 				"type":        "text",
 				"placeholder": "Enter the author name here",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("Category", p, map[string]string{
+				"label": "Post Category",
+			}, map[string]string{
+				"important": "Important",
+				"active":    "Active",
+				"unplanned": "Unplanned",
+			}),
+		},
+		editor.Field{
+			View: editor.Select("ThemeStyle", p, map[string]string{
+				"label": "Theme Style",
+			}, map[string]string{
+				"dark":  "Dark",
+				"light": "Light",
 			}),
 		},
 		editor.Field{

@@ -65,13 +65,13 @@ type {{ .name }} struct {
 	Item
 	editor editor.Editor
 
-/*  
-    // all your custom fields must have json tags!
-	Title     string ` + "`json:" + `"title"` + "`" + `
-	Content   string ` + "`json:" + `"content"` + "`" + `
-	Author    string ` + "`json:" + `"author"` + "`" + `
-	Timestamp string ` + "`json:" + `"timestamp"` + "`" + `
-*/
+    // required: all maintained {{ .name }} fields must have json tags!
+	Title      string ` + "`json:" + `"title"` + "`" + `
+	Content    string ` + "`json:" + `"content"` + "`" + `
+	Author     string ` + "`json:" + `"author"` + "`" + `
+	Category   []string ` + "`json:" + `"category"` + "`" + `
+	ThemeStyle string ` + "`json:" + `"theme"` + "`" + `
+	Timestamp  string ` + "`json:" + `"timestamp"` + "`" + `
 }
 
 func init() {
@@ -95,7 +95,7 @@ func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial
 
 // MarshalEditor writes a buffer of html to edit a {{ .name }} and partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
-/* EXAMPLE CODE (from post.go, the default content type)
+/* EXAMPLE CODE (from post.go, the default content type) */
 	view, err := editor.Form({{ .initial }},
 		editor.Field{
             // Take careful note that the first argument to these Input-like methods 
@@ -129,6 +129,23 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
+			View: editor.Checkbox("Category", {{ .initial }}, map[string]string{
+				"label": "{{ .name }} Category",
+			}, map[string]string{
+				"important": "Important",
+				"active":    "Active",
+				"unplanned": "Unplanned",
+			}),
+		},
+		editor.Field{
+			View: editor.Select("ThemeStyle", {{ .initial }}, map[string]string{
+				"label": "Theme Style",
+			}, map[string]string{
+				"dark": "Dark",
+				"light": "Light",
+			}),
+		},
+		editor.Field{
 			View: editor.Input("Timestamp", {{ .initial }}, map[string]string{
 				"label": "Publish Date",
 				"type":  "date",
@@ -141,7 +158,6 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 	}
 
 	return view, nil
-*/
 }
 `
 
