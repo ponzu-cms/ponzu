@@ -23,7 +23,7 @@ new <directory>:
 	attempt to clone the 'cms' package from over the network.
 
 	Example:
-	$ cms new ~/Projects/food-reviews.dev
+	$ cms new ~/Projects/my-project.dev
 
 
 
