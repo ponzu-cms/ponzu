@@ -1,0 +1,39 @@
+.body {}
+
+.nav-wrapper {
+    width: 95%;
+    max-width: 1300px;
+    margin: auto;
+}
+
+.admin-ui {
+    width: 95%;
+    max-width: 1300px;    
+    margin: 1% auto;
+}
+
+.manager {
+    margin-bottom: 2%;
+}
+
+a.new-post {
+    margin: 0.5rem 0 1rem 0.75rem;
+}
+
+textarea {
+    margin: 20px auto;
+    display: block;
+}
+
+.material-icons {
+    line-height: 1.4;
+}
+
+.clear {
+    clear: both;
+    display: block;
+}
+
+.clear.padding {
+    padding: 10px 0;
+}

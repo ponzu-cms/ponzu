@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/nilslice/cms/content"
@@ -15,10 +18,38 @@ import (
 
 func init() {
 	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
-		adminView := Admin(nil)
+		adminView, err := Admin(nil)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		res.Header().Set("Content-Type", "text/html")
 		res.Write(adminView)
+	})
+
+	http.HandleFunc("/admin/static/", func(res http.ResponseWriter, req *http.Request) {
+		path := req.URL.Path
+		pwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal("Coudln't get current directory to set static asset source.")
+		}
+
+		http.ServeFile(res, req, filepath.Join(pwd, "system", path))
+	})
+
+	http.HandleFunc("/admin/configure", func(res http.ResponseWriter, req *http.Request) {
+		adminView, err := Admin(nil)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(adminView)
+
 	})
 
 	http.HandleFunc("/admin/posts", func(res http.ResponseWriter, req *http.Request) {
@@ -32,18 +63,30 @@ func init() {
 		b := &bytes.Buffer{}
 		p := content.Types[t]().(editor.Editable)
 
-		html := `<a href="/admin/edit?type=` + t + `" class="button">New ` + t + `</a>
-			<ul class="posts">`
+		html := `<div class="col s9">				
+					<div class="card">
+					<ul class="card-content collection posts">
+					<div class="card-title">` + t + ` Items</div>`
+
 		for i := range posts {
 			json.Unmarshal(posts[i], &p)
-			post := `<li><a href="/admin/edit?type=` +
+			post := `<div class="row collection-item"><li class="col s12 collection-item"><a href="/admin/edit?type=` +
 				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-				`">` + p.ContentName() + `</a></li>`
+				`">` + p.ContentName() + `</a></li></div>`
 			b.Write([]byte(post))
 		}
-		html = html + b.String()
 
-		adminView := Admin([]byte(html))
+		b.Write([]byte(`</ul></div></div>`))
+
+		btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
+		html = html + b.String() + btn
+
+		adminView, err := Admin([]byte(html))
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		res.Header().Set("Content-Type", "text/html")
 		res.Write(adminView)
@@ -81,12 +124,19 @@ func init() {
 			}
 
 			m, err := manager.Manage(post.(editor.Editable), t)
-			adminView := Admin(m)
 			if err != nil {
 				fmt.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
+			adminView, err := Admin(m)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
 			res.Header().Set("Content-Type", "text/html")
 			res.Write(adminView)
 

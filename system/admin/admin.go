@@ -13,38 +13,52 @@ const adminHTML = `<!doctype html>
 <html>
     <head>
         <title>CMS</title>
-        <style type="text/css">
-            form {
-                display: block;
-                margin: 11px 0;
-            }
-            label {
-            }
-            input, textarea, select {
-                display: block;
-                margin: 11px 0 22px 0;
-                padding: 2px;
-            }
-            input[type=checkbox] {
-                display: inline-block;
-                margin-left: 11px;
-            }
-        </style>
+        <script type="text/javascript" src="/admin/static/common/js/jquery-1.11.3.min.js"></script>      
+        <link rel="stylesheet" href="/admin/static/dashboard/css/material-icons.css" />          
+        <link rel="stylesheet" href="/admin/static/dashboard/css/materialize.min.css" />
+        <link rel="stylesheet" href="/admin/static/dashboard/css/admin.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
-    <body>
-        <h1><a href="/admin">CMS</a></h1>
-        <div class="types">
-            <ul>
-            {{ range $t, $f := .Types }}
-                <li><a href="/admin/posts?type={{ $t }}">{{ $t }}</a></li>
+    <body class="grey lighten-4">
+       <div class="navbar-fixed">
+            <nav class="grey darken-2">
+            <div class="nav-wrapper">
+                <a class="brand-logo" href="/admin">CMS</a>
+
+                <ul class="right">
+                    <li><a href="/admin/logout">Logout</a></li>
+                </ul>
+            </div>
+            </nav>
+        </div>
+
+        <div class="admin-ui row">
+            
+            <div class="left-nav col s3">
+                <div class="card">
+                <ul class="card-content collection">
+                    <div class="card-title">Content</div>
+                                    
+                    {{ range $t, $f := .Types }}
+                    <div class="row collection-item">
+                        <li><a class="col s12" href="/admin/posts?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
+                    </div>
+                    {{ end }}
+
+                    <div class="card-title">System</div>                                
+                    <div class="row collection-item">
+                        <li><a class="col s12" href="/admin/configure"><i class="tiny left material-icons">settings</i>Configuration</a></li>
+                    </div>
+                </ul>
+                </div>
+            </div>
+            {{ if .Subview}}
+            <div class="subview col s9">
+                {{ .Subview }}
+            </div>
             {{ end }}
-            </ul>
         </div>
-        {{ if .Subview}}
-        <div class="manager">
-            {{ .Subview }}
-        </div>
-        {{ end }}
+        <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
     </body>
 </html>`
 
@@ -54,15 +68,18 @@ type admin struct {
 }
 
 // Admin ...
-func Admin(manager []byte) []byte {
+func Admin(view []byte) ([]byte, error) {
 	a := admin{
 		Types:   content.Types,
-		Subview: template.HTML(manager),
+		Subview: template.HTML(view),
 	}
 
 	buf := &bytes.Buffer{}
 	tmpl := template.Must(template.New("admin").Parse(adminHTML))
-	tmpl.Execute(buf, a)
+	err := tmpl.Execute(buf, a)
+	if err != nil {
+		return nil, err
+	}
 
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
