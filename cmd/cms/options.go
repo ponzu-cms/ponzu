@@ -71,7 +71,6 @@ type {{ .name }} struct {
 	Author     string ` + "`json:" + `"author"` + "`" + `
 	Category   []string ` + "`json:" + `"category"` + "`" + `
 	ThemeStyle string ` + "`json:" + `"theme"` + "`" + `
-	Timestamp  string ` + "`json:" + `"timestamp"` + "`" + `
 }
 
 func init() {
@@ -98,17 +97,9 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 /* EXAMPLE CODE (from post.go, the default content type) */
 	view, err := editor.Form({{ .initial }},
 		editor.Field{
-            // Take careful note that the first argument to these Input-like methods 
+			// Take careful note that the first argument to these Input-like methods 
             // is the string version of each {{ .name }} struct tag, and must follow this pattern
             // for auto-decoding and -encoding reasons.
-			View: editor.Input("Slug", {{ .initial }}, map[string]string{
-				"label":       "URL Path",
-				"type":        "text",
-				"disabled":    "true",
-				"placeholder": "Will be set automatically",
-			}),
-		},
-		editor.Field{
 			View: editor.Input("Title", {{ .initial }}, map[string]string{
 				"label":       "{{ .name }} Title",
 				"type":        "text",
@@ -143,12 +134,6 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 			}, map[string]string{
 				"dark": "Dark",
 				"light": "Light",
-			}),
-		},
-		editor.Field{
-			View: editor.Input("Timestamp", {{ .initial }}, map[string]string{
-				"label": "Publish Date",
-				"type":  "date",
 			}),
 		},
 	)

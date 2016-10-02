@@ -16,7 +16,6 @@ type Post struct {
 	Author     string   `json:"author"`
 	Category   []string `json:"category"`
 	ThemeStyle string   `json:"theme"`
-	Timestamp  string   `json:"timestamp"`
 }
 
 func init() {
@@ -41,14 +40,6 @@ func (p *Post) Editor() *editor.Editor { return &p.editor }
 // MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
 func (p *Post) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form(p,
-		editor.Field{
-			View: editor.Input("Slug", p, map[string]string{
-				"label":       "URL Path",
-				"type":        "text",
-				"disabled":    "true",
-				"placeholder": "Will be set automatically",
-			}),
-		},
 		editor.Field{
 			View: editor.Input("Title", p, map[string]string{
 				"label":       "Post Title",
@@ -84,12 +75,6 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}, map[string]string{
 				"dark":  "Dark",
 				"light": "Light",
-			}),
-		},
-		editor.Field{
-			View: editor.Input("Timestamp", p, map[string]string{
-				"label": "Publish Date",
-				"type":  "date",
 			}),
 		},
 	)
