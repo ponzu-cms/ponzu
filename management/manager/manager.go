@@ -9,14 +9,12 @@ import (
 )
 
 const managerHTML = `
-<a href="/admin/edit?type={{.Kind}}" class="button">New {{.Kind}}</a>
-<div class="editor">
+<div class="card editor">
     <form method="post" action="/admin/edit">
-        {{ .Editor }}
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
-        <input type="submit" value="Save"/>
-    </form>
+		{{ .Editor }}
+	</form>
 </div>
 `
 
