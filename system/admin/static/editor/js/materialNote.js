@@ -4859,6 +4859,10 @@ var dom = (function() {
                 }
                 insideLastBlock = false;
             }
+            
+            if (level < 0) {
+              level = 0;
+            }
             chunk = new Array(level + 1).join('    ') + chunk.trim();
 
             //console.log(level);
