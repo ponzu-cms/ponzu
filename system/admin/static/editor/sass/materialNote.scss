@@ -1,0 +1,734 @@
+@import "components/color";
+@import "components/variables";
+
+/* variables 
+=================================================================================*/
+$toolbarColor: color("grey", "lighten-2") !default;
+$toolbarTextColor: color("grey", "darken-3") !default;
+
+$borderColor: color("grey", "base") !default;
+
+$firstButtonColor: color("grey", "lighten-2") !default;
+$firstButtonHoverColor: color("grey", "base") !default;
+$secondButtonColor: color("blue", "darken-4") !default;
+$secondButtonHoverColor: color("blue", "base") !default;
+$thirdButtonColor: color("red", "darken-4") !default;
+$thirdButtonHoverColor: color("blue", "base") !default;
+
+$firstFocusColor: color("blue", "base") !default;
+$secondFocusColor: color("grey", "base") !default;
+
+$selectionColor: color("grey", "darken-1") !default;
+
+$helpBackgroundColor: color("grey", "lighten-2") !default;
+
+// base unit for table dimension picker
+$gridUnit: 26px;
+
+
+.editorDialogs .modal, .note-editor .modal {
+    background-color: lighten($toolbarColor, 100%);
+    color: $toolbarTextColor;
+    z-index: 1057 !important;
+    backface-visibility: hidden;
+
+    .input-field input:not([readonly]), .input-field input.datepicker {
+        border-color: $toolbarTextColor !important;
+    }
+    .input-field input:focus:not([readonly]), .input-field input.datepicker:focus, textarea.materialize-textarea:focus:not([readonly]) {
+        box-shadow: 0 1px 0 0 $firstFocusColor !important;
+        border-color: $firstFocusColor !important;
+    }
+    label, .input-field input:not([readonly]) + label, .input-field input.datepicker + label, .input-field .prefix, .note-editor + label {
+        color: $toolbarTextColor !important;
+    }
+    .input-field input:focus:not([readonly]) + label, .input-field input.datepicker:focus + label, .input-field .prefix.active, textarea.materialize-textarea:focus:not([readonly]) + label {
+        color: $firstFocusColor !important;
+    }
+
+    .btn {
+        background-color: $secondButtonColor;
+        color: lighten($toolbarTextColor, 100%) !important;
+    }
+    .btn:hover {
+        background-color: lighten($secondButtonColor, 10%) !important;
+    }
+
+    .btn.disabled {
+        background-color: darken($secondButtonColor, 15%) !important;
+    }
+
+    .modal-footer {
+        background-color: darken($toolbarColor, 10%);
+
+        .btnClose {
+            margin-right: 15px;
+            background-color: $thirdButtonColor;
+        }
+
+        .btnClose:hover {
+            background-color: lighten($thirdButtonColor, 10%) !important;
+        }
+    }
+
+    .canvasContainerEmpty {
+        border: solid 5px $firstFocusColor;
+    }
+}
+
+//scrollbars
+.note-editor .note-editable, .editorDialogs .modal-content, .note-editor .note-color-palette, .note-editor .note-codable, .modal.modal-fixed-footer .modal-content {
+    &::-webkit-scrollbar {
+        width: 17px !important;
+    }
+    &::-webkit-scrollbar-track {
+        background-color: $toolbarColor !important;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: lighten($toolbarColor, 20%) !important;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: lighten($toolbarColor, 30%) !important;
+    }
+}
+
+.note-editor {
+    position: relative;
+    border: {
+        left: 1px solid $toolbarColor;
+        bottom: 1px solid $toolbarColor;
+        right: 1px solid $toolbarColor;
+    }
+
+    .img-circle {
+        border-radius: 50%;
+    }
+
+    .img-rounded {
+        border-radius: 5%;
+    }
+
+    .img-thumbnail {
+        border: solid 2px $toolbarColor;
+        height: 200px;
+    }
+
+    .img-bordered {
+        border: solid 5px $toolbarColor;
+    }
+
+    .btn:hover {
+        background-color: lighten($firstButtonColor, 10%) !important;
+    }
+
+    .btn.active {
+        background-color: $firstFocusColor;
+    }
+
+    .note-editable {
+        ul li {
+            list-style-type: square !important;
+            display: list-item;
+            list-style-position: inside;
+        }
+    }
+
+    .note-dialog {
+        & > div {
+            display: none
+        }
+        .form-group {
+            margin-right: 0;
+            margin-left: 0
+        }
+        .note-modal-form {
+            margin: 0
+        }
+        .note-image-dialog .note-dropzone {
+            min-height: 100px;
+            margin-bottom: 10px;
+            font-size: 30px;
+            line-height: 4;
+            color: lightgray;
+            text-align: center;
+            border: 4px dashed lightgray
+        }
+    }
+
+    .transparent {
+        opacity: 0;
+    }
+
+    .note-resizebar {
+        background-color: $toolbarColor;
+        width: 100%;
+        height: 13px;
+        cursor: ns-resize;
+        padding-top: 1px;
+
+        .note-icon-bar {
+            width: 20px;
+            margin: 2px auto;
+            border-top: 2px solid lighten($toolbarColor, 20%);
+        }
+    }
+    
+    .note-toolbar {
+        position: relative;
+        color: $toolbarTextColor;
+        background-color: $toolbarColor;
+        margin: 0;
+        z-index: 1052;
+
+        ul {
+            padding: 0;
+        }
+
+        .btn.disabled, button.disabled {
+            display: none;
+        }
+
+        .dropdown {
+            cursor: pointer;
+        }
+
+        .note-current-fontname {
+            min-width: 134px;
+            display: inline-block;
+            text-align: left;
+        }
+    }
+
+    .note-handle {
+        .note-control-selection {
+            position: absolute;
+            display: none;
+            border: 2px solid $firstButtonColor;
+
+            .note-control-selection-bg {
+                width: 100%;
+                height: 100%;
+                z-index: 3;
+                background-color: transparentize($selectionColor, 0.7);
+            }
+
+            & > div {
+                position: absolute
+            }
+            .note-control-handle {
+                width: 7px;
+                height: 7px;
+                border: 1px solid black;
+            }
+            .note-control-holder {
+                width: 7px;
+                height: 7px;
+                border: 1px solid black;
+            }
+            .note-control-sizing {
+                width: 15px;
+                height: 15px;
+                background-color: $firstButtonColor;
+                z-index: 5;
+                cursor: se-resize;
+            }
+            .note-control-nw {
+                top: -5px;
+                left: -5px;
+                border-right: 0;
+                border-bottom: 0;
+            }
+            .note-control-ne {
+                top: -5px;
+                right: -5px;
+                border-bottom: 0;
+                border-left: none;
+            }
+            .note-control-sw {
+                bottom: -5px;
+                left: -5px;
+                border-top: 0;
+                border-right: 0;
+            }
+            .note-control-se {
+                right: -5px;
+                bottom: -5px;
+            }
+            .note-control-selection-info {
+                right: 0;
+                bottom: 0;
+                padding: 5px;
+                margin: 17px;
+                font-size: 15px;
+                color: $toolbarTextColor;
+                background-color: $firstButtonColor;
+                z-index: 5;
+            }
+        }
+    }
+}
+
+.note-dialog .note-help-dialog {
+    color: $toolbarColor;
+
+    h4 {
+        color: $toolbarTextColor;
+    }
+
+    thead {
+        background-color: $firstFocusColor;
+    }
+
+    tbody {
+        background-color: $helpBackgroundColor;
+    }
+}
+
+.note-editor, .popover {
+    .btn-group {
+        display: inline-block;
+        margin-right: 10px;
+        position: relative;
+
+        ul {
+            padding: 0;
+        }
+
+        .closeLeft {
+            padding-right: 0 !important;
+            margin-right: 0 !important;
+
+            i {
+                margin-right: 0 !important;
+            }
+        }
+
+        i.left {
+            margin-right: 5px;
+        }
+    }
+
+    .note-toolbar .btn {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 9px !important;
+        background-color: $firstButtonColor;
+    }
+
+    .btnSecond {
+        background-color: $secondButtonColor !important;
+    }
+
+    .btnThird {
+        background-color: $thirdButtonColor !important;
+    }
+
+    note-toolbar button, button, .note-toolbar .btn  {
+        background-color: $firstButtonColor;
+        border: none;
+        height: 36px;
+        text-transform: uppercase;
+        color: $toolbarTextColor !important;
+    }
+
+    [type="checkbox"]:checked + label:before, [type="checkbox"]:checked + label:before {
+        border-right-color: $secondButtonColor !important;
+        border-bottom-color: $secondButtonColor !important;
+    }
+
+    .note-palette-title {
+        padding: 0 !important;
+    }
+
+    .colorName {
+        display: inline-block;
+        color: $toolbarTextColor;
+
+        @media #{$small-and-down} {
+            display: none;
+        }
+    }
+
+    .note-color-palette {
+        line-height: 10px;
+        border: solid 3px $toolbarColor;
+        padding: 0 !important;
+        overflow-x: scroll;
+        overflow-y: hidden;
+
+        .note-color-row {
+            padding: 0 !important;
+            min-width: 300px;
+        }
+
+        button.note-color-btn {
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .note-color-btn:hover {
+            &:after {
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                content: "";
+                background-color: inherit;
+                margin-top: -15px;
+                margin-left: -15px;
+            }
+        }
+    }
+
+    .note-dimension-picker {
+        overflow: hidden;
+    }
+
+    .largeDropdown {
+        width: 290px;
+    }
+
+    .dropdown-menu {
+        z-index: 1033;
+
+        &.note-check {
+            min-width: 80px;
+        }
+
+        label {
+            color: $toolbarTextColor !important;
+        }
+    }
+
+    ul.dropdown-menu {
+        position: absolute;
+        top: 20px;
+        background-color: lighten($toolbarColor, 10%);
+        border: {
+            left: 3px solid $toolbarColor;
+            bottom: 3px solid $toolbarColor;
+            right: 3px solid $toolbarColor;
+        }
+
+        &#colors {
+            width: 342px;
+
+            .indicator {
+                width: 50%;
+                left: 0;
+            }
+        }
+        
+        .colorTable {
+            padding: 3px 0;
+        }
+
+        .tabs {
+            background-color: $toolbarColor;
+            
+            &:hover {
+                background-color: $toolbarColor;
+            }
+
+            .tab a, .tab a:hover {
+                color: $secondFocusColor;
+            }
+
+            .indicator {
+                background-color: $secondFocusColor;
+            }
+        }
+
+        li {
+            list-style-type: none;
+            padding: 0 !important;
+
+            div {
+                padding: 3px 15px;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.note-popover .popover {
+    position: absolute;
+    max-width: none;
+    color: $toolbarTextColor;
+
+    .arrow {
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 10px 10px 10px;
+        border-color: transparent transparent $firstButtonColor transparent;
+    }
+
+    .popover-content {
+        background-color: $firstButtonColor;
+
+        & > a {
+            margin-left: 12px;
+        }
+
+        a {
+            display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle
+        }
+
+        .arrow {
+            left: 20px
+        }
+
+        .btn-group {
+            display: inline-block;
+
+            .btn {
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 0 9px !important;
+                background-color: $firstButtonColor;
+                color: $toolbarTextColor !important;
+            }
+        }
+    }
+}
+
+.note-popover .popover .popover-content .note-para .dropdown-menu, .note-toolbar .note-para .dropdown-menu {
+    min-width: 172px;
+    padding: 5px
+}
+.note-popover .popover .popover-content .note-para .dropdown-menu > div:first-child, .note-toolbar .note-para .dropdown-menu > div:first-child {
+    margin-right: 5px
+}
+
+
+
+
+
+
+
+// the following is unchanged from original summernote css
+.note-editor .note-dropzone {
+    position: absolute;
+    z-index: 100;
+    display: none;
+    color: #87cefa;
+    background-color: white;
+    border: 2px dashed #87cefa;
+    opacity: .95;
+    pointer-event: none
+}
+.note-editor .note-dropzone .note-dropzone-message {
+    display: table-cell;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle
+}
+.note-editor .note-dropzone.hover {
+    color: #098ddf;
+    border: 2px dashed #098ddf
+}
+.note-editor.dragover .note-dropzone {
+    display: table
+}
+
+.note-editor.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2021;
+    width: 100%
+}
+.note-editor.fullscreen .note-editable {
+    background-color: white
+}
+.note-editor.fullscreen .note-resizebar {
+    display: none
+}
+.note-editor.codeview .note-editable {
+    display: none
+}
+.note-editor.codeview .note-codable {
+    display: block
+}
+.note-editor .note-statusbar {
+    background-color: #f5f5f5
+}
+.note-editor .note-editable[contenteditable=true]:empty:not(:focus):before {
+    color: #a9a9a9;
+    content: attr(data-placeholder)
+}
+.note-editor .note-editable {
+    padding: 10px;
+    overflow: auto;
+    outline: 0
+}
+.note-editor .note-editable[contenteditable="false"] {
+    background-color: #e5e5e5
+}
+.note-editor .note-codable {
+    display: none;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 0;
+    font-family: Menlo, Monaco, monospace, sans-serif;
+    font-size: 14px;
+    color: #ccc;
+    background-color: #222;
+    border: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    box-shadow: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    resize: none
+}
+.note-air-editor {
+    outline: 0
+}
+
+.note-popover .popover .popover-content,
+.note-toolbar {
+    padding: 0;
+    margin: 0
+}
+.note-popover .popover .popover-content > .btn-group,
+.note-toolbar > .btn-group {
+    margin-top: 0;
+    margin-right: 5px;
+    margin-left: 0
+}
+.note-popover .popover .popover-content .btn-group .note-table,
+.note-toolbar .btn-group .note-table {
+    min-width: 0;
+    padding: 5px
+}
+.note-popover .popover .popover-content .btn-group .note-table .note-dimension-picker,
+.note-toolbar .btn-group .note-table .note-dimension-picker {
+    font-size: 18px
+}
+.note-popover .popover .popover-content .btn-group .note-table .note-dimension-picker .note-dimension-picker-mousecatcher,
+.note-toolbar .btn-group .note-table .note-dimension-picker .note-dimension-picker-mousecatcher {
+    position: absolute!important;
+    z-index: 3;
+    width: $gridUnit * 10;
+    height:$gridUnit * 10;
+    cursor: pointer
+}
+.note-popover .popover .popover-content .btn-group .note-table .note-dimension-picker .note-dimension-picker-unhighlighted,
+.note-toolbar .btn-group .note-table .note-dimension-picker .note-dimension-picker-unhighlighted {
+    position: relative !important;
+    z-index: 1;
+    width: $gridUnit * 12;
+    height: $gridUnit * 5;
+    background-size: 26px 26px;    
+    background-image:repeating-linear-gradient(0deg, #3b3b3b, #3b3b3b 4px, transparent 4px, transparent 26px), 
+        repeating-linear-gradient(-90deg, transparent, transparent 4px, #fff 4px, #fff 26px);
+}
+.note-popover .popover .popover-content .btn-group .note-table .note-dimension-picker .note-dimension-picker-highlighted,
+.note-toolbar .btn-group .note-table .note-dimension-picker .note-dimension-picker-highlighted {
+    position: absolute !important;
+    z-index: 2;
+    width: $gridUnit;
+    height: $gridUnit;
+    background-size: 26px 26px;    
+    background-image:repeating-linear-gradient(0deg, #3b3b3b, #3b3b3b 4px, transparent 4px, transparent 26px), 
+        repeating-linear-gradient(-90deg, transparent, transparent 4px, $firstFocusColor 4px, $firstFocusColor 26px);
+}
+
+.note-popover .popover .popover-content .note-style h1,
+.note-toolbar .note-style h1,
+.note-popover .popover .popover-content .note-style h2,
+.note-toolbar .note-style h2,
+.note-popover .popover .popover-content .note-style h3,
+.note-toolbar .note-style h3,
+.note-popover .popover .popover-content .note-style h4,
+.note-toolbar .note-style h4,
+.note-popover .popover .popover-content .note-style h5,
+.note-toolbar .note-style h5,
+.note-popover .popover .popover-content .note-style h6,
+.note-toolbar .note-style h6,
+.note-popover .popover .popover-content .note-style blockquote,
+.note-toolbar .note-style blockquote {
+    margin: 0
+}
+.note-popover .popover .popover-content .note-color .dropdown-toggle,
+.note-toolbar .note-color .dropdown-toggle {
+    width: 20px;
+    padding-left: 5px
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group,
+.note-toolbar .note-color .dropdown-menu .btn-group {
+    margin: 0
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group:first-child,
+.note-toolbar .note-color .dropdown-menu .btn-group:first-child {
+    margin: 0 5px
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group .note-palette-title,
+.note-toolbar .note-color .dropdown-menu .btn-group .note-palette-title {
+    margin: 2px 7px;
+    font-size: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group .note-color-reset,
+.note-toolbar .note-color .dropdown-menu .btn-group .note-color-reset {
+    padding: 0 3px;
+    margin: 3px;
+    font-size: 11px;
+    cursor: pointer;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group .note-color-row,
+.note-toolbar .note-color .dropdown-menu .btn-group .note-color-row {
+    height: 20px
+}
+.note-popover .popover .popover-content .note-color .dropdown-menu .btn-group .note-color-reset:hover,
+.note-toolbar .note-color .dropdown-menu .btn-group .note-color-reset:hover {
+    background: #eee
+}
+/*.note-popover .popover .popover-content .dropdown-menu,
+.note-toolbar .dropdown-menu {
+    min-width: 90px
+}*/
+.note-popover .popover .popover-content .dropdown-menu.right,
+.note-toolbar .dropdown-menu.right {
+    right: 0;
+    left: auto
+}
+.note-popover .popover .popover-content .dropdown-menu.right::before,
+.note-toolbar .dropdown-menu.right::before {
+    right: 9px;
+    left: auto!important
+}
+.note-popover .popover .popover-content .dropdown-menu.right::after,
+.note-toolbar .dropdown-menu.right::after {
+    right: 10px;
+    left: auto!important
+}
+.note-popover .popover .popover-content .dropdown-menu.note-check li a i,
+.note-toolbar .dropdown-menu.note-check li a i {
+    color: deepskyblue;
+    visibility: hidden
+}
+.note-popover .popover .popover-content .dropdown-menu.note-check li a.checked i,
+.note-toolbar .dropdown-menu.note-check li a.checked i {
+    visibility: visible
+}
+.note-popover .popover .popover-content .note-fontsize-10,
+.note-toolbar .note-fontsize-10 {
+    font-size: 10px
+}

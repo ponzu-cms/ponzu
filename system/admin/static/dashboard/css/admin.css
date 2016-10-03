@@ -1,5 +1,9 @@
 .body {}
 
+.navbar-fixed {
+    z-index: 10000 !important;
+}
+
 .nav-wrapper {
     width: 95%;
     max-width: 1300px;
@@ -36,4 +40,31 @@ textarea {
 
 .clear.padding {
     padding: 10px 0;
+}
+
+select.browser-default {
+    margin: 10px 0;
+}
+
+.iso-texteditor {
+    position: relative;
+    margin: 20px 0;
+}
+
+/* OVERRIDE Bootstrap + Materialize conflicts */
+.iso-texteditor.input-field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 0.8rem;
+    left: 0.75rem;
+    font-size: 0.8rem;
+    display: block;
+    font-weight: normal !important;
+    cursor: text;
+    transition: .2s ease-out;
+    -webkit-transform: translateY(-140%);
+    -moz-transform: translateY(-140%);
+    -ms-transform: translateY(-140%);
+    -o-transform: translateY(-140%);
+    transform: translateY(-140%);
 }

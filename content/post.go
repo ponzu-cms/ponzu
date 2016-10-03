@@ -48,7 +48,7 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Textarea("Content", p, map[string]string{
+			View: editor.Richtext("Content", p, map[string]string{
 				"label":       "Content",
 				"placeholder": "Add the content of your post here",
 			}),

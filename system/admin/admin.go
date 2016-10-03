@@ -10,14 +10,23 @@ import (
 )
 
 const adminHTML = `<!doctype html>
-<html>
+<html lang="en">
     <head>
         <title>CMS</title>
-        <script type="text/javascript" src="/admin/static/common/js/jquery-1.11.3.min.js"></script>      
-        <link rel="stylesheet" href="/admin/static/dashboard/css/material-icons.css" />          
+        <script type="text/javascript" src="/admin/static/common/js/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="/admin/static/common/js/underscore.js"></script>
+        <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
+        <script type="text/javascript" src="/admin/static/editor/js/materialNote.js"></script> 
+        <script type="text/javascript" src="/admin/static/editor/js/ckMaterializeOverrides.js"></script>
+                  
+        <link rel="stylesheet" href="/admin/static/dashboard/css/material-icons.css" />     
         <link rel="stylesheet" href="/admin/static/dashboard/css/materialize.min.css" />
-        <link rel="stylesheet" href="/admin/static/dashboard/css/admin.css" />
+        <link rel="stylesheet" href="/admin/static/editor/css/materialNote.css" />
+        <link rel="stylesheet" href="/admin/static/dashboard/css/admin.css" />    
+
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
     </head>
     <body class="grey lighten-4">
        <div class="navbar-fixed">
@@ -58,7 +67,6 @@ const adminHTML = `<!doctype html>
             </div>
             {{ end }}
         </div>
-        <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
     </body>
 </html>`
 

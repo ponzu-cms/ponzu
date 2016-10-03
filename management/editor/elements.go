@@ -36,6 +36,74 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 	return domElement(e)
 }
 
+// Richtext returns the []byte of a rich text editor (provided by http://summernote.org/) with a label.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
+	// create wrapper for richtext editor, which isolates the editor's css
+	iso := []byte(`<div class="iso-texteditor input-field col s12"><label>` + attrs["label"] + `</label>`)
+	isoClose := []byte(`</div>`)
+
+	// create the target element for the editor to attach itself
+	attrs["class"] = "richtext " + fieldName
+	attrs["id"] = "richtext-" + fieldName
+	div := &element{
+		TagName: "div",
+		Attrs:   attrs,
+		Name:    "",
+		label:   "",
+		data:    "",
+		viewBuf: &bytes.Buffer{},
+	}
+
+	// create a hidden input to store the value from the struct
+	val := valueFromStructField(fieldName, p).String()
+	name := tagNameFromStructField(fieldName, p)
+	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + val + `"/>`
+
+	// build the dom tree for the entire richtext component
+	iso = append(iso, domElement(div)...)
+	iso = append(iso, []byte(input)...)
+	iso = append(iso, isoClose...)
+
+	initializer := `
+	<script>
+		$(function() { 
+			var _editor = $('.richtext.` + fieldName + `');
+			var hidden = $('.richtext-value.` + fieldName + `');
+
+			_editor.materialnote({
+				height: 250,
+				placeholder: '` + attrs["placeholder"] + `',
+				toolbar: [
+					['style', ['bold', 'italic', 'underline', 'clear']],
+					['font', ['strikethrough', 'superscript', 'subscript']],
+					['fontsize', ['fontsize']],
+					['color', ['color']],
+					['insert', ['link', 'picture', 'video', 'hr']],					
+					['para', ['ul', 'ol', 'paragraph']],
+					['height', ['height']],
+					['misc', ['codeview']]
+				]
+			});
+
+			// update hidden input with escaped value 
+			_editor.on('materialnote.change', function(e, content, $editable) {
+				hidden.val(_.escape(content));			
+			})
+
+			// insert existing value into text editor
+			_editor.code(_.unescape(hidden.val()));
+
+			// bit of a hack to stop the editor buttons from causing a refresh when clicked 
+			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); })
+		});
+	</script>`
+
+	return append(iso, []byte(initializer)...)
+}
+
 // Select returns the []byte of a <select> HTML element plus internal <options> with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
