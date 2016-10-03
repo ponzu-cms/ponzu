@@ -15,6 +15,13 @@ const managerHTML = `
 		<input type="hidden" name="type" value="{{.Kind}}"/>
 		{{ .Editor }}
 	</form>
+	<script>
+		// remove all bad chars from all inputs in the form
+		$('form input, form textarea').on('blur', function(e) {
+			var val = e.target.value;
+			e.target.value = replaceBadChars(val);
+		});
+	</script>
 </div>
 `
 

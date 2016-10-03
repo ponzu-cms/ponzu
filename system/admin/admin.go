@@ -14,7 +14,8 @@ const adminHTML = `<!doctype html>
     <head>
         <title>CMS</title>
         <script type="text/javascript" src="/admin/static/common/js/jquery-2.1.4.min.js"></script>
-        <script type="text/javascript" src="/admin/static/common/js/underscore.js"></script>
+        <script type="text/javascript" src="/admin/static/common/js/base64.min.js"></script>
+        <script type="text/javascript" src="/admin/static/common/js/util.js"></script>
         <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
         <script type="text/javascript" src="/admin/static/editor/js/materialNote.js"></script> 
         <script type="text/javascript" src="/admin/static/editor/js/ckMaterializeOverrides.js"></script>

@@ -96,21 +96,25 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 				]
 			});
 
-			// initialize hidden input with escaped value 
-			_editor.on('materialnote.init', function() {
-				hidden.val(_.escape(hidden.val()));			
-			})
+			// inject content into editor
+			if (hidden.val() !== "") {
+				console.log('content injected');
+				_editor.code(Base64.decode(hidden.val()));
+			}
 
-			// update hidden input with escaped value 
+			// update hidden input with encoded value on different events
 			_editor.on('materialnote.change', function(e, content, $editable) {
-				hidden.val(_.escape(content));			
-			})
+				console.log('content changed');
+				hidden.val(Base64.encode(replaceBadChars(content)));			
+			});
 
-			// insert existing value into text editor
-			_editor.code(_.unescape(hidden.val()));
+			_editor.on('materialnote.paste', function(e) {
+				console.log('content pasted');
+				hidden.val(Base64.encode(replaceBadChars(_editor.code())));			
+			});
 
 			// bit of a hack to stop the editor buttons from causing a refresh when clicked 
-			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); })
+			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); });
 		});
 	</script>`
 
