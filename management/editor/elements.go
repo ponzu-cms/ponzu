@@ -36,6 +36,14 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 	return domElement(e)
 }
 
+// File returns the []byte of a <input type="file"> HTML element with a label.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+func File(fieldName string, p interface{}, attrs map[string]string) []byte {
+	return nil
+}
+
 // Richtext returns the []byte of a rich text editor (provided by http://summernote.org/) with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
@@ -87,6 +95,11 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 					['misc', ['codeview']]
 				]
 			});
+
+			// initialize hidden input with escaped value 
+			_editor.on('materialnote.init', function() {
+				hidden.val(_.escape(hidden.val()));			
+			})
 
 			// update hidden input with escaped value 
 			_editor.on('materialnote.change', function(e, content, $editable) {
