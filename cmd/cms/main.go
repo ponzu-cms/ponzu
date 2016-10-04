@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 
 	"github.com/nilslice/cms/system/admin"
@@ -99,9 +101,9 @@ func main() {
 		}
 	case "serve", "s":
 		db.Init()
-		go admin.Run("8080")
-		api.Run("8000")
-
+		admin.Run()
+		api.Run()
+		log.Fatal(http.ListenAndServe(":8080", nil))
 	case "":
 		flag.PrintDefaults()
 	default:
