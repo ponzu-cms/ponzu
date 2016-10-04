@@ -196,9 +196,9 @@ func createProjInDir(path string) error {
 	gopath = gopath[:len(gopath)-1]
 	gopath = filepath.Join(gopath, "src")
 
-	repo := "github.com/nilslice/cms"
-	local := filepath.Join(gopath, repo)
-	network := "https://" + repo + ".git"
+	repo := []string{"github.com", "nilslice", "cms"}
+	local := filepath.Join(gopath, filepath.Join(repo...))
+	network := "https://" + strings.Join(repo, "/") + ".git"
 
 	// create the directory or overwrite it
 	err = os.MkdirAll(path, os.ModeDir|os.ModePerm)

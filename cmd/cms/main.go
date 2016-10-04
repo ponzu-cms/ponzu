@@ -41,22 +41,29 @@ generate, gen, g <type>:
 
 
 
-serve, s <service:port:tls>:
+serve, s <service> <port> <tls>:
 
 	Starts the 'cms' HTTP server for the JSON API, Admin System, or both.
 	Must be given at least one (1) parameter. The segments describe 
-	which services to start, in order, either 'admin' 
-	(Admin System / CMS backend) or 'api' (JSON API), the port to which the 
-	service is bound, and, optionally, if the server(s) should utilize TLS
-	encryption (served over HTTPS), which is automatically managed using 
-	Let's Encrypt (https://letsencrypt.org) 
+	which services to start, either 'admin' (Admin System / CMS 
+	backend) or 'api' (JSON API), and, optionally, if the server(s) should 
+	utilize TLS encryption (served over HTTPS), which is automatically managed 
+	using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
-	$ cms serve admin:8080:tls api:8000
+	$ cms serve admin|api 8080 tls
 	(or) 
-	$ cms serve admin:8080
+	$ cms serve admin
 	(or)
-	$ cms serve api:8000:tls
+	$ cms serve api 8888
+
+	Defaults to 'admin|api 8080' (running Admin & API on port 8080, without TLS)
+
+	Note: 
+	Admin and API cannot run on separate processes unless you use a copy of the
+	database, since the first process to open it recieves a lock. If you intend
+	to run the Admin and API on separate processes, you must call them with the
+	'cms' command independently.
 `
 
 func init() {
