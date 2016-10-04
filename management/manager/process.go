@@ -58,8 +58,11 @@ func stringToSlug(s string) (string, error) {
 	rx = regexp.MustCompile("`[-]+`")
 	src = rx.ReplaceAll(src, []byte("-"))
 
+	str := strings.Replace(string(src), "'", "", -1)
+	str = strings.Replace(str, `"`, "", -1)
+
 	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	slug, _, err := transform.String(t, string(src))
+	slug, _, err := transform.String(t, str)
 	if err != nil {
 		return "", err
 	}
