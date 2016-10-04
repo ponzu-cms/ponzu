@@ -10,14 +10,14 @@ import (
 
 const managerHTML = `
 <div class="card editor">
-    <form method="post" action="/admin/edit">
+    <form method="post" action="/admin/edit" enctype="multipart/form-data">
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
 		{{ .Editor }}
 	</form>
 	<script>
-		// remove all bad chars from all inputs in the form
-		$('form input, form textarea').on('blur', function(e) {
+		// remove all bad chars from all inputs in the form, except file fields
+		$('form input:not([type=file]), form textarea').on('blur', function(e) {
 			var val = e.target.value;
 			e.target.value = replaceBadChars(val);
 		});

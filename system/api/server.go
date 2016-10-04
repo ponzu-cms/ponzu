@@ -10,7 +10,8 @@ import (
 	"github.com/nilslice/cms/system/db"
 )
 
-func init() {
+// Run adds Handlers to default http listener for API
+func Run() {
 	http.HandleFunc("/api/types", func(res http.ResponseWriter, req *http.Request) {
 		var types = []string{}
 		for t := range content.Types {
@@ -127,9 +128,4 @@ func wrapJSON(json []byte) []byte {
 	buf.Write([]byte("}"))
 
 	return buf.Bytes()
-}
-
-// Run start the JSON API
-func Run(port string) {
-	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

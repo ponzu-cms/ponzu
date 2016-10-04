@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/management/editor"
@@ -16,7 +19,8 @@ import (
 	"github.com/nilslice/cms/system/db"
 )
 
-func init() {
+// Run adds Handlers to default http listener for Admin
+func Run() {
 	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
 		adminView, err := Admin(nil)
 		if err != nil {
@@ -31,12 +35,18 @@ func init() {
 
 	http.HandleFunc("/admin/static/", func(res http.ResponseWriter, req *http.Request) {
 		path := req.URL.Path
+		pathParts := strings.Split(path, "/")[1:]
 		pwd, err := os.Getwd()
 		if err != nil {
 			log.Fatal("Coudln't get current directory to set static asset source.")
 		}
 
-		http.ServeFile(res, req, filepath.Join(pwd, "system", path))
+		filePathParts := make([]string, len(pathParts)+2, len(pathParts)+2)
+		filePathParts = append(filePathParts, pwd)
+		filePathParts = append(filePathParts, "system")
+		filePathParts = append(filePathParts, pathParts...)
+
+		http.ServeFile(res, req, filepath.Join(filePathParts...))
 	})
 
 	http.HandleFunc("/admin/configure", func(res http.ResponseWriter, req *http.Request) {
@@ -141,7 +151,7 @@ func init() {
 			res.Write(adminView)
 
 		case http.MethodPost:
-			err := req.ParseForm()
+			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
 				fmt.Println(err)
 				res.WriteHeader(http.StatusBadRequest)
@@ -150,6 +160,34 @@ func init() {
 
 			cid := req.FormValue("id")
 			t := req.FormValue("type")
+			ts := req.FormValue("timestamp")
+
+			// create a timestamp if one was not set
+			date := make(map[string]int)
+			if ts == "" {
+				now := time.Now()
+				date["year"] = now.Year()
+				date["month"] = int(now.Month())
+				date["day"] = now.Day()
+
+				// create timestamp format 'yyyy-mm-dd' and set in PostForm for
+				// db insertion
+				ts = fmt.Sprintf("%d-%02d-%02d", date["year"], date["month"], date["day"])
+				req.PostForm.Set("timestamp", ts)
+			}
+
+			urlPaths, err := storeFileUploads(req)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			for name, urlPath := range urlPaths {
+				req.PostForm.Add(name, urlPath)
+			}
+
+			fmt.Println(req.PostForm)
 
 			// check for any multi-value fields (ex. checkbox fields)
 			// and correctly format for db storage. Essentially, we need
@@ -187,9 +225,142 @@ func init() {
 			http.Redirect(res, req, desURL, http.StatusFound)
 		}
 	})
+
+	http.HandleFunc("/admin/edit/upload", func(res http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		urlPaths, err := storeFileUploads(req)
+		if err != nil {
+			fmt.Println("Couldn't store file uploads.", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write([]byte(`{"data": [{"url": "` + urlPaths["file"] + `"}]}`))
+	})
+
+	// API path needs to be registered within server package so that it is handled
+	// even if the API server is not running. Otherwise, images/files uploaded
+	// through the editor will not load within the admin system.
+	http.HandleFunc("/api/uploads/", func(res http.ResponseWriter, req *http.Request) {
+		path := req.URL.Path
+		pathParts := strings.Split(path, "/")[2:]
+
+		pwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal("Coudln't get current directory to set static asset source.")
+		}
+
+		filePathParts := make([]string, len(pathParts)+1, len(pathParts)+1)
+		filePathParts = append(filePathParts, pwd)
+		filePathParts = append(filePathParts, pathParts...)
+
+		http.ServeFile(res, req, filepath.Join(filePathParts...))
+	})
 }
 
-// Run starts the Admin system on the port provided
-func Run(port string) {
-	http.ListenAndServe(":"+port, nil)
+func storeFileUploads(req *http.Request) (map[string]string, error) {
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+
+	ts := req.FormValue("timestamp")
+
+	// To use for FormValue name:urlPath
+	urlPaths := make(map[string]string)
+
+	// get ts values individually to use as directory names when storing
+	// uploaded images
+	date := make(map[string]int)
+	if ts == "" {
+		now := time.Now()
+		date["year"] = now.Year()
+		date["month"] = int(now.Month())
+		date["day"] = now.Day()
+
+		// create timestamp format 'yyyy-mm-dd' and set in PostForm for
+		// db insertion
+		ts = fmt.Sprintf("%d-%02d-%02d", date["year"], date["month"], date["day"])
+		req.PostForm.Set("timestamp", ts)
+	} else {
+		tsParts := strings.Split(ts, "-")
+		year, err := strconv.Atoi(tsParts[0])
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+
+		month, err := strconv.Atoi(tsParts[1])
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+
+		day, err := strconv.Atoi(tsParts[2])
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+
+		date["year"] = year
+		date["month"] = month
+		date["day"] = day
+	}
+
+	// get or create upload directory to save files from request
+	pwd, err := os.Getwd()
+	if err != nil {
+		err := fmt.Errorf("Failed to locate current directory: %s", err)
+		return nil, err
+	}
+
+	tsParts := strings.Split(ts, "-")
+	urlPathPrefix := "api"
+	uploadDirName := "uploads"
+
+	uploadDir := filepath.Join(pwd, uploadDirName, tsParts[0], tsParts[1])
+	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
+
+	// loop over all files and save them to disk
+	for name, fds := range req.MultipartForm.File {
+		filename := fds[0].Filename
+		src, err := fds[0].Open()
+		if err != nil {
+			err := fmt.Errorf("Couldn't open uploaded file: %s", err)
+			return nil, err
+
+		}
+		defer src.Close()
+
+		// check if file at path exists, if so, add timestamp to file
+		absPath := filepath.Join(uploadDir, filename)
+
+		if _, err := os.Stat(absPath); !os.IsNotExist(err) {
+			fmt.Println(err, "file at", absPath, "exists")
+			filename = fmt.Sprintf("%d-%s", time.Now().Unix(), filename)
+			absPath = filepath.Join(uploadDir, filename)
+		}
+
+		// save to disk (TODO: or check if S3 credentials exist, & save to cloud)
+		dst, err := os.Create(absPath)
+		if err != nil {
+			err := fmt.Errorf("Failed to create destination file for upload: %s", err)
+			return nil, err
+		}
+
+		// copy file from src to dst on disk
+		if _, err = io.Copy(dst, src); err != nil {
+			err := fmt.Errorf("Failed to copy uploaded file to destination: %s", err)
+			return nil, err
+		}
+
+		// add name:urlPath to req.PostForm to be inserted into db
+		urlPath := fmt.Sprintf("/%s/%s/%s/%s/%s", urlPathPrefix, uploadDirName, tsParts[0], tsParts[1], filename)
+
+		urlPaths[name] = urlPath
+	}
+
+	return urlPaths, nil
 }

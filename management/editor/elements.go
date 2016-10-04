@@ -3,6 +3,7 @@ package editor
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"reflect"
 	"strings"
 )
@@ -68,7 +69,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	// create a hidden input to store the value from the struct
 	val := valueFromStructField(fieldName, p).String()
 	name := tagNameFromStructField(fieldName, p)
-	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + val + `"/>`
+	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val) + `"/>`
 
 	// build the dom tree for the entire richtext component
 	iso = append(iso, domElement(div)...)
@@ -93,25 +94,48 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 					['para', ['ul', 'ol', 'paragraph']],
 					['height', ['height']],
 					['misc', ['codeview']]
-				]
+				],
+				// intercept file insertion, upload and insert img with new src
+				onImageUpload: function(files) {
+					var data = new FormData();
+					data.append("file", files[0]);
+					$.ajax({
+						data: data,
+						type: 'POST',
+						url: '/admin/edit/upload',
+						cache: false,
+						contentType: false,
+						processData: false,
+						success: function(resp) {
+							console.log(resp);
+							var img = document.createElement('img');
+							img.setAttribute('src', resp.data[0].url);
+							console.log(img);
+							_editor.materialnote('insertNode', img);
+						},
+						error: function(xhr, status, err) {
+							console.log(status, err);
+						}
+					})
+
+				}
 			});
 
 			// inject content into editor
 			if (hidden.val() !== "") {
-				console.log('content injected');
-				_editor.code(Base64.decode(hidden.val()));
+				_editor.code(hidden.val());
 			}
 
 			// update hidden input with encoded value on different events
 			_editor.on('materialnote.change', function(e, content, $editable) {
-				console.log('content changed');
-				hidden.val(Base64.encode(replaceBadChars(content)));			
+				hidden.val(replaceBadChars(content));			
 			});
 
 			_editor.on('materialnote.paste', function(e) {
-				console.log('content pasted');
-				hidden.val(Base64.encode(replaceBadChars(_editor.code())));			
+				hidden.val(replaceBadChars(_editor.code()));			
 			});
+
+			window._editor = _editor;
 
 			// bit of a hack to stop the editor buttons from causing a refresh when clicked 
 			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); });
@@ -230,7 +254,7 @@ func domElementSelfClose(e *element) []byte {
 		e.viewBuf.Write([]byte(`<label class="active" for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
 	}
 	e.viewBuf.Write([]byte(`<` + e.TagName + ` value="`))
-	e.viewBuf.Write([]byte(e.data + `" `))
+	e.viewBuf.Write([]byte(html.EscapeString(e.data) + `" `))
 
 	for attr, value := range e.Attrs {
 		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
@@ -275,7 +299,7 @@ func domElement(e *element) []byte {
 	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
 	e.viewBuf.Write([]byte(` >`))
 
-	e.viewBuf.Write([]byte(e.data))
+	e.viewBuf.Write([]byte(html.EscapeString(e.data)))
 	e.viewBuf.Write([]byte(`</` + e.TagName + `>`))
 
 	e.viewBuf.Write([]byte(`</div>`))
