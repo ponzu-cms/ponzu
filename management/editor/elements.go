@@ -135,8 +135,6 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 				hidden.val(replaceBadChars(_editor.code()));			
 			});
 
-			window._editor = _editor;
-
 			// bit of a hack to stop the editor buttons from causing a refresh when clicked 
 			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); });
 		});
