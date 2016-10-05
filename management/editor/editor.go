@@ -47,7 +47,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 	submit := `
 <div class="input-field">
-	<input class="right waves-effect waves-light btn green" type="submit" value="Save"/>
+	<button class="right waves-effect waves-light btn green" type="submit">Save</button>
 </div>
 `
 	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
