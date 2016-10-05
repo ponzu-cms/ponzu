@@ -42,7 +42,73 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func File(fieldName string, p interface{}, attrs map[string]string) []byte {
-	return nil
+	name := tagNameFromStructField(fieldName, p)
+	tmpl :=
+		`<div class="file-input ` + name + ` input-field col s12">
+			<label class="active">` + attrs["label"] + `</label>
+			<div class="file-field input-field">
+				<div class="btn">
+					<span>Upload</span>
+					<input class="upload" type="file">
+				</div>
+				<div class="file-path-wrapper">
+					<input class="file-path validate" type="text">
+				</div>
+			</div>
+			<div class="preview"><div class="img-clip"></div></div>			
+			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + valueFromStructField(fieldName, p).String() + `" />
+		</div>`
+
+	script :=
+		`<script>
+			$(function() {
+				var $file = $('.file-input.` + name + `'),
+					upload = $file.find('input.upload'),
+					store = $file.find('input.store'),
+					preview = $file.find('.preview'),
+					clip = preview.find('.img-clip'),
+					reset = document.createElement('div'),
+					img = document.createElement('img'),
+					uploadSrc = store.val();
+					preview.hide();
+				
+				// when ` + name + ` input changes (file is selected), remove
+				// the 'name' and 'value' attrs from the hidden store input.
+				// add the 'name' attr to ` + name + ` input
+				upload.on('change', function(e) {
+					resetImage();
+				});
+
+				if (uploadSrc.length > 0) {
+					$(img).attr('src', store.val());
+					clip.append(img);
+					preview.show();
+
+					$(reset).addClass('reset ` + name + ` btn waves-effect waves-light grey');
+					$(reset).html('<i class="material-icons tiny">clear<i>');
+					$(reset).on('click', function(e) {
+						e.preventDefault();
+						preview.animate({"opacity": 0.1}, 200, function() {
+							preview.slideUp(250, function() {
+								resetImage();
+							});
+						})
+						
+					});
+					clip.append(reset);
+				}
+
+				function resetImage() {
+					store.val('');
+					store.attr('name', '');
+					upload.attr('name', '` + name + `');
+					clip.empty();
+					console.log('clicked');
+				}
+			});	
+		</script>`
+
+	return []byte(tmpl + script)
 }
 
 // Richtext returns the []byte of a rich text editor (provided by http://summernote.org/) with a label.
@@ -76,7 +142,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	iso = append(iso, []byte(input)...)
 	iso = append(iso, isoClose...)
 
-	initializer := `
+	script := `
 	<script>
 		$(function() { 
 			var _editor = $('.richtext.` + fieldName + `');
@@ -140,7 +206,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 		});
 	</script>`
 
-	return append(iso, []byte(initializer)...)
+	return append(iso, []byte(script)...)
 }
 
 // Select returns the []byte of a <select> HTML element plus internal <options> with a label.

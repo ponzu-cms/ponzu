@@ -1,5 +1,3 @@
-.body {}
-
 .navbar-fixed {
     z-index: 10000 !important;
 }
@@ -49,7 +47,46 @@ select.browser-default {
 .iso-texteditor {
     position: relative;
     margin: 20px 0;
+    padding: 0px !important;
 }
+
+.file-input .preview {
+    display: inline-block;
+    position: relative;
+    margin: 0.5rem 0 1rem 0;        
+    background-color:#fff; 
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;   
+}
+
+.file-input .preview .img-clip {
+    overflow: hidden;
+    max-width: 150px;
+    max-height: 150px;   
+    margin: 10px;    
+}
+
+.file-input .preview img {
+    width: 100%;
+}
+
+.file-input .preview .reset {
+    padding: 0 8px;
+    position: absolute;
+    top: -5%;
+    right: -5%;
+    display: block;
+    border-radius: 50%;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.file-input .preview:hover .reset {
+    opacity: 1;
+    transition: all 0.3s ease;
+}    
+
 
 /* OVERRIDE Bootstrap + Materialize conflicts */
 .iso-texteditor.input-field label {
