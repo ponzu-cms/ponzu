@@ -187,8 +187,6 @@ func Run() {
 				req.PostForm.Add(name, urlPath)
 			}
 
-			fmt.Println(req.PostForm)
-
 			// check for any multi-value fields (ex. checkbox fields)
 			// and correctly format for db storage. Essentially, we need
 			// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
@@ -338,7 +336,6 @@ func storeFileUploads(req *http.Request) (map[string]string, error) {
 		absPath := filepath.Join(uploadDir, filename)
 
 		if _, err := os.Stat(absPath); !os.IsNotExist(err) {
-			fmt.Println(err, "file at", absPath, "exists")
 			filename = fmt.Sprintf("%d-%s", time.Now().Unix(), filename)
 			absPath = filepath.Join(uploadDir, filename)
 		}
