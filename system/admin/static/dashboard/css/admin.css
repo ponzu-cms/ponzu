@@ -8,14 +8,58 @@
     margin: auto;
 }
 
+.nav-wrapper a:hover {
+    color: inherit !important;
+}
+
 .admin-ui {
     width: 95%;
     max-width: 1300px;    
     margin: 1% auto;
 }
 
+.init {
+    float: none !important;
+    margin: auto !important;
+}
+
 .manager {
     margin-bottom: 2%;
+}
+
+.left-nav .row li a {
+    padding: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.left-nav .card-title {
+    margin-top: 10px !important;
+}
+
+.left-nav .card-title:first-child {
+    margin-top: 0px !important;
+}
+
+ul.posts li {
+    display: block;
+    margin: 0 0 20px 0;
+    padding: 0 0 20px 0 !important;
+    border-bottom: solid 1px #e0e0e0;
+}
+
+ul.posts li:last-child {
+    border-bottom: none;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+li a {
+    transition: all 0.3s ease;
+}
+
+li a:hover {
+    color: #333;
+    transition: all 0.3s ease;
 }
 
 a.new-post {

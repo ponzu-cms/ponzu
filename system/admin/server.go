@@ -2,6 +2,7 @@ package admin
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,22 +17,15 @@ import (
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/management/editor"
 	"github.com/nilslice/cms/management/manager"
+	"github.com/nilslice/cms/system/admin/config"
+	"github.com/nilslice/cms/system/admin/user"
 	"github.com/nilslice/cms/system/db"
+	"github.com/nilslice/jwt"
 )
 
 // Run adds Handlers to default http listener for Admin
 func Run() {
-	http.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
-		adminView, err := Admin(nil)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		res.Header().Set("Content-Type", "text/html")
-		res.Write(adminView)
-	})
+	http.HandleFunc("/admin", user.Auth(adminHandler))
 
 	http.HandleFunc("/admin/static/", func(res http.ResponseWriter, req *http.Request) {
 		path := req.URL.Path
@@ -49,17 +43,151 @@ func Run() {
 		http.ServeFile(res, req, filepath.Join(filePathParts...))
 	})
 
-	http.HandleFunc("/admin/configure", func(res http.ResponseWriter, req *http.Request) {
-		adminView, err := Admin(nil)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
+	http.HandleFunc("/admin/init", func(res http.ResponseWriter, req *http.Request) {
+		if db.SystemInitComplete() {
+			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
 			return
 		}
 
-		res.Header().Set("Content-Type", "text/html")
-		res.Write(adminView)
+		switch req.Method {
+		case http.MethodGet:
+			view, err := Init()
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			res.Header().Set("Content-Type", "text/html")
+			res.Write(view)
 
+		case http.MethodPost:
+			err := req.ParseForm()
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			// get the site name from post to encode and use as secret
+			name := []byte(req.FormValue("name"))
+			secret := base64.StdEncoding.EncodeToString(name)
+			req.Form.Set("client_secret", secret)
+
+			err = db.SetConfig(req.Form)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			email := req.FormValue("email")
+			password := req.FormValue("password")
+			usr := user.NewUser(email, password)
+
+			_, err = db.SetUser(usr)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			// add _token cookie for login persistence
+			week := time.Now().Add(time.Hour * 24 * 7)
+			claims := map[string]interface{}{
+				"exp":  week.Unix(),
+				"user": usr.Email,
+			}
+
+			jwt.Secret([]byte(secret))
+			token, err := jwt.New(claims)
+
+			http.SetCookie(res, &http.Cookie{
+				Name:    "_token",
+				Value:   token,
+				Expires: week,
+			})
+
+			redir := strings.TrimSuffix(req.URL.String(), "/init")
+			http.Redirect(res, req, redir, http.StatusFound)
+
+		default:
+			res.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	http.HandleFunc("/admin/login", loginHandler)
+	http.HandleFunc("/admin/logout", logoutHandler)
+
+	http.HandleFunc("/admin/configure", func(res http.ResponseWriter, req *http.Request) {
+		switch req.Method {
+		case http.MethodGet:
+			data, err := db.ConfigAll()
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			c := &config.Config{}
+
+			err = json.Unmarshal(data, c)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			cfg, err := c.MarshalEditor()
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			adminView, err := Admin(cfg)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			res.Header().Set("Content-Type", "text/html")
+			res.Write(adminView)
+
+		case http.MethodPost:
+			err := req.ParseForm()
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			err = db.SetConfig(req.Form)
+			if err != nil {
+				fmt.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			http.Redirect(res, req, req.URL.String(), http.StatusFound)
+
+		default:
+			res.WriteHeader(http.StatusMethodNotAllowed)
+		}
+
+	})
+
+	http.HandleFunc("/admin/configure/users", func(res http.ResponseWriter, req *http.Request) {
+		switch req.Method {
+		case http.MethodGet:
+			// list all users and delete buttons
+
+		case http.MethodPost:
+			// create new user
+
+		default:
+			res.WriteHeader(http.StatusMethodNotAllowed)
+		}
 	})
 
 	http.HandleFunc("/admin/posts", func(res http.ResponseWriter, req *http.Request) {
@@ -69,20 +197,20 @@ func Run() {
 			res.WriteHeader(http.StatusBadRequest)
 		}
 
-		posts := db.GetAll(t)
+		posts := db.ContentAll(t)
 		b := &bytes.Buffer{}
 		p := content.Types[t]().(editor.Editable)
 
-		html := `<div class="col s9">				
-					<div class="card">
-					<ul class="card-content collection posts">
-					<div class="card-title">` + t + ` Items</div>`
+		html := `<div class="col s9 card">		
+					<div class="card-content row">
+					<div class="card-title">` + t + ` Items</div>		
+					<ul class="posts">`
 
 		for i := range posts {
 			json.Unmarshal(posts[i], &p)
-			post := `<div class="row collection-item"><li class="col s12 collection-item"><a href="/admin/edit?type=` +
+			post := `<li class="col s12"><a href="/admin/edit?type=` +
 				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-				`">` + p.ContentName() + `</a></li></div>`
+				`">` + p.ContentName() + `</a></li>`
 			b.Write([]byte(post))
 		}
 
@@ -116,7 +244,7 @@ func Run() {
 			post := contentType()
 
 			if i != "" {
-				data, err := db.Get(t + ":" + i)
+				data, err := db.Content(t + ":" + i)
 				if err != nil {
 					fmt.Println(err)
 					res.WriteHeader(http.StatusInternalServerError)
@@ -208,7 +336,7 @@ func Run() {
 				req.PostForm.Del(discardKey)
 			}
 
-			id, err := db.Set(t+":"+cid, req.PostForm)
+			id, err := db.SetContent(t+":"+cid, req.PostForm)
 			if err != nil {
 				fmt.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -221,6 +349,9 @@ func Run() {
 			sid := fmt.Sprintf("%d", id)
 			desURL := scheme + host + path + "?type=" + t + "&id=" + sid
 			http.Redirect(res, req, desURL, http.StatusFound)
+
+		default:
+			res.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
 

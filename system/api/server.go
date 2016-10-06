@@ -40,7 +40,7 @@ func Run() {
 			return
 		}
 
-		posts := db.GetAll(t)
+		posts := db.ContentAll(t)
 		var all = []json.RawMessage{}
 		for _, post := range posts {
 			all = append(all, post)
@@ -66,7 +66,7 @@ func Run() {
 			return
 		}
 
-		post, err := db.Get(t + ":" + id)
+		post, err := db.Content(t + ":" + id)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
@@ -123,9 +123,9 @@ func toJSON(data []string) ([]byte, error) {
 
 func wrapJSON(json []byte) []byte {
 	var buf = &bytes.Buffer{}
-	buf.Write([]byte("{data:"))
+	buf.Write([]byte(`{"data":`))
 	buf.Write(json)
-	buf.Write([]byte("}"))
+	buf.Write([]byte(`}`))
 
 	return buf.Bytes()
 }
