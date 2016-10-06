@@ -42,7 +42,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor.ViewBuf.Write([]byte(`</td></tr>`))
 
 	// content items with Item embedded have some default fields we need to render
-	editor.ViewBuf.Write([]byte(`<tr class="col s4"><td>`))
+	editor.ViewBuf.Write([]byte(`<tr class="col s4 default-fields"><td>`))
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
