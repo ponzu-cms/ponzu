@@ -2,12 +2,12 @@ package db
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/cms/content"
 	"github.com/nilslice/cms/system/admin/config"
+	"github.com/nilslice/jwt"
 )
 
 var store *bolt.DB
@@ -52,12 +52,14 @@ func Init() {
 			}
 		}
 
-		// clientSecret, err := Config("client_secret")
-		// if err != nil {
-		// 	return err
-		// }
+		clientSecret, err := Config("client_secret")
+		if err != nil {
+			return err
+		}
 
-		// jwt.Secret(clientSecret)
+		if clientSecret != nil {
+			jwt.Secret(clientSecret)
+		}
 
 		return nil
 	})
@@ -89,6 +91,5 @@ func SystemInitComplete() bool {
 		log.Fatal(err)
 	}
 
-	fmt.Println("System Init Complete:", complete)
 	return complete
 }
