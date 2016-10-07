@@ -29,7 +29,7 @@
 
 .left-nav .row li a {
     padding: 10px 0;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 .left-nav .card-title {
@@ -38,6 +38,10 @@
 
 .left-nav .card-title:first-child {
     margin-top: 0px !important;
+}
+
+.col.card-title {
+    padding: 0px !important;
 }
 
 ul.posts li {
@@ -53,13 +57,28 @@ ul.posts li:last-child {
     padding: 0 !important;
 }
 
+.post-search .search {
+    margin: 0px !important;
+}
+
+
+.post-search .search-icon {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.post-search {
+    position: relative;
+}
+
 li a {
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 li a:hover {
     color: #333;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 a.new-post {
@@ -123,13 +142,17 @@ select.browser-default {
     border-radius: 50%;
     z-index: 100;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 .file-input .preview:hover .reset {
     opacity: 1;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }    
+
+footer p {
+    color: #9e9e9e;
+}
 
 
 /* OVERRIDE Bootstrap + Materialize conflicts */
