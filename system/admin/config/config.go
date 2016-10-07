@@ -10,9 +10,11 @@ type Config struct {
 	content.Item
 	editor editor.Editor
 
-	Name         string `json:"name"`
-	Domain       string `json:"domain"`
-	ClientSecret string `json:"client_secret"`
+	Name            string   `json:"name"`
+	Domain          string   `json:"domain"`
+	ClientSecret    string   `json:"client_secret"`
+	Etag            string   `json:"etag"`
+	CacheInvalidate []string `json:"-"`
 }
 
 // SetContentID partially implements editor.Editable
@@ -49,6 +51,29 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Input("ClientSecret", c, map[string]string{
 				"label":    "Client Secret (used to validate requests)",
 				"disabled": "true",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("ClientSecret", c, map[string]string{
+				"type": "hidden",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("Etag", c, map[string]string{
+				"label":    "Etag Header (used for static asset cache)",
+				"disabled": "true",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("Etag", c, map[string]string{
+				"type": "hidden",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("CacheInvalidate", c, map[string]string{
+				"label": "Invalidate cache on save",
+			}, map[string]string{
+				"cache": "invalidate",
 			}),
 		},
 	)

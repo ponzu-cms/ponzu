@@ -2,18 +2,31 @@ package db
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
 	"github.com/nilslice/cms/system/admin/config"
 )
 
+var configCache url.Values
+
+func init() {
+	configCache = make(url.Values)
+}
+
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("_config"))
+
+		if data.Get("cache") == "invalidate" {
+			data.Set("etag", NewEtag())
+		}
 
 		cfg := &config.Config{}
 		dec := schema.NewDecoder()
@@ -40,6 +53,8 @@ func SetConfig(data url.Values) error {
 		return err
 	}
 
+	configCache = data
+
 	return nil
 }
 
@@ -50,6 +65,10 @@ func Config(key string) ([]byte, error) {
 	cfg, err := ConfigAll()
 	if err != nil {
 		return nil, err
+	}
+
+	if len(cfg) < 1 {
+		return nil, nil
 	}
 
 	err = json.Unmarshal(cfg, &kv)
@@ -74,4 +93,17 @@ func ConfigAll() ([]byte, error) {
 	}
 
 	return val.Bytes(), nil
+}
+
+// ConfigCache is a in-memory cache of the Configs for quicker lookups
+func ConfigCache(key string) string {
+	return configCache.Get(key)
+}
+
+// NewEtag generates a new Etag for response caching
+func NewEtag() string {
+	now := fmt.Sprintf("%d", time.Now().Unix())
+	etag := base64.StdEncoding.EncodeToString([]byte(now))
+
+	return etag
 }

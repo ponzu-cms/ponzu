@@ -52,13 +52,10 @@ func Init() {
 			}
 		}
 
-		clientSecret, err := Config("client_secret")
-		if err != nil {
-			return err
-		}
+		clientSecret := ConfigCache("client_secret")
 
-		if clientSecret != nil {
-			jwt.Secret(clientSecret)
+		if clientSecret != "" {
+			jwt.Secret([]byte(clientSecret))
 		}
 
 		return nil
@@ -76,6 +73,7 @@ func SystemInitComplete() bool {
 
 	err := store.View(func(tx *bolt.Tx) error {
 		users := tx.Bucket([]byte("_users"))
+
 		err := users.ForEach(func(k, v []byte) error {
 			complete = true
 			return nil

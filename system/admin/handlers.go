@@ -5,7 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -71,7 +74,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		email := req.FormValue("email")
+		email := strings.ToLower(req.FormValue("email"))
 		password := req.FormValue("password")
 		usr := user.NewUser(email, password)
 
@@ -216,7 +219,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// check email & password
-		j, err := db.User(req.FormValue("email"))
+		j, err := db.User(strings.ToLower(req.FormValue("email")))
 		if err != nil {
 			fmt.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
@@ -586,4 +589,36 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/html")
 	res.Write(adminView)
+}
+
+func staticAssetHandler(res http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	pathParts := strings.Split(path, "/")[1:]
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("Coudln't get current directory to set static asset source.")
+	}
+
+	filePathParts := make([]string, len(pathParts)+2, len(pathParts)+2)
+	filePathParts = append(filePathParts, pwd)
+	filePathParts = append(filePathParts, "system")
+	filePathParts = append(filePathParts, pathParts...)
+
+	http.ServeFile(res, req, filepath.Join(filePathParts...))
+}
+
+func staticUploadHandler(res http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	pathParts := strings.Split(path, "/")[2:]
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("Coudln't get current directory to set static asset source.")
+	}
+
+	filePathParts := make([]string, len(pathParts)+1, len(pathParts)+1)
+	filePathParts = append(filePathParts, pwd)
+	filePathParts = append(filePathParts, pathParts...)
+
+	http.ServeFile(res, req, filepath.Join(filePathParts...))
 }
