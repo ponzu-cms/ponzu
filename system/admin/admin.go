@@ -72,6 +72,11 @@ var mainAdminHTML = `
 
 var endAdminHTML = `
         </div>
+        <footer class="row">
+            <div class="col s12">
+                <p class="center-align">Powered by &copy; <a target="_blank" href="#">CMS</a> &nbsp;&vert;&nbsp; open-sourced by <a target="_blank" href="https://www.bosssauce.it">Boss Sauce Creative</a></p>
+            </div>     
+        </footer>
     </body>
 </html>`
 
@@ -234,4 +239,88 @@ func Login() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+var err400HTML = `
+<div class="error-page e400 col s6">
+<div class="card">
+<div class="card-content">
+    <div class="card-title"><b>400</b> Error: Bad Request</div>
+    <blockquote>Sorry, the request was unable to be completed.</blockquote>
+</div>
+</div>
+</div>
+`
+
+// Error400 creates a subview for a 400 error page
+func Error400() ([]byte, error) {
+	view, err := Admin([]byte(err400HTML))
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
+}
+
+var err404HTML = `
+<div class="error-page e404 col s6">
+<div class="card">
+<div class="card-content">
+    <div class="card-title"><b>404</b> Error: Not Found</div>
+    <blockquote>Sorry, the page you requested could not be found.</blockquote>
+</div>
+</div>
+</div>
+`
+
+// Error404 creates a subview for a 404 error page
+func Error404() ([]byte, error) {
+	view, err := Admin([]byte(err404HTML))
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
+}
+
+var err405HTML = `
+<div class="error-page e405 col s6">
+<div class="card">
+<div class="card-content">
+    <div class="card-title"><b>405</b> Error: Method Not Allowed</div>
+    <blockquote>Sorry, the page you requested could not be found.</blockquote>
+</div>
+</div>
+</div>
+`
+
+// Error405 creates a subview for a 405 error page
+func Error405() ([]byte, error) {
+	view, err := Admin([]byte(err405HTML))
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
+}
+
+var err500HTML = `
+<div class="error-page e500 col s6">
+<div class="card">
+<div class="card-content">
+    <div class="card-title"><b>500</b> Error: Internal Service Error</div>
+    <blockquote>Sorry, something unexpectedly went wrong.</blockquote>
+</div>
+</div>
+</div>
+`
+
+// Error500 creates a subview for a 500 error page
+func Error500() ([]byte, error) {
+	view, err := Admin([]byte(err500HTML))
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
 }
