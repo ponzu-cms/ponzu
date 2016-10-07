@@ -2,7 +2,6 @@ package user
 
 import (
 	"encoding/base64"
-	"fmt"
 	"net/http"
 
 	"github.com/nilslice/jwt"
@@ -59,7 +58,6 @@ func IsValid(req *http.Request) bool {
 
 // IsUser checks for consistency in email/pass combination
 func IsUser(usr *User, password string) bool {
-	fmt.Println(usr, password)
 	salt, err := base64.StdEncoding.DecodeString(usr.Salt)
 	if err != nil {
 		return false
