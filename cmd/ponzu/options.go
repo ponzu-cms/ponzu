@@ -196,7 +196,7 @@ func createProjInDir(path string) error {
 	gopath = gopath[:len(gopath)-1]
 	gopath = filepath.Join(gopath, "src")
 
-	repo := []string{"github.com", "nilslice", "cms"}
+	repo := []string{"github.com", "bosssauce", "ponzu"}
 	local := filepath.Join(gopath, filepath.Join(repo...))
 	network := "https://" + strings.Join(repo, "/") + ".git"
 

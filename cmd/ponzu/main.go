@@ -13,20 +13,20 @@ import (
 )
 
 var usage = `
-$ cms <option> <params>
+$ ponzu <option> <params>
 
 Options 
 
 new <directory>:
 
-	Creates a new 'cms' in the current directory, or one supplied
+	Creates a new 'ponzu' in the current directory, or one supplied
 	as a parameter immediately following the 'new' option. Note: 'new'
 	depends on the program 'git' and possibly a network connection. If there is
 	no local repository to clone from at the local machine's $GOPATH, 'new' will
-	attempt to clone the 'cms' package from over the network.
+	attempt to clone the 'ponzu' package from over the network.
 
 	Example:
-	$ cms new ~/Projects/my-project.dev
+	$ ponzu new ~/Projects/my-project.dev
 
 
 
@@ -37,13 +37,13 @@ generate, gen, g <type>:
     the name of the type for the new content.
 
     Example:
-	$ cms gen review
+	$ ponzu gen review
 
 
 
 serve, s <service> <port> <tls>:
 
-	Starts the 'cms' HTTP server for the JSON API, Admin System, or both.
+	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 	Must be given at least one (1) parameter. The segments describe 
 	which services to start, either 'admin' (Admin System / CMS 
 	backend) or 'api' (JSON API), and, optionally, if the server(s) should 
@@ -51,11 +51,11 @@ serve, s <service> <port> <tls>:
 	using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
-	$ cms serve admin|api 8080 tls
+	$ ponzu serve admin|api 8080 tls
 	(or) 
-	$ cms serve admin
+	$ ponzu serve admin
 	(or)
-	$ cms serve api 8888
+	$ ponzu serve api 8888
 
 	Defaults to 'admin|api 8080' (running Admin & API on port 8080, without TLS)
 
@@ -63,7 +63,7 @@ serve, s <service> <port> <tls>:
 	Admin and API cannot run on separate processes unless you use a copy of the
 	database, since the first process to open it recieves a lock. If you intend
 	to run the Admin and API on separate processes, you must call them with the
-	'cms' command independently.
+	'ponzu' command independently.
 `
 
 func init() {
