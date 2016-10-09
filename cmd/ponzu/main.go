@@ -116,18 +116,35 @@ func main() {
 		}
 	case "serve", "s":
 		db.Init()
-		services := strings.Split(args[1], ",")
-		fmt.Println(args, port, tls)
-		for i := range services {
-			if services[i] == "api" {
-				api.Run()
-			} else if services[i] == "admin" {
-				admin.Run()
-			} else {
-				fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
-				fmt.Println("$ ponzu --help")
-				os.Exit(1)
+		if len(args) > 1 {
+			services := strings.Split(args[1], ",")
+
+			fmt.Println(args, port, tls)
+			for i := range services {
+				if services[i] == "api" {
+					api.Run()
+				} else if services[i] == "admin" {
+					admin.Run()
+				} else {
+					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
+					fmt.Println("$ ponzu --help")
+					os.Exit(1)
+				}
 			}
+		} else {
+			if len(args) > 1 {
+				if args[1] == "admin" {
+					admin.Run()
+				}
+
+				if args[1] == "api" {
+					api.Run()
+				}
+			} else {
+				admin.Run()
+				api.Run()
+			}
+
 		}
 
 		if tls {
