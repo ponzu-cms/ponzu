@@ -74,7 +74,7 @@ var endAdminHTML = `
         </div>
         <footer class="row">
             <div class="col s12">
-                <p class="center-align">Powered by &copy; <a target="_blank" href="#">CMS</a> &nbsp;&vert;&nbsp; open-sourced by <a target="_blank" href="https://www.bosssauce.it">Boss Sauce Creative</a></p>
+                <p class="center-align">Powered by &copy; <a target="_blank" href="https://ponzu-cms.org">Ponzu</a> &nbsp;&vert;&nbsp; open-sourced by <a target="_blank" href="https://www.bosssauce.it">Boss Sauce Creative</a></p>
             </div>     
         </footer>
     </body>
