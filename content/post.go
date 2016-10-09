@@ -3,7 +3,7 @@ package content
 import (
 	"fmt"
 
-	"github.com/nilslice/cms/management/editor"
+	"github.com/bosssauce/ponzu/management/editor"
 )
 
 // Post is the generic content struct
@@ -13,6 +13,7 @@ type Post struct {
 
 	Title      string   `json:"title"`
 	Content    string   `json:"content"`
+	Photo      string   `json:"photo"`
 	Author     string   `json:"author"`
 	Category   []string `json:"category"`
 	ThemeStyle string   `json:"theme"`
@@ -51,6 +52,13 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			View: editor.Richtext("Content", p, map[string]string{
 				"label":       "Content",
 				"placeholder": "Add the content of your post here",
+			}),
+		},
+		editor.Field{
+			View: editor.File("Photo", p, map[string]string{
+				"label":       "Author Photo",
+				"type":        "file",
+				"placeholder": "Select a file to upload.",
 			}),
 		},
 		editor.Field{

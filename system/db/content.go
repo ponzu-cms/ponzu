@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/boltdb/bolt"
+	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/gorilla/schema"
-	"github.com/nilslice/cms/content"
-	"github.com/nilslice/cms/management/editor"
-	"github.com/nilslice/cms/management/manager"
 )
 
 // SetContent inserts or updates values in the database.

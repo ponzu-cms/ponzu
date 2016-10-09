@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/boltdb/bolt"
-	"github.com/nilslice/cms/system/admin/user"
+	"github.com/bosssauce/ponzu/system/admin/user"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user

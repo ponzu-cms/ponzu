@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/bosssauce/ponzu/system/admin/config"
 	"github.com/gorilla/schema"
-	"github.com/nilslice/cms/system/admin/config"
 )
 
 var configCache url.Values

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/nilslice/cms/system/admin"
-	"github.com/nilslice/cms/system/api"
-	"github.com/nilslice/cms/system/db"
+	"github.com/bosssauce/ponzu/system/admin"
+	"github.com/bosssauce/ponzu/system/api"
+	"github.com/bosssauce/ponzu/system/db"
 )
 
 var usage = `

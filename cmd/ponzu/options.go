@@ -57,7 +57,7 @@ package content
 import (
 	"fmt"
 
-	"github.com/nilslice/cms/management/editor"
+	"github.com/bosssauce/ponzu/management/editor"
 )
 
 // {{ .name }} is the generic content struct

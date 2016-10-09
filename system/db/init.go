@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/boltdb/bolt"
-	"github.com/nilslice/cms/content"
-	"github.com/nilslice/cms/system/admin/config"
+	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/admin/config"
 	"github.com/nilslice/jwt"
 )
 
