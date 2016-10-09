@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/bosssauce/ponzu/system/admin"
 	"github.com/bosssauce/ponzu/system/api"
@@ -13,7 +14,7 @@ import (
 )
 
 var usage = `
-$ ponzu <option> <params>
+$ ponzu option <params> [specifiers]
 
 Options 
 
@@ -41,7 +42,7 @@ generate, gen, g <type>:
 
 
 
-serve, s <service> <port> <tls>:
+[[--port=8080] [--tls]] serve, s <service(,service)>:
 
 	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 	Must be given at least one (1) parameter. The segments describe 
@@ -51,13 +52,13 @@ serve, s <service> <port> <tls>:
 	using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
-	$ ponzu serve admin|api 8080 tls
+	$ ponzu --port=8080 --tls serve admin,api
 	(or) 
 	$ ponzu serve admin
 	(or)
-	$ ponzu serve api 8888
+	$ ponzu --port=8888 serve api
 
-	Defaults to 'admin|api 8080' (running Admin & API on port 8080, without TLS)
+	Defaults to '--port=8080 admin,api' (running Admin & API on port 8080, without TLS)
 
 	Note: 
 	Admin and API cannot run on separate processes unless you use a copy of the
@@ -66,6 +67,11 @@ serve, s <service> <port> <tls>:
 	'ponzu' command independently.
 `
 
+var (
+	port int
+	tls  bool
+)
+
 func init() {
 	flag.Usage = func() {
 		fmt.Println(usage)
@@ -73,6 +79,8 @@ func init() {
 }
 
 func main() {
+	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its listener")
+	flag.BoolVar(&tls, "tls", false, "enable automatic TLS/SSL certificate management")
 	flag.Parse()
 
 	args := flag.Args()
@@ -108,9 +116,27 @@ func main() {
 		}
 	case "serve", "s":
 		db.Init()
-		admin.Run()
-		api.Run()
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		services := strings.Split(args[1], ",")
+		fmt.Println(args, port, tls)
+		for i := range services {
+			if services[i] == "api" {
+				api.Run()
+			} else if services[i] == "admin" {
+				admin.Run()
+			} else {
+				fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
+				fmt.Println("$ ponzu --help")
+				os.Exit(1)
+			}
+		}
+
+		if tls {
+			fmt.Println("TLS through Let's Encrypt is not implemented yet.")
+			fmt.Println("Please run 'ponzu serve' without the -tls flag for now.")
+			os.Exit(1)
+		}
+
+		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 	case "":
 		flag.PrintDefaults()
 	default:
