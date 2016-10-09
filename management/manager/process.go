@@ -5,7 +5,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bosssauce/ponzu/management/editor"
+	"../editor"
+
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )

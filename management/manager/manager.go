@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/bosssauce/ponzu/management/editor"
+	"../editor"
 )
 
 const managerHTML = `

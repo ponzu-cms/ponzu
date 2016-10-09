@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"log"
 
+	"../../content"
+	"../../system/admin/config"
+
 	"github.com/boltdb/bolt"
-	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/system/admin/config"
 	"github.com/nilslice/jwt"
 )
 

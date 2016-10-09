@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bosssauce/ponzu/system/db"
+	"../../system/db"
 )
 
 // CacheControl sets the default cache policy on static asset responses

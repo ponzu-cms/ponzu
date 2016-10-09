@@ -3,7 +3,7 @@ package content
 import (
 	"fmt"
 
-	"github.com/bosssauce/ponzu/management/editor"
+	"../management/editor"
 )
 
 // Post is the generic content struct

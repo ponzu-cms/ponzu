@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 
+	"../admin/user"
+
 	"github.com/boltdb/bolt"
-	"github.com/bosssauce/ponzu/system/admin/user"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user

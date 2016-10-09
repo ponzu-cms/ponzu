@@ -8,10 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	"../../content"
+	"../../management/editor"
+	"../../management/manager"
+
 	"github.com/boltdb/bolt"
-	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/management/editor"
-	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/gorilla/schema"
 )
 

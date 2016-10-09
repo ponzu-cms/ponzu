@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/management/editor"
+	"../../../content"
+	"../../../management/editor"
 )
 
 //Config represents the confirgurable options of the system

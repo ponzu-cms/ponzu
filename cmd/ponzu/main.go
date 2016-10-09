@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bosssauce/ponzu/system/admin"
-	"github.com/bosssauce/ponzu/system/api"
-	"github.com/bosssauce/ponzu/system/db"
+	"../../system/admin"
+	"../../system/api"
+	"../../system/db"
 )
 
 var usage = `
