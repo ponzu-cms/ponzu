@@ -63,7 +63,7 @@ package content
 import (
 	"fmt"
 
-	"../management/editor"
+	"github.com/bosssauce/ponzu/management/editor"
 )
 
 // {{ .name }} is the generic content struct
@@ -306,16 +306,19 @@ func buildPonzuServer(args []string) error {
 
 		dstFile, err := os.Create(filepath.Join(contentDstPath, srcFileInfo.Name()))
 		if err != nil {
+
 			return err
 		}
 
 		srcFile, err := os.Open(filepath.Join(contentSrcPath, srcFileInfo.Name()))
 		if err != nil {
+
 			return err
 		}
 
 		_, err = io.Copy(dstFile, srcFile)
 		if err != nil {
+
 			return err
 		}
 	}
