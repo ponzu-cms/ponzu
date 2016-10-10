@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"../../content"
-	"../../system/db"
+	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/db"
 )
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {

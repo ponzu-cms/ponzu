@@ -3,7 +3,7 @@ package admin
 import (
 	"net/http"
 
-	"./user"
+	"github.com/bosssauce/ponzu/system/admin/user"
 )
 
 // Run adds Handlers to default http listener for Admin

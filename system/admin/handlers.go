@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"../../content"
-	"../../management/editor"
-	"../../management/manager"
-	"../../system/db"
-	"./config"
-	"./user"
+	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/management/manager"
+	"github.com/bosssauce/ponzu/system/admin/config"
+	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/db"
 
 	"github.com/nilslice/jwt"
 )

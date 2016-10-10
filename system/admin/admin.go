@@ -6,8 +6,8 @@ import (
 	"bytes"
 	"html/template"
 
-	"../../content"
-	"../../system/db"
+	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/db"
 )
 
 var startAdminHTML = `<!doctype html>

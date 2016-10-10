@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"../admin/user"
+	"github.com/bosssauce/ponzu/system/admin/user"
 
 	"github.com/boltdb/bolt"
 )

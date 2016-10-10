@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"../admin/config"
+	"github.com/bosssauce/ponzu/system/admin/config"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
