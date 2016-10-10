@@ -9,7 +9,7 @@ import (
 )
 
 // CacheControl sets the default cache policy on static asset responses
-func CacheControl(next http.HandlerFunc) http.HandlerFunc {
+func CacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		etag := db.ConfigCache("etag")
 		policy := fmt.Sprintf("max-age=%d, public, must-revalidate, proxy-revalidate", 60*60*24*30)

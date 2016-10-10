@@ -5,10 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -592,34 +589,42 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	res.Write(adminView)
 }
 
-func staticAssetHandler(res http.ResponseWriter, req *http.Request) {
-	path := req.URL.Path
-	pathParts := strings.Split(path, "/")[1:]
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal("Coudln't get current directory to set static asset source.")
-	}
+// func staticAssetHandler(res http.ResponseWriter, req *http.Request) {
+// 	path := req.URL.Path
+// 	pathParts := strings.Split(path, "/")[1:]
+// 	pwd, err := os.Getwd()
+// 	if err != nil {
+// 		log.Fatal("Coudln't get current directory to set static asset source.")
+// 	}
 
-	filePathParts := make([]string, len(pathParts)+2, len(pathParts)+2)
-	filePathParts = append(filePathParts, pwd)
-	filePathParts = append(filePathParts, "system")
-	filePathParts = append(filePathParts, pathParts...)
+// 	var filePathParts = []string{}
+// 	filePathParts = append(filePathParts, pwd)
+// 	filePathParts = append(filePathParts, "cmd")
+// 	filePathParts = append(filePathParts, "ponzu")
+// 	filePathParts = append(filePathParts, "vendor")
+// 	filePathParts = append(filePathParts, "github.com")
+// 	filePathParts = append(filePathParts, "bosssauce")
+// 	filePathParts = append(filePathParts, "ponzu")
+// 	filePathParts = append(filePathParts, "system")
+// 	filePathParts = append(filePathParts, pathParts...)
 
-	http.ServeFile(res, req, filepath.Join(filePathParts...))
-}
+// 	fmt.Println(filepath.Join(filePathParts...))
 
-func staticUploadHandler(res http.ResponseWriter, req *http.Request) {
-	path := req.URL.Path
-	pathParts := strings.Split(path, "/")[2:]
+// 	http.ServeFile(res, req, filepath.Join(filePathParts...))
+// }
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal("Coudln't get current directory to set static asset source.")
-	}
+// func staticUploadHandler(res http.ResponseWriter, req *http.Request) {
+// 	path := req.URL.Path
+// 	pathParts := strings.Split(path, "/")[2:]
 
-	filePathParts := make([]string, len(pathParts)+1, len(pathParts)+1)
-	filePathParts = append(filePathParts, pwd)
-	filePathParts = append(filePathParts, pathParts...)
+// 	pwd, err := os.Getwd()
+// 	if err != nil {
+// 		log.Fatal("Coudln't get current directory to set static asset source.")
+// 	}
 
-	http.ServeFile(res, req, filepath.Join(filePathParts...))
-}
+// 	filePathParts := make([]string, len(pathParts)+1, len(pathParts)+1)
+// 	filePathParts = append(filePathParts, pwd)
+// 	filePathParts = append(filePathParts, pathParts...)
+
+// 	http.ServeFile(res, req, filepath.Join(filePathParts...))
+// }

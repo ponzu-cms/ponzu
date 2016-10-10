@@ -306,19 +306,16 @@ func buildPonzuServer(args []string) error {
 
 		dstFile, err := os.Create(filepath.Join(contentDstPath, srcFileInfo.Name()))
 		if err != nil {
-
 			return err
 		}
 
 		srcFile, err := os.Open(filepath.Join(contentSrcPath, srcFileInfo.Name()))
 		if err != nil {
-
 			return err
 		}
 
 		_, err = io.Copy(dstFile, srcFile)
 		if err != nil {
-
 			return err
 		}
 	}
@@ -336,7 +333,12 @@ func buildPonzuServer(args []string) error {
 	}
 
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
-	build := exec.Command("go", "build", "-o", "ponzu-server", "cmd/ponzu/*.go")
+	mainPath := filepath.Join(pwd, "cmd", "ponzu", "main.go")
+	optsPath := filepath.Join(pwd, "cmd", "ponzu", "options.go")
+	build := exec.Command("go", "build", "-o", "ponzu-server", mainPath, optsPath)
+	build.Stderr = os.Stderr
+	build.Stdout = os.Stdout
+
 	err = build.Start()
 	if err != nil {
 		return errors.New("Ponzu build step failed. Please try again. " + "\n" + err.Error())

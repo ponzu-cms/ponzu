@@ -125,25 +125,36 @@ func main() {
 		}
 
 	case "run":
-		if len(args) < 2 {
-			flag.PrintDefaults()
-			os.Exit(1)
-		}
-
 		var addTLS string
 		if tls {
 			addTLS = "--tls"
 		} else {
 			addTLS = "--tls=false"
 		}
+
+		var services string
+		if len(args) > 1 {
+			services = args[1]
+		} else {
+			services = "admin,api"
+		}
+
 		serve := exec.Command("./ponzu-server",
 			fmt.Sprintf("--port=%d", port),
 			addTLS,
 			"serve",
-			args[1],
+			services,
 		)
+		serve.Stderr = os.Stderr
+		serve.Stdout = os.Stdout
 
-		err := serve.Run()
+		err := serve.Start()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		err = serve.Wait()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -154,7 +165,6 @@ func main() {
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
 
-			fmt.Println(args, port, tls)
 			for i := range services {
 				if services[i] == "api" {
 					api.Run()
@@ -166,25 +176,11 @@ func main() {
 					os.Exit(1)
 				}
 			}
-		} else {
-			if len(args) > 1 {
-				if args[1] == "admin" {
-					admin.Run()
-				}
-
-				if args[1] == "api" {
-					api.Run()
-				}
-			} else {
-				admin.Run()
-				api.Run()
-			}
-
 		}
 
 		if tls {
 			fmt.Println("TLS through Let's Encrypt is not implemented yet.")
-			fmt.Println("Please run 'ponzu serve' without the -tls flag for now.")
+			fmt.Println("Please run 'ponzu serve' without the --tls flag for now.")
 			os.Exit(1)
 		}
 

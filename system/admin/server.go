@@ -1,7 +1,10 @@
 package admin
 
 import (
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/bosssauce/ponzu/system/admin/user"
 )
@@ -24,10 +27,17 @@ func Run() {
 	http.HandleFunc("/admin/edit", user.Auth(editHandler))
 	http.HandleFunc("/admin/edit/upload", user.Auth(editUploadHandler))
 
-	http.HandleFunc("/admin/static/", CacheControl(staticAssetHandler))
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("Couldn't find current directory for file server.")
+	}
+
+	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "system")
+	http.Handle("/admin/static/", CacheControl(http.StripPrefix("/admin/", http.FileServer(http.Dir(staticDir)))))
 
 	// API path needs to be registered within server package so that it is handled
 	// even if the API server is not running. Otherwise, images/files uploaded
 	// through the editor will not load within the admin system.
-	http.HandleFunc("/api/uploads/", CacheControl(staticUploadHandler))
+	uploadsDir := filepath.Join(pwd, "uploads")
+	http.Handle("/api/uploads/", CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(http.Dir(uploadsDir)))))
 }
