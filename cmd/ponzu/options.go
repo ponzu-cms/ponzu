@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"os"
@@ -147,6 +146,10 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 `
 
 func newProjectInDir(path string) error {
+	// set path to be nested inside $GOPATH/src
+	gopath := os.Getenv("GOPATH")
+	path = filepath.Join(gopath, "src", path)
+
 	// check if anything exists at the path, ask if it should be overwritten
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		fmt.Println("Path exists, overwrite contents? (y/N):")
@@ -184,24 +187,13 @@ func newProjectInDir(path string) error {
 }
 
 func createProjInDir(path string) error {
-	var buf = &bytes.Buffer{}
-	echo := exec.Command("echo", os.Getenv("GOPATH"))
-	echo.Stdout = buf
-	err := echo.Run()
-	if err != nil {
-		return err
-	}
-
-	gopath := buf.String()
-	gopath = gopath[:len(gopath)-1]
-	gopath = filepath.Join(gopath, "src")
-
+	gopath := os.Getenv("GOPATH")
 	repo := []string{"github.com", "bosssauce", "ponzu"}
-	local := filepath.Join(gopath, filepath.Join(repo...))
+	local := filepath.Join(gopath, "src", filepath.Join(repo...))
 	network := "https://" + strings.Join(repo, "/") + ".git"
 
 	// create the directory or overwrite it
-	err = os.MkdirAll(path, os.ModeDir|os.ModePerm)
+	err := os.MkdirAll(path, os.ModeDir|os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -237,6 +229,6 @@ func createProjInDir(path string) error {
 		}
 	}
 
-	fmt.Println("New project created at", path)
+	fmt.Println("New ponzu project created at", path)
 	return nil
 }

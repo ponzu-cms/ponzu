@@ -20,14 +20,16 @@ Options
 
 new <directory>:
 
-	Creates a new 'ponzu' in the current directory, or one supplied
-	as a parameter immediately following the 'new' option. Note: 'new'
-	depends on the program 'git' and possibly a network connection. If there is
-	no local repository to clone from at the local machine's $GOPATH, 'new' will
-	attempt to clone the 'ponzu' package from over the network.
+	Creates a 'ponzu' directorty, or one by the name supplied as a parameter 
+	immediately following the 'new' option in the $GOPATH/src directory. Note: 
+	'new' depends on the program 'git' and possibly a network connection. If 
+	there is no local repository to clone from at the local machine's $GOPATH, 
+	'new' will attempt to clone the 'github.com/bosssauce/ponzu' package from 
+	over the network.
 
 	Example:
-	$ ponzu new ~/Projects/my-project.dev
+	$ ponzu new myProject
+	> New ponzu project created at $GOPATH/src/myProject
 
 
 
