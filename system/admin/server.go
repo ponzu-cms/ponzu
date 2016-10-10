@@ -34,7 +34,7 @@ func Run() {
 	}
 
 	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "system")
-	http.Handle("/admin/static/", CacheControl(http.StripPrefix("/admin/", http.FileServer(http.Dir(staticDir)))))
+	http.Handle("/admin/static/", CacheControl(http.FileServer(http.Dir(staticDir))))
 	fmt.Println(staticDir)
 
 	// API path needs to be registered within server package so that it is handled
