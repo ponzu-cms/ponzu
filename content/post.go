@@ -55,10 +55,9 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.File("Photo", p, map[string]string{
+			View: editor.File("Picture", p, map[string]string{
 				"label":       "Author Photo",
-				"type":        "file",
-				"placeholder": "Select a file to upload.",
+				"placeholder": "Upload a profile picture for the author",
 			}),
 		},
 		editor.Field{

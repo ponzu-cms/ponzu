@@ -75,6 +75,7 @@ type {{ .name }} struct {
 	Title      string ` + "`json:" + `"title"` + "`" + `
 	Content    string ` + "`json:" + `"content"` + "`" + `
 	Author     string ` + "`json:" + `"author"` + "`" + `
+	Picture    string ` + "`json:" + `"picture"` + "`" + `	
 	Category   []string ` + "`json:" + `"category"` + "`" + `
 	ThemeStyle string ` + "`json:" + `"theme"` + "`" + `
 }
@@ -113,7 +114,7 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Textarea("Content", {{ .initial }}, map[string]string{
+			View: editor.Richtext("Content", {{ .initial }}, map[string]string{
 				"label":       "Content",
 				"placeholder": "Add the content of your {{ .name }} here",
 			}),
@@ -123,6 +124,12 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 				"label":       "Author",
 				"type":        "text",
 				"placeholder": "Enter the author name here",
+			}),
+		},
+		editor.Field{
+			View: editor.File("Picture", {{ .initial }}, map[string]string{
+				"label":       "Author Photo",
+				"placeholder": "Upload a profile picture for the author",
 			}),
 		},
 		editor.Field{

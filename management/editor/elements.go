@@ -52,7 +52,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 					<input class="upload" type="file">
 				</div>
 				<div class="file-path-wrapper">
-					<input class="file-path validate" type="text">
+					<input class="file-path validate" placeholder="` + attrs["label"] + `" type="text">
 				</div>
 			</div>
 			<div class="preview"><div class="img-clip"></div></div>			
