@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -190,9 +193,11 @@ func newProjectInDir(path string) error {
 	return createProjInDir(path)
 }
 
+var ponzuRepo = []string{"github.com", "bosssauce", "ponzu"}
+
 func createProjInDir(path string) error {
 	gopath := os.Getenv("GOPATH")
-	repo := []string{"github.com", "bosssauce", "ponzu"}
+	repo := ponzuRepo
 	local := filepath.Join(gopath, "src", filepath.Join(repo...))
 	network := "https://" + strings.Join(repo, "/") + ".git"
 
@@ -235,8 +240,9 @@ func createProjInDir(path string) error {
 
 	// create a 'vendor' directory in $path/cmd/ponzu and move 'content',
 	// 'management' and 'system' packages into it
-	vendorPath := filepath.Join(path, "cmd", "ponzu", "vendor")
-	err = os.Mkdir(vendorPath, os.ModeDir|os.ModePerm)
+
+	vendorPath := filepath.Join(path, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu")
+	err = os.MkdirAll(vendorPath, os.ModeDir|os.ModePerm)
 	if err != nil {
 		// TODO: rollback, remove ponzu project from path
 		return err
@@ -267,5 +273,77 @@ func createProjInDir(path string) error {
 	}
 
 	fmt.Println("New ponzu project created at", path)
+	return nil
+}
+
+func buildPonzuServer(args []string) error {
+	// copy all ./content .go files to $vendor/content
+	// check to see if any file exists, move on to next file if so,
+	// and report this conflict to user for them to fix & re-run build
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	contentSrcPath := filepath.Join(pwd, "content")
+	contentDstPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "content")
+
+	srcFiles, err := ioutil.ReadDir(contentSrcPath)
+	if err != nil {
+		return err
+	}
+
+	var conflictFiles = []string{"item.go", "types.go"}
+	var mustRenameFiles = []string{}
+	for _, srcFileInfo := range srcFiles {
+		// check srcFile exists in contentDstPath
+		for _, conflict := range conflictFiles {
+			if srcFileInfo.Name() == conflict {
+				mustRenameFiles = append(mustRenameFiles, conflict)
+				continue
+			}
+		}
+
+		dstFile, err := os.Create(filepath.Join(contentDstPath, srcFileInfo.Name()))
+		if err != nil {
+			return err
+		}
+
+		srcFile, err := os.Open(filepath.Join(contentSrcPath, srcFileInfo.Name()))
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(dstFile, srcFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(mustRenameFiles) > 1 {
+		fmt.Println("Ponzu couldn't fully build your project:")
+		fmt.Println("Some of your files in the content directory exist in the vendored directory.")
+		fmt.Println("You must rename the following files, as they conflict with Ponzu core:")
+		for _, file := range mustRenameFiles {
+			fmt.Println(file)
+		}
+
+		fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
+		return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
+	}
+
+	// execute go build -o ponzu-cms cmd/ponzu/*.go
+	build := exec.Command("go", "build", "-o", "ponzu-server", "cmd/ponzu/*.go")
+	err = build.Start()
+	if err != nil {
+		return errors.New("Ponzu build step failed. Please try again. " + "\n" + err.Error())
+
+	}
+	err = build.Wait()
+	if err != nil {
+		return errors.New("Ponzu build step failed. Please try again. " + "\n" + err.Error())
+
+	}
+
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/bosssauce/ponzu/system/admin"
@@ -116,6 +117,38 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+	case "build":
+		err := buildPonzuServer(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+	case "run":
+		if len(args) < 2 {
+			flag.PrintDefaults()
+			os.Exit(1)
+		}
+
+		var addTLS string
+		if tls {
+			addTLS = "--tls"
+		} else {
+			addTLS = "--tls=false"
+		}
+		serve := exec.Command("./ponzu-server",
+			fmt.Sprintf("--port=%d", port),
+			addTLS,
+			"serve",
+			args[1],
+		)
+
+		err := serve.Run()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 	case "serve", "s":
 		db.Init()
 		if len(args) > 1 {
