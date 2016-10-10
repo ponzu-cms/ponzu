@@ -111,7 +111,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		err := generateContentType(args[1])
+		err := generateContentType(args[1], "")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func generateContentType(name string) error {
+func generateContentType(name, path string) error {
 	fileName := strings.ToLower(name) + ".go"
 	typeName := strings.ToUpper(string(name[0])) + string(name[1:])
 
@@ -24,6 +24,10 @@ func generateContentType(name string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
+	}
+
+	if path != "" {
+		pwd = path
 	}
 
 	contentDir := filepath.Join(pwd, "content")
@@ -227,6 +231,39 @@ func createProjInDir(path string) error {
 			// failed
 			return fmt.Errorf("Failed to clone files from local machine [%s] and over the network [%s].\n%s", local, network, err)
 		}
+	}
+
+	// create a 'vendor' directory in $path/cmd/ponzu and move 'content',
+	// 'management' and 'system' packages into it
+	vendorPath := filepath.Join(path, "cmd", "ponzu", "vendor")
+	err = os.Mkdir(vendorPath, os.ModeDir|os.ModePerm)
+	if err != nil {
+		// TODO: rollback, remove ponzu project from path
+		return err
+	}
+
+	dirs := []string{"content", "management", "system"}
+	for _, dir := range dirs {
+		err = os.Rename(filepath.Join(path, dir), filepath.Join(vendorPath, dir))
+		if err != nil {
+			// TODO: rollback, remove ponzu project from path
+			return err
+		}
+	}
+
+	// create a user 'content' package, and give it a single 'post.go' file
+	// using generateContentType("post")
+	contentPath := filepath.Join(path, "content")
+	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
+	if err != nil {
+		// TODO: rollback, remove ponzu project from path
+		return err
+	}
+
+	err = generateContentType("post", path)
+	if err != nil {
+		// TODO: rollback, remove ponzu project from path
+		return err
 	}
 
 	fmt.Println("New ponzu project created at", path)
