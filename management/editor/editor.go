@@ -46,9 +46,34 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
-<div class="input-field">
-	<button class="right waves-effect waves-light btn green" type="submit">Save</button>
+<div class="input-field post-controls">
+	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
+	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
+
+<script>
+	$(function() {
+		var form = $('form'),
+			del = form.find('button.delete-post'),
+			id = form.find('input[name=id]');
+		
+		// hide delete button if this is a new post, or a non-post editor page
+		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
+			del.hide();
+		}
+
+		del.on('click', function(e) {
+			e.preventDefault();
+			var action = form.attr('action');
+			action = action + '/delete';
+			form.attr('action', action);
+			
+			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+				form.submit();
+			}
+		});
+	});
+</script>
 `
 	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
 
