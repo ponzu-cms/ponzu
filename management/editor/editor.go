@@ -47,8 +47,25 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 	submit := `
 <div class="input-field">
-	<button class="right waves-effect waves-light btn green" type="submit">Save</button>
+	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
+	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
+
+<script>
+	$(function() {
+		var form = $('form'),
+			delete = form.find('button.delete-post');
+
+		delete.on('click', function(e) {
+			e.preventDefault();
+			var action = form.attr('action');
+			action = action + '/delete';
+			if (confirm("Ponzu: Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+				form.submit();
+			}
+		});
+	});
+</script>
 `
 	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
 
