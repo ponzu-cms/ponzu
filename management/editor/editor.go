@@ -46,7 +46,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
-<div class="input-field">
+<div class="input-field post-controls">
 	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
@@ -60,6 +60,8 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			e.preventDefault();
 			var action = form.attr('action');
 			action = action + '/delete';
+			form.attr('action', action);
+			
 			if (confirm("Ponzu: Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
 				form.submit();
 			}
