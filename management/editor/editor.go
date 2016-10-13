@@ -46,7 +46,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
-<div class="input-field">
+<div class="input-field">	
 	<button class="right waves-effect waves-light btn green" type="submit">Save</button>
 </div>
 `

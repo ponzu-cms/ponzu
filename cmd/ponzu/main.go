@@ -45,23 +45,22 @@ generate, gen, g <type>:
 
 
 
-[[--port=8080] [--tls]] serve, s <service(,service)>:
+[[--port=8080] [--tls]] run <service(,service)>:
 
 	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
-	Must be given at least one (1) parameter. The segments describe 
-	which services to start, either 'admin' (Admin System / CMS 
-	backend) or 'api' (JSON API), and, optionally, if the server(s) should 
-	utilize TLS encryption (served over HTTPS), which is automatically managed 
-	using Let's Encrypt (https://letsencrypt.org) 
+	The segments, separated by a comma, describe which services to start, either 
+	'admin' (Admin System / CMS backend) or 'api' (JSON API), and, optionally, 
+	if the server(s) should utilize TLS encryption (served over HTTPS), which is
+	automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
-	$ ponzu --port=8080 --tls serve admin,api
+	$ ponzu --port=8080 --tls run admin,api
 	(or) 
-	$ ponzu serve admin
+	$ ponzu run admin
 	(or)
-	$ ponzu --port=8888 serve api
+	$ ponzu --port=8888 run api
 
-	Defaults to '--port=8080 admin,api' (running Admin & API on port 8080, without TLS)
+	Defaults to '--port=8080 run admin,api' (running Admin & API on port 8080, without TLS)
 
 	Note: 
 	Admin and API cannot run on separate processes unless you use a copy of the
