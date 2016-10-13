@@ -229,6 +229,17 @@ func createProjInDir(path string) error {
 			return err
 		}
 
+		err = vendorCorePackages(path)
+		if err != nil {
+			return err
+		}
+
+		err = generateContentType("post", path)
+		if err != nil {
+			// TODO: rollback, remove ponzu project from path
+			return err
+		}
+
 		fmt.Println("Dev build cloned from bosssauce/ponzu:ponzu-dev")
 		return nil
 	}
@@ -266,9 +277,24 @@ func createProjInDir(path string) error {
 
 	// create a 'vendor' directory in $path/cmd/ponzu and move 'content',
 	// 'management' and 'system' packages into it
+	err = vendorCorePackages(path)
+	if err != nil {
+		return err
+	}
 
+	err = generateContentType("post", path)
+	if err != nil {
+		// TODO: rollback, remove ponzu project from path
+		return err
+	}
+
+	fmt.Println("New ponzu project created at", path)
+	return nil
+}
+
+func vendorCorePackages(path string) error {
 	vendorPath := filepath.Join(path, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu")
-	err = os.MkdirAll(vendorPath, os.ModeDir|os.ModePerm)
+	err := os.MkdirAll(vendorPath, os.ModeDir|os.ModePerm)
 	if err != nil {
 		// TODO: rollback, remove ponzu project from path
 		return err
@@ -292,13 +318,6 @@ func createProjInDir(path string) error {
 		return err
 	}
 
-	err = generateContentType("post", path)
-	if err != nil {
-		// TODO: rollback, remove ponzu project from path
-		return err
-	}
-
-	fmt.Println("New ponzu project created at", path)
 	return nil
 }
 
