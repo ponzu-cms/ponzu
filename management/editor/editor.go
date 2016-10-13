@@ -54,9 +54,9 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 <script>
 	$(function() {
 		var form = $('form'),
-			delete = form.find('button.delete-post');
+			del = form.find('button.delete-post');
 
-		delete.on('click', function(e) {
+		del.on('click', function(e) {
 			e.preventDefault();
 			var action = form.attr('action');
 			action = action + '/delete';
