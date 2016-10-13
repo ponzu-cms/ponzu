@@ -540,7 +540,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-	redir = redir + "posts?type=" + t
+	redir = redir + "/posts?type=" + t
 	http.Redirect(res, req, redir, http.StatusFound)
 }
 
