@@ -46,10 +46,23 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
-<div class="input-field">	
+<div class="input-field">
 	<button class="right waves-effect waves-light btn green" type="submit">Save</button>
+	<button class="waves-effect waves-light btn green confirm-delete" type="submit">Delete</button>
 </div>
+
+<script>
+	$(function() {
+		var form = $('form'),
+			delete = form.find('button.confirm-delete');
+
+		var action = form.attr('action');
+		console.log(action);
+
+	});
+</script>
 `
+
 	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
 
 	return editor.ViewBuf.Bytes(), nil

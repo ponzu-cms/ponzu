@@ -214,6 +214,25 @@ func createProjInDir(path string) error {
 		return err
 	}
 
+	if dev {
+		devClone := exec.Command("git", "clone", local, "--branch", "ponzu-dev", "--single-branch", path)
+		devClone.Stdout = os.Stdout
+		devClone.Stderr = os.Stderr
+
+		err := devClone.Start()
+		if err != nil {
+			return err
+		}
+
+		err = devClone.Wait()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Dev build cloned from bosssauce/ponzu:ponzu-dev")
+		return nil
+	}
+
 	// try to git clone the repository from the local machine's $GOPATH
 	localClone := exec.Command("git", "clone", local, path)
 	localClone.Stdout = os.Stdout
