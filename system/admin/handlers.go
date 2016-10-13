@@ -513,6 +513,31 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func deleteHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	q := req.URL.Query()
+	id := q.Get("id")
+	t := q.Get("type")
+
+	if id == "" || t == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := db.DeleteContent(t + ":" + i)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/delete")
+	http.Redirect(res, req, redir, http.StatusFound)
+}
+
 func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)

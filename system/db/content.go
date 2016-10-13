@@ -137,6 +137,24 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	return j, nil
 }
 
+// DeleteContent removes an item from the database. Deleting a non-existent item
+// will return a nil error.
+func DeleteContent(target string) error {
+	t := strings.Split(target, ":")
+	ns, id := t[0], t[1]
+
+	err := store.Update(func(tx *bolt.Tx) error {
+		tx.Bucket([]byte(ns)).Delete([]byte(id))
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Content retrives one item from the database. Non-existent values will return an empty []byte
 // The `target` argument is a string made up of namespace:id (string:int)
 func Content(target string) ([]byte, error) {
