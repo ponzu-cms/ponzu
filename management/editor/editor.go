@@ -54,7 +54,13 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 <script>
 	$(function() {
 		var form = $('form'),
-			del = form.find('button.delete-post');
+			del = form.find('button.delete-post'),
+			id = form.find('input[name=id]');
+		
+		// hide delete button if this is a new post, or a non-post editor page
+		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
+			del.hide();
+		}
 
 		del.on('click', function(e) {
 			e.preventDefault();
@@ -62,7 +68,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			action = action + '/delete';
 			form.attr('action', action);
 			
-			if (confirm("Ponzu: Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
 				form.submit();
 			}
 		});
