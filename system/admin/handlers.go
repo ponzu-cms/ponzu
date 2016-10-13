@@ -528,7 +528,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := db.DeleteContent(t + ":" + i)
+	err := db.DeleteContent(t + ":" + id)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
