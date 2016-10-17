@@ -25,22 +25,37 @@ const managerHTML = `
 				e.target.value = replaceBadChars(val);
 			});
 
-			var setDefaultTimeAndDate = function($pt, $pd, $ts, $up, unix) {
+			var setDefaultTimeAndDate = function(dt, $ts, $up, unix) {
 				var time = getPartialTime(unix),
 					date = getPartialDate(unix);
 
-				$pt.val(time);
-				$pd.val(date);
+				dt.hour.val(time.hh);
+				dt.minute.val(time.mm);
+				dt.year.val(date.yyyy);
+				dt.month.val(date.mm);
+				dt.day.val(date.dd);
 				$ts.val(unix);
 				$up.val(unix);
 			}
 
 			// set time time and date inputs using the hidden timestamp input.
 			// if it is empty, set it to now and use that value for time and date
-			var publish_time = $('input.__ponzu.time'),
-				publish_date = $('input.__ponzu.date'),
+			var publish_time_hh = $('input.__ponzu.hour'),
+				publish_time_mm = $('input.__ponzu.minute'),
+				publish_date_yyyy = $('input.__ponzu.year'),
+				publish_date_mm = $('input.__ponzu.month'),
+				publish_date_dd = $('input.__ponzu.day'),
 				timestamp = $('input.__ponzu.timestamp'),
 				updated = $('input.__ponzu.updated'),
+				getFields = function() {
+					return {
+						hour: publish_time_hh,
+						minute: publish_time_mm,
+						year: publish_time_yyyy,
+						month: publish_time_mm,
+						day: publish_time_dd
+					}
+				},
 				time;
 
 			if (timestamp.val() !== "") {
@@ -49,7 +64,7 @@ const managerHTML = `
 				time = (new Date()).getTime();
 			}
 
-			setDefaultTimeAndDate(publish_time, publish_date, timestamp, updated, time);
+			setDefaultTimeAndDate(getFields(), timestamp, updated, time);
 			
 		});
 	</script>

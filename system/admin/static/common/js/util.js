@@ -23,34 +23,42 @@ function replaceBadChars(text) {
 }
 
 
-// Returns a local partial time based on unix timestamp (i.e. HH:MM:SS)
+// Returns a local partial time object based on unix timestamp
 function getPartialTime(unix) {
     var date = new Date(unix);
-    var parts = [];
-    parts.push(date.getHours());
-    parts.push(date.getMinutes());
-    parts.push(date.getSeconds());
+    var t = {};
+    var hours = date.getHours();
+    if (hours < 10) {
+        hours = "0" + String(hours);
+    }
+    t.hh = hours;
 
-    return parts.join(":");
+    var minutes = date.getMinutes();
+    if (minutes < 10) {
+        minutes = "0" + String(minutes);
+    }
+    t.mm = minutes;
+
+    return t;
 }
 
-// Returns a local partial date based on unix timestamp (YYYY-MM-DD)
+// Returns a local partial date object based on unix timestamp
 function getPartialDate(unix) {
     var date = new Date(unix);
-    var parts = [];
-    parts.push(date.getFullYear());
+    var d = {};
+    d.yyyy = date.getFullYear();
     
     var month = date.getMonth()+1;
     if (month < 10) {
         month = "0" + String(month);
     }
-    parts.push(month);
+    d.mm = month;
 
     var day = date.getDate();
     if (day < 10) {
         day = "0" + String(day);
     }
-    parts.push(day);
+    d.dd = day;
 
-    return parts.join("-");
+    return d;
 }
