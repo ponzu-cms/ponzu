@@ -32,6 +32,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	// num := q.Get("num")
 	// page := q.Get("page")
 
+	// TODO: inplement time-based ?after=time.Time, ?before=time.Time between=time.Time|time.Time
+
 	if t == "" {
 		res.WriteHeader(http.StatusBadRequest)
 		return

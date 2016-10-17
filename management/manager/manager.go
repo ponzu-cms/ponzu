@@ -13,6 +13,8 @@ const managerHTML = `
     <form method="post" action="/admin/edit" enctype="multipart/form-data">
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
+		<input type="hidden" name="timestamp" value="" />
+		<input type="hidden" name="updated" value="" />
 		{{ .Editor }}
 	</form>
 	<script>
