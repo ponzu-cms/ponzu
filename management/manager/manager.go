@@ -26,8 +26,8 @@ const managerHTML = `
 			});
 
 			var setDefaultTimeAndDate = function($pt, $pd, $ts, $up, unix) {
-				var time = getPartialTime(now),
-					date = getPartialDate(now);
+				var time = getPartialTime(unix),
+					date = getPartialDate(unix);
 
 				$pt.val(time);
 				$pd.val(date);
