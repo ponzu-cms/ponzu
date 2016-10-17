@@ -51,9 +51,9 @@ const managerHTML = `
 					return {
 						hour: publish_time_hh,
 						minute: publish_time_mm,
-						year: publish_time_yyyy,
-						month: publish_time_mm,
-						day: publish_time_dd
+						year: publish_date_yyyy,
+						month: publish_date_mm,
+						day: publish_date_dd
 					}
 				},
 				time;
