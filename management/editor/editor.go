@@ -43,6 +43,20 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 	// content items with Item embedded have some default fields we need to render
 	editor.ViewBuf.Write([]byte(`<tr class="col s4 default-fields"><td>`))
+
+	publishTime := `
+<div class="input-field col s12">
+	<label class="active" for="Publish-Date">Publish Date</label>
+	<input value="" class="date __ponzu" label="Publish Date" type="date" name="date" />
+</div>
+<div class="input-field col s12">
+	<label class="active" for="Publish-Time">Publish Time</label>
+	<input value="" class="time __ponzu" label="Publish Time" type="time" name="time" />
+</div>
+	`
+
+	editor.ViewBuf.Write([]byte(publishTime))
+
 	addPostDefaultFieldsToEditorView(post, editor)
 
 	submit := `
@@ -86,20 +100,6 @@ func addFieldToEditorView(e *Editor, f Field) {
 
 func addPostDefaultFieldsToEditorView(p Editable, e *Editor) {
 	defaults := []Field{
-		Field{
-			View: Input("Date", p, map[string]string{
-				"label": "Publish Date",
-				"type":  "date",
-				"class": "date __ponzu",
-			}),
-		},
-		Field{
-			View: Input("Time", p, map[string]string{
-				"label": "Publish Time",
-				"type":  "time",
-				"class": "time __ponzu",
-			}),
-		},
 		Field{
 			View: Input("Slug", p, map[string]string{
 				"label":       "URL Slug",

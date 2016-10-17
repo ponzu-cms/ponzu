@@ -13,15 +13,25 @@ const managerHTML = `
     <form method="post" action="/admin/edit" enctype="multipart/form-data">
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
-		<input type="hidden" name="timestamp" value="" />
-		<input type="hidden" name="updated" value="" />
+		<input type="hidden" name="timestamp" class="timestamp __ponzu" value="" />
+		<input type="hidden" name="updated" class="updated __ponzu" value="" />
 		{{ .Editor }}
 	</form>
 	<script>
-		// remove all bad chars from all inputs in the form, except file fields
-		$('form input:not([type=file]), form textarea').on('blur', function(e) {
-			var val = e.target.value;
-			e.target.value = replaceBadChars(val);
+		$(function() {
+			// remove all bad chars from all inputs in the form, except file fields
+			$('form input:not([type=file]), form textarea').on('blur', function(e) {
+				var val = e.target.value;
+				e.target.value = replaceBadChars(val);
+			});
+
+			// set time time and date inputs using the hidden timestamp input.
+			// if it is empty, set it to now and use that value for time and date
+			var publish_time = $('input.__ponzu.time'),
+				publish_date = $('input.__ponzu.date'),
+				now = new Date();
+
+			// set updated value to now
 		});
 	</script>
 </div>

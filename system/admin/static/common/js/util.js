@@ -21,3 +21,14 @@ function replaceBadChars(text) {
     
     return s;
 }
+
+
+// Returns a local partial time based on unix timestamp
+function getPartialTime(date) {
+    var parts = [];
+    parts.push(date.getHours())
+    parts.push(date.getMinutes())
+    parts.push(date.getSeconds())
+
+    return parts.join(":");
+}
