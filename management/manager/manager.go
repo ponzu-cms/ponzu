@@ -25,13 +25,32 @@ const managerHTML = `
 				e.target.value = replaceBadChars(val);
 			});
 
+			var setDefaultTimeAndDate = function($pt, $pd, $ts, $up, unix) {
+				var time = getPartialTime(now),
+					date = getPartialDate(now);
+
+				$pt.val(time);
+				$pd.val(date);
+				$ts.val(unix);
+				$up.val(unix);
+			}
+
 			// set time time and date inputs using the hidden timestamp input.
 			// if it is empty, set it to now and use that value for time and date
 			var publish_time = $('input.__ponzu.time'),
 				publish_date = $('input.__ponzu.date'),
-				now = new Date();
+				timestamp = $('input.__ponzu.timestamp'),
+				updated = $('input.__ponzu.updated'),
+				time;
 
-			// set updated value to now
+			if (timestamp.val() !== "") {
+				time = timestamp.val();
+			} else {
+				time = (new Date()).getTime();
+			}
+
+			setDefaultTimeAndDate(publish_time, publish_date, timestamp, updated, time);
+			
 		});
 	</script>
 </div>
