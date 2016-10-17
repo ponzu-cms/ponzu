@@ -36,11 +36,11 @@ new <directory>:
 
 generate, gen, g <type>:
 
-    Generate a content type file with boilerplate code to implement
-    the editor.Editable interface. Must be given one (1) parameter of
-    the name of the type for the new content.
+	Generate a content type file with boilerplate code to implement
+	the editor.Editable interface. Must be given one (1) parameter of
+	the name of the type for the new content.
 
-    Example:
+	Example:
 	$ ponzu gen review
 
 
@@ -67,6 +67,7 @@ generate, gen, g <type>:
 	database, since the first process to open it recieves a lock. If you intend
 	to run the Admin and API on separate processes, you must call them with the
 	'ponzu' command independently.
+
 `
 
 var (
