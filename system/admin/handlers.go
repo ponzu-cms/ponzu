@@ -306,7 +306,52 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	html := `<div class="col s9 card">		
 					<div class="card-content">
 					<div class="row">
-					<div class="card-title col s7">` + t + ` Items</div>	
+					<div class="col s7">
+						<div class="row">
+							<div class="card-title col s7">` + t + ` Items</div>
+							<div class="col s5 input-field inline">
+								<select class="browser-default __ponzu sort-order">
+									<option value="DESC">New to Old</option>
+									<option value="ASC">Old to New</option>
+								</select>
+								<label>Sort:</label>
+							</div>	
+							<script>
+								$(function() {
+									var getParam = function(param) {
+										var qs = window.location.search.substring(1);
+										var qp = qs.split("&");
+										var t = "";
+
+										for (var i = 0; i < qp.length; i++) {
+											var p = qp[i].split("=")
+											if (p[0] === param) {
+												t = p[1];	
+											}
+										}
+
+										return t;
+									}
+
+									var sort = $('select.__ponzu.sort-order');
+
+									sort.on('change', function() {
+										var path = window.location.pathname;
+										var s = sort.val();
+										var t = getParam("type");
+
+										window.location.replace(path + "&type=" + t + "&order=" + s)
+									});
+
+									var order = getParam("order");
+									if (order !== "") {
+										sort.val(order);
+									}
+									
+								});
+							</script>
+						</div>
+					</div>
 					<form class="col s5" action="/admin/posts/search" method="get">
 						<div class="input-field post-search inline">
 							<i class="right material-icons search-icon">search</i>
