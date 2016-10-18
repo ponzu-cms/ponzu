@@ -74,7 +74,7 @@ const managerHTML = `
 				time;
 
 			if (timestamp.val() !== "") {
-				time = timestamp.val();
+				time = parseInt(timestamp.val());
 			} else {
 				time = (new Date()).getTime();
 			}
