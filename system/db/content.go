@@ -222,13 +222,19 @@ func SortContent(namespace string) {
 		posts = append(posts, post.(editor.Sortable))
 	}
 
-	fmt.Printf("%v\n", posts)
+	fmt.Println("-------------------------UN-SORTED------------------------")
+
+	for i := range posts {
+		fmt.Printf("%v\n", posts[i])
+	}
 	fmt.Println("------------------------NOW SORTED------------------------")
 
 	// sort posts
 	sort.Sort(posts)
 
-	fmt.Printf("%v\n", posts)
+	for i := range posts {
+		fmt.Printf("%v\n", posts[i])
+	}
 
 	// one by one, encode to json and store as
 	// store in __sorted bucket inside namespace bucket, first delete existing
