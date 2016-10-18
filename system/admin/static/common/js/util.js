@@ -31,7 +31,16 @@ function getPartialTime(unix) {
     if (hours < 10) {
         hours = "0" + String(hours);
     }
+
     t.hh = hours;
+    if (hours > 12) {
+        t.hh = hours - 12;
+        t.pd = "PM";
+    } else if (hours === 12) {
+        t.pd = "PM";
+    } else if (hours < 12) {
+        t.pd = "AM";
+    }
 
     var minutes = date.getMinutes();
     if (minutes < 10) {

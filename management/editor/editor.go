@@ -82,6 +82,13 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		<label class="active">MM</label>
 		<input value="" class="minute __ponzu" type="text" placeholder="MM" />
 	</div>
+	<div class="input-field col s3">
+		<label class="active">Period</label>
+		<select class="period __ponzu browser-default">
+			<option value="AM">AM</option>
+			<option value="PM">PM</option>
+		</select>
+	</div>
 </div>
 	`
 

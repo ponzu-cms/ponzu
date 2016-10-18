@@ -31,6 +31,7 @@ const managerHTML = `
 
 				dt.hour.val(time.hh);
 				dt.minute.val(time.mm);
+				dt.period.val(time.pd);
 				dt.year.val(date.yyyy);
 				dt.month.val(date.mm);
 				dt.day.val(date.dd);
@@ -42,8 +43,9 @@ const managerHTML = `
 			// if it is empty, set it to now and use that value for time and date
 			var publish_time_hh = $('input.__ponzu.hour'),
 				publish_time_mm = $('input.__ponzu.minute'),
+				publish_time_pd = $('select.__ponzu.period'),				
 				publish_date_yyyy = $('input.__ponzu.year'),
-				publish_date_mm = $('input.__ponzu.month'),
+				publish_date_mm = $('select.__ponzu.month'),
 				publish_date_dd = $('input.__ponzu.day'),
 				timestamp = $('input.__ponzu.timestamp'),
 				updated = $('input.__ponzu.updated'),
@@ -51,6 +53,7 @@ const managerHTML = `
 					return {
 						hour: publish_time_hh,
 						minute: publish_time_mm,
+						period: publish_time_pd,
 						year: publish_date_yyyy,
 						month: publish_date_mm,
 						day: publish_date_dd
