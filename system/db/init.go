@@ -33,6 +33,8 @@ func Init() {
 			if err != nil {
 				return err
 			}
+
+			go SortContent(t + "_sorted")
 		}
 
 		// init db with other buckets as needed

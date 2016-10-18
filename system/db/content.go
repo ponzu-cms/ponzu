@@ -208,8 +208,6 @@ func ContentAll(namespace string) [][]byte {
 func SortContent(namespace string) {
 	all := ContentAll(namespace)
 
-	fmt.Println(all)
-
 	var posts sortablePosts
 	// decode each (json) into Editable
 	for i := range all {
@@ -245,7 +243,7 @@ func SortContent(namespace string) {
 			return err
 		}
 
-		// encode to json and store as i-post.Time():post
+		// encode to json and store as 'i:post.Time()':post
 		for i := range posts {
 			j, err := json.Marshal(posts[i])
 			if err != nil {
