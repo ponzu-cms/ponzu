@@ -71,9 +71,11 @@ func Init() {
 	}
 
 	// sort all content into type_sorted buckets
-	for t := range content.Types {
-		go SortContent(t + "_sorted")
-	}
+	go func() {
+		for t := range content.Types {
+			SortContent(t + "_sorted")
+		}
+	}()
 
 }
 
