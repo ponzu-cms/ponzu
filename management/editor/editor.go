@@ -65,24 +65,25 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	</div>
 	<div class="input-field col s2">
 		<label class="active">DD</label>
-		<input value="" class="day __ponzu" type="text" placeholder="DD" />
+		<input value="" class="day __ponzu" maxlength="2" type="text" placeholder="DD" />
 	</div>
 	<div class="input-field col s4">
 		<label class="active">YYYY</label>
-		<input value="" class="year __ponzu" type="text" placeholder="YYYY" />
+		<input value="" class="year __ponzu" maxlength="4" type="text" placeholder="YYYY" />
 	</div>
 </div>
 
 <div class="row">
 	<div class="input-field col s3">
 		<label class="active">HH</label>
-		<input value="" class="hour __ponzu" type="text" placeholder="HH" />
+		<input value="" class="hour __ponzu" maxlength="2" type="text" placeholder="HH" />
 	</div>
+	<div class="col s1">:</div>
 	<div class="input-field col s3">
 		<label class="active">MM</label>
-		<input value="" class="minute __ponzu" type="text" placeholder="MM" />
+		<input value="" class="minute __ponzu" maxlength="2" type="text" placeholder="MM" />
 	</div>
-	<div class="input-field col s3">
+	<div class="input-field col s4">
 		<label class="active">Period</label>
 		<select class="period __ponzu browser-default">
 			<option value="AM">AM</option>

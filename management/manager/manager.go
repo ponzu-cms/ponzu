@@ -35,7 +35,11 @@ const managerHTML = `
 				dt.year.val(date.yyyy);
 				dt.month.val(date.mm);
 				dt.day.val(date.dd);
-				$ts.val(unix);
+				
+				if ($ts.val() === "") {
+					$ts.val(unix);					
+				}
+
 				$up.val(unix);
 			}
 
@@ -69,7 +73,23 @@ const managerHTML = `
 
 			setDefaultTimeAndDate(getFields(), timestamp, updated, time);
 			
+			var timeUpdated = false;
+			$('form').on('submit', function(e) {
+				if (timeUpdated === true) {
+					timeUpdated = false;
+					return;
+				}
+
+				e.preventDefault();
+
+				var time = (new Date()).getTime();
+				setDefaultTimeAndDate(getFields(), timestamp, updated, time);
+
+				timeUpdated = true;
+				$('form').submit();				
+			});
 		});
+		
 	</script>
 </div>
 `
