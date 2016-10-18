@@ -435,19 +435,16 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		cid := req.FormValue("id")
 		t := req.FormValue("type")
 		ts := req.FormValue("timestamp")
+		up := req.FormValue("updated")
 
 		// create a timestamp if one was not set
-		date := make(map[string]int)
 		if ts == "" {
-			now := time.Now()
-			date["year"] = now.Year()
-			date["month"] = int(now.Month())
-			date["day"] = now.Day()
-
-			// create timestamp format 'yyyy-mm-dd' and set in PostForm for
-			// db insertion
-			ts = fmt.Sprintf("%d-%02d-%02d", date["year"], date["month"], date["day"])
+			ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
 			req.PostForm.Set("timestamp", ts)
+		}
+
+		if up == "" {
+			req.PostForm.Set("updated", ts)
 		}
 
 		urlPaths, err := storeFileUploads(req)

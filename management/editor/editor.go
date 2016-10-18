@@ -49,18 +49,18 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<div class="input-field col s6">
 		<label class="active">MM</label>
 		<select class="month __ponzu browser-default">
-			<option value="0">Jan - 01</option>
-			<option value="1">Feb - 02</option>
-			<option value="2">Mar - 03</option>
-			<option value="3">Apr - 04</option>
-			<option value="4">May - 05</option>
-			<option value="5">Jun - 06</option>
-			<option value="6">Jul - 07</option>
-			<option value="7">Aug - 08</option>
-			<option value="8">Sep - 09</option>
-			<option value="9">Oct - 10</option>
-			<option value="10">Nov - 11</option>
-			<option value="11">Dec - 12</option>
+			<option value="1">Jan - 01</option>
+			<option value="2">Feb - 02</option>
+			<option value="3">Mar - 03</option>
+			<option value="4">Apr - 04</option>
+			<option value="5">May - 05</option>
+			<option value="6">Jun - 06</option>
+			<option value="7">Jul - 07</option>
+			<option value="8">Aug - 08</option>
+			<option value="9">Sep - 09</option>
+			<option value="10">Oct - 10</option>
+			<option value="11">Nov - 11</option>
+			<option value="12">Dec - 12</option>
 		</select>
 	</div>
 	<div class="input-field col s2">
