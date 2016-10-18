@@ -208,6 +208,8 @@ func ContentAll(namespace string) [][]byte {
 func SortContent(namespace string) {
 	all := ContentAll(namespace)
 
+	fmt.Println(all)
+
 	var posts sortablePosts
 	post := content.Types[namespace]()
 	// decode each (json) into Editable
@@ -230,7 +232,7 @@ func SortContent(namespace string) {
 	fmt.Println("------------------------NOW SORTED------------------------")
 
 	// sort posts
-	sort.Sort(posts)
+	sort.Sort(&posts)
 
 	for i := range posts {
 		fmt.Printf("%v\n", posts[i])
