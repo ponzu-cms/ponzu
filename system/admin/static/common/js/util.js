@@ -46,13 +46,10 @@ function getPartialTime(unix) {
 function getPartialDate(unix) {
     var date = new Date(unix);
     var d = {};
+    
     d.yyyy = date.getFullYear();
     
-    var month = date.getMonth()+1;
-    if (month < 10) {
-        month = "0" + String(month);
-    }
-    d.mm = month;
+    d.mm = date.getMonth()+1;
 
     var day = date.getDate();
     if (day < 10) {

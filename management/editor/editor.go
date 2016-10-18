@@ -48,7 +48,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 <div class="row">
 	<div class="input-field col s6">
 		<label class="active">MM</label>
-		<select class="month __ponzu">
+		<select class="month __ponzu browser-default">
 			<option value="0">Jan - 01</option>
 			<option value="1">Feb - 02</option>
 			<option value="2">Mar - 03</option>
