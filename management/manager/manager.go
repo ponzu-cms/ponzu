@@ -31,7 +31,7 @@ const managerHTML = `
 					minute = dt.minute.val();
 
 					if (dt.period == "PM") {
-						hours = hours + 12;
+						hour = hour + 12;
 					}
 
 				var date = new Date(year, month, day, hour, minute);
