@@ -232,14 +232,14 @@ func SortContent(namespace string) {
 	fmt.Println("------------------------NOW SORTED------------------------")
 
 	// sort posts
-	sort.Sort(&posts)
+	sort.Sort(posts)
 
 	for i := range posts {
 		fmt.Printf("%v\n", posts[i])
 	}
 
 	// one by one, encode to json and store as
-	// store in __sorted bucket inside namespace bucket, first delete existing
+	// store in <namespace>__sorted bucket, first delete existing
 
 }
 
