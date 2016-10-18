@@ -147,13 +147,13 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) {
 			}),
 		},
 		Field{
-			View: Input("Timestamp", p, map[string]string{
+			View: Timestamp("Timestamp", p, map[string]string{
 				"type":  "hidden",
 				"class": "timestamp __ponzu",
 			}),
 		},
 		Field{
-			View: Input("Updated", p, map[string]string{
+			View: Timestamp("Updated", p, map[string]string{
 				"type":  "hidden",
 				"class": "updated __ponzu",
 			}),

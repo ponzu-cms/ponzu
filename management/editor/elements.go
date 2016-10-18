@@ -37,11 +37,11 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 	return domElement(e)
 }
 
-// Time returns the []byte of an <input> HTML element with a label.
+// Timestamp returns the []byte of an <input> HTML element with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Time(fieldName string, p interface{}, attrs map[string]string) []byte {
+func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte {
 	var data string
 	val := valueFromStructField(fieldName, p)
 	if val.Int() == 0 {
