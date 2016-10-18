@@ -30,15 +30,12 @@ const managerHTML = `
 					hour = parseInt(dt.hour.val()),
 					minute = parseInt(dt.minute.val());
 
-					console.log(year, month, day, hour, minute);
-
 					if (dt.period.val() === "PM") {
 						hour = hour + 12;
-						console.log(hour);
 					}
 
 				var date = new Date(year, month, day, hour, minute);
-				console.log(date);
+				
 				$ts.val(date.getTime());
 			}
 
