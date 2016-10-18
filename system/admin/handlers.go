@@ -358,7 +358,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Within all` + t + ` fields" class="search"/>
+							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
 						</div>
                     </form>	
