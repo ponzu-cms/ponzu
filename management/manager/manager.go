@@ -24,13 +24,13 @@ const managerHTML = `
 			});
 
 			var updateTimestamp = function(dt, $ts) {
-				var year = dt.year.val(),
-					month = dt.month.val()-1,
-					day = dt.day.val(),
-					hour = dt.hour.val(),
-					minute = dt.minute.val();
+				var year = parseInt(dt.year.val()),
+					month = parseInt(dt.month.val())-1,
+					day = parseInt(dt.day.val()),
+					hour = parseInt(dt.hour.val()),
+					minute = parseInt(dt.minute.val());
 
-					if (dt.period == "PM") {
+					if (dt.period === "PM") {
 						hour = hour + 12;
 					}
 
