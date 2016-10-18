@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -17,45 +16,16 @@ func storeFileUploads(req *http.Request) (map[string]string, error) {
 		return nil, fmt.Errorf("%s", err)
 	}
 
-	ts := req.FormValue("timestamp")
+	ts := req.FormValue("timestamp") // timestamp in milliseconds since unix epoch
+
+	if ts == "" {
+		ts = fmt.Sprintf("%d", time.Now().Unix()*1000) // Unix() returns seconds since unix epoch
+	}
+
+	req.Form.Set("timestamp", ts)
 
 	// To use for FormValue name:urlPath
 	urlPaths := make(map[string]string)
-
-	// get ts values individually to use as directory names when storing
-	// uploaded images
-	date := make(map[string]int)
-	if ts == "" {
-		now := time.Now()
-		date["year"] = now.Year()
-		date["month"] = int(now.Month())
-		date["day"] = now.Day()
-
-		// create timestamp format 'yyyy-mm-dd' and set in PostForm for
-		// db insertion
-		ts = fmt.Sprintf("%d-%02d-%02d", date["year"], date["month"], date["day"])
-		req.PostForm.Set("timestamp", ts)
-	} else {
-		tsParts := strings.Split(ts, "-")
-		year, err := strconv.Atoi(tsParts[0])
-		if err != nil {
-			return nil, fmt.Errorf("%s", err)
-		}
-
-		month, err := strconv.Atoi(tsParts[1])
-		if err != nil {
-			return nil, fmt.Errorf("%s", err)
-		}
-
-		day, err := strconv.Atoi(tsParts[2])
-		if err != nil {
-			return nil, fmt.Errorf("%s", err)
-		}
-
-		date["year"] = year
-		date["month"] = month
-		date["day"] = day
-	}
 
 	// get or create upload directory to save files from request
 	pwd, err := os.Getwd()
@@ -64,11 +34,17 @@ func storeFileUploads(req *http.Request) (map[string]string, error) {
 		return nil, err
 	}
 
-	tsParts := strings.Split(ts, "-")
+	i, err := strconv.ParseInt(ts, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	tm := time.Unix(int64(i/1000), int64(i%1000))
+
 	urlPathPrefix := "api"
 	uploadDirName := "uploads"
 
-	uploadDir := filepath.Join(pwd, uploadDirName, tsParts[0], tsParts[1])
+	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 
 	// loop over all files and save them to disk
@@ -104,7 +80,7 @@ func storeFileUploads(req *http.Request) (map[string]string, error) {
 		}
 
 		// add name:urlPath to req.PostForm to be inserted into db
-		urlPath := fmt.Sprintf("/%s/%s/%s/%s/%s", urlPathPrefix, uploadDirName, tsParts[0], tsParts[1], filename)
+		urlPath := fmt.Sprintf("/%s/%s/%d/%d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
 
 		urlPaths[name] = urlPath
 	}

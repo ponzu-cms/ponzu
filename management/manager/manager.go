@@ -16,11 +16,87 @@ const managerHTML = `
 		{{ .Editor }}
 	</form>
 	<script>
-		// remove all bad chars from all inputs in the form, except file fields
-		$('form input:not([type=file]), form textarea').on('blur', function(e) {
-			var val = e.target.value;
-			e.target.value = replaceBadChars(val);
+		$(function() {
+			// remove all bad chars from all inputs in the form, except file fields
+			$('form input:not([type=file]), form textarea').on('blur', function(e) {
+				var val = e.target.value;
+				e.target.value = replaceBadChars(val);
+			});
+
+			var updateTimestamp = function(dt, $ts) {
+				var year = dt.year.val(),
+					month = dt.month.val()-1,
+					day = dt.day.val(),
+					hour = dt.hour.val(),
+					minute = dt.minute.val();
+
+					if (dt.period == "PM") {
+						hours = hours + 12;
+					}
+
+				var date = new Date(year, month, day, hour, minute);
+				
+				$ts.val(date.getTime());
+			}
+
+			var setDefaultTimeAndDate = function(dt, $ts, $up, unix) {
+				var time = getPartialTime(unix),
+					date = getPartialDate(unix);
+
+				dt.hour.val(time.hh);
+				dt.minute.val(time.mm);
+				dt.period.val(time.pd);
+				dt.year.val(date.yyyy);
+				dt.month.val(date.mm);
+				dt.day.val(date.dd);				
+			}
+
+			// set time time and date inputs using the hidden timestamp input.
+			// if it is empty, set it to now and use that value for time and date
+			var publish_time_hh = $('input.__ponzu.hour'),
+				publish_time_mm = $('input.__ponzu.minute'),
+				publish_time_pd = $('select.__ponzu.period'),				
+				publish_date_yyyy = $('input.__ponzu.year'),
+				publish_date_mm = $('select.__ponzu.month'),
+				publish_date_dd = $('input.__ponzu.day'),
+				timestamp = $('input.__ponzu.timestamp'),
+				updated = $('input.__ponzu.updated'),
+				getFields = function() {
+					return {
+						hour: publish_time_hh,
+						minute: publish_time_mm,
+						period: publish_time_pd,
+						year: publish_date_yyyy,
+						month: publish_date_mm,
+						day: publish_date_dd
+					}
+				},
+				time;
+
+			if (timestamp.val() !== "") {
+				time = parseInt(timestamp.val());
+			} else {
+				time = (new Date()).getTime();
+			}
+
+			setDefaultTimeAndDate(getFields(), timestamp, updated, time);
+			
+			var timeUpdated = false;
+			$('form').on('submit', function(e) {
+				if (timeUpdated === true) {
+					timeUpdated = false;
+					return;
+				}
+
+				e.preventDefault();
+
+				updateTimestamp(getFields(), timestamp);
+
+				timeUpdated = true;
+				$('form').submit();				
+			});
 		});
+		
 	</script>
 </div>
 `

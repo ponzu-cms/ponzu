@@ -4,5 +4,6 @@ package content
 type Item struct {
 	ID        int    `json:"id"`
 	Slug      string `json:"slug"`
-	Timestamp string `json:"timestamp"`
+	Timestamp int64  `json:"timestamp"`
+	Updated   int64  `json:"updated"`
 }
