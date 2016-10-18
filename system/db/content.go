@@ -245,14 +245,14 @@ func SortContent(namespace string) {
 			return err
 		}
 
-		// encode to json and store as post.ID:post
+		// encode to json and store as post.Time():post
 		for _, post := range posts {
 			j, err := json.Marshal(post)
 			if err != nil {
 				return err
 			}
 
-			cid := fmt.Sprintf("%d", post.ContentID())
+			cid := fmt.Sprintf("%d-%d", post.Time(), post.ContentID())
 			err = b.Put([]byte(cid), j)
 			if err != nil {
 				err := tx.Rollback()
