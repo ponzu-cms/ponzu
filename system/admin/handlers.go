@@ -289,7 +289,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	posts := db.ContentAll(t)
+	order := strings.ToLower(q.Get("order"))
+
+	posts := db.ContentAll(t + "_sorted")
 	b := &bytes.Buffer{}
 	p, ok := content.Types[t]().(editor.Editable)
 	if !ok {
@@ -363,12 +365,24 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					</div>
 					<ul class="posts row">`
 
-	for i := range posts {
-		json.Unmarshal(posts[i], &p)
-		post := `<li class="col s12"><a href="/admin/edit?type=` +
-			t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-			`">` + p.ContentName() + `</a></li>`
-		b.Write([]byte(post))
+	if order == "desc" || order == "" {
+		// keep natural order of posts slice, as returned from sorted bucket
+		for i := range posts {
+			json.Unmarshal(posts[i], &p)
+			post := `<li class="col s12"><a href="/admin/edit?type=` +
+				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
+				`">` + p.ContentName() + `</a></li>`
+			b.Write([]byte(post))
+		}
+	} else if order == "asc" {
+		// reverse the order of posts slice
+		for i := len(posts) - 1; i >= 0; i-- {
+			json.Unmarshal(posts[i], &p)
+			post := `<li class="col s12"><a href="/admin/edit?type=` +
+				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
+				`">` + p.ContentName() + `</a></li>`
+			b.Write([]byte(post))
+		}
 	}
 
 	b.Write([]byte(`</ul></div></div>`))
