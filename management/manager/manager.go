@@ -29,14 +29,14 @@ const managerHTML = `
 				var year = dt.year.val(),
 					month = dt.month.val()-1,
 					day = dt.day.val(),
-					hours = dt.hours.val(),
-					minutes = dt.minutes.val();
+					hour = dt.hour.val(),
+					minutes = dt.minute.val();
 
 					if (dt.period == "PM") {
 						hours = hours + 12;
 					}
 
-				var date = new Date(year, month, day, hours, minutes);
+				var date = new Date(year, month, day, hour, minute);
 				
 				$ts.val(date.getTime());
 			}
