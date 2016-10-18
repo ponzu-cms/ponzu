@@ -498,8 +498,6 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		go db.SortContent(t)
-
 		scheme := req.URL.Scheme
 		host := req.URL.Host
 		path := req.URL.Path

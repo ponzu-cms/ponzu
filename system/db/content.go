@@ -65,6 +65,8 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, nil
 	}
 
+	go SortContent(ns)
+
 	return cid, nil
 }
 
@@ -104,6 +106,8 @@ func insert(ns string, data url.Values) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	go SortContent(ns)
 
 	return effectedID, nil
 }
@@ -153,6 +157,8 @@ func DeleteContent(target string) error {
 	if err != nil {
 		return err
 	}
+
+	go SortContent(ns)
 
 	return nil
 }
