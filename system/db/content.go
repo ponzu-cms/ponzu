@@ -225,22 +225,50 @@ func SortContent(namespace string) {
 		posts = append(posts, post.(editor.Sortable))
 	}
 
-	fmt.Println("-------------------------UN-SORTED------------------------")
-
-	for i := range posts {
-		fmt.Printf("%v\n", posts[i])
-	}
-	fmt.Println("------------------------NOW SORTED------------------------")
-
 	// sort posts
 	sort.Sort(posts)
 
-	for i := range posts {
-		fmt.Printf("%v\n", posts[i])
-	}
+	// store in <namespace>_sorted bucket, first delete existing
+	err := store.Update(func(tx *bolt.Tx) error {
+		err := tx.DeleteBucket([]byte(namespace + "_sorted"))
+		if err != nil {
+			return err
+		}
 
-	// one by one, encode to json and store as
-	// store in <namespace>__sorted bucket, first delete existing
+		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
+		if err != nil {
+			err := tx.Rollback()
+			if err != nil {
+				return err
+			}
+
+			return err
+		}
+
+		// encode to json and store as post.ID:post
+		for _, post := range posts {
+			j, err := json.Marshal(post)
+			if err != nil {
+				return err
+			}
+
+			cid := fmt.Sprintf("%d", post.ContentID())
+			err = b.Put([]byte(cid), j)
+			if err != nil {
+				err := tx.Rollback()
+				if err != nil {
+					return err
+				}
+
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.Println("Error while updating db with sorted", namespace)
+	}
 
 }
 
