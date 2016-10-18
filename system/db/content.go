@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -198,4 +200,51 @@ func ContentAll(namespace string) [][]byte {
 	})
 
 	return posts
+}
+
+// SortContent sorts all content of the type supplied as the namespace by time,
+// in descending order, from most recent to least recent
+// Should be called from a goroutine after SetContent is successful
+func SortContent(namespace string) {
+	all := ContentAll(namespace)
+
+	var posts sortablePosts
+	post := content.Types[namespace]()
+	// decode each (json) into Editable
+	for i := range all {
+		j := all[i]
+		err := json.Unmarshal(j, &post)
+		if err != nil {
+			log.Println("Error decoding json while sorting", namespace, ":", err)
+			return
+		}
+
+		posts = append(posts, post.(editor.Sortable))
+	}
+
+	fmt.Println(posts)
+	fmt.Println("------------------------NOW SORTED------------------------")
+
+	// sort posts
+	sort.Sort(posts)
+
+	fmt.Println(posts)
+
+	// one by one, encode to json and store as
+	// store in __sorted bucket inside namespace bucket, first delete existing
+
+}
+
+type sortablePosts []editor.Sortable
+
+func (s sortablePosts) Len() int {
+	return len(s)
+}
+
+func (s sortablePosts) Less(i, j int) bool {
+	return s[i].Time() < s[j].Time()
+}
+
+func (s sortablePosts) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
