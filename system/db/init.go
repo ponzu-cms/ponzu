@@ -33,8 +33,6 @@ func Init() {
 			if err != nil {
 				return err
 			}
-
-			go SortContent(t + "_sorted")
 		}
 
 		// init db with other buckets as needed
@@ -70,6 +68,11 @@ func Init() {
 	})
 	if err != nil {
 		log.Fatal("Coudn't initialize db with buckets.", err)
+	}
+
+	// sort all content into type_sorted buckets
+	for t := range content.Types {
+		go SortContent(t + "_sorted")
 	}
 
 }
