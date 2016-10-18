@@ -16,6 +16,11 @@ type Editable interface {
 	MarshalEditor() ([]byte, error)
 }
 
+// Sortable ensures data is sortable by time
+type Sortable interface {
+	Time() int64
+}
+
 // Editor is a view containing fields to manage content
 type Editor struct {
 	ViewBuf *bytes.Buffer
