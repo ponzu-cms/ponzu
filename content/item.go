@@ -8,7 +8,12 @@ type Item struct {
 	Updated   int64  `json:"updated"`
 }
 
-// Time implements the Sortable interface
+// Time partially implements the Sortable interface
 func (i Item) Time() int64 {
 	return i.Timestamp
+}
+
+// ContentID partially implements the Sortable interface
+func (i Item) ContentID() int {
+	return i.ID
 }

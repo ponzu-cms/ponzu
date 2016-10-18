@@ -19,6 +19,7 @@ type Editable interface {
 // Sortable ensures data is sortable by time
 type Sortable interface {
 	Time() int64
+	ContentID() int
 }
 
 // Editor is a view containing fields to manage content
