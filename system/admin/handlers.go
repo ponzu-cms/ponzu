@@ -314,7 +314,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 									<option value="DESC">New to Old</option>
 									<option value="ASC">Old to New</option>
 								</select>
-								<label>Sort:</label>
+								<label class="active">Sort:</label>
 							</div>	
 							<script>
 								$(function() {
@@ -354,8 +354,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					</div>
 					<form class="col s5" action="/admin/posts/search" method="get">
 						<div class="input-field post-search inline">
+							<label class="active">Search</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Search for ` + t + ` content" class="search"/>
+							<input class="search" name="q" type="text" placeholder="Within ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
 						</div>
                     </form>	
