@@ -211,10 +211,11 @@ func SortContent(namespace string) {
 	fmt.Println(all)
 
 	var posts sortablePosts
-	post := content.Types[namespace]()
 	// decode each (json) into Editable
 	for i := range all {
 		j := all[i]
+		post := content.Types[namespace]()
+
 		err := json.Unmarshal(j, &post)
 		if err != nil {
 			log.Println("Error decoding json while sorting", namespace, ":", err)
