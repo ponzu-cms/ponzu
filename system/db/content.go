@@ -251,7 +251,7 @@ func (s sortablePosts) Len() int {
 }
 
 func (s sortablePosts) Less(i, j int) bool {
-	return s[i].Time() < s[j].Time()
+	return s[i].Time() > s[j].Time()
 }
 
 func (s sortablePosts) Swap(i, j int) {
