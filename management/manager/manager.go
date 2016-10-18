@@ -30,7 +30,7 @@ const managerHTML = `
 					month = dt.month.val()-1,
 					day = dt.day.val(),
 					hour = dt.hour.val(),
-					minutes = dt.minute.val();
+					minute = dt.minute.val();
 
 					if (dt.period == "PM") {
 						hours = hours + 12;
