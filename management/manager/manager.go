@@ -24,14 +24,15 @@ const managerHTML = `
 			});
 
 			var updateTimestamp = function(dt, $ts) {
-				console.log(dt);
 				var year = parseInt(dt.year.val()),
 					month = parseInt(dt.month.val())-1,
 					day = parseInt(dt.day.val()),
 					hour = parseInt(dt.hour.val()),
 					minute = parseInt(dt.minute.val());
 
-					if (dt.period === "PM") {
+					console.log(year, month, day, hour, minute);
+
+					if (dt.period.val() === "PM") {
 						hour = hour + 12;
 						console.log(hour);
 					}
