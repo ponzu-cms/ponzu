@@ -340,7 +340,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 										var s = sort.val();
 										var t = getParam("type");
 
-										window.location.replace(path + "&type=" + t + "&order=" + s)
+										window.location.replace(path + "?type=" + t + "&order=" + s)
 									});
 
 									var order = getParam("order");
