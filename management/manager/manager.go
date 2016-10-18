@@ -24,6 +24,7 @@ const managerHTML = `
 			});
 
 			var updateTimestamp = function(dt, $ts) {
+				console.log(dt);
 				var year = parseInt(dt.year.val()),
 					month = parseInt(dt.month.val())-1,
 					day = parseInt(dt.day.val()),
@@ -32,10 +33,11 @@ const managerHTML = `
 
 					if (dt.period === "PM") {
 						hour = hour + 12;
+						console.log(hour);
 					}
 
 				var date = new Date(year, month, day, hour, minute);
-				
+				console.log(date);
 				$ts.val(date.getTime());
 			}
 
