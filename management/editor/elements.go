@@ -47,7 +47,7 @@ func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte 
 	if val.Int() == 0 {
 		data = ""
 	} else {
-		data = val.String()
+		data = fmt.Sprintf("%d", val.Int())
 	}
 
 	e := &element{
