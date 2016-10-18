@@ -265,7 +265,7 @@ func SortContent(namespace string) {
 		return nil
 	})
 	if err != nil {
-		log.Println("Error while updating db with sorted", namespace)
+		log.Println("Error while updating db with sorted", namespace, err)
 	}
 
 }
