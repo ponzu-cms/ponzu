@@ -451,6 +451,8 @@ func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 func valueFromStructField(name string, post interface{}) reflect.Value {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
 
+	fmt.Println(name, field)
+
 	return field
 }
 
