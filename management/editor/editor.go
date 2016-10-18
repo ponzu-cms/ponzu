@@ -146,6 +146,18 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) {
 				"placeholder": "Will be set automatically",
 			}),
 		},
+		Field{
+			View: Input("Timestamp", p, map[string]string{
+				"type":  "hidden",
+				"class": "timestamp __ponzu",
+			}),
+		},
+		Field{
+			View: Input("Updated", p, map[string]string{
+				"type":  "hidden",
+				"class": "updated __ponzu",
+			}),
+		},
 	}
 
 	for _, f := range defaults {

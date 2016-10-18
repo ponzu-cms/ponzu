@@ -13,8 +13,6 @@ const managerHTML = `
     <form method="post" action="/admin/edit" enctype="multipart/form-data">
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
-		<input type="hidden" name="timestamp" class="timestamp __ponzu" value="" />
-		<input type="hidden" name="updated" class="updated __ponzu" value="" />
 		{{ .Editor }}
 	</form>
 	<script>
@@ -50,10 +48,7 @@ const managerHTML = `
 				dt.period.val(time.pd);
 				dt.year.val(date.yyyy);
 				dt.month.val(date.mm);
-				dt.day.val(date.dd);
-				
-				$ts.val(unix);					
-				$up.val(unix);
+				dt.day.val(date.dd);				
 			}
 
 			// set time time and date inputs using the hidden timestamp input.
