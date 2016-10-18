@@ -37,6 +37,31 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 	return domElement(e)
 }
 
+// Time returns the []byte of an <input> HTML element with a label.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+func Time(fieldName string, p interface{}, attrs map[string]string) []byte {
+	var data string
+	val := valueFromStructField(fieldName, p)
+	if val.Int() == 0 {
+		data = ""
+	} else {
+		data = val.String()
+	}
+
+	e := &element{
+		TagName: "input",
+		Attrs:   attrs,
+		Name:    tagNameFromStructField(fieldName, p),
+		label:   attrs["label"],
+		data:    data,
+		viewBuf: &bytes.Buffer{},
+	}
+
+	return domElementSelfClose(e)
+}
+
 // File returns the []byte of a <input type="file"> HTML element with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
@@ -450,8 +475,6 @@ func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 
 func valueFromStructField(name string, post interface{}) reflect.Value {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
-
-	fmt.Println(name, field, field.String())
 
 	return field
 }
