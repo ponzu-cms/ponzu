@@ -13,6 +13,11 @@ func (i Item) Time() int64 {
 	return i.Timestamp
 }
 
+// Touch partially implements the Sortable interface
+func (i Item) Touch() int64 {
+	return i.Updated
+}
+
 // ContentID partially implements the Sortable interface
 func (i Item) ContentID() int {
 	return i.ID
