@@ -39,7 +39,7 @@ const managerHTML = `
 				$ts.val(date.getTime());
 			}
 
-			var setDefaultTimeAndDate = function(dt, $ts, $up, unix) {
+			var setDefaultTimeAndDate = function(dt, unix) {
 				var time = getPartialTime(unix),
 					date = getPartialDate(unix);
 
@@ -79,7 +79,7 @@ const managerHTML = `
 				time = (new Date()).getTime();
 			}
 
-			setDefaultTimeAndDate(getFields(), timestamp, updated, time);
+			setDefaultTimeAndDate(getFields(), time);
 			
 			var timeUpdated = false;
 			$('form').on('submit', function(e) {
@@ -91,6 +91,7 @@ const managerHTML = `
 				e.preventDefault();
 
 				updateTimestamp(getFields(), timestamp);
+				updated.val((new Date()).getTime());
 
 				timeUpdated = true;
 				$('form').submit();				
