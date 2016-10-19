@@ -19,7 +19,6 @@ $ go get github.com/bosssauce/ponzu/...
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
 - [github.com/sluu99/um](https://github.com/sluu99/um)
-
 - [Materialize.css](http://materialize.css)
 - [Materialnote Editor](http://www.web-forge.info/projects/materialNote)
 - [jQuery](https://jquery.com/)
