@@ -164,6 +164,18 @@ span.post-detail {
     font-style: italic;  
 }
 
+.quick-delete-post {
+    display: none;
+}
+
+li:hover .quick-delete-post {
+    display: block;
+}
+
+.quick-delete-post i {
+    cursor: pointer;
+}
+
 
 /* OVERRIDE Bootstrap + Materialize conflicts */
 .iso-texteditor.input-field label {

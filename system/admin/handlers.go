@@ -431,10 +431,17 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 	updatedTime := upTime.Format("01/02/06 03:04 PM")
 	publishTime := tsTime.Format("01/02/06")
 
+	cid := fmt.Sprintf("%d", p.ContentID())
+
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + t + `&id=` + fmt.Sprintf("%d", p.ContentID()) + `">` + p.ContentName() + `</a>
+				<a href="/admin/edit?type=` + t + `&id=` + cid + `">` + p.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
+				<form class="quick-delete-post __ponzu" action="/admin/edit/delete">
+					<i class="small material-icons red">delete</i>
+					<input type="hidden" name="id" value="` + cid + `" />
+					<input type="hidden" name="type" value="` + t + `" />
+				</form>
 				<span class="right">` + publishTime + `</span>
 			</li>`
 
