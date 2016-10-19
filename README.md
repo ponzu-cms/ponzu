@@ -10,6 +10,19 @@ to get thoughts/feedback!
 $ go get github.com/bosssauce/ponzu/...
 ```
 
+## Contributing
+
+1. Checkout branch ponzu-dev
+2. Make code changes
+3. Commit change to ponzu-dev branch (I know, a little unnatural. Advice gladly accepted.)
+    - to manually test, you will need to use a new copy (ponzu new path/to/code), but pass the --dev flag so that ponzu generates a new copy from the ponzu-dev branch, not master by default (i.e. $ponzu --dev new /path/to/code)
+    - build and run with $ ponzu build and $ ponzu run
+4. To add back to master: 
+    - first push to origin ponzu-dev
+    - create a pull request 
+    - will then be merged into master
+
+
 ## Credits
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/text/unicode/norm](https://golang.org/x/text/unicode/norm)
