@@ -639,6 +639,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
+		fmt.Println("req.ParseMPF")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -653,6 +654,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
+		fmt.Println("db.DeleteContent")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
