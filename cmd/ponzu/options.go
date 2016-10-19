@@ -215,11 +215,29 @@ func createProjInDir(path string) error {
 	}
 
 	if dev {
+		branch := exec.Command("git", "checkout", "ponzu-dev")
+		branch.Stdout = os.Stdout
+		branch.Stderr = os.Stderr
+
+		err := branch.Start()
+		if err != nil {
+			return err
+		}
+
+		err = branch.Wait()
+		if err != nil {
+			return err
+		}
+
+		if fork != "" {
+			local = filepath.Join(gopath, "src", fork)
+		}
+
 		devClone := exec.Command("git", "clone", local, "--branch", "ponzu-dev", "--single-branch", path)
 		devClone.Stdout = os.Stdout
 		devClone.Stderr = os.Stderr
 
-		err := devClone.Start()
+		err = devClone.Start()
 		if err != nil {
 			return err
 		}

@@ -75,7 +75,8 @@ var (
 	tls  bool
 
 	// for ponzu internal / core development
-	dev bool
+	dev  bool
+	fork string
 )
 
 func init() {
@@ -88,6 +89,7 @@ func main() {
 	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its listener")
 	flag.BoolVar(&tls, "tls", false, "enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
+	flag.StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
 	flag.Parse()
 
 	args := flag.Args()

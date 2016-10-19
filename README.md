@@ -24,9 +24,8 @@ $ go get github.com/bosssauce/ponzu/...
 
 _A typical contribution workflow might look like:_
 ```bash
-# fork the repository and checkout 
-# ... after forking to your own account
-$ git clone https://github.com/<YOUR_GITHUB>/ponzu 'path/to/local/ponzu'
+# clone the repository and checkout ponzu-dev
+$ git clone https://github.com/bosssauce/ponzu 'path/to/local/ponzu'
 $ git checkout ponzu-dev
 
 # install ponzu with go get or from your own local path
@@ -50,6 +49,17 @@ $ ponzu build && ponzu run
 $ git push origin ponzu-dev
 # ... go to https://github.com/bosssauce/ponzu and create a PR
 ```
+
+**Note:** if you intend to work on your own fork and contribute from it, you will
+need to also pass `--fork=path/to/your/fork` (using OS-standard filepath structure),
+where `path/to/your/fork` _must_ be within `$GOPATH/src`. 
+
+For example: 
+```bash
+# ($GOPATH/src is implied in the fork path, do not add it yourself)
+$ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
+```
+
 
 
 ## Credits
