@@ -428,14 +428,14 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 	// use sort to get other info to display in admin UI post list
 	tsTime := time.Unix(int64(s.Time()/1000), 0)
 	upTime := time.Unix(int64(s.Touch()/1000), 0)
-	updatedTime := upTime.Format("Jan 2, 2006 15:04 PM")
-	publishTime := tsTime.Format("1/2/06")
+	updatedTime := upTime.Format("01/02/06 03:04 PM")
+	publishTime := tsTime.Format("01/02/06")
 
 	post := `
 			<li class="col s12">
 				<a href="/admin/edit?type=` + t + `&id=` + fmt.Sprintf("%d", p.ContentID()) + `">` + p.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
-				<span class="right">Updated: ` + publishTime + `</span>
+				<span class="right">` + publishTime + `</span>
 			</li>`
 
 	return []byte(post)
