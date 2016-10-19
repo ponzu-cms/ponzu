@@ -158,7 +158,11 @@ func DeleteContent(target string) error {
 		return err
 	}
 
-	go SortContent(ns)
+	// exception to typical "run in goroutine" pattern:
+	// we want to have an updated admin view as soon as this is deleted, so
+	// in some cases, the delete and redirect is faster than the sort,
+	// thus still showing a deleted post in the admin view.
+	SortContent(ns)
 
 	return nil
 }
