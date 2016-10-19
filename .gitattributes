@@ -1,2 +1,2 @@
-system/admin/static/editor/sass linguist-vendored
-cmd/ponzu/vendor linguist-vendored=false
+system/admin/static/editor/sass/* linguist-vendored
+cmd/ponzu/vendor/* linguist-vendored=false
