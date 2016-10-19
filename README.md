@@ -52,7 +52,8 @@ $ git push origin ponzu-dev
 
 **Note:** if you intend to work on your own fork and contribute from it, you will
 need to also pass `--fork=path/to/your/fork` (using OS-standard filepath structure),
-where `path/to/your/fork` _must_ be within `$GOPATH/src`. 
+where `path/to/your/fork` _must_ be within `$GOPATH/src`, and you are working from a branch
+called `ponxu-dev`. 
 
 For example: 
 ```bash
