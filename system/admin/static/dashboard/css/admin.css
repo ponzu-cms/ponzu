@@ -169,11 +169,13 @@ span.post-detail {
 }
 
 li:hover .quick-delete-post {
-    display: block;
+    display: inline-block;
 }
 
-.quick-delete-post i {
+.quick-delete-post span {
     cursor: pointer;
+    color: #F44336;
+    text-transform: uppercase;
 }
 
 
