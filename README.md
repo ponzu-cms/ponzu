@@ -22,6 +22,35 @@ $ go get github.com/bosssauce/ponzu/...
     - create a pull request 
     - will then be merged into master
 
+_A typical contribution workflow might look like:_
+```bash
+# fork the repository and checkout 
+# ... after forking to your own account
+$ git clone https://github.com/<YOUR_GITHUB>/ponzu 'path/to/local/ponzu'
+$ git checkout ponzu-dev
+
+# install ponzu with go get or from your own local path
+$ go get github.com/bosssauce/ponzu/...
+# or
+$ cd /path/to/local/ponzu 
+$ go install ./...
+
+# edit files, add features, etc
+$ git add -A
+$ git commit -m 'edited files, added features, etc'
+
+# now you need to test the feature.. make a new ponzu project, but pass --dev flag
+$ ponzu --dev new /path/to/new/project # will create $GOPATH/src/path/to/new/project
+
+# build & run ponzu from the new project directory
+$ cd /path/to/new/project
+$ ponzu build && ponzu run
+
+# push to your origin:ponzu-dev branch and create a PR at bosssauce/ponzu
+$ git push origin ponzu-dev
+# ... go to https://github.com/bosssauce/ponzu and create a PR
+```
+
 
 ## Credits
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
