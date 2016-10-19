@@ -452,7 +452,7 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
-				<form class="quick-delete-post __ponzu right" action="/admin/edit/delete method="post">
+				<form class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
 					<input type="hidden" name="type" value="` + t + `" />
