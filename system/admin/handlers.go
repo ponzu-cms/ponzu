@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -368,20 +369,33 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	if order == "desc" || order == "" {
 		// keep natural order of posts slice, as returned from sorted bucket
 		for i := range posts {
-			json.Unmarshal(posts[i], &p)
-			post := `<li class="col s12"><a href="/admin/edit?type=` +
-				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-				`">` + p.ContentName() + `</a></li>`
-			b.Write([]byte(post))
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t)
+			b.Write(post)
 		}
+
 	} else if order == "asc" {
 		// reverse the order of posts slice
 		for i := len(posts) - 1; i >= 0; i-- {
-			json.Unmarshal(posts[i], &p)
-			post := `<li class="col s12"><a href="/admin/edit?type=` +
-				t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-				`">` + p.ContentName() + `</a></li>`
-			b.Write([]byte(post))
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t)
+			b.Write(post)
 		}
 	}
 
@@ -399,6 +413,30 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/html")
 	res.Write(adminView)
+}
+
+// adminPostListItem is a helper to create the li containing a post.
+// p is the asserted post as an Editable, t is the Type of the post.
+func adminPostListItem(p editor.Editable, t string) []byte {
+	s, ok := p.(editor.Sortable)
+	if !ok {
+		log.Println("Content type", t, "doesn't implement editor.Sortable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces.</li>`
+		return []byte(post)
+	}
+
+	// use sort to get other info to display in admin UI post list
+	tsTime := time.Unix(int64(s.Time()/1000), 0)
+	upTime := time.Unix(int64(s.Touch()/1000), 0)
+	updatedTime := upTime.Format("Jan 2, 2006 15:04 PM")
+	publishTime := tsTime.Format("1/2/06")
+
+	post := `
+			<li class="col s12">
+				<a href="/admin/edit?type=` + t + `&id=` + fmt.Sprintf("%d", p.ContentID()) + `">` + p.ContentName() + `</a>
+				<span class="post-detail">Updated: ` + updatedTime + `</span>
+				<span class="right">Updated: ` + publishTime + `</span>
+			</li>`
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
