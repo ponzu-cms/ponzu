@@ -215,20 +215,6 @@ func createProjInDir(path string) error {
 	}
 
 	if dev {
-		branch := exec.Command("git", "checkout", "ponzu-dev")
-		branch.Stdout = os.Stdout
-		branch.Stderr = os.Stderr
-
-		err := branch.Start()
-		if err != nil {
-			return err
-		}
-
-		err = branch.Wait()
-		if err != nil {
-			return err
-		}
-
 		if fork != "" {
 			local = filepath.Join(gopath, "src", fork)
 		}
@@ -258,7 +244,7 @@ func createProjInDir(path string) error {
 			return err
 		}
 
-		fmt.Println("Dev build cloned from bosssauce/ponzu:ponzu-dev")
+		fmt.Println("Dev build cloned from " + local + ":ponzu-dev")
 		return nil
 	}
 
