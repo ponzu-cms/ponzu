@@ -258,7 +258,7 @@ func createProjInDir(path string) error {
 			return err
 		}
 
-		fmt.Println("Dev build cloned from bosssauce/ponzu:ponzu-dev")
+		fmt.Println("Dev build cloned from " + local + ":ponzu-dev")
 		return nil
 	}
 
