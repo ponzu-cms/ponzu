@@ -309,7 +309,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	html := `<div class="col s9 card">		
 					<div class="card-content">
 					<div class="row">
-					<div class="col s7">
+					<div class="col s8">
 						<div class="row">
 							<div class="card-title col s7">` + t + ` Items</div>
 							<div class="col s5 input-field inline">
@@ -323,11 +323,11 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 								$(function() {
 									var getParam = function(param) {
 										var qs = window.location.search.substring(1);
-										var qp = qs.split("&");
-										var t = "";
+										var qp = qs.split('&');
+										var t = '';
 
 										for (var i = 0; i < qp.length; i++) {
-											var p = qp[i].split("=")
+											var p = qp[i].split('=')
 											if (p[0] === param) {
 												t = p[1];	
 											}
@@ -341,13 +341,13 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 									sort.on('change', function() {
 										var path = window.location.pathname;
 										var s = sort.val();
-										var t = getParam("type");
+										var t = getParam('type');
 
-										window.location.replace(path + "?type=" + t + "&order=" + s)
+										window.location.replace(path + '?type=' + t + '&order=' + s)
 									});
 
-									var order = getParam("order");
-									if (order !== "") {
+									var order = getParam('order');
+									if (order !== '') {
 										sort.val(order);
 									}
 									
@@ -355,7 +355,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							</script>
 						</div>
 					</div>
-					<form class="col s5" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/posts/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
