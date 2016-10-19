@@ -694,10 +694,16 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		json.Unmarshal(posts[i], &p)
-		post := `<li class="col s12"><a href="/admin/edit?type=` +
-			t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-			`">` + p.ContentName() + `</a></li>`
+		err := json.Unmarshal(posts[i], &p)
+		if err != nil {
+			log.Println("Error unmarshal search result json into", t, err, posts[i])
+
+			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+			b.Write([]byte(post))
+			continue
+		}
+
+		post := adminPostListItem(p, t)
 		b.Write([]byte(post))
 	}
 
