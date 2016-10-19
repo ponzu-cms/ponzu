@@ -15,7 +15,7 @@ import (
 )
 
 var usage = `
-$ ponzu option <params> [specifiers]
+$ ponzu [specifiers] option <params>
 
 Options 
 
