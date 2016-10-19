@@ -437,6 +437,8 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="right">Updated: ` + publishTime + `</span>
 			</li>`
+
+	return []byte(post)
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
