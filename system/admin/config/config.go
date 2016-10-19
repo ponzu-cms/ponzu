@@ -97,6 +97,10 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 				right: '0px'
 			});
 
+			var contentOnly = $('.content-only.__ponzu');
+			contentOnly.hide();
+			contentOnly.find('input, textarea, select').attr('name', '');
+
 			// adjust layout of td so save button is in same location as usual
 			fields.find('td').css('float', 'right');
 

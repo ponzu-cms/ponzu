@@ -52,7 +52,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor.ViewBuf.Write([]byte(`<tr class="col s4 default-fields"><td>`))
 
 	publishTime := `
-<div class="row">
+<div class="row content-only __ponzu">
 	<div class="input-field col s6">
 		<label class="active">MM</label>
 		<select class="month __ponzu browser-default">
@@ -80,7 +80,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	</div>
 </div>
 
-<div class="row">
+<div class="row content-only __ponzu">
 	<div class="input-field col s3">
 		<label class="active">HH</label>
 		<input value="" class="hour __ponzu" maxlength="2" type="text" placeholder="HH" />
