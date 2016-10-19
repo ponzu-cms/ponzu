@@ -401,8 +401,21 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	b.Write([]byte(`</ul></div></div>`))
 
+	script := `
+	<script>
+		$(function() {
+			var del = $('.quick-delete-post.__ponzu span');
+			del.on('click', function(e) {
+				if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+					$(e.target).parent().submit();
+				}
+			});
+		});
+	</script>
+	`
+
 	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
-	html = html + b.String() + btn
+	html = html + b.String() + script + btn
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
