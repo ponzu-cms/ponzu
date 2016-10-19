@@ -6108,7 +6108,7 @@ var dom = (function() {
         var hasDefaultFont = agent.isFontInstalled(options.defaultFontName);
         var defaultFontName = (hasDefaultFont) ? options.defaultFontName : realFontList[0];
         var label = '<div class="note-current-fontname">' + defaultFontName + '</div>';
-        console.log('editing right file...')
+        // console.log('editing right file...')
         return tplButton(label, {
           title: lang.font.name,
           className: 'note-fontname',
@@ -6886,7 +6886,7 @@ var dom = (function() {
                 var isFullscreen = $editor.hasClass('fullscreen');
 
                 if (isFullscreen) {
-                  console.log("fullscreen");
+                  // console.log("fullscreen");
                   return false;
                 }
 

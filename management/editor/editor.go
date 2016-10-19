@@ -16,6 +16,13 @@ type Editable interface {
 	MarshalEditor() ([]byte, error)
 }
 
+// Sortable ensures data is sortable by time
+type Sortable interface {
+	Time() int64
+	Touch() int64
+	ContentID() int
+}
+
 // Editor is a view containing fields to manage content
 type Editor struct {
 	ViewBuf *bytes.Buffer
@@ -45,7 +52,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor.ViewBuf.Write([]byte(`<tr class="col s4 default-fields"><td>`))
 
 	publishTime := `
-<div class="row">
+<div class="row content-only __ponzu">
 	<div class="input-field col s6">
 		<label class="active">MM</label>
 		<select class="month __ponzu browser-default">
@@ -73,7 +80,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	</div>
 </div>
 
-<div class="row">
+<div class="row content-only __ponzu">
 	<div class="input-field col s3">
 		<label class="active">HH</label>
 		<input value="" class="hour __ponzu" maxlength="2" type="text" placeholder="HH" />

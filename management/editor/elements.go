@@ -128,7 +128,6 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 					store.attr('name', '');
 					upload.attr('name', '` + name + `');
 					clip.empty();
-					console.log('clicked');
 				}
 			});	
 		</script>`
@@ -198,10 +197,8 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 						contentType: false,
 						processData: false,
 						success: function(resp) {
-							console.log(resp);
 							var img = document.createElement('img');
 							img.setAttribute('src', resp.data[0].url);
-							console.log(img);
 							_editor.materialnote('insertNode', img);
 						},
 						error: function(xhr, status, err) {

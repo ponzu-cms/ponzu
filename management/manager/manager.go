@@ -24,14 +24,14 @@ const managerHTML = `
 			});
 
 			var updateTimestamp = function(dt, $ts) {
-				var year = dt.year.val(),
-					month = dt.month.val()-1,
-					day = dt.day.val(),
-					hour = dt.hour.val(),
-					minute = dt.minute.val();
+				var year = parseInt(dt.year.val()),
+					month = parseInt(dt.month.val())-1,
+					day = parseInt(dt.day.val()),
+					hour = parseInt(dt.hour.val()),
+					minute = parseInt(dt.minute.val());
 
-					if (dt.period == "PM") {
-						hours = hours + 12;
+					if (dt.period.val() === "PM") {
+						hour = hour + 12;
 					}
 
 				var date = new Date(year, month, day, hour, minute);
@@ -39,7 +39,7 @@ const managerHTML = `
 				$ts.val(date.getTime());
 			}
 
-			var setDefaultTimeAndDate = function(dt, $ts, $up, unix) {
+			var setDefaultTimeAndDate = function(dt, unix) {
 				var time = getPartialTime(unix),
 					date = getPartialDate(unix);
 
@@ -79,7 +79,7 @@ const managerHTML = `
 				time = (new Date()).getTime();
 			}
 
-			setDefaultTimeAndDate(getFields(), timestamp, updated, time);
+			setDefaultTimeAndDate(getFields(), time);
 			
 			var timeUpdated = false;
 			$('form').on('submit', function(e) {
@@ -91,6 +91,7 @@ const managerHTML = `
 				e.preventDefault();
 
 				updateTimestamp(getFields(), timestamp);
+				updated.val((new Date()).getTime());
 
 				timeUpdated = true;
 				$('form').submit();				

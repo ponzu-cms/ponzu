@@ -22,9 +22,14 @@ func Init() {
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		// initialize db with all content type buckets
+		// initialize db with all content type buckets & sorted bucket for type
 		for t := range content.Types {
 			_, err := tx.CreateBucketIfNotExists([]byte(t))
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.CreateBucketIfNotExists([]byte(t + "_sorted"))
 			if err != nil {
 				return err
 			}
@@ -64,6 +69,13 @@ func Init() {
 	if err != nil {
 		log.Fatal("Coudn't initialize db with buckets.", err)
 	}
+
+	// sort all content into type_sorted buckets
+	go func() {
+		for t := range content.Types {
+			SortContent(t)
+		}
+	}()
 
 }
 

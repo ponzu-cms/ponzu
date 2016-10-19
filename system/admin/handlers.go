@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -289,7 +290,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	posts := db.ContentAll(t)
+	order := strings.ToLower(q.Get("order"))
+
+	posts := db.ContentAll(t + "_sorted")
 	b := &bytes.Buffer{}
 	p, ok := content.Types[t]().(editor.Editable)
 	if !ok {
@@ -306,29 +309,113 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	html := `<div class="col s9 card">		
 					<div class="card-content">
 					<div class="row">
-					<div class="card-title col s7">` + t + ` Items</div>	
-					<form class="col s5" action="/admin/posts/search" method="get">
+					<div class="col s8">
+						<div class="row">
+							<div class="card-title col s7">` + t + ` Items</div>
+							<div class="col s5 input-field inline">
+								<select class="browser-default __ponzu sort-order">
+									<option value="DESC">New to Old</option>
+									<option value="ASC">Old to New</option>
+								</select>
+								<label class="active">Sort:</label>
+							</div>	
+							<script>
+								$(function() {
+									var getParam = function(param) {
+										var qs = window.location.search.substring(1);
+										var qp = qs.split('&');
+										var t = '';
+
+										for (var i = 0; i < qp.length; i++) {
+											var p = qp[i].split('=')
+											if (p[0] === param) {
+												t = p[1];	
+											}
+										}
+
+										return t;
+									}
+
+									var sort = $('select.__ponzu.sort-order');
+
+									sort.on('change', function() {
+										var path = window.location.pathname;
+										var s = sort.val();
+										var t = getParam('type');
+
+										window.location.replace(path + '?type=' + t + '&order=' + s)
+									});
+
+									var order = getParam('order');
+									if (order !== '') {
+										sort.val(order);
+									}
+									
+								});
+							</script>
+						</div>
+					</div>
+					<form class="col s4" action="/admin/posts/search" method="get">
 						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Search for ` + t + ` content" class="search"/>
+							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
 						</div>
                     </form>	
 					</div>
 					<ul class="posts row">`
 
-	for i := range posts {
-		json.Unmarshal(posts[i], &p)
-		post := `<li class="col s12"><a href="/admin/edit?type=` +
-			t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-			`">` + p.ContentName() + `</a></li>`
-		b.Write([]byte(post))
+	if order == "desc" || order == "" {
+		// keep natural order of posts slice, as returned from sorted bucket
+		for i := range posts {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t)
+			b.Write(post)
+		}
+
+	} else if order == "asc" {
+		// reverse the order of posts slice
+		for i := len(posts) - 1; i >= 0; i-- {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t)
+			b.Write(post)
+		}
 	}
 
 	b.Write([]byte(`</ul></div></div>`))
 
+	script := `
+	<script>
+		$(function() {
+			var del = $('.quick-delete-post.__ponzu span');
+			del.on('click', function(e) {
+				if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+					$(e.target).parent().submit();
+				}
+			});
+		});
+	</script>
+	`
+
 	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
-	html = html + b.String() + btn
+	html = html + b.String() + script + btn
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
@@ -339,6 +426,40 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/html")
 	res.Write(adminView)
+}
+
+// adminPostListItem is a helper to create the li containing a post.
+// p is the asserted post as an Editable, t is the Type of the post.
+func adminPostListItem(p editor.Editable, t string) []byte {
+	s, ok := p.(editor.Sortable)
+	if !ok {
+		log.Println("Content type", t, "doesn't implement editor.Sortable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces.</li>`
+		return []byte(post)
+	}
+
+	// use sort to get other info to display in admin UI post list
+	tsTime := time.Unix(int64(s.Time()/1000), 0)
+	upTime := time.Unix(int64(s.Touch()/1000), 0)
+	updatedTime := upTime.Format("01/02/06 03:04 PM")
+	publishTime := tsTime.Format("01/02/06")
+
+	cid := fmt.Sprintf("%d", p.ContentID())
+
+	post := `
+			<li class="col s12">
+				<a href="/admin/edit?type=` + t + `&id=` + cid + `">` + p.ContentName() + `</a>
+				<span class="post-detail">Updated: ` + updatedTime + `</span>
+				<span class="publish-date right">` + publishTime + `</span>
+
+				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
+					<span>Delete</span>
+					<input type="hidden" name="id" value="` + cid + `" />
+					<input type="hidden" name="type" value="` + t + `" />
+				</form>
+			</li>`
+
+	return []byte(post)
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
@@ -518,6 +639,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
+		fmt.Println("req.ParseMPF")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -532,6 +654,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
+		fmt.Println("db.DeleteContent")
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -594,10 +717,16 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		json.Unmarshal(posts[i], &p)
-		post := `<li class="col s12"><a href="/admin/edit?type=` +
-			t + `&id=` + fmt.Sprintf("%d", p.ContentID()) +
-			`">` + p.ContentName() + `</a></li>`
+		err := json.Unmarshal(posts[i], &p)
+		if err != nil {
+			log.Println("Error unmarshal search result json into", t, err, posts[i])
+
+			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+			b.Write([]byte(post))
+			continue
+		}
+
+		post := adminPostListItem(p, t)
 		b.Write([]byte(post))
 	}
 

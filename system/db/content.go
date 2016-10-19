@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -63,6 +65,8 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, nil
 	}
 
+	go SortContent(ns)
+
 	return cid, nil
 }
 
@@ -102,6 +106,8 @@ func insert(ns string, data url.Values) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	go SortContent(ns)
 
 	return effectedID, nil
 }
@@ -152,6 +158,12 @@ func DeleteContent(target string) error {
 		return err
 	}
 
+	// exception to typical "run in goroutine" pattern:
+	// we want to have an updated admin view as soon as this is deleted, so
+	// in some cases, the delete and redirect is faster than the sort,
+	// thus still showing a deleted post in the admin view.
+	SortContent(ns)
+
 	return nil
 }
 
@@ -198,4 +210,86 @@ func ContentAll(namespace string) [][]byte {
 	})
 
 	return posts
+}
+
+// SortContent sorts all content of the type supplied as the namespace by time,
+// in descending order, from most recent to least recent
+// Should be called from a goroutine after SetContent is successful
+func SortContent(namespace string) {
+	all := ContentAll(namespace)
+
+	var posts sortablePosts
+	// decode each (json) into Editable
+	for i := range all {
+		j := all[i]
+		post := content.Types[namespace]()
+
+		err := json.Unmarshal(j, &post)
+		if err != nil {
+			log.Println("Error decoding json while sorting", namespace, ":", err)
+			return
+		}
+
+		posts = append(posts, post.(editor.Sortable))
+	}
+
+	// sort posts
+	sort.Sort(posts)
+
+	// store in <namespace>_sorted bucket, first delete existing
+	err := store.Update(func(tx *bolt.Tx) error {
+		err := tx.DeleteBucket([]byte(namespace + "_sorted"))
+		if err != nil {
+			return err
+		}
+
+		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
+		if err != nil {
+			err := tx.Rollback()
+			if err != nil {
+				return err
+			}
+
+			return err
+		}
+
+		// encode to json and store as 'i:post.Time()':post
+		for i := range posts {
+			j, err := json.Marshal(posts[i])
+			if err != nil {
+				return err
+			}
+
+			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
+			err = b.Put([]byte(cid), j)
+			if err != nil {
+				err := tx.Rollback()
+				if err != nil {
+					return err
+				}
+
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.Println("Error while updating db with sorted", namespace, err)
+	}
+
+}
+
+type sortablePosts []editor.Sortable
+
+func (s sortablePosts) Len() int {
+	return len(s)
+}
+
+func (s sortablePosts) Less(i, j int) bool {
+	return s[i].Time() > s[j].Time()
+}
+
+func (s sortablePosts) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
