@@ -55,7 +55,7 @@ func Enable() {
 	setup()
 
 	server := &http.Server{
-		Addr:      ":https",
+		Addr:      ":443",
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 
