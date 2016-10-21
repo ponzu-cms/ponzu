@@ -12,6 +12,7 @@ type Config struct {
 
 	Name            string   `json:"name"`
 	Domain          string   `json:"domain"`
+	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
 	CacheInvalidate []string `json:"-"`
@@ -48,8 +49,13 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
+			View: editor.Input("AdminEmail", c, map[string]string{
+				"label": "Adminstrator Email (will be notified of internal system information)",
+			}),
+		},
+		editor.Field{
 			View: editor.Input("ClientSecret", c, map[string]string{
-				"label":    "Client Secret (used to validate requests)",
+				"label":    "Client Secret (used to validate requests, DO NOT SHARE)",
 				"disabled": "true",
 			}),
 		},
