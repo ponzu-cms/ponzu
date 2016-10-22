@@ -61,11 +61,10 @@ func SetUser(usr *user.User) (int, error) {
 // UpdateUser sets key:value pairs in the db for existing user settings
 func UpdateUser(usr, updatedUsr *user.User) error {
 	err := store.Update(func(tx *bolt.Tx) error {
-		email := []byte(usr.Email)
 		users := tx.Bucket([]byte("_users"))
 
 		// check if user is found by email, fail if nil
-		exists := users.Get(email)
+		exists := users.Get([]byte(usr.Email))
 		if exists == nil {
 			return ErrNoUserExists
 		}
@@ -76,7 +75,12 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 			return err
 		}
 
-		err = users.Put(email, j)
+		err = users.Put([]byte(updatedUsr.Email), j)
+		if err != nil {
+			return err
+		}
+
+		err = users.Delete([]byte(usr.Email))
 		if err != nil {
 			return err
 		}
