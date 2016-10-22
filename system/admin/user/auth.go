@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/base64"
+	"fmt"
 	"net/http"
 
 	"github.com/nilslice/jwt"
@@ -37,8 +38,10 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		redir := req.URL.Scheme + req.URL.Host + "/admin/login"
 
 		if IsValid(req) {
+			fmt.Println("valid")
 			next.ServeHTTP(res, req)
 		} else {
+			fmt.Println("invalid")
 			http.Redirect(res, req, redir, http.StatusFound)
 		}
 	})
