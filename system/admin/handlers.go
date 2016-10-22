@@ -331,12 +331,16 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// add it to cookie +1 week expiration
-		http.SetCookie(res, &http.Cookie{
+		// add token to cookie +1 week expiration
+		cookie := &http.Cookie{
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
-		})
+		}
+		http.SetCookie(res, cookie)
+
+		// add new token cookie to the request
+		req.AddCookie(cookie)
 
 		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/edit"), http.StatusFound)
 
