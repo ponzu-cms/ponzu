@@ -248,8 +248,8 @@ func Login() ([]byte, error) {
 func UsersList(req *http.Request) ([]byte, error) {
 	html := `
     <div class="card user-management">
+        <div class="card-title">Edit your account:</div>    
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
-            <div class="card-title">Edit your account:</div>
             <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value="{{ .User.Email }}"/>
@@ -272,8 +272,8 @@ func UsersList(req *http.Request) ([]byte, error) {
             </div>
         </form>
 
+        <div class="card-title">Add a new user:</div>        
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
-            <div class="card-title">Add a new user:</div>
             <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value=""/>
@@ -299,7 +299,7 @@ func UsersList(req *http.Request) ([]byte, error) {
                     <input type="hidden" name="email" value="{{ .Email }}"/>
                     <input type="hidden" name="id" value="{{ .ID }}"/>
                 </form>
-            <li>
+            </li>
             {{ end }}
         </ul>
     </div>
