@@ -4,9 +4,12 @@ package admin
 
 import (
 	"bytes"
+	"encoding/json"
 	"html/template"
+	"net/http"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/admin/user"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -239,6 +242,119 @@ func Login() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// UsersList ...
+func UsersList(req *http.Request) ([]byte, error) {
+	html := `
+    <div class="card">
+        <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
+            <div>Edit your account:</div>
+            <div class="input-feild col s12">
+                <label class="active">Email Address</label>
+                <input type="email" name="email" value="{{ .User.Email }}"/>
+            </div>
+
+            <div>To approve changes, enter your password:</div>
+            <div class="input-feild col s12">
+                <label class="active">Current Password</label>
+                <input type="password" name="password"/>
+            </div>
+
+            <div class="input-feild col s12">
+                <label class="active">New Password: (leave blank if no password change needed)</label>
+                <input type="email" name="new_password" type="password"/>
+            </div>
+
+            <button class="btn waves-effect waves-light green" type="submit">Save</button>
+        </form>
+
+        <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
+            <div>Add a new user:</div>
+            <div class="input-feild col s12">
+                <label class="active">Email Address</label>
+                <input type="email" name="email" value=""/>
+            </div>
+
+            <div class="input-feild col s12">
+                <label class="active">Password</label>
+                <input type="password" name="password"/>
+            </div>
+
+            <button class="btn waves-effect waves-light green" type="submit">Add User</button>
+        </form>        
+
+        <ul class="users row">
+            {{ range .Users }}
+            <li class="col s12">
+                {{ .Email }}
+                <form enctype="multipart/form-data" class="delete-user __ponzu right" action="/admin/configure/users/delete" method="post">
+                    <span>Delete</span>
+                    <input type="hidden" name="email" value="{{ .Email }}"/>
+                    <input type="hidden" name="id" value="{{ .ID }}"/>
+                </form>
+            <li>
+            {{ end }}
+        </ul>
+    </div>
+    `
+	script := `
+    <script>
+        $(function() {
+            var del = $('.delete-user.__ponzu span');
+            del.on('click', function(e) {
+                if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this user?\nThis cannot be undone.")) {
+                    $(e.target).parent().submit();
+                }
+            });
+        });
+    </script>
+    `
+	var usr user.User
+	var usrs []user.User
+	// get current user out to pass as data to execute template
+	j, err := db.CurrentUser(req)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(j, &usr)
+	if err != nil {
+		return nil, err
+	}
+
+	// get all users to list
+	jj, err := db.UserAll()
+	if err != nil {
+		return nil, err
+	}
+	for i := range jj {
+		var u user.User
+		err = json.Unmarshal(jj[i], &u)
+		if err != nil {
+			return nil, err
+		}
+		usrs = append(usrs, u)
+	}
+
+	// make buffer to execute html into then pass buffer's bytes to Admin
+	buf := &bytes.Buffer{}
+	tmpl := template.Must(template.New("users").Parse(html + script))
+	data := map[string]interface{}{
+		"User":  usr,
+		"Users": usrs,
+	}
+
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		return nil, err
+	}
+
+	view, err := Admin(buf.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
 }
 
 var err400HTML = `

@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 
 	"github.com/bosssauce/ponzu/system/admin/user"
 
 	"github.com/boltdb/bolt"
+	"github.com/nilslice/jwt"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user
@@ -71,4 +74,51 @@ func User(email string) ([]byte, error) {
 	}
 
 	return val.Bytes(), nil
+}
+
+// UserAll returns all users from the db
+func UserAll() ([][]byte, error) {
+	var users [][]byte
+	err := store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("_users"))
+		err := b.ForEach(func(k, v []byte) error {
+			users = append(users, v)
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+// CurrentUser extracts the user from the request data and returns the current user from the db
+func CurrentUser(req *http.Request) ([]byte, error) {
+	if !user.IsValid(req) {
+		return nil, fmt.Errorf("Error. Invalid User.")
+	}
+
+	token, err := req.Cookie("_token")
+	if err != nil {
+		return nil, err
+	}
+
+	claims := jwt.GetClaims(token.Value)
+	email, ok := claims["user"]
+	if !ok {
+		return nil, fmt.Errorf("Error. No user data found in request token.")
+	}
+
+	usr, err := User(email.(string))
+	if err != nil {
+		return nil, err
+	}
+
+	return usr, nil
 }

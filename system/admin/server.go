@@ -20,6 +20,8 @@ func Run() {
 
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
+	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))
+	http.HandleFunc("/admin/configure/users/delete", user.Auth(configUsersDeleteHandler))
 
 	http.HandleFunc("/admin/posts", user.Auth(postsHandler))
 	http.HandleFunc("/admin/posts/search", user.Auth(searchHandler))

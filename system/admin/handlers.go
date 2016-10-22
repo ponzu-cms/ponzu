@@ -182,6 +182,32 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		// list all users and delete buttons
+
+	case http.MethodPost:
+		// create new user
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		// list all users and delete buttons
+
+	case http.MethodPost:
+		// create new user
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
 func loginHandler(res http.ResponseWriter, req *http.Request) {
 	if !db.SystemInitComplete() {
 		redir := req.URL.Scheme + req.URL.Host + "/admin/init"
