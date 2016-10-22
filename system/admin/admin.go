@@ -266,7 +266,7 @@ func UsersList(req *http.Request) ([]byte, error) {
                 <input type="email" name="new_password" type="password"/>
             </div>
 
-            <button class="btn waves-effect waves-light green" type="submit">Save</button>
+            <button class="btn waves-effect waves-light green right" type="submit">Save</button>
         </form>
 
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
@@ -281,7 +281,7 @@ func UsersList(req *http.Request) ([]byte, error) {
                 <input type="password" name="password"/>
             </div>
 
-            <button class="btn waves-effect waves-light green" type="submit">Add User</button>
+            <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
         </form>        
 
         <ul class="users row">

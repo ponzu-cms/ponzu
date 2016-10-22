@@ -172,20 +172,7 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		users, err := UsersList(req)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
-			return
-		}
-
-		view, err := Admin(users)
+		view, err := UsersList(req)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
