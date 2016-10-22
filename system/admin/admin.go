@@ -250,20 +250,20 @@ func UsersList(req *http.Request) ([]byte, error) {
     <div class="card user-management">
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
             <div>Edit your account:</div>
-            <div class="input-feild col s12">
+            <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value="{{ .User.Email }}"/>
             </div>
 
             <div>To approve changes, enter your password:</div>
-            <div class="input-feild col s12">
+            <div class="input-feild col s9">
                 <label class="active">Current Password</label>
                 <input type="password" name="password"/>
             </div>
 
-            <div class="input-feild col s12">
+            <div class="input-feild col s9">
                 <label class="active">New Password: (leave blank if no password change needed)</label>
-                <input type="email" name="new_password" type="password"/>
+                <input name="new_password" type="password"/>
             </div>
 
             <button class="btn waves-effect waves-light green right" type="submit">Save</button>
@@ -271,12 +271,12 @@ func UsersList(req *http.Request) ([]byte, error) {
 
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
             <div>Add a new user:</div>
-            <div class="input-feild col s12">
+            <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value=""/>
             </div>
 
-            <div class="input-feild col s12">
+            <div class="input-feild col s9">
                 <label class="active">Password</label>
                 <input type="password" name="password"/>
             </div>
@@ -327,14 +327,17 @@ func UsersList(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	usrs := make([]user.User, len(jj), len(jj))
+
+	var usrs []user.User
 	for i := range jj {
 		var u user.User
 		err = json.Unmarshal(jj[i], &u)
 		if err != nil {
 			return nil, err
 		}
-		usrs = append(usrs, u)
+		if u.Email != usr.Email {
+			usrs = append(usrs, u)
+		}
 	}
 
 	// make buffer to execute html into then pass buffer's bytes to Admin
