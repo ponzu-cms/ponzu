@@ -329,6 +329,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 	var usr user.User
 	err = json.Unmarshal(j, &usr)
 	if err != nil {
+		fmt.Println(string(j))
 		fmt.Println("Unmarshal usr")
 		return nil, err
 	}
