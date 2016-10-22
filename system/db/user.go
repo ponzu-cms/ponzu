@@ -16,6 +16,9 @@ import (
 // ErrUserExists is used for the db to report to admin user of existing user
 var ErrUserExists = errors.New("Error. User exists.")
 
+// ErrNoUserExists is used for the db to report to admin user of non-existing user
+var ErrNoUserExists = errors.New("Error. No user exists.")
+
 // SetUser sets key:value pairs in the db for user settings
 func SetUser(usr *user.User) (int, error) {
 	err := store.Update(func(tx *bolt.Tx) error {
@@ -41,7 +44,7 @@ func SetUser(usr *user.User) (int, error) {
 			return err
 		}
 
-		err = users.Put([]byte(usr.Email), j)
+		err = users.Put(email, j)
 		if err != nil {
 			return err
 		}
@@ -53,6 +56,56 @@ func SetUser(usr *user.User) (int, error) {
 	}
 
 	return usr.ID, nil
+}
+
+// UpdateUser sets key:value pairs in the db for existing user settings
+func UpdateUser(usr *user.User) error {
+	err := store.Update(func(tx *bolt.Tx) error {
+		email := []byte(usr.Email)
+		users := tx.Bucket([]byte("_users"))
+
+		// check if user is found by email, fail if nil
+		exists := users.Get(email)
+		if exists == nil {
+			return ErrNoUserExists
+		}
+
+		// marshal User to json and put into bucket
+		j, err := json.Marshal(usr)
+		if err != nil {
+			return err
+		}
+
+		err = users.Put(email, j)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteUser deletes a user from the db by email
+func DeleteUser(email string) error {
+	err := store.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("_users"))
+		err := b.Delete([]byte(email))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // User gets the user by email from the db

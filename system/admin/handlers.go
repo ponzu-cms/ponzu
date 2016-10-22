@@ -190,6 +190,49 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 
 	case http.MethodPost:
 		// create new user
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+		email := strings.ToLower(req.FormValue("email"))
+		password := req.PostFormValue("password")
+
+		if email == "" || password == "" {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		usr := user.NewUser(email, password)
+
+		_, err = db.SetUser(usr)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		http.Redirect(res, req, req.URL.String(), http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -198,11 +241,77 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 
 func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
-	case http.MethodGet:
-		// list all users and delete buttons
-
 	case http.MethodPost:
-		// create new user
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+
+		// check if user to be edited is current user
+		j, err := db.CurrentUser(req)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		var usr *user.User
+		err = json.Unmarshal(j, usr)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// check if password matches
+		password := req.PostFormValue("password")
+
+		if !user.IsUser(usr, password) {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error405()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		email := strings.ToLower(req.PostFormValue("email"))
+		newPassword := req.PostFormValue("new_password")
+		var updatedUser *user.User
+		if newPassword != "" {
+			updatedUser = user.NewUser(email, newPassword)
+		} else {
+			updatedUser = user.NewUser(email, newPassword)
+		}
+
+		// set the ID to the same ID as current user
+		updatedUser.ID = usr.ID
+
+		// set user in db
+		err = db.UpdateUser(updatedUser)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -211,11 +320,64 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 
 func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
-	case http.MethodGet:
-		// list all users and delete buttons
-
 	case http.MethodPost:
-		// create new user
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+
+		// do not allow current user to delete themselves
+		j, err := db.CurrentUser(req)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		var usr user.User
+		err = json.Unmarshal(j, &usr)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		email := strings.ToLower(req.PostFormValue("email"))
+
+		if usr.Email == email {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error405()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// delete existing user
+		err = db.DeleteUser(email)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
