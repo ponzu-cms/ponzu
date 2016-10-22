@@ -249,7 +249,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 	html := `
     <div class="card user-management">
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
-            <div>Edit your account:</div>
+            <div class="card-title">Edit your account:</div>
             <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value="{{ .User.Email }}"/>
@@ -266,11 +266,13 @@ func UsersList(req *http.Request) ([]byte, error) {
                 <input name="new_password" type="password"/>
             </div>
 
-            <button class="btn waves-effect waves-light green right" type="submit">Save</button>
+            <div class="input-feild col s9">                        
+                <button class="btn waves-effect waves-light green right" type="submit">Save</button>
+            </div>
         </form>
 
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
-            <div>Add a new user:</div>
+            <div class="card-title">Add a new user:</div>
             <div class="input-feild col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value=""/>
@@ -281,10 +283,13 @@ func UsersList(req *http.Request) ([]byte, error) {
                 <input type="password" name="password"/>
             </div>
 
-            <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
+            <div class="input-feild col s9">            
+                <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
+            </div>   
         </form>        
 
         <ul class="users row">
+        <div class="card-title">Remove Admin Users</div>
             {{ range .Users }}
             <li class="col s12">
                 {{ .Email }}
