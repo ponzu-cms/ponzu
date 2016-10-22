@@ -5,6 +5,7 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -334,7 +335,6 @@ func UsersList(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	var tmpUsrs []user.User
 	var usrs []user.User
 	for i := range jj {
 		var u user.User
@@ -347,12 +347,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 		}
 	}
 
-	// filter out empty user records
-	for i := range tmpUsrs {
-		if tmpUsrs[i].Email != "" {
-			usrs = append(usrs, tmpUsrs[i])
-		}
-	}
+	fmt.Println(usrs)
 
 	// make buffer to execute html into then pass buffer's bytes to Admin
 	buf := &bytes.Buffer{}
