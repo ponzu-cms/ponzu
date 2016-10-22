@@ -275,7 +275,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		password := req.PostFormValue("password")
 
 		if !user.IsUser(usr, password) {
-			fmt.Println(err)
+			fmt.Println("Unexpected user/password combination for", usr.Email)
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error405()
 			if err != nil {
@@ -312,7 +312,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		http.Redirect(res, req, req.URL.String(), http.StatusFound)
+		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/edit"), http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -380,7 +380,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		http.Redirect(res, req, req.URL.String(), http.StatusFound)
+		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/delete"), http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
