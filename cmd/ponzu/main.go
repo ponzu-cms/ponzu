@@ -12,6 +12,7 @@ import (
 	"github.com/bosssauce/ponzu/system/admin"
 	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/tls"
 )
 
 var usage = `
@@ -45,7 +46,7 @@ generate, gen, g <type>:
 
 
 
-[[--port=8080] [--tls]] run <service(,service)>:
+[[--port=8080] [--https]] run <service(,service)>:
 
 	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 	The segments, separated by a comma, describe which services to start, either 
@@ -54,7 +55,7 @@ generate, gen, g <type>:
 	automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
-	$ ponzu --port=8080 --tls run admin,api
+	$ ponzu --port=8080 --https run admin,api
 	(or) 
 	$ ponzu run admin
 	(or)
@@ -71,8 +72,8 @@ generate, gen, g <type>:
 `
 
 var (
-	port int
-	tls  bool
+	port  int
+	https bool
 
 	// for ponzu internal / core development
 	dev  bool
@@ -87,7 +88,7 @@ func init() {
 
 func main() {
 	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its listener")
-	flag.BoolVar(&tls, "tls", false, "enable automatic TLS/SSL certificate management")
+	flag.BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
 	flag.StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
 	flag.Parse()
@@ -132,10 +133,10 @@ func main() {
 
 	case "run":
 		var addTLS string
-		if tls {
-			addTLS = "--tls"
+		if https {
+			addTLS = "--https"
 		} else {
-			addTLS = "--tls=false"
+			addTLS = "--https=false"
 		}
 
 		var services string
@@ -184,10 +185,12 @@ func main() {
 			}
 		}
 
-		if tls {
-			fmt.Println("TLS through Let's Encrypt is not implemented yet.")
-			fmt.Println("Please run 'ponzu serve' without the --tls flag for now.")
-			os.Exit(1)
+		if https {
+			// fmt.Println("TLS through Let's Encrypt is not implemented yet.")
+			// fmt.Println("Please run 'ponzu serve' without the --https flag for now.")
+			// os.Exit(1)
+
+			tls.Enable()
 		}
 
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))

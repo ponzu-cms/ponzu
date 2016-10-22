@@ -66,18 +66,20 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		etag := db.NewEtag()
 		req.Form.Set("etag", etag)
 
-		err = db.SetConfig(req.Form)
+		email := strings.ToLower(req.FormValue("email"))
+		password := req.FormValue("password")
+		usr := user.NewUser(email, password)
+
+		_, err = db.SetUser(usr)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		email := strings.ToLower(req.FormValue("email"))
-		password := req.FormValue("password")
-		usr := user.NewUser(email, password)
-
-		_, err = db.SetUser(usr)
+		// set initial user email as admin_email and make config
+		req.Form.Set("admin_email", email)
+		err = db.SetConfig(req.Form)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
