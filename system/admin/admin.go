@@ -5,6 +5,7 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -355,6 +356,8 @@ func UsersList(req *http.Request) ([]byte, error) {
 		"User":  usr,
 		"Users": usrs,
 	}
+
+	fmt.Println(data)
 
 	err = tmpl.Execute(buf, data)
 	if err != nil {
