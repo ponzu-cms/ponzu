@@ -322,8 +322,8 @@ func UsersList(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	var usr user.User
-	err = json.Unmarshal(j, &usr)
+	usr := &user.User{}
+	err = json.Unmarshal(j, usr)
 	if err != nil {
 		return nil, err
 	}
@@ -334,10 +334,10 @@ func UsersList(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	var usrs []user.User
+	var usrs []*user.User
 	for i := range jj {
-		var u user.User
-		err = json.Unmarshal(jj[i], &u)
+		u := &user.User{}
+		err = json.Unmarshal(jj[i], u)
 		if err != nil {
 			return nil, err
 		}
