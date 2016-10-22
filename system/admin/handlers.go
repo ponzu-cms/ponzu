@@ -292,7 +292,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		if newPassword != "" {
 			updatedUser = user.NewUser(email, newPassword)
 		} else {
-			updatedUser = user.NewUser(email, newPassword)
+			updatedUser = user.NewUser(email, password)
 		}
 
 		// set the ID to the same ID as current user
