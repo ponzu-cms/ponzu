@@ -334,6 +334,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
+	var tmpUsrs []user.User
 	var usrs []user.User
 	for i := range jj {
 		var u user.User
@@ -343,6 +344,13 @@ func UsersList(req *http.Request) ([]byte, error) {
 		}
 		if u.Email != usr.Email {
 			usrs = append(usrs, u)
+		}
+	}
+
+	// filter out empty user records
+	for i := range tmpUsrs {
+		if tmpUsrs[i].Email != "" {
+			usrs = append(usrs, tmpUsrs[i])
 		}
 	}
 
