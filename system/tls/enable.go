@@ -70,5 +70,5 @@ func Enable() {
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 
-	go server.ListenAndServeTLS("", "")
+	go log.Fatalln(server.ListenAndServeTLS("", ""))
 }
