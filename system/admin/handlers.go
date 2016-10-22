@@ -299,7 +299,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		updatedUser.ID = usr.ID
 
 		// set user in db
-		err = db.UpdateUser(updatedUser)
+		err = db.UpdateUser(usr, updatedUser)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

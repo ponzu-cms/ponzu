@@ -59,7 +59,7 @@ func SetUser(usr *user.User) (int, error) {
 }
 
 // UpdateUser sets key:value pairs in the db for existing user settings
-func UpdateUser(usr *user.User) error {
+func UpdateUser(usr, updatedUsr *user.User) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		email := []byte(usr.Email)
 		users := tx.Bucket([]byte("_users"))
@@ -71,7 +71,7 @@ func UpdateUser(usr *user.User) error {
 		}
 
 		// marshal User to json and put into bucket
-		j, err := json.Marshal(usr)
+		j, err := json.Marshal(updatedUsr)
 		if err != nil {
 			return err
 		}

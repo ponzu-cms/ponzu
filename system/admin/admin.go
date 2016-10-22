@@ -339,7 +339,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 	}
 
 	var usrs []user.User
-	for i, _ := range jj {
+	for i := range jj {
 		var u user.User
 		err = json.Unmarshal(jj[i], &u)
 		if err != nil {
