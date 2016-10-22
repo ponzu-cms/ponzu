@@ -255,8 +255,9 @@ func UsersList(req *http.Request) ([]byte, error) {
                 <input type="email" name="email" value="{{ .User.Email }}"/>
             </div>
 
-            <div>To approve changes, enter your password:</div>
             <div class="input-feild col s9">
+                <div>To approve changes, enter your password:</div>
+                
                 <label class="active">Current Password</label>
                 <input type="password" name="password"/>
             </div>
