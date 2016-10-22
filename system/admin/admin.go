@@ -247,7 +247,7 @@ func Login() ([]byte, error) {
 // UsersList ...
 func UsersList(req *http.Request) ([]byte, error) {
 	html := `
-    <div class="card">
+    <div class="card user-management">
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
             <div>Edit your account:</div>
             <div class="input-feild col s12">

@@ -181,6 +181,10 @@ li:hover .quick-delete-post, li:hover .delete-user {
     margin-right: 20px;
 }
 
+.user-management {
+    padding: 20px;
+}
+
 
 /* OVERRIDE Bootstrap + Materialize conflicts */
 .iso-texteditor.input-field label {
