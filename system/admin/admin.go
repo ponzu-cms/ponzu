@@ -5,7 +5,6 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -293,6 +292,7 @@ func UsersList(req *http.Request) ([]byte, error) {
         <ul class="users row">
         <div class="card-title">Remove Admin Users</div>
             {{ range .Users }}
+            {{ if .Email}}
             <li class="col s12">
                 {{ .Email }}
                 <form enctype="multipart/form-data" class="delete-user __ponzu right" action="/admin/configure/users/delete" method="post">
@@ -301,6 +301,7 @@ func UsersList(req *http.Request) ([]byte, error) {
                     <input type="hidden" name="id" value="{{ .ID }}"/>
                 </form>
             <li>
+            {{ end }}
             {{ end }}
         </ul>
     </div>
@@ -346,8 +347,6 @@ func UsersList(req *http.Request) ([]byte, error) {
 			usrs = append(usrs, u)
 		}
 	}
-
-	fmt.Println(usrs)
 
 	// make buffer to execute html into then pass buffer's bytes to Admin
 	buf := &bytes.Buffer{}
