@@ -185,7 +185,6 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		res.Header().Set("Content-Type", "text/html")
 		res.Write(view)
 
 	case http.MethodPost:
