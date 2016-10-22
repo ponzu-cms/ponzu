@@ -289,8 +289,8 @@ func UsersList(req *http.Request) ([]byte, error) {
             </div>   
         </form>        
 
+        <div class="card-title">Remove Admin Users</div>        
         <ul class="users row">
-        <div class="card-title">Remove Admin Users</div>
             {{ range .Users }}
             <li class="col s9">
                 {{ .Email }}
