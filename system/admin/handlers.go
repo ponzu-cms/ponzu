@@ -172,7 +172,34 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		// list all users and delete buttons
+		users, err := UsersList(req)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		view, err := Admin(users)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(view)
 
 	case http.MethodPost:
 		// create new user
