@@ -310,13 +310,13 @@ func UsersList(req *http.Request) ([]byte, error) {
         });
     </script>
     `
-	var usr user.User
-	var usrs []user.User
 	// get current user out to pass as data to execute template
 	j, err := db.CurrentUser(req)
 	if err != nil {
 		return nil, err
 	}
+
+	var usr user.User
 	err = json.Unmarshal(j, &usr)
 	if err != nil {
 		return nil, err
@@ -327,6 +327,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	usrs := make([]user.User, len(jj), len(jj))
 	for i := range jj {
 		var u user.User
 		err = json.Unmarshal(jj[i], &u)
