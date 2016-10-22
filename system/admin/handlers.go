@@ -313,6 +313,8 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		http.Redirect(res, req, req.URL.String(), http.StatusFound)
+
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -378,6 +380,8 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 			res.Write(errView)
 			return
 		}
+
+		http.Redirect(res, req, req.URL.String(), http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
