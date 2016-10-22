@@ -5,7 +5,6 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -293,8 +292,7 @@ func UsersList(req *http.Request) ([]byte, error) {
         <ul class="users row">
         <div class="card-title">Remove Admin Users</div>
             {{ range .Users }}
-            {{ if .Email}}
-            <li class="col s12">
+            <li class="col s9">
                 {{ .Email }}
                 <form enctype="multipart/form-data" class="delete-user __ponzu right" action="/admin/configure/users/delete" method="post">
                     <span>Delete</span>
@@ -302,7 +300,6 @@ func UsersList(req *http.Request) ([]byte, error) {
                     <input type="hidden" name="id" value="{{ .ID }}"/>
                 </form>
             <li>
-            {{ end }}
             {{ end }}
         </ul>
     </div>
@@ -356,8 +353,6 @@ func UsersList(req *http.Request) ([]byte, error) {
 		"User":  usr,
 		"Users": usrs,
 	}
-
-	fmt.Println(data)
 
 	err = tmpl.Execute(buf, data)
 	if err != nil {
