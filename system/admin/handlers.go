@@ -312,6 +312,32 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		// create new token
+		week := time.Now().Add(time.Hour * 24 * 7)
+		claims := map[string]interface{}{
+			"exp":  week,
+			"user": updatedUser.Email,
+		}
+		token, err := jwt.New(claims)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// add it to cookie +1 week expiration
+		http.SetCookie(res, &http.Cookie{
+			Name:    "_token",
+			Value:   token,
+			Expires: week,
+		})
+
 		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/edit"), http.StatusFound)
 
 	default:
