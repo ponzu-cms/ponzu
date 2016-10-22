@@ -258,7 +258,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		var usr *user.User
+		usr := &user.User{}
 		err = json.Unmarshal(j, usr)
 		if err != nil {
 			fmt.Println(err)
@@ -339,7 +339,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		var usr user.User
+		usr := &user.User{}
 		err = json.Unmarshal(j, &usr)
 		if err != nil {
 			fmt.Println(err)
