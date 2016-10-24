@@ -80,9 +80,14 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 			return err
 		}
 
-		err = users.Delete([]byte(usr.Email))
-		if err != nil {
-			return err
+		// if email address was changed, delete the old record of former
+		// user with original email address
+		if usr.Email != updatedUsr.Email {
+			err = users.Delete([]byte(usr.Email))
+			if err != nil {
+				return err
+			}
+
 		}
 
 		return nil
