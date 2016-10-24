@@ -23,7 +23,7 @@ import (
 func adminHandler(res http.ResponseWriter, req *http.Request) {
 	view, err := Admin(nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +42,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		view, err := Init()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -52,7 +52,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -72,7 +72,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 
 		_, err = db.SetUser(usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -81,7 +81,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		req.Form.Set("admin_email", email)
 		err = db.SetConfig(req.Form)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -100,6 +100,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
+			Path:    "/",
 		})
 
 		redir := strings.TrimSuffix(req.URL.String(), "/init")
@@ -115,7 +116,7 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		data, err := db.ConfigAll()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -124,21 +125,21 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 
 		err = json.Unmarshal(data, c)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		cfg, err := c.MarshalEditor()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		adminView, err := Admin(cfg)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -149,14 +150,14 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		err = db.SetConfig(req.Form)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -172,10 +173,246 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		// list all users and delete buttons
+		view, err := UsersList(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Write(view)
 
 	case http.MethodPost:
 		// create new user
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		email := strings.ToLower(req.FormValue("email"))
+		password := req.PostFormValue("password")
+
+		if email == "" || password == "" {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		usr := user.NewUser(email, password)
+
+		_, err = db.SetUser(usr)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		http.Redirect(res, req, req.URL.String(), http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+
+		// check if user to be edited is current user
+		j, err := db.CurrentUser(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		usr := &user.User{}
+		err = json.Unmarshal(j, usr)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// check if password matches
+		password := req.PostFormValue("password")
+
+		if !user.IsUser(usr, password) {
+			log.Println("Unexpected user/password combination for", usr.Email)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error405()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		email := strings.ToLower(req.PostFormValue("email"))
+		newPassword := req.PostFormValue("new_password")
+		var updatedUser *user.User
+		if newPassword != "" {
+			updatedUser = user.NewUser(email, newPassword)
+		} else {
+			updatedUser = user.NewUser(email, password)
+		}
+
+		// set the ID to the same ID as current user
+		updatedUser.ID = usr.ID
+
+		// set user in db
+		err = db.UpdateUser(usr, updatedUser)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// create new token
+		week := time.Now().Add(time.Hour * 24 * 7)
+		claims := map[string]interface{}{
+			"exp":  week,
+			"user": updatedUser.Email,
+		}
+		token, err := jwt.New(claims)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// add token to cookie +1 week expiration
+		cookie := &http.Cookie{
+			Name:    "_token",
+			Value:   token,
+			Expires: week,
+			Path:    "/",
+		}
+		http.SetCookie(res, cookie)
+
+		// add new token cookie to the request
+		req.AddCookie(cookie)
+
+		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/edit"), http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+
+		// do not allow current user to delete themselves
+		j, err := db.CurrentUser(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		usr := &user.User{}
+		err = json.Unmarshal(j, &usr)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		email := strings.ToLower(req.PostFormValue("email"))
+
+		if usr.Email == email {
+			log.Println(err)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error405()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// delete existing user
+		err = db.DeleteUser(email)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/delete"), http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -198,7 +435,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 
 		view, err := Login()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -214,7 +451,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -222,7 +459,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		// check email & password
 		j, err := db.User(strings.ToLower(req.FormValue("email")))
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -235,7 +472,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		usr := &user.User{}
 		err = json.Unmarshal(j, usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -252,7 +489,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		}
 		token, err := jwt.New(claims)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -262,6 +499,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
+			Path:    "/",
 		})
 
 		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/login"), http.StatusFound)
@@ -273,6 +511,7 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 		Name:    "_token",
 		Expires: time.Unix(0, 0),
 		Value:   "",
+		Path:    "/",
 	})
 
 	http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/login", http.StatusFound)
@@ -421,7 +660,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -480,7 +719,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		if i != "" {
 			data, err := db.Content(t + ":" + i)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				errView, err := Error500()
 				if err != nil {
@@ -504,7 +743,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 			err = json.Unmarshal(data, post)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				errView, err := Error500()
 				if err != nil {
@@ -520,7 +759,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		m, err := manager.Manage(post.(editor.Editable), t)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -533,7 +772,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		adminView, err := Admin(m)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -544,7 +783,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error405()
 			if err != nil {
@@ -572,7 +811,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		urlPaths, err := storeFileUploads(req)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -610,7 +849,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		id, err := db.SetContent(t+":"+cid, req.PostForm)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -641,7 +880,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
-		fmt.Println("req.ParseMPF")
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -656,7 +895,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
-		fmt.Println("db.DeleteContent")
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -674,7 +913,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 
 	urlPaths, err := storeFileUploads(req)
 	if err != nil {
-		fmt.Println("Couldn't store file uploads.", err)
+		log.Println("Couldn't store file uploads.", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -739,7 +978,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

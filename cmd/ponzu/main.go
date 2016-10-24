@@ -186,10 +186,7 @@ func main() {
 		}
 
 		if https {
-			// fmt.Println("TLS through Let's Encrypt is not implemented yet.")
-			// fmt.Println("Please run 'ponzu serve' without the --https flag for now.")
-			// os.Exit(1)
-
+			fmt.Println("Enabling HTTPS...")
 			tls.Enable()
 		}
 

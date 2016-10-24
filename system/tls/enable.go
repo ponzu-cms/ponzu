@@ -2,6 +2,7 @@ package tls
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -41,6 +42,8 @@ func setup() {
 	if host == nil {
 		log.Fatalln("No 'domain' field set in Configuration. Please add a domain before attempting to make certificates.")
 	}
+	fmt.Println("Using", host, "as host/domain for certificate...")
+	fmt.Println("NOTE: if the host/domain is not configured properly or is unreachable, HTTPS set-up will fail.")
 
 	email, err := db.Config("admin_email")
 	if err != nil {
@@ -50,6 +53,7 @@ func setup() {
 	if email == nil {
 		log.Fatalln("No 'admin_email' field set in Configuration. Please add an admin email before attempting to make certificates.")
 	}
+	fmt.Println("Using", email, "as contact email for certificate...")
 
 	m = autocert.Manager{
 		Prompt:      autocert.AcceptTOS,
@@ -71,4 +75,5 @@ func Enable() {
 	}
 
 	go log.Fatalln(server.ListenAndServeTLS("", ""))
+	fmt.Println("Server listening for HTTPS requests...")
 }

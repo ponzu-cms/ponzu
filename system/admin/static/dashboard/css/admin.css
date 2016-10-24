@@ -44,7 +44,7 @@
     padding: 0px !important;
 }
 
-ul.posts li {
+ul.posts li, ul.users li {
     display: block;
     margin: 0 0 20px 0;
     padding: 0 0 20px 0 !important;
@@ -164,21 +164,25 @@ span.post-detail {
     font-style: italic;  
 }
 
-.quick-delete-post {
+.quick-delete-post, .delete-user {
     display: none;
 }
 
-li:hover .quick-delete-post {
+li:hover .quick-delete-post, li:hover .delete-user {
     display: inline-block;
 }
 
-.quick-delete-post span {
+.quick-delete-post span, .delete-user span {
     cursor: pointer;
     color: #F44336;
     text-transform: uppercase;
     font-size: 11px;
     font-weight: bold;
     margin-right: 20px;
+}
+
+.user-management {
+    padding: 20px;
 }
 
 

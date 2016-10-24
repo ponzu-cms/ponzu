@@ -178,7 +178,7 @@ func Content(target string) ([]byte, error) {
 		b := tx.Bucket([]byte(ns))
 		_, err := val.Write(b.Get([]byte(id)))
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return err
 		}
 
