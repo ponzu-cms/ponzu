@@ -23,7 +23,7 @@ import (
 func adminHandler(res http.ResponseWriter, req *http.Request) {
 	view, err := Admin(nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +42,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		view, err := Init()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -52,7 +52,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -72,7 +72,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 
 		_, err = db.SetUser(usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -81,7 +81,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		req.Form.Set("admin_email", email)
 		err = db.SetConfig(req.Form)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -116,7 +116,7 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		data, err := db.ConfigAll()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -125,21 +125,21 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 
 		err = json.Unmarshal(data, c)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		cfg, err := c.MarshalEditor()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		adminView, err := Admin(cfg)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -150,14 +150,14 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		err = db.SetConfig(req.Form)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -175,7 +175,7 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		view, err := UsersList(req)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -202,11 +202,11 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 			res.Write(errView)
 			return
 		}
+
 		email := strings.ToLower(req.FormValue("email"))
 		password := req.PostFormValue("password")
 
 		if email == "" || password == "" {
-			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -221,7 +221,7 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 
 		_, err = db.SetUser(usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -247,7 +247,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		// check if user to be edited is current user
 		j, err := db.CurrentUser(req)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -261,7 +261,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		usr := &user.User{}
 		err = json.Unmarshal(j, usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -276,7 +276,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		password := req.PostFormValue("password")
 
 		if !user.IsUser(usr, password) {
-			fmt.Println("Unexpected user/password combination for", usr.Email)
+			log.Println("Unexpected user/password combination for", usr.Email)
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error405()
 			if err != nil {

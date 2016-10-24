@@ -177,14 +177,10 @@ func CurrentUser(req *http.Request) ([]byte, error) {
 		return nil, fmt.Errorf("Error. No user data found in request token.")
 	}
 
-	fmt.Println(claims, email.(string))
-
 	usr, err := User(email.(string))
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(string(usr))
 
 	return usr, nil
 }
