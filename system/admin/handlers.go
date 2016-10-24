@@ -100,6 +100,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
+			Path:    "/",
 		})
 
 		redir := strings.TrimSuffix(req.URL.String(), "/init")
@@ -336,6 +337,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
+			Path:    "/",
 		}
 		http.SetCookie(res, cookie)
 
@@ -497,6 +499,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 			Name:    "_token",
 			Value:   token,
 			Expires: week,
+			Path:    "/",
 		})
 
 		http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/login"), http.StatusFound)
@@ -508,6 +511,7 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 		Name:    "_token",
 		Expires: time.Unix(0, 0),
 		Value:   "",
+		Path:    "/",
 	})
 
 	http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/login", http.StatusFound)
