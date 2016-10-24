@@ -192,7 +192,7 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 		// create new user
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -302,7 +302,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		// set user in db
 		err = db.UpdateUser(usr, updatedUser)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -321,7 +321,7 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		}
 		token, err := jwt.New(claims)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -359,7 +359,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 		// do not allow current user to delete themselves
 		j, err := db.CurrentUser(req)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -373,7 +373,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 		usr := &user.User{}
 		err = json.Unmarshal(j, &usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -387,7 +387,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 		email := strings.ToLower(req.PostFormValue("email"))
 
 		if usr.Email == email {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error405()
 			if err != nil {
@@ -401,7 +401,7 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 		// delete existing user
 		err = db.DeleteUser(email)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -435,7 +435,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 
 		view, err := Login()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -451,7 +451,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -459,7 +459,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		// check email & password
 		j, err := db.User(strings.ToLower(req.FormValue("email")))
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -472,7 +472,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		usr := &user.User{}
 		err = json.Unmarshal(j, usr)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -489,7 +489,7 @@ func loginHandler(res http.ResponseWriter, req *http.Request) {
 		}
 		token, err := jwt.New(claims)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Redirect(res, req, req.URL.String(), http.StatusFound)
 			return
 		}
@@ -660,7 +660,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -719,7 +719,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		if i != "" {
 			data, err := db.Content(t + ":" + i)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				errView, err := Error500()
 				if err != nil {
@@ -743,7 +743,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 			err = json.Unmarshal(data, post)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				errView, err := Error500()
 				if err != nil {
@@ -759,7 +759,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		m, err := manager.Manage(post.(editor.Editable), t)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -772,7 +772,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		adminView, err := Admin(m)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -783,7 +783,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error405()
 			if err != nil {
@@ -811,7 +811,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		urlPaths, err := storeFileUploads(req)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -849,7 +849,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		id, err := db.SetContent(t+":"+cid, req.PostForm)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
@@ -880,7 +880,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
-		fmt.Println("req.ParseMPF")
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -895,7 +895,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
-		fmt.Println("db.DeleteContent")
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -913,7 +913,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 
 	urlPaths, err := storeFileUploads(req)
 	if err != nil {
-		fmt.Println("Couldn't store file uploads.", err)
+		log.Println("Couldn't store file uploads.", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -978,7 +978,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

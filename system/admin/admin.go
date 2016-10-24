@@ -5,7 +5,6 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -320,24 +319,18 @@ func UsersList(req *http.Request) ([]byte, error) {
 	// get current user out to pass as data to execute template
 	j, err := db.CurrentUser(req)
 	if err != nil {
-		fmt.Println("CurrentUser")
 		return nil, err
 	}
-
-	fmt.Println(string(j))
 
 	var usr user.User
 	err = json.Unmarshal(j, &usr)
 	if err != nil {
-		fmt.Println(string(j))
-		fmt.Println("Unmarshal usr")
 		return nil, err
 	}
 
 	// get all users to list
 	jj, err := db.UserAll()
 	if err != nil {
-		fmt.Println("UserAll")
 		return nil, err
 	}
 
@@ -346,7 +339,6 @@ func UsersList(req *http.Request) ([]byte, error) {
 		var u user.User
 		err = json.Unmarshal(jj[i], &u)
 		if err != nil {
-			fmt.Println("Unmarshal in jj", jj[i])
 			return nil, err
 		}
 		if u.Email != usr.Email {
@@ -364,7 +356,6 @@ func UsersList(req *http.Request) ([]byte, error) {
 
 	err = tmpl.Execute(buf, data)
 	if err != nil {
-		fmt.Println("Execute")
 		return nil, err
 	}
 
