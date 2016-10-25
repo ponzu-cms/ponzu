@@ -391,7 +391,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 				// iterate through all hidden tag inputs to re-name them with the correct ` + name + `.index
 				var hidden = chips.parent().find('input[type=hidden]');
 				for (var i = 0; i < hidden.length; i++) {
-					hidden[i].attr('name', '` + name + `.'+String(i));
+					$(hidden[i]).attr('name', '` + name + `.'+String(i));
 				}
 			});
 		});
