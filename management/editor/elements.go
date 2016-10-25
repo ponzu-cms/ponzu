@@ -332,6 +332,74 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 	return domElementWithChildrenCheckbox(div, opts)
 }
 
+// Tags returns the []byte of a tag input (in the style of Materialze 'Chips') with a label.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
+	name := tagNameFromStructField(fieldName, p)
+
+	// get the saved tags if this is already an existing post
+	values := valueFromStructField(fieldName, p)                 // returns refelct.Value
+	tags := values.Slice(0, values.Len()).Interface().([]string) // casts reflect.Value to []string
+
+	html := `
+	<div class="input-field col s12 tags ` + name + `">
+	<div class="chips ` + name + `"></div>
+	<div class="chips chips-initial ` + name + `"></div>	
+	<div class="chips chips-placeholder ` + name + `"></div>
+	`
+
+	var initial []string
+	i := 0
+	for _, tag := range tags {
+		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
+		html += `<input type="hidden" class="tag-` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		initial = append(initial, `{tag: `+tag+`}`)
+		i++
+	}
+
+	script := `
+	<script>
+		$(function() {
+			var tags = $('.tags.` + name + `');
+			$('.chips.` + name + `).material_chip();
+			$('.chips-initial.` + name + `).material_chip({
+				data: [` + strings.Join(initial, ",") + `]
+			});
+			$('.chips-placeholder.` + name + `).material_chip({
+				placeholder: ` + attrs["label"] + `,
+				secondaryPlaceholder: Type and press 'Enter' to add ` + name + `,
+			});			
+
+			// handle events specific to tags
+			var chips = tags.find('.chips');
+			
+			chips.on('chip.add', function(e, chip) {
+				var input = $('input');
+				input.attr({
+					class: 'tag-'+chip.tag,
+					name: '` + name + `.'+tags.find('input[type=hidden]).length-1,
+					value: chip.tag,
+					type: 'hidden'
+				});
+				
+				tags.append(input);
+			});
+
+			chips.on('chip.delete', function(e, chip) {
+				var sel = '.tag-'+chip.tag;
+				$(sel).remove();
+			});
+		});
+	</script>
+	`
+
+	html += `</div>`
+
+	return []byte(html + script)
+}
+
 // domElementSelfClose is a special DOM element which is parsed as a
 // self-closing tag and thus needs to be created differently
 func domElementSelfClose(e *element) []byte {

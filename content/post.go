@@ -68,12 +68,8 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Checkbox("Category", p, map[string]string{
-				"label": "Post Category",
-			}, map[string]string{
-				"important": "Important",
-				"active":    "Active",
-				"unplanned": "Unplanned",
+			View: editor.Tags("Category", p, map[string]string{
+				"label": "Post Categories",
 			}),
 		},
 		editor.Field{
