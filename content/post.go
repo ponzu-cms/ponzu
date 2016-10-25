@@ -11,12 +11,12 @@ type Post struct {
 	Item
 	editor editor.Editor
 
-	Title      string   `json:"title"`
-	Content    string   `json:"content"`
-	Photo      string   `json:"photo"`
-	Author     string   `json:"author"`
-	Category   []string `json:"category"`
-	ThemeStyle string   `json:"theme"`
+	Title    string   `json:"title"`
+	Content  string   `json:"content"`
+	Photo    string   `json:"photo"`
+	Author   string   `json:"author"`
+	Category []string `json:"category"`
+	Theme    string   `json:"theme"`
 }
 
 func init() {
@@ -55,7 +55,7 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.File("Picture", p, map[string]string{
+			View: editor.File("Photo", p, map[string]string{
 				"label":       "Author Photo",
 				"placeholder": "Upload a profile picture for the author",
 			}),
@@ -73,7 +73,7 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Select("ThemeStyle", p, map[string]string{
+			View: editor.Select("Theme", p, map[string]string{
 				"label": "Theme Style",
 			}, map[string]string{
 				"dark":  "Dark",
