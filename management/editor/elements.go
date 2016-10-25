@@ -353,7 +353,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	i := 0
 	for _, tag := range tags {
 		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
-		html += `<input type="hidden" class="tag-` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		html += `<input type="hidden" class="tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
 		initial = append(initial, `{tag: '`+tag+`'}`)
 		i++
 	}
