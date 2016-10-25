@@ -56,9 +56,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	order := strings.ToUpper(q.Get("order")) // string: sort order of posts by timestamp ASC / DESC (DESC default)
-	if order != "ASC" || order == "" {
-		order = "DESC"
+	order := strings.ToLower(q.Get("order")) // string: sort order of posts by timestamp ASC / DESC (DESC default)
+	if order != "asc" || order == "" {
+		order = "desc"
 	}
 
 	// TODO: time-based ?after=time.Time, ?before=time.Time between=time.Time|time.Time
@@ -68,6 +68,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	for _, post := range posts {
 		all = append(all, post)
 	}
+
+	fmt.Println(len(posts))
 
 	var start, end int
 	switch count {
@@ -89,7 +91,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// reverse the sorted order if ASC
-	if order == "ASC" {
+	if order == "asc" {
 		all = []json.RawMessage{}
 		for i := len(posts) - 1; i >= 0; i-- {
 			all = append(all, posts[i])
