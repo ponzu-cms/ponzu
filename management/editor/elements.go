@@ -345,6 +345,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	html := `
 	<div class="input-field col s12 tags ` + name + `">
+		<label class="active">` + attrs["label"] + `</label>
 		<div class="chips ` + name + `"></div>
 	`
 
@@ -363,8 +364,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var tags = $('.tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
-				placeholder: '` + attrs["label"] + `',
-				secondaryPlaceholder: 'Type and press "Enter" to add ` + name + `'
+				placeholder: 'Type and press "Enter" to add ` + name + `'
 			});		
 
 			// handle events specific to tags
@@ -384,7 +384,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 			chips.on('chip.delete', function(e, chip) {
 				var sel = '.tag-'+chip.tag;
-				$(sel).remove();
+				chips.parent().find(sel).remove();
 			});
 		});
 	</script>
