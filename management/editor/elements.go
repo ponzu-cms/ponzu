@@ -344,8 +344,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	tags := values.Slice(0, values.Len()).Interface().([]string) // casts reflect.Value to []string
 
 	html := `
-	<div class="input-field col s12 tags ` + name + `">
-		<label class="active">` + attrs["label"] + `</label>
+	<div class="col s12 tags ` + name + `">
+		<label class="active">` + attrs["label"] + ` (Type and press "Enter")</label>
 		<div class="chips ` + name + `"></div>
 	`
 
@@ -364,14 +364,15 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var tags = $('.tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
-				placeholder: 'Type and press "Enter" to add ` + name + `'
+				secondaryPlaceholder: '+'` + name + `
 			});		
 
 			// handle events specific to tags
 			var chips = tags.find('.chips');
 			
 			chips.on('chip.add', function(e, chip) {
-				var input = $('<input>');
+				console.log("id:", tags.find('input[type=hidden]').length-1);
+				var input = $('<Input>');
 				input.attr({
 					class: 'tag-'+chip.tag,
 					name: '` + name + `.'+tags.find('input[type=hidden]').length-1,
