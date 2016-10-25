@@ -364,7 +364,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var tags = $('.tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
-				secondaryPlaceholder: '+'` + name + `
+				secondaryPlaceholder: '+More'
 			});		
 
 			// handle events specific to tags
@@ -372,7 +372,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			
 			chips.on('chip.add', function(e, chip) {
 				console.log("id:", tags.find('input[type=hidden]').length-1);
-				var input = $('<Input>');
+				var input = $('<input>');
 				input.attr({
 					class: 'tag-'+chip.tag,
 					name: '` + name + `.'+tags.find('input[type=hidden]').length-1,
