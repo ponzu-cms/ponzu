@@ -345,9 +345,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	html := `
 	<div class="input-field col s12 tags ` + name + `">
-	<div class="chips ` + name + `"></div>
-	<div class="chips chips-initial ` + name + `"></div>	
-	<div class="chips chips-placeholder ` + name + `"></div>
+		<div class="chips` + name + `"></div>
 	`
 
 	var initial []string
@@ -363,14 +361,11 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	<script>
 		$(function() {
 			var tags = $('.tags.` + name + `');
-			$('.chips.` + name + `').material_chip();
-			$('.chips-initial.` + name + `').material_chip({
-				data: [` + strings.Join(initial, ",") + `]
-			});
-			$('.chips-placeholder.` + name + `').material_chip({
+			$('.chips` + name + `').material_chip({
+				data: [` + strings.Join(initial, ",") + `],
 				placeholder: '` + attrs["label"] + `',
-				secondaryPlaceholder: 'Type and press "Enter" to add ` + name + `',
-			});			
+				secondaryPlaceholder: 'Type and press "Enter" to add ` + name + `'
+			});		
 
 			// handle events specific to tags
 			var chips = tags.find('.chips');
