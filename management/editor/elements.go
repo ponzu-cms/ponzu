@@ -371,7 +371,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var chips = tags.find('.chips');
 			
 			chips.on('chip.add', function(e, chip) {
-				var input = $('input');
+				var input = $('<input>');
 				input.attr({
 					class: 'tag-'+chip.tag,
 					name: '` + name + `.'+tags.find('input[type=hidden]').length-1,
