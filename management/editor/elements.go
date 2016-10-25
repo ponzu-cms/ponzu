@@ -363,11 +363,11 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	<script>
 		$(function() {
 			var tags = $('.tags.` + name + `');
-			$('.chips.` + name + `).material_chip();
-			$('.chips-initial.` + name + `).material_chip({
+			$('.chips.` + name + `').material_chip();
+			$('.chips-initial.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `]
 			});
-			$('.chips-placeholder.` + name + `).material_chip({
+			$('.chips-placeholder.` + name + `').material_chip({
 				placeholder: ` + attrs["label"] + `,
 				secondaryPlaceholder: Type and press 'Enter' to add ` + name + `,
 			});			
@@ -379,7 +379,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 				var input = $('input');
 				input.attr({
 					class: 'tag-'+chip.tag,
-					name: '` + name + `.'+tags.find('input[type=hidden]).length-1,
+					name: '` + name + `.'+tags.find('input[type=hidden]').length-1,
 					value: chip.tag,
 					type: 'hidden'
 				});
