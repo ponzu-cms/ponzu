@@ -354,7 +354,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	for _, tag := range tags {
 		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
 		html += `<input type="hidden" class="tag-` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
-		initial = append(initial, `{tag: `+tag+`}`)
+		initial = append(initial, `{tag: '`+tag+`'}`)
 		i++
 	}
 
@@ -364,14 +364,13 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var tags = $('.tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
-				secondaryPlaceholder: '+More'
+				secondaryPlaceholder: '+ '` + name + `
 			});		
 
 			// handle events specific to tags
 			var chips = tags.find('.chips');
 			
 			chips.on('chip.add', function(e, chip) {
-				console.log("id:", tags.find('input[type=hidden]').length-1);
 				var input = $('<input>');
 				input.attr({
 					class: 'tag-'+chip.tag,
