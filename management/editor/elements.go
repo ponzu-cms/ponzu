@@ -384,6 +384,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 			chips.on('chip.delete', function(e, chip) {
 				var sel = '.tag-'+chip.tag;
+				console.log(sel);
+				console.log(chips.parent().find(sel));				
 				chips.parent().find(sel).remove();
 			});
 		});
