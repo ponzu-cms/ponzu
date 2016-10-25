@@ -371,7 +371,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var chips = tags.find('.chips');
 			
 			chips.on('chip.add', function(e, chip) {
-				tags.find('.empty-tag').remove();
+				chips.parent().find('.empty-tag').remove();
 				
 				var input = $('<input>');
 				input.attr({
@@ -385,9 +385,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			});
 
 			chips.on('chip.delete', function(e, chip) {
-				var sel = '.tag-'+chip.tag;
-				console.log(sel);
-				console.log(chips.parent().find(sel));				
+				var sel = '.tag-'+chip.tag;				
 				chips.parent().find(sel).remove();
 
 				// iterate through all hidden tag inputs to re-name them with the correct ` + name + `.index
