@@ -368,8 +368,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 				data: [` + strings.Join(initial, ",") + `]
 			});
 			$('.chips-placeholder.` + name + `').material_chip({
-				placeholder: ` + attrs["label"] + `,
-				secondaryPlaceholder: Type and press 'Enter' to add ` + name + `,
+				placeholder: '` + attrs["label"] + `',
+				secondaryPlaceholder: 'Type and press "Enter" to add ` + name + `',
 			});			
 
 			// handle events specific to tags
