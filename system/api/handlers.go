@@ -49,7 +49,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
 	if err != nil {
 		if q.Get("offset") == "" {
-			count = 0
+			offset = 0
 		} else {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
