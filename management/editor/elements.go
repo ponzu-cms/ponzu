@@ -375,7 +375,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 				
 				var input = $('<input>');
 				input.attr({
-					class: 'tag-'+chip.tag,
+					class: 'tag '+chip.tag,
 					name: '` + name + `.'+String(tags.find('input[type=hidden]').length),
 					value: chip.tag,
 					type: 'hidden'
@@ -385,7 +385,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			});
 
 			chips.on('chip.delete', function(e, chip) {
-				var sel = '.tag-'+chip.tag;	
+				// convert tag string to class-like selector "some tag" -> ".some.tag"
+				var sel = '.tag.'+chip.tag.split(' ').join('.');	
 				console.log(sel);
 				console.log(chips.parent().find(sel));			
 				chips.parent().find(sel).remove();
