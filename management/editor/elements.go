@@ -364,7 +364,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			var tags = $('.tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
-				secondaryPlaceholder: '+ '` + name + `
+				secondaryPlaceholder: '+` + name + `'
 			});		
 
 			// handle events specific to tags
