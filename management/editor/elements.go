@@ -332,6 +332,94 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 	return domElementWithChildrenCheckbox(div, opts)
 }
 
+// Tags returns the []byte of a tag input (in the style of Materialze 'Chips') with a label.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
+	name := tagNameFromStructField(fieldName, p)
+
+	// get the saved tags if this is already an existing post
+	values := valueFromStructField(fieldName, p)                 // returns refelct.Value
+	tags := values.Slice(0, values.Len()).Interface().([]string) // casts reflect.Value to []string
+
+	html := `
+	<div class="col s12 tags ` + name + `">
+		<label class="active">` + attrs["label"] + ` (Type and press "Enter")</label>
+		<div class="chips ` + name + `"></div>
+	`
+
+	var initial []string
+	i := 0
+	for _, tag := range tags {
+		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
+		html += `<input type="hidden" class="tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		initial = append(initial, `{tag: '`+tag+`'}`)
+		i++
+	}
+
+	script := `
+	<script>
+		$(function() {
+			var tags = $('.tags.` + name + `');
+			$('.chips.` + name + `').material_chip({
+				data: [` + strings.Join(initial, ",") + `],
+				secondaryPlaceholder: '+` + name + `'
+			});		
+
+			// handle events specific to tags
+			var chips = tags.find('.chips');
+			
+			chips.on('chip.add', function(e, chip) {
+				chips.parent().find('.empty-tag').remove();
+				
+				var input = $('<input>');
+				input.attr({
+					class: 'tag '+chip.tag,
+					name: '` + name + `.'+String(tags.find('input[type=hidden]').length),
+					value: chip.tag,
+					type: 'hidden'
+				});
+				
+				tags.append(input);
+			});
+
+			chips.on('chip.delete', function(e, chip) {
+				// convert tag string to class-like selector "some tag" -> ".some.tag"
+				var sel = '.tag.'+chip.tag.split(' ').join('.');	
+				console.log(sel);
+				console.log(chips.parent().find(sel));			
+				chips.parent().find(sel).remove();
+
+				// iterate through all hidden tag inputs to re-name them with the correct ` + name + `.index
+				var hidden = chips.parent().find('input[type=hidden]');
+				
+				// if there are no tags, set a blank
+				if (hidden.length === 0) {
+					var input = $('<input>');
+					input.attr({
+						class: 'empty-tag',
+						name: '` + name + `',
+						type: 'hidden'
+					});
+					
+					tags.append(input);
+					return;
+				}
+				
+				for (var i = 0; i < hidden.length; i++) {
+					$(hidden[i]).attr('name', '` + name + `.'+String(i));
+				}
+			});
+		});
+	</script>
+	`
+
+	html += `</div>`
+
+	return []byte(html + script)
+}
+
 // domElementSelfClose is a special DOM element which is parsed as a
 // self-closing tag and thus needs to be created differently
 func domElementSelfClose(e *element) []byte {
