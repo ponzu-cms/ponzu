@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -100,6 +101,12 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println("count:", count)
+	fmt.Println("offset:", offset)
+	fmt.Println("order:", order)
+	fmt.Println("start:", start)
+	fmt.Println("end:", end)
 
 	sendData(res, j, http.StatusOK)
 }
