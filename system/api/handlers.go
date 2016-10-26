@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -68,8 +67,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	for _, post := range posts {
 		all = append(all, post)
 	}
-
-	fmt.Println(len(posts))
 
 	var start, end int
 	switch count {
@@ -203,6 +200,7 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 
 	data, err = json.Marshal(j)
 	if err != nil {
+		log.Println(err)
 		data, _ = json.Marshal(map[string]interface{}{
 			"status":  "fail",
 			"message": err.Error(),
