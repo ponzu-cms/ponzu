@@ -14,6 +14,7 @@ type Externalable interface {
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
+	log.Println("External request")
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
