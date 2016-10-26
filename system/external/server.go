@@ -38,7 +38,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 
 	ext, ok := post.(Externalable)
 	if !ok {
-		res.WriteHeader(http.StatusNotFound)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
