@@ -26,6 +26,8 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Println("type:", t)
+	log.Println("of:", content.Types)
 	p, found := content.Types[t]
 	if !found {
 		log.Println("Attempt to submit content", t, "by", req.RemoteAddr)
