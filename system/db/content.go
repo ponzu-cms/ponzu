@@ -120,6 +120,7 @@ func insert(ns string, data url.Values) (int, error) {
 
 func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// find the content type and decode values into it
+	ns = strings.TrimSuffix(ns, "_external")
 	t, ok := content.Types[ns]
 	if !ok {
 		return nil, fmt.Errorf(content.ErrTypeNotRegistered, ns)
