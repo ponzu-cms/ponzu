@@ -19,6 +19,8 @@ func init() {
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("got request")
+	res.Header().Set("X-TEST", "Request ack")
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
