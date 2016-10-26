@@ -1,11 +1,10 @@
-package external
+package api
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -14,13 +13,7 @@ type Externalable interface {
 	Accept() bool
 }
 
-func init() {
-	http.HandleFunc("/api/external/posts", api.CORS(externalPostsHandler))
-}
-
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("got request")
-	res.Header().Set("X-TEST", "Request ack")
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -34,7 +27,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 
 	p, found := content.Types[t]
 	if !found {
-		fmt.Println(t, content.Types, p)
+		log.Println("Attempt to submit content", t, "by", req.RemoteAddr)
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
