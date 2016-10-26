@@ -10,7 +10,7 @@ import (
 
 // Externalable accepts or rejects external POST requests to /external/posts?type=Review
 type Externalable interface {
-	Accept() bool
+	Accepts() bool
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
@@ -43,7 +43,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if ext.Accept() {
+	if ext.Accepts() {
 		_, err := db.SetContent(t+"_external"+":-1", req.Form)
 		if err != nil {
 			log.Println("[External]", err)

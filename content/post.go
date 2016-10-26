@@ -91,5 +91,5 @@ func (p *Post) Editor() *editor.Editor { return &p.editor }
 
 // Accepts accepts or recjects external requests to submit Review submissions
 func (p *Post) Accepts() bool {
-	return false
+	return true
 }
