@@ -24,6 +24,8 @@ func SetContent(target string, data url.Values) (int, error) {
 	t := strings.Split(target, ":")
 	ns, id := t[0], t[1]
 
+	log.Println(ns, id, data)
+
 	// check if content id == -1 (indicating new post).
 	// if so, run an insert which will assign the next auto incremented int.
 	// this is done because boltdb begins its bucket auto increment value at 0,
