@@ -89,7 +89,7 @@ func (p *Post) SetSlug(slug string) { p.Slug = slug }
 // Editor partially implements editor.Editable
 func (p *Post) Editor() *editor.Editor { return &p.editor }
 
-// Accepts accepts or recjects external requests to submit Review submissions
+// Accepts accepts or recjects external requests to submit Post content
 func (p *Post) Accepts() bool {
 	return true
 }
