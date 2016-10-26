@@ -1,9 +1,11 @@
 package external
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -13,7 +15,7 @@ type Externalable interface {
 }
 
 func init() {
-	http.HandleFunc("/api/external/posts", externalPostsHandler)
+	http.HandleFunc("/api/external/posts", api.CORS(externalPostsHandler))
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
@@ -30,6 +32,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 
 	p, found := content.Types[t]
 	if !found {
+		fmt.Println(t, content.Types, p)
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
