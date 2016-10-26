@@ -107,7 +107,10 @@ func insert(ns string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	go SortContent(ns)
+	// since sorting can be expensive, limit sort to non-externally created posts
+	if !strings.Contains(ns, "_external") {
+		go SortContent(ns)
+	}
 
 	return effectedID, nil
 }
