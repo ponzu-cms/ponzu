@@ -72,6 +72,7 @@ func update(ns, id string, data url.Values) (int, error) {
 
 func insert(ns string, data url.Values) (int, error) {
 	var effectedID int
+	log.Println(ns)
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns))
 		if err != nil {
