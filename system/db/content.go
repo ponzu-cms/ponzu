@@ -92,7 +92,7 @@ func insert(ns string, data url.Values) (int, error) {
 		if err != nil {
 			return err
 		}
-		data.Add("id", cid)
+		data.Set("id", cid)
 
 		j, err := postToJSON(ns, data)
 		if err != nil {
