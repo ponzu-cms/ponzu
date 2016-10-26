@@ -14,9 +14,15 @@ type Externalable interface {
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
-	log.Println("External request")
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		log.Println("[External]", err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -26,11 +32,9 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	log.Println("type:", t)
-	log.Println("of:", content.Types)
 	p, found := content.Types[t]
 	if !found {
-		log.Println("Attempt to submit content", t, "by", req.RemoteAddr)
+		log.Println("[External] Attempt to submit content", t, "by", req.RemoteAddr)
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -39,6 +43,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 
 	ext, ok := post.(Externalable)
 	if !ok {
+		log.Println("[External]", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
