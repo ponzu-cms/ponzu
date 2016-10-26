@@ -19,25 +19,6 @@ type Post struct {
 	Theme    string   `json:"theme"`
 }
 
-func init() {
-	Types["Post"] = func() interface{} { return new(Post) }
-}
-
-// SetContentID partially implements editor.Editable
-func (p *Post) SetContentID(id int) { p.ID = id }
-
-// ContentID partially implements editor.Editable
-func (p *Post) ContentID() int { return p.ID }
-
-// ContentName partially implements editor.Editable
-func (p *Post) ContentName() string { return p.Title }
-
-// SetSlug partially implements editor.Editable
-func (p *Post) SetSlug(slug string) { p.Slug = slug }
-
-// Editor partially implements editor.Editable
-func (p *Post) Editor() *editor.Editor { return &p.editor }
-
 // MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
 func (p *Post) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form(p,
@@ -88,3 +69,22 @@ func (p *Post) MarshalEditor() ([]byte, error) {
 
 	return view, nil
 }
+
+func init() {
+	Types["Post"] = func() interface{} { return new(Post) }
+}
+
+// SetContentID partially implements editor.Editable
+func (p *Post) SetContentID(id int) { p.ID = id }
+
+// ContentID partially implements editor.Editable
+func (p *Post) ContentID() int { return p.ID }
+
+// ContentName partially implements editor.Editable
+func (p *Post) ContentName() string { return p.Title }
+
+// SetSlug partially implements editor.Editable
+func (p *Post) SetSlug(slug string) { p.Slug = slug }
+
+// Editor partially implements editor.Editable
+func (p *Post) Editor() *editor.Editor { return &p.editor }
