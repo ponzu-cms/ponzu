@@ -44,6 +44,11 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if ext.Accept() {
-		db.SetContent(t+"_external"+":-1", req.Form)
+		_, err := db.SetContent(t+"_external"+":-1", req.Form)
+		if err != nil {
+			log.Println("[External]", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 }
