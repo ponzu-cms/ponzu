@@ -563,7 +563,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	var hasExt bool
-	ext, ok := pt.(api.Externalable)
+	_, ok = pt.(api.Externalable)
 	if ok {
 		hasExt = true
 	}
