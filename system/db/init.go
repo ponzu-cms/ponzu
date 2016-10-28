@@ -79,13 +79,13 @@ func Init() {
 	}
 
 	// sort all content into type_sorted buckets
-	if SystemInitComplete() {
-		go func() {
-			for t := range content.Types {
-				SortContent(t)
-			}
-		}()
-	}
+	// if SystemInitComplete() {
+	// 	go func() {
+	// 		for t := range content.Types {
+	// 			SortContent(t)
+	// 		}
+	// 	}()
+	// }
 
 }
 
