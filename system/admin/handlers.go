@@ -628,31 +628,32 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					</div>`
 	if hasExt {
 		created := q.Get("created")
+
+		q.Set("created", "internal")
+		intURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+
+		q.Set("created", "external")
+		extURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+
 		switch created {
-			q.Set("created", "internal")
-			intURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+		case "internal":
 
-			q.Set("created", "external")		
-			extURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
-
-			case "internal":
-			
 			html += `<div class="row">
 					Created by: 
-					<a class="active" href="`+ intURL  +`">Internal</a>
+					<a class="active" href="` + intURL + `">Internal</a>
 					&nbsp;&vert;&nbsp;
-					<a href="`+ extURL  +`">External</a>
+					<a href="` + extURL + `">External</a>
 				</div>`
 
-			case "external":
+		case "external":
 			html += `<div class="row">
 					Created by: 
-					<a href="`+ intURL  +`">Internal</a>
+					<a href="` + intURL + `">Internal</a>
 					&nbsp;&vert;&nbsp;
-					<a class="active" href="`+ extURL  +`">External</a>
+					<a class="active" href="` + extURL + `">External</a>
 				</div>`
 		}
-		
+
 	}
 	html += `<ul class="posts row">`
 
