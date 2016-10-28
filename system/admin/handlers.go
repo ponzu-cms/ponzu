@@ -15,6 +15,7 @@ import (
 	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/bosssauce/ponzu/system/admin/config"
 	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
 
 	"github.com/nilslice/jwt"
@@ -535,7 +536,21 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	posts := db.ContentAll(t + "_sorted")
 	b := &bytes.Buffer{}
-	p, ok := content.Types[t]().(editor.Editable)
+
+	if _, ok := content.Types[t]; !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	pt := content.Types[t]()
+
+	p, ok := pt.(editor.Editable)
 	if !ok {
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
@@ -545,6 +560,12 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(errView)
 		return
+	}
+
+	var hasExt bool
+	ext, ok := pt.(api.Externalable)
+	if ok {
+		hasExt = true
 	}
 
 	html := `<div class="col s9 card">		
@@ -604,8 +625,36 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							<input type="hidden" name="type" value="` + t + `" />
 						</div>
                     </form>	
-					</div>
-					<ul class="posts row">`
+					</div>`
+	if hasExt {
+		created := q.Get("created")
+		switch created {
+			q.Set("created", "internal")
+			intURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+
+			q.Set("created", "external")		
+			extURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+
+			case "internal":
+			
+			html += `<div class="row">
+					Created by: 
+					<a class="active" href="`+ intURL  +`">Internal</a>
+					&nbsp;&vert;&nbsp;
+					<a href="`+ extURL  +`">External</a>
+				</div>`
+
+			case "external":
+			html += `<div class="row">
+					Created by: 
+					<a href="`+ intURL  +`">Internal</a>
+					&nbsp;&vert;&nbsp;
+					<a class="active" href="`+ extURL  +`">External</a>
+				</div>`
+		}
+		
+	}
+	html += `<ul class="posts row">`
 
 	if order == "desc" || order == "" {
 		// keep natural order of posts slice, as returned from sorted bucket
