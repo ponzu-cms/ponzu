@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -210,9 +211,6 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 	sendData(res, data, 200)
 }
 
-// ResponseFunc ...
-type ResponseFunc func(http.ResponseWriter, *http.Request)
-
 // CORS wraps a HandleFunc to response to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -220,6 +218,15 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 			SendPreflight(res)
 			return
 		}
+
+		next.ServeHTTP(res, req)
+	})
+}
+
+// Record wraps a HandleFunc to record API requests for analytical purposes
+func Record(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		go analytics.Record(req)
 
 		next.ServeHTTP(res, req)
 	})
