@@ -629,14 +629,14 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	if hasExt {
 		status := q.Get("status")
 		if status == "" {
-			req.Form.Add("status", "public")
+			q.Add("status", "public")
 		}
 
-		req.Form.Set("status", "public")
-		publicURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+		q.Set("status", "public")
+		publicURL := req.URL.Path + q.Encode()
 
-		req.Form.Set("status", "pending")
-		pendingURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+		q.Set("status", "pending")
+		pendingURL := req.URL.Path + q.Encode()
 
 		switch status {
 		case "public", "":
