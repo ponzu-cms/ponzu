@@ -169,7 +169,7 @@ func main() {
 
 	case "serve", "s":
 		db.Init()
-		defer db.Close()
+		// defer db.Close()
 
 		// analytics.Init()
 		// defer analytics.Close()
