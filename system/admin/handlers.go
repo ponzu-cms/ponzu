@@ -627,30 +627,30 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
                     </form>	
 					</div>`
 	if hasExt {
-		created := q.Get("created")
+		status := q.Get("status")
 
-		q.Set("created", "internal")
-		intURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+		req.Form.Set("status", "public")
+		publicURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
 
-		q.Set("created", "external")
-		extURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
+		req.Form.Set("status", "pending")
+		pendingURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
 
-		switch created {
-		case "internal":
+		switch status {
+		case "public", "":
 
 			html += `<div class="row externalable">
-					Created by: 
-					<a class="active" href="` + intURL + `">Internal</a>
+					Status: 
+					<span class="active">Public</span>
 					&nbsp;&vert;&nbsp;
-					<a href="` + extURL + `">External</a>
+					<a href="` + pendingURL + `">Pending</a>
 				</div>`
 
-		case "external":
+		case "pending":
 			html += `<div class="row externalable">
-					Created by: 
-					<a href="` + intURL + `">Internal</a>
+					Status: 
+					<a href="` + publicURL + `">Public</a>
 					&nbsp;&vert;&nbsp;
-					<a class="active" href="` + extURL + `">External</a>
+					<span class="active">Pending</span>					
 				</div>`
 		}
 
