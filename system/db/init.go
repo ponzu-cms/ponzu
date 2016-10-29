@@ -79,11 +79,11 @@ func Init() {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
 	}
 
-	go func(types map[string]func() interface{}) {
-		for t := range types {
+	go func() {
+		for t := range content.Types {
 			SortContent(t)
 		}
-	}(content.Types)
+	}()
 
 }
 

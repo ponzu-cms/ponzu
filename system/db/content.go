@@ -263,11 +263,6 @@ func SortContent(namespace string) {
 			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
 			err = b.Put([]byte(cid), j)
 			if err != nil {
-				err := tx.Rollback()
-				if err != nil {
-					return err
-				}
-
 				return err
 			}
 		}
