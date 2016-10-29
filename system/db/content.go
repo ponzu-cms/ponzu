@@ -245,11 +245,6 @@ func SortContent(namespace string) {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
 		if err != nil {
-			err := tx.Rollback()
-			if err != nil {
-				return err
-			}
-
 			return err
 		}
 
