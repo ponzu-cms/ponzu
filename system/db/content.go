@@ -243,7 +243,7 @@ func SortContent(namespace string) {
 
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
+		b, err := tx.CreateBucketIfNotExists([]byte(namespace + "_sorted"))
 		if err != nil {
 			return err
 		}
