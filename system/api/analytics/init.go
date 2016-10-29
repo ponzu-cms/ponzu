@@ -4,6 +4,7 @@
 package analytics
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -59,6 +60,8 @@ func Init() {
 		log.Fatalln(err)
 	}
 
+	fmt.Println("analytics", store)
+
 	recordChan = make(chan apiRequest, 1024*128)
 
 	go serve()
@@ -67,6 +70,9 @@ func Init() {
 
 		return nil
 	})
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func serve() {

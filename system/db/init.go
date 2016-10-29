@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/bosssauce/ponzu/content"
@@ -28,6 +29,8 @@ func Init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	fmt.Println("system", store)
 
 	err = store.Update(func(tx *bolt.Tx) error {
 		// initialize db with all content type buckets & sorted bucket for type
@@ -78,14 +81,11 @@ func Init() {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
 	}
 
-	// sort all content into type_sorted buckets
-	// if SystemInitComplete() {
-	// 	go func() {
-	// 		for t := range content.Types {
-	// 			SortContent(t)
-	// 		}
-	// 	}()
-	// }
+	go func() {
+		for t := range content.Types {
+			SortContent(t)
+		}
+	}()
 
 }
 
