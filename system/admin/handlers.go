@@ -628,6 +628,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					</div>`
 	if hasExt {
 		status := q.Get("status")
+		if status == "" {
+			req.Form.Add("status", "")
+		}
 
 		req.Form.Set("status", "public")
 		publicURL := strings.TrimPrefix(req.URL.String(), req.URL.Scheme+req.URL.Host)
