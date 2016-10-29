@@ -629,7 +629,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	if hasExt {
 		status := q.Get("status")
 		if status == "" {
-			req.Form.Add("status", "")
+			req.Form.Add("status", "public")
 		}
 
 		req.Form.Set("status", "public")
