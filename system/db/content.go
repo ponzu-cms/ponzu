@@ -202,8 +202,8 @@ func ContentAll(namespace string) [][]byte {
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 
-		len := b.Stats().KeyN
-		posts = make([][]byte, 0, len)
+		numKeys := b.Stats().KeyN
+		posts = make([][]byte, 0, numKeys)
 
 		b.ForEach(func(k, v []byte) error {
 			posts = append(posts, v)
@@ -224,7 +224,7 @@ func SortContent(namespace string) {
 	all := ContentAll(namespace)
 
 	var posts sortablePosts
-	// decode each (json) into Editable
+	// decode each (json) into type to then sort
 	for i := range all {
 		j := all[i]
 		post := content.Types[namespace]()
@@ -243,11 +243,6 @@ func SortContent(namespace string) {
 
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
-		err := tx.DeleteBucket([]byte(namespace + "_sorted"))
-		if err != nil {
-			return err
-		}
-
 		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
 		if err != nil {
 			err := tx.Rollback()

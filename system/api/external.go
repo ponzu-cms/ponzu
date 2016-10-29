@@ -8,10 +8,19 @@ import (
 	"github.com/bosssauce/ponzu/system/db"
 )
 
-// Externalable accepts or rejects external POST requests to /external/posts?type=Review
+// Externalable accepts or rejects external POST requests to endpoints such as:
+// /external/posts?type=Review
 type Externalable interface {
 	// Accepts determines whether a type will allow external submissions
 	Accepts() bool
+}
+
+// Mergeable allows external post content to be approved and published through
+// the public-facing API
+type Mergeable interface {
+	// Approve copies an external post to the internal collection and triggers
+	// a re-sort of its content type posts
+	Approve() error
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {

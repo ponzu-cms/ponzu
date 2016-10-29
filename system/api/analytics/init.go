@@ -4,7 +4,6 @@
 package analytics
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -55,12 +54,11 @@ func Close() {
 // Init creates a db connection, should run an initial prune of old data, and
 // sets up the queue/batching channel
 func Init() {
-	store, err := bolt.Open("analytics.db", 0666, nil)
+	var err error
+	store, err = bolt.Open("analytics.db", 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	fmt.Println("analytics", store)
 
 	recordChan = make(chan apiRequest, 1024*128)
 

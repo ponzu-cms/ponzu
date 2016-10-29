@@ -2,7 +2,6 @@ package db
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/bosssauce/ponzu/content"
@@ -25,12 +24,11 @@ func Close() {
 
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
-	store, err := bolt.Open("system.db", 0666, nil)
+	var err error
+	store, err = bolt.Open("system.db", 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	fmt.Println("system", store)
 
 	err = store.Update(func(tx *bolt.Tx) error {
 		// initialize db with all content type buckets & sorted bucket for type
