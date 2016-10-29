@@ -24,6 +24,7 @@ func Run() {
 	http.HandleFunc("/admin/configure/users/delete", user.Auth(configUsersDeleteHandler))
 
 	http.HandleFunc("/admin/posts", user.Auth(postsHandler))
+	http.HandleFunc("/admin/posts/approve", user.Auth(approvePostHandler))
 	http.HandleFunc("/admin/posts/search", user.Auth(searchHandler))
 
 	http.HandleFunc("/admin/edit", user.Auth(editHandler))

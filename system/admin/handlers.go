@@ -638,7 +638,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		switch created {
 		case "internal":
 
-			html += `<div class="row">
+			html += `<div class="row externalable">
 					Created by: 
 					<a class="active" href="` + intURL + `">Internal</a>
 					&nbsp;&vert;&nbsp;
@@ -646,7 +646,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 				</div>`
 
 		case "external":
-			html += `<div class="row">
+			html += `<div class="row externalable">
 					Created by: 
 					<a href="` + intURL + `">Internal</a>
 					&nbsp;&vert;&nbsp;
@@ -751,6 +751,10 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 			</li>`
 
 	return []byte(post)
+}
+
+func approvePostHandler(res http.ResponseWriter, req *http.Request) {
+
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
