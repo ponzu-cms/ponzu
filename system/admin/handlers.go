@@ -633,10 +633,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		q.Set("status", "public")
-		publicURL := req.URL.Path + q.Encode()
+		publicURL := req.URL.Path + "?" + q.Encode()
 
 		q.Set("status", "pending")
-		pendingURL := req.URL.Path + q.Encode()
+		pendingURL := req.URL.Path + "?" + q.Encode()
 
 		switch status {
 		case "public", "":
