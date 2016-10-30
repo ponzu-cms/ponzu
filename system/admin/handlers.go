@@ -869,7 +869,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Set("updated", ts)
 		}
 
-		urlPaths, err := storeFileUploads(req)
+		urlPaths, err := StoreFileUploads(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -971,7 +971,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	urlPaths, err := storeFileUploads(req)
+	urlPaths, err := StoreFileUploads(req)
 	if err != nil {
 		log.Println("Couldn't store file uploads.", err)
 		res.WriteHeader(http.StatusInternalServerError)

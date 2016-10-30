@@ -1,10 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/admin"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -59,7 +63,44 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if ext.Accepts() {
-		err := db.SetPendingContent(t+"_pending", req.Form)
+		ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
+		req.PostForm.Set("timestamp", ts)
+		req.PostForm.Set("updated", ts)
+		req.PostForm.Set("id", ts)
+
+		urlPaths, err := admin.storeFileUploads(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for name, urlPath := range urlPaths {
+			req.PostForm.Add(name, urlPath)
+		}
+
+		// check for any multi-value fields (ex. checkbox fields)
+		// and correctly format for db storage. Essentially, we need
+		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+		var discardKeys []string
+		for k, v := range req.PostForm {
+			if strings.Contains(k, ".") {
+				key := strings.Split(k, ".")[0]
+
+				if req.PostForm.Get(key) == "" {
+					req.PostForm.Set(key, v[0])
+					discardKeys = append(discardKeys, k)
+				} else {
+					req.PostForm.Add(key, v[0])
+				}
+			}
+		}
+
+		for _, discardKey := range discardKeys {
+			req.PostForm.Del(discardKey)
+		}
+
+		err = db.SetPendingContent(t+"_pending", req.PostForm)
 		if err != nil {
 			log.Println("[External] error:", err)
 			res.WriteHeader(http.StatusInternalServerError)
