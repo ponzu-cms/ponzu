@@ -199,6 +199,10 @@ func ContentAll(namespace string) [][]byte {
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 
+		if b == nil {
+			return nil
+		}
+
 		numKeys := b.Stats().KeyN
 		posts = make([][]byte, 0, numKeys)
 
