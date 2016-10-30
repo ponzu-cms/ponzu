@@ -640,7 +640,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		switch status {
 		case "public", "":
-
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
 					<span class="active">Public</span>
@@ -649,6 +648,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 				</div>`
 
 		case "pending":
+			// get _pending posts of type t from the db
+			posts = db.ContentAll(t + "_pending")
+
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
 					<a href="` + publicURL + `">Public</a>
@@ -656,9 +658,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					<span class="active">Pending</span>					
 				</div>`
 		}
-
-		// get _pending posts of type t from the db
-		posts = db.ContentAll(t + "_pending")
 
 	}
 	html += `<ul class="posts row">`
