@@ -1070,7 +1070,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		post := adminPostListItem(p, t)
+		post := adminPostListItem(p, t, "")
 		b.Write([]byte(post))
 	}
 
