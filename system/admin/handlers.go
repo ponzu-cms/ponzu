@@ -804,6 +804,8 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		i := q.Get("id")
 		t := q.Get("type")
+		status := q.Get("status")
+
 		contentType, ok := content.Types[t]
 		if !ok {
 			fmt.Fprintf(res, content.ErrTypeNotRegistered, t)
@@ -812,6 +814,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		post := contentType()
 
 		if i != "" {
+			if status == "pending" {
+				t = t + "_pending"
+			}
 			data, err := db.Content(t + ":" + i)
 			if err != nil {
 				log.Println(err)
