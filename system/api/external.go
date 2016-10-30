@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/system/admin"
+	"github.com/bosssauce/ponzu/system/admin/upload"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -68,7 +68,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 		req.PostForm.Set("updated", ts)
 		req.PostForm.Set("id", ts)
 
-		urlPaths, err := admin.storeFileUploads(req)
+		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

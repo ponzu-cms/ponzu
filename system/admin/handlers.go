@@ -14,6 +14,7 @@ import (
 	"github.com/bosssauce/ponzu/management/editor"
 	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/bosssauce/ponzu/system/admin/config"
+	"github.com/bosssauce/ponzu/system/admin/upload"
 	"github.com/bosssauce/ponzu/system/admin/user"
 	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
@@ -869,7 +870,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Set("updated", ts)
 		}
 
-		urlPaths, err := StoreFileUploads(req)
+		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -971,7 +972,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	urlPaths, err := StoreFileUploads(req)
+	urlPaths, err := upload.StoreFiles(req)
 	if err != nil {
 		log.Println("Couldn't store file uploads.", err)
 		res.WriteHeader(http.StatusInternalServerError)
