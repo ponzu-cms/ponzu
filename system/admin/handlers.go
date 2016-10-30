@@ -677,7 +677,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "_pending")
+				post := adminPostListItem(p, t, "pending")
 				b.Write(post)
 			}
 		} else {
@@ -710,7 +710,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "_pending")
+				post := adminPostListItem(p, t, "pending")
 				b.Write(post)
 			}
 		} else {
@@ -763,7 +763,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 // adminPostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
 // specifier is passed to append a name to a namespace like _pending
-func adminPostListItem(p editor.Editable, t, specifier string) []byte {
+func adminPostListItem(p editor.Editable, t, status string) []byte {
 	s, ok := p.(editor.Sortable)
 	if !ok {
 		log.Println("Content type", t, "doesn't implement editor.Sortable")
@@ -781,14 +781,14 @@ func adminPostListItem(p editor.Editable, t, specifier string) []byte {
 
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + t + specifier + `&id=` + cid + `">` + p.ContentName() + `</a>
+				<a href="/admin/edit?type=` + t + `&status=` + status + `&id=` + cid + `">` + p.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
 				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
-					<input type="hidden" name="type" value="` + t + specifier + `" />
+					<input type="hidden" name="type" value="` + t + `_` + status + `" />
 				</form>
 			</li>`
 
