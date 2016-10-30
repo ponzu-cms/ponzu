@@ -817,6 +817,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			if status == "pending" {
 				t = t + "_pending"
 			}
+			fmt.Println(t, i, status)
 			data, err := db.Content(t + ":" + i)
 			if err != nil {
 				log.Println(err)
