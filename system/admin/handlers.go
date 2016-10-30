@@ -831,6 +831,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			if len(data) < 1 || data == nil {
+				fmt.Println(string(data))
 				res.WriteHeader(http.StatusNotFound)
 				errView, err := Error404()
 				if err != nil {
