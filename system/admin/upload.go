@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-func storeFileUploads(req *http.Request) (map[string]string, error) {
+// StoreFileUploads stores file uploads at paths like /YYYY/MM/filename.ext
+func StoreFileUploads(req *http.Request) (map[string]string, error) {
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
