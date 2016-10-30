@@ -59,7 +59,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if ext.Accepts() {
-		_, err := db.SetContent(t+"_external"+":-1", req.Form)
+		err := db.SetPendingContent(t+"_pending", req.Form)
 		if err != nil {
 			log.Println("[External] error:", err)
 			res.WriteHeader(http.StatusInternalServerError)

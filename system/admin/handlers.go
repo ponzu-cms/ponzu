@@ -642,7 +642,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		case "public", "":
 
 			html += `<div class="row externalable">
-					Status: 
+					<span class="description">Status:</span> 
 					<span class="active">Public</span>
 					&nbsp;&vert;&nbsp;
 					<a href="` + pendingURL + `">Pending</a>
@@ -650,17 +650,21 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		case "pending":
 			html += `<div class="row externalable">
-					Status: 
+					<span class="description">Status:</span> 
 					<a href="` + publicURL + `">Public</a>
 					&nbsp;&vert;&nbsp;
 					<span class="active">Pending</span>					
 				</div>`
 		}
 
+		// get _pending posts of type t from the db
+		posts = db.ContentAll(t + "_pending")
+
 	}
 	html += `<ul class="posts row">`
 
-	if order == "desc" || order == "" {
+	switch order {
+	case "desc", "":
 		// keep natural order of posts slice, as returned from sorted bucket
 		for i := range posts {
 			err := json.Unmarshal(posts[i], &p)
@@ -676,7 +680,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			b.Write(post)
 		}
 
-	} else if order == "asc" {
+	case "asc":
 		// reverse the order of posts slice
 		for i := len(posts) - 1; i >= 0; i-- {
 			err := json.Unmarshal(posts[i], &p)
