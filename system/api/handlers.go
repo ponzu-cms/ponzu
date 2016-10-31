@@ -3,13 +3,13 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -68,8 +68,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	for _, post := range posts {
 		all = append(all, post)
 	}
-
-	fmt.Println(len(posts))
 
 	var start, end int
 	switch count {
@@ -203,6 +201,7 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 
 	data, err = json.Marshal(j)
 	if err != nil {
+		log.Println(err)
 		data, _ = json.Marshal(map[string]interface{}{
 			"status":  "fail",
 			"message": err.Error(),
@@ -212,9 +211,6 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 	sendData(res, data, 200)
 }
 
-// ResponseFunc ...
-type ResponseFunc func(http.ResponseWriter, *http.Request)
-
 // CORS wraps a HandleFunc to response to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -222,6 +218,15 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 			SendPreflight(res)
 			return
 		}
+
+		next.ServeHTTP(res, req)
+	})
+}
+
+// Record wraps a HandleFunc to record API requests for analytical purposes
+func Record(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		go analytics.Record(req)
 
 		next.ServeHTTP(res, req)
 	})

@@ -75,29 +75,10 @@ type {{ .name }} struct {
 	Title    string ` + "`json:" + `"title"` + "`" + `
 	Content  string ` + "`json:" + `"content"` + "`" + `
 	Author   string ` + "`json:" + `"author"` + "`" + `
-	Photo    string ` + "`json:" + `"picture"` + "`" + `	
+	Photo    string ` + "`json:" + `"photo"` + "`" + `	
 	Category []string ` + "`json:" + `"category"` + "`" + `
 	Theme	 string ` + "`json:" + `"theme"` + "`" + `
 }
-
-func init() {
-	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
-}
-
-// SetContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetContentID(id int) { {{ .initial }}.ID = id }
-
-// ContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentID() int { return {{ .initial }}.ID }
-
-// ContentName partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
-
-// SetSlug partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetSlug(slug string) { {{ .initial }}.Slug = slug }
-
-// Editor partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
 
 // MarshalEditor writes a buffer of html to edit a {{ .name }} and partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
@@ -152,6 +133,26 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 
 	return view, nil
 }
+
+func init() {
+	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
+}
+
+// SetContentID partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) SetContentID(id int) { {{ .initial }}.ID = id }
+
+// ContentID partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) ContentID() int { return {{ .initial }}.ID }
+
+// ContentName partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
+
+// SetSlug partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) SetSlug(slug string) { {{ .initial }}.Slug = slug }
+
+// Editor partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
+
 `
 
 func newProjectInDir(path string) error {

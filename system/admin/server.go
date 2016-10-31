@@ -28,6 +28,7 @@ func Run() {
 
 	http.HandleFunc("/admin/edit", user.Auth(editHandler))
 	http.HandleFunc("/admin/edit/delete", user.Auth(deleteHandler))
+	http.HandleFunc("/admin/edit/approve", user.Auth(approvePostHandler))
 	http.HandleFunc("/admin/edit/upload", user.Auth(editUploadHandler))
 
 	pwd, err := os.Getwd()

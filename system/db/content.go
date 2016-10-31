@@ -38,13 +38,20 @@ func SetContent(target string, data url.Values) (int, error) {
 }
 
 func update(ns, id string, data url.Values) (int, error) {
+	var specifier string // i.e. _pending, _sorted, etc.
+	if strings.Contains(ns, "_") {
+		spec := strings.Split(ns, "_")
+		ns = spec[0]
+		specifier = "_" + spec[1]
+	}
+
 	cid, err := strconv.Atoi(id)
 	if err != nil {
 		return 0, err
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
@@ -65,15 +72,24 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, nil
 	}
 
-	go SortContent(ns)
+	if specifier == "" {
+		go SortContent(ns)
+	}
 
 	return cid, nil
 }
 
 func insert(ns string, data url.Values) (int, error) {
 	var effectedID int
+	var specifier string // i.e. _pending, _sorted, etc.
+	if strings.Contains(ns, "_") {
+		spec := strings.Split(ns, "_")
+		ns = spec[0]
+		specifier = "_" + spec[1]
+	}
+
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
@@ -89,7 +105,7 @@ func insert(ns string, data url.Values) (int, error) {
 		if err != nil {
 			return err
 		}
-		data.Add("id", cid)
+		data.Set("id", cid)
 
 		j, err := postToJSON(ns, data)
 		if err != nil {
@@ -107,40 +123,11 @@ func insert(ns string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	go SortContent(ns)
+	if specifier == "" {
+		go SortContent(ns)
+	}
 
 	return effectedID, nil
-}
-
-func postToJSON(ns string, data url.Values) ([]byte, error) {
-	// find the content type and decode values into it
-	t, ok := content.Types[ns]
-	if !ok {
-		return nil, fmt.Errorf(content.ErrTypeNotRegistered, ns)
-	}
-	post := t()
-
-	dec := schema.NewDecoder()
-	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
-	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
-	err := dec.Decode(post, data)
-	if err != nil {
-		return nil, err
-	}
-
-	slug, err := manager.Slug(post.(editor.Editable))
-	if err != nil {
-		return nil, err
-	}
-	post.(editor.Editable).SetSlug(slug)
-
-	// marshall content struct to json for db storage
-	j, err := json.Marshal(post)
-	if err != nil {
-		return nil, err
-	}
-
-	return j, nil
 }
 
 // DeleteContent removes an item from the database. Deleting a non-existent item
@@ -153,7 +140,6 @@ func DeleteContent(target string) error {
 		tx.Bucket([]byte(ns)).Delete([]byte(id))
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -197,8 +183,12 @@ func ContentAll(namespace string) [][]byte {
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 
-		len := b.Stats().KeyN
-		posts = make([][]byte, 0, len)
+		if b == nil {
+			return nil
+		}
+
+		numKeys := b.Stats().KeyN
+		posts = make([][]byte, 0, numKeys)
 
 		b.ForEach(func(k, v []byte) error {
 			posts = append(posts, v)
@@ -216,10 +206,15 @@ func ContentAll(namespace string) [][]byte {
 // in descending order, from most recent to least recent
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
+	// only sort main content types i.e. Post
+	if strings.Contains(namespace, "_") {
+		return
+	}
+
 	all := ContentAll(namespace)
 
 	var posts sortablePosts
-	// decode each (json) into Editable
+	// decode each (json) into type to then sort
 	for i := range all {
 		j := all[i]
 		post := content.Types[namespace]()
@@ -238,18 +233,14 @@ func SortContent(namespace string) {
 
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
-		err := tx.DeleteBucket([]byte(namespace + "_sorted"))
+		bname := []byte(namespace + "_sorted")
+		err := tx.DeleteBucket(bname)
 		if err != nil {
 			return err
 		}
 
-		b, err := tx.CreateBucket([]byte(namespace + "_sorted"))
+		b, err := tx.CreateBucketIfNotExists(bname)
 		if err != nil {
-			err := tx.Rollback()
-			if err != nil {
-				return err
-			}
-
 			return err
 		}
 
@@ -263,11 +254,6 @@ func SortContent(namespace string) {
 			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
 			err = b.Put([]byte(cid), j)
 			if err != nil {
-				err := tx.Rollback()
-				if err != nil {
-					return err
-				}
-
 				return err
 			}
 		}
@@ -292,4 +278,36 @@ func (s sortablePosts) Less(i, j int) bool {
 
 func (s sortablePosts) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
+}
+
+func postToJSON(ns string, data url.Values) ([]byte, error) {
+	// find the content type and decode values into it
+	ns = strings.TrimSuffix(ns, "_external")
+	t, ok := content.Types[ns]
+	if !ok {
+		return nil, fmt.Errorf(content.ErrTypeNotRegistered, ns)
+	}
+	post := t()
+
+	dec := schema.NewDecoder()
+	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+	err := dec.Decode(post, data)
+	if err != nil {
+		return nil, err
+	}
+
+	slug, err := manager.Slug(post.(editor.Editable))
+	if err != nil {
+		return nil, err
+	}
+	post.(editor.Editable).SetSlug(slug)
+
+	// marshall content struct to json for db storage
+	j, err := json.Marshal(post)
+	if err != nil {
+		return nil, err
+	}
+
+	return j, nil
 }

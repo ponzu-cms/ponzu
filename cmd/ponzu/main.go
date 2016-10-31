@@ -11,6 +11,7 @@ import (
 
 	"github.com/bosssauce/ponzu/system/admin"
 	"github.com/bosssauce/ponzu/system/api"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 	"github.com/bosssauce/ponzu/system/tls"
 )
@@ -169,6 +170,11 @@ func main() {
 
 	case "serve", "s":
 		db.Init()
+		defer db.Close()
+
+		analytics.Init()
+		defer analytics.Close()
+
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
 

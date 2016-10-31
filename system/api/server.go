@@ -9,4 +9,6 @@ func Run() {
 	http.HandleFunc("/api/posts", CORS(postsHandler))
 
 	http.HandleFunc("/api/post", CORS(postHandler))
+
+	http.HandleFunc("/api/external/posts", CORS(externalPostsHandler))
 }

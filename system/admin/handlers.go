@@ -14,9 +14,12 @@ import (
 	"github.com/bosssauce/ponzu/management/editor"
 	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/bosssauce/ponzu/system/admin/config"
+	"github.com/bosssauce/ponzu/system/admin/upload"
 	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
 
+	"github.com/gorilla/schema"
 	"github.com/nilslice/jwt"
 )
 
@@ -532,10 +535,25 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	order := strings.ToLower(q.Get("order"))
+	status := q.Get("status")
 
 	posts := db.ContentAll(t + "_sorted")
 	b := &bytes.Buffer{}
-	p, ok := content.Types[t]().(editor.Editable)
+
+	if _, ok := content.Types[t]; !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	pt := content.Types[t]()
+
+	p, ok := pt.(editor.Editable)
 	if !ok {
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
@@ -545,6 +563,12 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(errView)
 		return
+	}
+
+	var hasExt bool
+	_, ok = pt.(api.Externalable)
+	if ok {
+		hasExt = true
 	}
 
 	html := `<div class="col s9 card">		
@@ -562,21 +586,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							</div>	
 							<script>
 								$(function() {
-									var getParam = function(param) {
-										var qs = window.location.search.substring(1);
-										var qp = qs.split('&');
-										var t = '';
-
-										for (var i = 0; i < qp.length; i++) {
-											var p = qp[i].split('=')
-											if (p[0] === param) {
-												t = p[1];	
-											}
-										}
-
-										return t;
-									}
-
 									var sort = $('select.__ponzu.sort-order');
 
 									sort.on('change', function() {
@@ -604,39 +613,107 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							<input type="hidden" name="type" value="` + t + `" />
 						</div>
                     </form>	
-					</div>
-					<ul class="posts row">`
-
-	if order == "desc" || order == "" {
-		// keep natural order of posts slice, as returned from sorted bucket
-		for i := range posts {
-			err := json.Unmarshal(posts[i], &p)
-			if err != nil {
-				log.Println("Error unmarshal json into", t, err, posts[i])
-
-				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-				b.Write([]byte(post))
-				continue
-			}
-
-			post := adminPostListItem(p, t)
-			b.Write(post)
+					</div>`
+	if hasExt {
+		if status == "" {
+			q.Add("status", "public")
 		}
 
-	} else if order == "asc" {
-		// reverse the order of posts slice
-		for i := len(posts) - 1; i >= 0; i-- {
-			err := json.Unmarshal(posts[i], &p)
-			if err != nil {
-				log.Println("Error unmarshal json into", t, err, posts[i])
+		q.Set("status", "public")
+		publicURL := req.URL.Path + "?" + q.Encode()
 
-				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-				b.Write([]byte(post))
-				continue
+		q.Set("status", "pending")
+		pendingURL := req.URL.Path + "?" + q.Encode()
+
+		switch status {
+		case "public", "":
+			html += `<div class="row externalable">
+					<span class="description">Status:</span> 
+					<span class="active">Public</span>
+					&nbsp;&vert;&nbsp;
+					<a href="` + pendingURL + `">Pending</a>
+				</div>`
+
+		case "pending":
+			// get _pending posts of type t from the db
+			posts = db.ContentAll(t + "_pending")
+
+			html += `<div class="row externalable">
+					<span class="description">Status:</span> 
+					<a href="` + publicURL + `">Public</a>
+					&nbsp;&vert;&nbsp;
+					<span class="active">Pending</span>					
+				</div>`
+		}
+
+	}
+	html += `<ul class="posts row">`
+
+	switch order {
+	case "desc", "":
+		if hasExt {
+			// reverse the order of posts slice
+			for i := len(posts) - 1; i >= 0; i-- {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
 			}
+		} else {
+			// keep natural order of posts slice, as returned from sorted bucket
+			for i := range posts {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
 
-			post := adminPostListItem(p, t)
-			b.Write(post)
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
+		}
+
+	case "asc":
+		if hasExt {
+			// keep natural order of posts slice, as returned from sorted bucket
+			for i := range posts {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
+		} else {
+			// reverse the order of posts slice
+			for i := len(posts) - 1; i >= 0; i-- {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
 		}
 	}
 
@@ -671,7 +748,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 // adminPostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
-func adminPostListItem(p editor.Editable, t string) []byte {
+// specifier is passed to append a name to a namespace like _pending
+func adminPostListItem(p editor.Editable, t, status string) []byte {
 	s, ok := p.(editor.Sortable)
 	if !ok {
 		log.Println("Content type", t, "doesn't implement editor.Sortable")
@@ -687,20 +765,117 @@ func adminPostListItem(p editor.Editable, t string) []byte {
 
 	cid := fmt.Sprintf("%d", p.ContentID())
 
+	if status == "public" {
+		status = ""
+	} else {
+		status = "_" + status
+	}
+
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + t + `&id=` + cid + `">` + p.ContentName() + `</a>
+				<a href="/admin/edit?type=` + t + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + p.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
 				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
-					<input type="hidden" name="type" value="` + t + `" />
+					<input type="hidden" name="type" value="` + t + status + `" />
 				</form>
 			</li>`
 
 	return []byte(post)
+}
+
+func approvePostHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	t := req.FormValue("type")
+	if strings.Contains(t, "_") {
+		t = strings.Split(t, "_")[0]
+	}
+
+	post := content.Types[t]()
+
+	// check if we have a Mergeable
+	m, ok := post.(api.Mergeable)
+	if !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err = dec.Decode(post, req.Form)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// call its Approve method
+	err = m.Approve(req)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// Store the content in the bucket t
+	id, err := db.SetContent(t+":-1", req.Form)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// redirect to the new approved content's editor
+	redir := req.URL.Scheme + req.URL.Host + strings.TrimSuffix(req.URL.Path, "/approve")
+	redir += fmt.Sprintf("?type=%s&id=%d", t, id)
+	http.Redirect(res, req, redir, http.StatusFound)
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
@@ -709,6 +884,8 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		i := q.Get("id")
 		t := q.Get("type")
+		status := q.Get("status")
+
 		contentType, ok := content.Types[t]
 		if !ok {
 			fmt.Fprintf(res, content.ErrTypeNotRegistered, t)
@@ -717,6 +894,10 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		post := contentType()
 
 		if i != "" {
+			if status == "pending" {
+				t = t + "_pending"
+			}
+
 			data, err := db.Content(t + ":" + i)
 			if err != nil {
 				log.Println(err)
@@ -731,6 +912,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			if len(data) < 1 || data == nil {
+				fmt.Println(string(data))
 				res.WriteHeader(http.StatusNotFound)
 				errView, err := Error404()
 				if err != nil {
@@ -809,7 +991,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Set("updated", ts)
 		}
 
-		urlPaths, err := storeFileUploads(req)
+		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -900,6 +1082,12 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// catch specifier suffix from delete form value
+	if strings.Contains(t, "_") {
+		spec := strings.Split(t, "_")
+		t = spec[0]
+	}
+
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
 	redir = redir + "/posts?type=" + t
 	http.Redirect(res, req, redir, http.StatusFound)
@@ -911,7 +1099,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	urlPaths, err := storeFileUploads(req)
+	urlPaths, err := upload.StoreFiles(req)
 	if err != nil {
 		log.Println("Couldn't store file uploads.", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -967,7 +1155,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		post := adminPostListItem(p, t)
+		post := adminPostListItem(p, t, "")
 		b.Write([]byte(post))
 	}
 
