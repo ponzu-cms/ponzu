@@ -860,7 +860,7 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Store the content in the bucket t
-	id, err = db.SetContent(t+":-1", req.Form)
+	id, err := db.SetContent(t+":-1", req.Form)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
@@ -875,7 +875,7 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 	// redirect to the new approved content's editor
 	redir := req.URL.Scheme + req.URL.Host + strings.TrimSuffix(req.URL.Path, "/approve")
 	redir += fmt.Sprintf("?type=%s&id=%d", t, id)
-	http.Redirect(res, req, http.StatusFound)
+	http.Redirect(res, req, redir, http.StatusFound)
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
