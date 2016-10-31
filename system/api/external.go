@@ -66,7 +66,6 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 		ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
 		req.PostForm.Set("timestamp", ts)
 		req.PostForm.Set("updated", ts)
-		req.PostForm.Set("id", ts)
 
 		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
@@ -100,7 +99,7 @@ func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
-		err = db.SetPendingContent(t+"_pending", req.PostForm)
+		_, err = db.SetPendingContent(t, req.PostForm)
 		if err != nil {
 			log.Println("[External] error:", err)
 			res.WriteHeader(http.StatusInternalServerError)

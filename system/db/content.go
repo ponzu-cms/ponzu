@@ -3,14 +3,12 @@ package db
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
@@ -116,33 +114,41 @@ func insert(ns string, data url.Values) (int, error) {
 }
 
 // SetPendingContent inserts submitted content for pending approval
-func SetPendingContent(target string, data url.Values) error {
-	if !strings.Contains(target, "_pending") {
-		return errors.New("Only set items into _pending bucket using SetPendingContent. Namespace should be <Type>_pending")
-	}
-
-	ns := strings.Split(target, "_")[0]
+func SetPendingContent(ns string, data url.Values) (int, error) {
+	var effectedID int
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(target))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_pending"))
 		if err != nil {
 			return err
 		}
 
-		key := fmt.Sprintf("%d", time.Now().UTC().Unix())
+		// get the next available ID and convert to string
+		// also set effectedID to int of ID
+		id, err := b.NextSequence()
+		if err != nil {
+			return err
+		}
+		cid := strconv.FormatUint(id, 10)
+		effectedID, err = strconv.Atoi(cid)
+		if err != nil {
+			return err
+		}
+		data.Set("id", cid)
+
 		j, err := postToJSON(ns, data)
 		if err != nil {
 			return err
 		}
-		b.Put([]byte(key), j)
+		b.Put([]byte(cid), j)
 
 		return nil
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return effectedID, nil
 }
 
 // DeleteContent removes an item from the database. Deleting a non-existent item
