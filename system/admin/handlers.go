@@ -19,8 +19,8 @@ import (
 	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
 
+	"github.com/gorilla/schema"
 	"github.com/nilslice/jwt"
-	"github.com/nilslice/ponzu-test/cmd/ponzu/vendor/github.com/gorilla/schema"
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
