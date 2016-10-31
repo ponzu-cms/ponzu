@@ -1,2 +1,6 @@
 system/admin/static/editor/sass/* linguist-vendored
 cmd/ponzu/vendor/* linguist-vendored=false
+system/admin/static/dashboard/js/* linguist-vendored
+system/admin/static/editor/js/* linguist-vendored
+system/admin/static/common/js/* linguist-vendored
+system/admin/static/common/js/util.js linguist-vendored=false

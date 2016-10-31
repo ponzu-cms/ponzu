@@ -72,36 +72,16 @@ type {{ .name }} struct {
 	editor editor.Editor
 
     // required: all maintained {{ .name }} fields must have json tags!
-	Title      string ` + "`json:" + `"title"` + "`" + `
-	Content    string ` + "`json:" + `"content"` + "`" + `
-	Author     string ` + "`json:" + `"author"` + "`" + `
-	Picture    string ` + "`json:" + `"picture"` + "`" + `	
-	Category   []string ` + "`json:" + `"category"` + "`" + `
-	ThemeStyle string ` + "`json:" + `"theme"` + "`" + `
+	Title    string ` + "`json:" + `"title"` + "`" + `
+	Content  string ` + "`json:" + `"content"` + "`" + `
+	Author   string ` + "`json:" + `"author"` + "`" + `
+	Photo    string ` + "`json:" + `"photo"` + "`" + `	
+	Category []string ` + "`json:" + `"category"` + "`" + `
+	Theme	 string ` + "`json:" + `"theme"` + "`" + `
 }
-
-func init() {
-	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
-}
-
-// SetContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetContentID(id int) { {{ .initial }}.ID = id }
-
-// ContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentID() int { return {{ .initial }}.ID }
-
-// ContentName partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
-
-// SetSlug partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetSlug(slug string) { {{ .initial }}.Slug = slug }
-
-// Editor partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
 
 // MarshalEditor writes a buffer of html to edit a {{ .name }} and partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
-/* EXAMPLE CODE (from post.go, the default content type) */
 	view, err := editor.Form({{ .initial }},
 		editor.Field{
 			// Take careful note that the first argument to these Input-like methods 
@@ -127,22 +107,18 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.File("Picture", {{ .initial }}, map[string]string{
+			View: editor.File("Photo", {{ .initial }}, map[string]string{
 				"label":       "Author Photo",
 				"placeholder": "Upload a profile picture for the author",
 			}),
 		},
 		editor.Field{
-			View: editor.Checkbox("Category", {{ .initial }}, map[string]string{
+			View: editor.Tags("Category", {{ .initial }}, map[string]string{
 				"label": "{{ .name }} Category",
-			}, map[string]string{
-				"important": "Important",
-				"active":    "Active",
-				"unplanned": "Unplanned",
 			}),
 		},
 		editor.Field{
-			View: editor.Select("ThemeStyle", {{ .initial }}, map[string]string{
+			View: editor.Select("Theme", {{ .initial }}, map[string]string{
 				"label": "Theme Style",
 			}, map[string]string{
 				"dark": "Dark",
@@ -157,6 +133,26 @@ func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 
 	return view, nil
 }
+
+func init() {
+	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
+}
+
+// SetContentID partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) SetContentID(id int) { {{ .initial }}.ID = id }
+
+// ContentID partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) ContentID() int { return {{ .initial }}.ID }
+
+// ContentName partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
+
+// SetSlug partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) SetSlug(slug string) { {{ .initial }}.Slug = slug }
+
+// Editor partially implements editor.Editable
+func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
+
 `
 
 func newProjectInDir(path string) error {

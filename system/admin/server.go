@@ -20,12 +20,15 @@ func Run() {
 
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
+	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))
+	http.HandleFunc("/admin/configure/users/delete", user.Auth(configUsersDeleteHandler))
 
 	http.HandleFunc("/admin/posts", user.Auth(postsHandler))
 	http.HandleFunc("/admin/posts/search", user.Auth(searchHandler))
 
 	http.HandleFunc("/admin/edit", user.Auth(editHandler))
 	http.HandleFunc("/admin/edit/delete", user.Auth(deleteHandler))
+	http.HandleFunc("/admin/edit/approve", user.Auth(approvePostHandler))
 	http.HandleFunc("/admin/edit/upload", user.Auth(editUploadHandler))
 
 	pwd, err := os.Getwd()

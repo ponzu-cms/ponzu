@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -28,24 +31,72 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 func postsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
-	// TODO: implement pagination
-	// num := q.Get("num")
-	// page := q.Get("page")
-
-	// TODO: inplement time-based ?after=time.Time, ?before=time.Time between=time.Time|time.Time
-
 	if t == "" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	posts := db.ContentAll(t)
+	count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+	if err != nil {
+		if q.Get("count") == "" {
+			count = 10
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
+	if err != nil {
+		if q.Get("offset") == "" {
+			offset = 0
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	order := strings.ToLower(q.Get("order")) // string: sort order of posts by timestamp ASC / DESC (DESC default)
+	if order != "asc" || order == "" {
+		order = "desc"
+	}
+
+	// TODO: time-based ?after=time.Time, ?before=time.Time between=time.Time|time.Time
+
+	posts := db.ContentAll(t + "_sorted")
 	var all = []json.RawMessage{}
 	for _, post := range posts {
 		all = append(all, post)
 	}
 
-	j, err := fmtJSON(all...)
+	var start, end int
+	switch count {
+	case -1:
+		start = 0
+		end = len(posts)
+
+	default:
+		start = count * offset
+		end = start + count
+	}
+
+	// bounds check on posts given the start & end count
+	if start > len(posts) {
+		start = len(posts) - count
+	}
+	if end > len(posts) {
+		end = len(posts)
+	}
+
+	// reverse the sorted order if ASC
+	if order == "asc" {
+		all = []json.RawMessage{}
+		for i := len(posts) - 1; i >= 0; i-- {
+			all = append(all, posts[i])
+		}
+	}
+
+	j, err := fmtJSON(all[start:end]...)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -150,6 +201,7 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 
 	data, err = json.Marshal(j)
 	if err != nil {
+		log.Println(err)
 		data, _ = json.Marshal(map[string]interface{}{
 			"status":  "fail",
 			"message": err.Error(),
@@ -159,9 +211,6 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 	sendData(res, data, 200)
 }
 
-// ResponseFunc ...
-type ResponseFunc func(http.ResponseWriter, *http.Request)
-
 // CORS wraps a HandleFunc to response to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -169,6 +218,15 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 			SendPreflight(res)
 			return
 		}
+
+		next.ServeHTTP(res, req)
+	})
+}
+
+// Record wraps a HandleFunc to record API requests for analytical purposes
+func Record(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		go analytics.Record(req)
 
 		next.ServeHTTP(res, req)
 	})

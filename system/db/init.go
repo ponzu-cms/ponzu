@@ -13,12 +13,21 @@ import (
 
 var store *bolt.DB
 
+// Close exports the abillity to close our db file. Should be called with defer
+// after call to Init() from the same place.
+func Close() {
+	err := store.Close()
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
 	var err error
-	store, err = bolt.Open("store.db", 0666, nil)
+	store, err = bolt.Open("system.db", 0666, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
@@ -67,10 +76,9 @@ func Init() {
 		return nil
 	})
 	if err != nil {
-		log.Fatal("Coudn't initialize db with buckets.", err)
+		log.Fatalln("Coudn't initialize db with buckets.", err)
 	}
 
-	// sort all content into type_sorted buckets
 	go func() {
 		for t := range content.Types {
 			SortContent(t)
@@ -99,7 +107,7 @@ func SystemInitComplete() bool {
 	})
 	if err != nil {
 		complete = false
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	return complete

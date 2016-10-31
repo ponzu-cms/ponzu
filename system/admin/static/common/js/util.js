@@ -68,3 +68,19 @@ function getPartialDate(unix) {
 
     return d;
 }
+
+// Returns a part of the window URL 'search' string
+function getParam(param) {
+    var qs = window.location.search.substring(1);
+    var qp = qs.split('&');
+    var t = '';
+
+    for (var i = 0; i < qp.length; i++) {
+        var p = qp[i].split('=')
+        if (p[0] === param) {
+            t = p[1];	
+        }
+    }
+
+    return t;
+}
