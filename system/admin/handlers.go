@@ -787,7 +787,7 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + t + `&status=` + status + `&id=` + cid + `">` + p.ContentName() + `</a>
+				<a href="/admin/edit?type=` + t + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + p.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
