@@ -51,7 +51,7 @@ func update(ns, id string, data url.Values) (int, error) {
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_" + specifier))
 		if err != nil {
 			return err
 		}
@@ -89,7 +89,7 @@ func insert(ns string, data url.Values) (int, error) {
 	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_" + specifier))
 		if err != nil {
 			return err
 		}
