@@ -110,9 +110,11 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 
+<hr>
+
 <div class="input-field external post-controls">
-	<div>This post is pending approval. By clicking 'Approve' it will be immediately published.</div> 
 	<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
+	<div>This post is pending approval. By clicking 'Approve' it will be immediately published.</div> 
 </div>
 
 <script>
@@ -122,11 +124,16 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			approve = form.find('.post-controls.external'),
 			id = form.find('input[name=id]');
 		
-		// hide delete button if this is a new post, or a non-post editor page
+		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			approve.hide();
 		}
+
+		// hide approval if not on a pending content item
+		if (getParam("status") !== "pending") {
+			approve.hide();
+		} 
 
 		del.on('click', function(e) {
 			e.preventDefault();
