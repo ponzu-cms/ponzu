@@ -140,7 +140,6 @@ func DeleteContent(target string) error {
 		tx.Bucket([]byte(ns)).Delete([]byte(id))
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -207,6 +206,11 @@ func ContentAll(namespace string) [][]byte {
 // in descending order, from most recent to least recent
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
+	// only sort main content types i.e. Post
+	if strings.Contains(namespace, "_") {
+		return
+	}
+
 	all := ContentAll(namespace)
 
 	var posts sortablePosts
