@@ -75,7 +75,7 @@ type {{ .name }} struct {
 	Title    string ` + "`json:" + `"title"` + "`" + `
 	Content  string ` + "`json:" + `"content"` + "`" + `
 	Author   string ` + "`json:" + `"author"` + "`" + `
-	Photo    string ` + "`json:" + `"picture"` + "`" + `	
+	Photo    string ` + "`json:" + `"photo"` + "`" + `	
 	Category []string ` + "`json:" + `"category"` + "`" + `
 	Theme	 string ` + "`json:" + `"theme"` + "`" + `
 }
