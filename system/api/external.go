@@ -24,7 +24,7 @@ type Externalable interface {
 type Mergeable interface {
 	// Approve copies an external post to the internal collection and triggers
 	// a re-sort of its content type posts
-	Approve() error
+	Approve(req *http.Request) error
 }
 
 func externalPostsHandler(res http.ResponseWriter, req *http.Request) {

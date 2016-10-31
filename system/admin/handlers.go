@@ -20,6 +20,7 @@ import (
 	"github.com/bosssauce/ponzu/system/db"
 
 	"github.com/nilslice/jwt"
+	"github.com/nilslice/ponzu-test/cmd/ponzu/vendor/github.com/gorilla/schema"
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
@@ -787,7 +788,94 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 }
 
 func approvePostHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
 
+		res.Write(errView)
+		return
+	}
+
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	t := req.FormValue("type")
+	if strings.Contains(t, "_") {
+		t = strings.Split(t, "_")[0]
+	}
+
+	post := content.Types[t]()
+
+	// check if we have a Mergeable
+	m, ok := post.(api.Mergeable)
+	if !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err = dec.Decode(post, req.Form)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// call its Approve method
+	err = m.Approve(req)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// Store the content in the bucket t
+	id, err = db.SetContent(t+":-1", req.Form)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// redirect to the new approved content's editor
+	redir := req.URL.Scheme + req.URL.Host + strings.TrimSuffix(req.URL.Path, "/approve")
+	redir += fmt.Sprintf("?type=%s&id=%d", t, id)
+	http.Redirect(res, req, http.StatusFound)
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
