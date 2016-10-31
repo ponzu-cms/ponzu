@@ -1009,6 +1009,12 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// catch specifier suffix from delete form value
+	if strings.Contains(t, "_") {
+		spec := strings.Split(t, "_")
+		t = spec[0]
+	}
+
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
 	redir = redir + "/posts?type=" + t
 	http.Redirect(res, req, redir, http.StatusFound)
