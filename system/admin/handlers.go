@@ -534,6 +534,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	order := strings.ToLower(q.Get("order"))
+	status := q.Get("status")
 
 	posts := db.ContentAll(t + "_sorted")
 	b := &bytes.Buffer{}
@@ -628,7 +629,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
                     </form>	
 					</div>`
 	if hasExt {
-		status := q.Get("status")
 		if status == "" {
 			q.Add("status", "public")
 		}
@@ -677,7 +677,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "pending")
+				post := adminPostListItem(p, t, status)
 				b.Write(post)
 			}
 		} else {
@@ -692,7 +692,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "")
+				post := adminPostListItem(p, t, status)
 				b.Write(post)
 			}
 		}
@@ -710,7 +710,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "pending")
+				post := adminPostListItem(p, t, status)
 				b.Write(post)
 			}
 		} else {
@@ -725,7 +725,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					continue
 				}
 
-				post := adminPostListItem(p, t, "")
+				post := adminPostListItem(p, t, status)
 				b.Write(post)
 			}
 		}
@@ -779,6 +779,12 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 
 	cid := fmt.Sprintf("%d", p.ContentID())
 
+	if status == "public" {
+		status = ""
+	} else {
+		status = "_" + status
+	}
+
 	post := `
 			<li class="col s12">
 				<a href="/admin/edit?type=` + t + `&status=` + status + `&id=` + cid + `">` + p.ContentName() + `</a>
@@ -788,7 +794,7 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
-					<input type="hidden" name="type" value="` + t + `_` + status + `" />
+					<input type="hidden" name="type" value="` + t + status + `" />
 				</form>
 			</li>`
 

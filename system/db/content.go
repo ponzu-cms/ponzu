@@ -38,13 +38,20 @@ func SetContent(target string, data url.Values) (int, error) {
 }
 
 func update(ns, id string, data url.Values) (int, error) {
+	var specifier string // i.e. _pending, _sorted, etc.
+	if strings.Contains(ns, "_") {
+		spec := strings.Split(ns, "_")
+		ns = spec[0]
+		specifier = spec[1]
+	}
+
 	cid, err := strconv.Atoi(id)
 	if err != nil {
 		return 0, err
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
@@ -65,16 +72,24 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, nil
 	}
 
-	go SortContent(ns)
+	if specifier == "" {
+		go SortContent(ns)
+	}
 
 	return cid, nil
 }
 
 func insert(ns string, data url.Values) (int, error) {
 	var effectedID int
+	var specifier string // i.e. _pending, _sorted, etc.
+	if strings.Contains(ns, "_") {
+		spec := strings.Split(ns, "_")
+		ns = spec[0]
+		specifier = spec[1]
+	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
@@ -108,44 +123,8 @@ func insert(ns string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	go SortContent(ns)
-
-	return effectedID, nil
-}
-
-// SetPendingContent inserts submitted content for pending approval
-func SetPendingContent(ns string, data url.Values) (int, error) {
-	var effectedID int
-
-	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_pending"))
-		if err != nil {
-			return err
-		}
-
-		// get the next available ID and convert to string
-		// also set effectedID to int of ID
-		id, err := b.NextSequence()
-		if err != nil {
-			return err
-		}
-		cid := strconv.FormatUint(id, 10)
-		effectedID, err = strconv.Atoi(cid)
-		if err != nil {
-			return err
-		}
-		data.Set("id", cid)
-
-		j, err := postToJSON(ns, data)
-		if err != nil {
-			return err
-		}
-		b.Put([]byte(cid), j)
-
-		return nil
-	})
-	if err != nil {
-		return 0, err
+	if specifier == "" {
+		go SortContent(ns)
 	}
 
 	return effectedID, nil
