@@ -42,7 +42,7 @@ func update(ns, id string, data url.Values) (int, error) {
 	if strings.Contains(ns, "_") {
 		spec := strings.Split(ns, "_")
 		ns = spec[0]
-		specifier = spec[1]
+		specifier = "_" + spec[1]
 	}
 
 	cid, err := strconv.Atoi(id)
@@ -51,7 +51,7 @@ func update(ns, id string, data url.Values) (int, error) {
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_" + specifier))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
@@ -85,11 +85,11 @@ func insert(ns string, data url.Values) (int, error) {
 	if strings.Contains(ns, "_") {
 		spec := strings.Split(ns, "_")
 		ns = spec[0]
-		specifier = spec[1]
+		specifier = "_" + spec[1]
 	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte(ns + "_" + specifier))
+		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
 		}
