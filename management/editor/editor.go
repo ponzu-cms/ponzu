@@ -110,11 +110,9 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 
-<hr>
-
-<div class="input-field external post-controls">
+<div class="row input-field external post-controls">
+	<div class="col s12">This post is pending approval. By clicking 'Approve' it will be immediately published.</div> 
 	<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
-	<div>This post is pending approval. By clicking 'Approve' it will be immediately published.</div> 
 </div>
 
 <script>
