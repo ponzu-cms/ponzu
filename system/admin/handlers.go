@@ -585,21 +585,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							</div>	
 							<script>
 								$(function() {
-									var getParam = function(param) {
-										var qs = window.location.search.substring(1);
-										var qp = qs.split('&');
-										var t = '';
-
-										for (var i = 0; i < qp.length; i++) {
-											var p = qp[i].split('=')
-											if (p[0] === param) {
-												t = p[1];	
-											}
-										}
-
-										return t;
-									}
-
 									var sort = $('select.__ponzu.sort-order');
 
 									sort.on('change', function() {
