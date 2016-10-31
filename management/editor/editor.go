@@ -114,7 +114,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<div class="col s12 input-field">
 		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
 	</div>	
-	<div class="approve-details col s12">This post is pending approval. By clicking 'Approve', it will be immediately published.</div> 
+	<div class="approve-details right-align col s12">This post is pending approval. By clicking 'Approve', it will be immediately published.</div> 
 </div>
 
 <script>

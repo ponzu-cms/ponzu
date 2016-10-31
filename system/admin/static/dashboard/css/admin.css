@@ -207,3 +207,13 @@ li:hover .quick-delete-post, li:hover .delete-user {
 .chips {
     margin-top: 10px;
 }
+
+.external.post-controls .col.input-field {
+    margin-top: 40px;
+    padding: 0;
+}
+
+.approve-details {
+    text-align: right;
+    padding: 10px 0 !important;
+}
