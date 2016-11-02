@@ -240,7 +240,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 		cur := 0 // count of where cursor is
 		switch opts.Order {
 		case "asc":
-			for k, v := c.Last(); k != nil; c.Prev() {
+			for k, v := c.Last(); k != nil; k, v = c.Prev() {
 				if cur < end {
 					cur++
 					continue
@@ -260,7 +260,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 			}
 
 		case "desc":
-			for k, v := c.First(); k != nil; c.Next() {
+			for k, v := c.First(); k != nil; k, v = c.Next() {
 				if cur < start {
 					cur++
 					continue
