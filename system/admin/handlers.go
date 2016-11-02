@@ -691,8 +691,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	switch order {
 	case "desc", "":
 		if hasExt {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
+			// keep natural order of posts slice, as returned from unsorted bucket
+			for i := range posts {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
 					log.Println("Error unmarshal json into", t, err, posts[i])
@@ -705,9 +705,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 				post := adminPostListItem(p, t, status)
 				b.Write(post)
 			}
+
 		} else {
-			// keep natural order of posts slice, as returned from sorted bucket
-			for i := range posts {
+			// reverse the order of posts slice
+			for i := len(posts) - 1; i >= 0; i-- {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
 					log.Println("Error unmarshal json into", t, err, posts[i])
@@ -724,8 +725,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	case "asc":
 		if hasExt {
-			// keep natural order of posts slice, as returned from sorted bucket
-			for i := range posts {
+			// reverse the order of posts slice
+			for i := len(posts) - 1; i >= 0; i-- {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
 					log.Println("Error unmarshal json into", t, err, posts[i])
@@ -739,8 +740,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 				b.Write(post)
 			}
 		} else {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
+			// keep natural order of posts slice, as returned from sorted bucket
+			for i := range posts {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
 					log.Println("Error unmarshal json into", t, err, posts[i])

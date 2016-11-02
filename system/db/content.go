@@ -214,6 +214,10 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 	var posts [][]byte
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
+		if b == nil {
+			return nil
+		}
+
 		c := b.Cursor()
 		n := b.Stats().KeyN
 
