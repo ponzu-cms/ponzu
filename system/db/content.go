@@ -246,12 +246,17 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					continue
 				}
 
+				if cur >= start {
+					break
+				}
+
 				if i >= opts.Count {
 					break
 				}
 
 				posts = append(posts, v)
 				i++
+				cur++
 			}
 
 		case "desc":
@@ -261,12 +266,17 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					continue
 				}
 
+				if cur >= end {
+					break
+				}
+
 				if i >= opts.Count {
 					break
 				}
 
 				posts = append(posts, v)
 				i++
+				cur++
 			}
 		}
 
