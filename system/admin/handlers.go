@@ -673,6 +673,20 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					<a href="` + pendingURL + `">Pending</a>
 				</div>`
 
+			for i := range posts {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
+
 		case "pending":
 			// get _pending posts of type t from the db
 			posts = db.Query(t+"_pending", opts)
@@ -683,42 +697,24 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					&nbsp;&vert;&nbsp;
 					<span class="active">Pending</span>					
 				</div>`
+
+			for i := len(posts); i >= 0; i-- {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
 		}
 
 	}
 	html += `<ul class="posts row">`
-
-	if hasExt {
-		// reverse the order of posts slice
-		for i := len(posts) - 1; i >= 0; i-- {
-			err := json.Unmarshal(posts[i], &p)
-			if err != nil {
-				log.Println("Error unmarshal json into", t, err, posts[i])
-
-				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-				b.Write([]byte(post))
-				continue
-			}
-
-			post := adminPostListItem(p, t, status)
-			b.Write(post)
-		}
-	} else {
-		// keep natural order of posts slice, as returned from sorted bucket
-		for i := range posts {
-			err := json.Unmarshal(posts[i], &p)
-			if err != nil {
-				log.Println("Error unmarshal json into", t, err, posts[i])
-
-				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-				b.Write([]byte(post))
-				continue
-			}
-
-			post := adminPostListItem(p, t, status)
-			b.Write(post)
-		}
-	}
 
 	b.Write([]byte(`</ul></div></div>`))
 
