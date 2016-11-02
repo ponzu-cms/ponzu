@@ -259,7 +259,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 				cur++
 			}
 
-		case "desc":
+		case "desc", "":
 			for k, v := c.First(); k != nil; k, v = c.Next() {
 				if cur < start {
 					cur++
@@ -278,13 +278,6 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 
 		return nil
 	})
-
-	// if opts.order == "asc" {
-	// 	posts = []json.RawMessage{}
-	// 	for i := len(posts) - 1; i >= 0; i-- {
-	// 		posts = append(all, posts[i])
-	// 	}
-	// }
 
 	return posts
 }
