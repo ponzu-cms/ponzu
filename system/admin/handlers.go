@@ -1050,8 +1050,16 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		host := req.URL.Host
 		path := req.URL.Path
 		sid := fmt.Sprintf("%d", id)
-		desURL := scheme + host + path + "?type=" + t + "&id=" + sid
-		http.Redirect(res, req, desURL, http.StatusFound)
+		if strings.Contains(t, "_") {
+			t = strings.Split(t, "_")[0]
+		}
+		redir := scheme + host + path + "?type=" + t + "&id=" + sid
+
+		if req.URL.Query().Get("status") == "pending" {
+			redir += redir + "&status=pending"
+		}
+
+		http.Redirect(res, req, redir, http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
