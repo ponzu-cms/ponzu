@@ -246,7 +246,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					continue
 				}
 
-				if cur >= start {
+				if cur <= start {
 					break
 				}
 
