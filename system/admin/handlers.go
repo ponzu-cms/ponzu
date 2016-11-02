@@ -768,9 +768,10 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 
 	cid := fmt.Sprintf("%d", p.ContentID())
 
-	if status == "public" {
+	switch status {
+	case "public", "":
 		status = ""
-	} else {
+	default:
 		status = "_" + status
 	}
 
