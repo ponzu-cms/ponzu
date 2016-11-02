@@ -27,25 +27,20 @@ var (
 )
 
 // Record queues an apiRequest for metrics
-func Record(next http.HandlerFunc) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		external := strings.Contains(req.URL.Path, "/external/")
+func Record(req *http.Request) {
+	external := strings.Contains(req.URL.Path, "/external/")
 
-		r := apiRequest{
-			URL:        req.URL.String(),
-			Method:     req.Method,
-			Origin:     req.Header.Get("Origin"),
-			RemoteAddr: req.RemoteAddr,
-			Timestamp:  time.Now().Unix() * 1000,
-			External:   external,
-		}
-
-		// put r on buffered recordChan to take advantage of batch insertion in DB
-		recordChan <- r
-
-		next.ServeHTTP(res, req)
+	r := apiRequest{
+		URL:        req.URL.String(),
+		Method:     req.Method,
+		Origin:     req.Header.Get("Origin"),
+		RemoteAddr: req.RemoteAddr,
+		Timestamp:  time.Now().Unix() * 1000,
+		External:   external,
 	}
 
+	// put r on buffered recordChan to take advantage of batch insertion in DB
+	recordChan <- r
 }
 
 // Close exports the abillity to close our db file. Should be called with defer
