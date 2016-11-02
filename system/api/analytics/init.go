@@ -15,6 +15,7 @@ import (
 type apiRequest struct {
 	URL        string `json:"url"`
 	Method     string `json:"http_method"`
+	Origin     string `json:"origin"`
 	RemoteAddr string `json:"ip_address"`
 	Timestamp  int64  `json:"timestamp"`
 	External   bool   `json:"external"`
@@ -26,19 +27,24 @@ var (
 )
 
 // Record queues an apiRequest for metrics
-func Record(req *http.Request) {
-	external := strings.Contains(req.URL.Path, "/external/")
+func Record(next http.HandlerFunc) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		external := strings.Contains(req.URL.Path, "/external/")
 
-	r := apiRequest{
-		URL:        req.URL.String(),
-		Method:     req.Method,
-		RemoteAddr: req.RemoteAddr,
-		Timestamp:  time.Now().Unix() * 1000,
-		External:   external,
+		r := apiRequest{
+			URL:        req.URL.String(),
+			Method:     req.Method,
+			Origin:     req.Header.Get("Origin"),
+			RemoteAddr: req.RemoteAddr,
+			Timestamp:  time.Now().Unix() * 1000,
+			External:   external,
+		}
+
+		// put r on buffered recordChan to take advantage of batch insertion in DB
+		recordChan <- r
+
+		next.ServeHTTP(res, req)
 	}
-
-	// put r on buffered recordChan to take advantage of batch insertion in DB
-	recordChan <- r
 
 }
 
@@ -64,10 +70,6 @@ func Init() {
 
 	go serve()
 
-	err = store.Update(func(tx *bolt.Tx) error {
-
-		return nil
-	})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -91,6 +93,11 @@ func serve() {
 
 			for i := 0; i < batchSize; i++ {
 				reqs = append(reqs, <-recordChan)
+			}
+
+			err := batchInsert(reqs)
+			if err != nil {
+				log.Println(err)
 			}
 
 		case <-pruneDBTimer.C:
