@@ -81,7 +81,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 		}
 
 		// add name:urlPath to req.PostForm to be inserted into db
-		urlPath := fmt.Sprintf("/%s/%s/%d/%d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
+		urlPath := fmt.Sprintf("/%s/%s/%d/%02d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
 
 		urlPaths[name] = urlPath
 	}
