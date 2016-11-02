@@ -237,16 +237,16 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 		}
 
 		i := 0   // count of num posts added
-		cur := 0 // count of where cursor is
+		cur := 0 // count of num cursor moves
 		switch opts.Order {
 		case "asc":
 			for k, v := c.Last(); k != nil; k, v = c.Prev() {
-				if cur < end {
+				if cur < start {
 					cur++
 					continue
 				}
 
-				if cur < start {
+				if cur >= end {
 					break
 				}
 
