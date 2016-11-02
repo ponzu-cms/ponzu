@@ -250,10 +250,6 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					break
 				}
 
-				if i >= opts.Count {
-					break
-				}
-
 				posts = append(posts, v)
 				i++
 				cur++
@@ -267,10 +263,6 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 				}
 
 				if cur >= end {
-					break
-				}
-
-				if i >= opts.Count {
 					break
 				}
 
