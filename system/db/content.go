@@ -217,17 +217,28 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 		c := b.Cursor()
 		n := b.Stats().KeyN
 
+		var start, end int
+		switch opts.Count {
+		case -1:
+			start = 0
+			end = n
+
+		default:
+			start = opts.Count * opts.Offset
+			end = start + opts.Count
+		}
+
 		i := 0   // count of num posts added
 		cur := 0 // count of where cursor is
 		switch opts.Order {
 		case "asc":
 			for k, v := c.Last(); k != nil; c.Prev() {
-				if cur < opts.Offset*opts.Count {
+				if start < cur && cur < end {
 					cur++
 					continue
 				}
 
-				if i >= opts.Count || cur > n {
+				if i >= opts.Count {
 					break
 				}
 
@@ -237,12 +248,12 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 
 		case "desc":
 			for k, v := c.First(); k != nil; c.Next() {
-				if cur < opts.Offset*opts.Count {
+				if start < cur && cur < end {
 					cur++
 					continue
 				}
 
-				if i >= opts.Count || cur > n {
+				if i >= opts.Count {
 					break
 				}
 
