@@ -228,6 +228,14 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 			end = start + opts.Count
 		}
 
+		// bounds check on posts given the start & end count
+		if start > n {
+			start = n - opts.Count
+		}
+		if end > n {
+			end = n
+		}
+
 		i := 0   // count of num posts added
 		cur := 0 // count of where cursor is
 		switch opts.Order {
