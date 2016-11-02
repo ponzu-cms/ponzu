@@ -536,6 +536,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	order := strings.ToLower(q.Get("order"))
+	if order != "asc" {
+		order = "desc"
+	}
+
 	status := q.Get("status")
 
 	if _, ok := content.Types[t]; !ok {
