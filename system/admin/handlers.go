@@ -688,72 +688,35 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	html += `<ul class="posts row">`
 
-	switch order {
-	case "desc", "":
-		if hasExt {
-			// keep natural order of posts slice, as returned from unsorted bucket
-			for i := range posts {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
+	if hasExt {
+		// reverse the order of posts slice
+		for i := len(posts) - 1; i >= 0; i-- {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
 
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
 			}
 
-		} else {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
+			post := adminPostListItem(p, t, status)
+			b.Write(post)
 		}
+	} else {
+		// keep natural order of posts slice, as returned from sorted bucket
+		for i := range posts {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
 
-	case "asc":
-		if hasExt {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
 			}
-		} else {
-			// keep natural order of posts slice, as returned from sorted bucket
-			for i := range posts {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
 
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
+			post := adminPostListItem(p, t, status)
+			b.Write(post)
 		}
 	}
 
