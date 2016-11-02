@@ -36,6 +36,11 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if _, ok := content.Types[t]; !ok {
+		res.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
 	if err != nil {
 		if q.Get("count") == "" {
@@ -57,46 +62,23 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	order := strings.ToLower(q.Get("order")) // string: sort order of posts by timestamp ASC / DESC (DESC default)
-	if order != "asc" || order == "" {
+	if order != "asc" {
 		order = "desc"
 	}
 
-	// TODO: time-based ?after=time.Time, ?before=time.Time between=time.Time|time.Time
-
-	posts := db.ContentAll(t + "_sorted")
-	var all = []json.RawMessage{}
-	for _, post := range posts {
-		all = append(all, post)
+	opts := db.QueryOptions{
+		Count:  count,
+		Offset: offset,
+		Order:  order,
 	}
 
-	var start, end int
-	switch count {
-	case -1:
-		start = 0
-		end = len(posts)
-
-	default:
-		start = count * offset
-		end = start + count
+	bb := db.Query(t+"_sorted", opts)
+	var result = []json.RawMessage{}
+	for i := range bb {
+		result = append(result, bb[i])
 	}
 
-	// bounds check on posts given the start & end count
-	if start > len(posts) {
-		start = len(posts) - count
-	}
-	if end > len(posts) {
-		end = len(posts)
-	}
-
-	// reverse the sorted order if ASC
-	if order == "asc" {
-		all = []json.RawMessage{}
-		for i := len(posts) - 1; i >= 0; i-- {
-			all = append(all, posts[i])
-		}
-	}
-
-	j, err := fmtJSON(all[start:end]...)
+	j, err := fmtJSON(result...)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return

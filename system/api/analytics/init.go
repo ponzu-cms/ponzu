@@ -15,6 +15,7 @@ import (
 type apiRequest struct {
 	URL        string `json:"url"`
 	Method     string `json:"http_method"`
+	Origin     string `json:"origin"`
 	RemoteAddr string `json:"ip_address"`
 	Timestamp  int64  `json:"timestamp"`
 	External   bool   `json:"external"`
@@ -32,6 +33,7 @@ func Record(req *http.Request) {
 	r := apiRequest{
 		URL:        req.URL.String(),
 		Method:     req.Method,
+		Origin:     req.Header.Get("Origin"),
 		RemoteAddr: req.RemoteAddr,
 		Timestamp:  time.Now().Unix() * 1000,
 		External:   external,
@@ -39,7 +41,6 @@ func Record(req *http.Request) {
 
 	// put r on buffered recordChan to take advantage of batch insertion in DB
 	recordChan <- r
-
 }
 
 // Close exports the abillity to close our db file. Should be called with defer
@@ -64,10 +65,6 @@ func Init() {
 
 	go serve()
 
-	err = store.Update(func(tx *bolt.Tx) error {
-
-		return nil
-	})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -91,6 +88,11 @@ func serve() {
 
 			for i := 0; i < batchSize; i++ {
 				reqs = append(reqs, <-recordChan)
+			}
+
+			err := batchInsert(reqs)
+			if err != nil {
+				log.Println(err)
 			}
 
 		case <-pruneDBTimer.C:

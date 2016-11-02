@@ -45,7 +45,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	urlPathPrefix := "api"
 	uploadDirName := "uploads"
 
-	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%d", tm.Month()))
+	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 
 	// loop over all files and save them to disk
@@ -81,7 +81,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 		}
 
 		// add name:urlPath to req.PostForm to be inserted into db
-		urlPath := fmt.Sprintf("/%s/%s/%d/%d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
+		urlPath := fmt.Sprintf("/%s/%s/%d/%02d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
 
 		urlPaths[name] = urlPath
 	}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -535,10 +536,11 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	order := strings.ToLower(q.Get("order"))
-	status := q.Get("status")
+	if order != "asc" {
+		order = "desc"
+	}
 
-	posts := db.ContentAll(t + "_sorted")
-	b := &bytes.Buffer{}
+	status := q.Get("status")
 
 	if _, ok := content.Types[t]; !ok {
 		res.WriteHeader(http.StatusBadRequest)
@@ -570,6 +572,47 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	if ok {
 		hasExt = true
 	}
+
+	count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+	if err != nil {
+		if q.Get("count") == "" {
+			count = 10
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
+	if err != nil {
+		if q.Get("offset") == "" {
+			offset = 0
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	opts := db.QueryOptions{
+		Count:  count,
+		Offset: offset,
+		Order:  order,
+	}
+
+	posts := db.Query(t+"_sorted", opts)
+	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
 					<div class="card-content">
@@ -634,9 +677,23 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					<a href="` + pendingURL + `">Pending</a>
 				</div>`
 
+			for i := range posts {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
+
 		case "pending":
 			// get _pending posts of type t from the db
-			posts = db.ContentAll(t + "_pending")
+			posts = db.Query(t+"_pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
@@ -644,78 +701,24 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					&nbsp;&vert;&nbsp;
 					<span class="active">Pending</span>					
 				</div>`
+
+			for i := len(posts) - 1; i >= 0; i-- {
+				err := json.Unmarshal(posts[i], &p)
+				if err != nil {
+					log.Println("Error unmarshal json into", t, err, posts[i])
+
+					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+					b.Write([]byte(post))
+					continue
+				}
+
+				post := adminPostListItem(p, t, status)
+				b.Write(post)
+			}
 		}
 
 	}
 	html += `<ul class="posts row">`
-
-	switch order {
-	case "desc", "":
-		if hasExt {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
-		} else {
-			// keep natural order of posts slice, as returned from sorted bucket
-			for i := range posts {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
-		}
-
-	case "asc":
-		if hasExt {
-			// keep natural order of posts slice, as returned from sorted bucket
-			for i := range posts {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
-		} else {
-			// reverse the order of posts slice
-			for i := len(posts) - 1; i >= 0; i-- {
-				err := json.Unmarshal(posts[i], &p)
-				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
-
-					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
-					continue
-				}
-
-				post := adminPostListItem(p, t, status)
-				b.Write(post)
-			}
-		}
-	}
 
 	b.Write([]byte(`</ul></div></div>`))
 
@@ -765,9 +768,10 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 
 	cid := fmt.Sprintf("%d", p.ContentID())
 
-	if status == "public" {
+	switch status {
+	case "public", "":
 		status = ""
-	} else {
+	default:
 		status = "_" + status
 	}
 
@@ -1046,8 +1050,16 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		host := req.URL.Host
 		path := req.URL.Path
 		sid := fmt.Sprintf("%d", id)
-		desURL := scheme + host + path + "?type=" + t + "&id=" + sid
-		http.Redirect(res, req, desURL, http.StatusFound)
+		if strings.Contains(t, "_") {
+			t = strings.Split(t, "_")[0]
+		}
+		redir := scheme + host + path + "?type=" + t + "&id=" + sid
+
+		if req.URL.Query().Get("status") == "pending" {
+			redir += "&status=pending"
+		}
+
+		http.Redirect(res, req, redir, http.StatusFound)
 
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)

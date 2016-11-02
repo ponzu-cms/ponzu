@@ -202,6 +202,93 @@ func ContentAll(namespace string) [][]byte {
 	return posts
 }
 
+// QueryOptions holds options for a query
+type QueryOptions struct {
+	Count  int
+	Offset int
+	Order  string
+}
+
+// Query retrieves a set of content from the db based on options
+func Query(namespace string, opts QueryOptions) [][]byte {
+	var posts [][]byte
+	store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(namespace))
+		if b == nil {
+			return nil
+		}
+
+		c := b.Cursor()
+		n := b.Stats().KeyN
+
+		var start, end int
+		switch opts.Count {
+		case -1:
+			start = 0
+			end = n
+
+		default:
+			start = opts.Count * opts.Offset
+			end = start + opts.Count
+		}
+
+		// bounds check on posts given the start & end count
+		if start > n {
+			start = n - opts.Count
+		}
+		if end > n {
+			end = n
+		}
+
+		i := 0   // count of num posts added
+		cur := 0 // count of num cursor moves
+		switch opts.Order {
+		case "asc":
+			for k, v := c.Last(); k != nil; k, v = c.Prev() {
+				if cur < start {
+					cur++
+					continue
+				}
+
+				if cur >= end {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+				cur++
+			}
+
+		case "desc":
+			for k, v := c.First(); k != nil; k, v = c.Next() {
+				if cur < start {
+					cur++
+					continue
+				}
+
+				if cur >= end {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+				cur++
+			}
+		}
+
+		return nil
+	})
+
+	// if opts.order == "asc" {
+	// 	posts = []json.RawMessage{}
+	// 	for i := len(posts) - 1; i >= 0; i-- {
+	// 		posts = append(all, posts[i])
+	// 	}
+	// }
+
+	return posts
+}
+
 // SortContent sorts all content of the type supplied as the namespace by time,
 // in descending order, from most recent to least recent
 // Should be called from a goroutine after SetContent is successful

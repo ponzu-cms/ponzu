@@ -120,6 +120,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 <script>
 	$(function() {
 		var form = $('form'),
+			save = form.find('button.save-post'),
 			del = form.find('button.delete-post'),
 			approve = form.find('.post-controls.external'),
 			id = form.find('input[name=id]');
@@ -131,9 +132,20 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		}
 
 		// hide approval if not on a pending content item
-		if (getParam("status") !== "pending") {
+		if (getParam('status') !== 'pending') {
 			approve.hide();
 		} 
+
+		save.on('click', function(e) {
+			e.preventDefault();
+
+			if (getParam('status') === 'pending') {
+				var action = form.attr('action');
+				form.attr('action', action + '?status=pending')
+			}
+
+			form.submit();
+		});
 
 		del.on('click', function(e) {
 			e.preventDefault();
