@@ -1056,7 +1056,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		redir := scheme + host + path + "?type=" + t + "&id=" + sid
 
 		if req.URL.Query().Get("status") == "pending" {
-			redir += redir + "&status=pending"
+			redir += "&status=pending"
 		}
 
 		http.Redirect(res, req, redir, http.StatusFound)
