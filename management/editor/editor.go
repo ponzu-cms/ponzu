@@ -139,7 +139,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		save.on('click', function(e) {
 			e.preventDefault();
 
-			if (getPatam('status') === 'pending') {
+			if (getParam('status') === 'pending') {
 				var action = form.attr('action');
 				form.attr('action', action + '?status=pending')
 			}
