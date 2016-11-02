@@ -202,6 +202,67 @@ func ContentAll(namespace string) [][]byte {
 	return posts
 }
 
+// QueryOptions holds options for a query
+type QueryOptions struct {
+	Count  int
+	Offset int
+	Order  string
+}
+
+// Query retrieves a set of content from the db based on options
+func Query(namespace string, opts QueryOptions) [][]byte {
+	var posts [][]byte
+	store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(namespace))
+		c := b.Cursor()
+
+		i := 0   // count of num posts added
+		cur := 0 // count of where cursor is
+		switch opts.Order {
+		case "asc":
+			for k, v := c.Last(); k != nil; c.Prev() {
+				if cur < opts.Offset*opts.Count {
+					cur++
+					continue
+				}
+
+				if i >= opts.Count {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+			}
+
+		case "desc":
+			for k, v := c.First(); k != nil; c.Next() {
+				if cur < opts.Offset*opts.Count {
+					cur++
+					continue
+				}
+
+				if i >= opts.Count {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+			}
+		}
+
+		return nil
+	})
+
+	// if opts.order == "asc" {
+	// 	posts = []json.RawMessage{}
+	// 	for i := len(posts) - 1; i >= 0; i-- {
+	// 		posts = append(all, posts[i])
+	// 	}
+	// }
+
+	return posts
+}
+
 // SortContent sorts all content of the type supplied as the namespace by time,
 // in descending order, from most recent to least recent
 // Should be called from a goroutine after SetContent is successful
