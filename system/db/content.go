@@ -215,6 +215,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		c := b.Cursor()
+		n := b.Stats().KeyN
 
 		i := 0   // count of num posts added
 		cur := 0 // count of where cursor is
@@ -226,7 +227,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					continue
 				}
 
-				if i >= opts.Count {
+				if i >= opts.Count || cur > n {
 					break
 				}
 
@@ -241,7 +242,7 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 					continue
 				}
 
-				if i >= opts.Count {
+				if i >= opts.Count || cur > n {
 					break
 				}
 
