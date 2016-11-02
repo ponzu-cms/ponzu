@@ -698,7 +698,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					<span class="active">Pending</span>					
 				</div>`
 
-			for i := len(posts); i >= 0; i-- {
+			for i := len(posts) - 1; i >= 0; i-- {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
 					log.Println("Error unmarshal json into", t, err, posts[i])
