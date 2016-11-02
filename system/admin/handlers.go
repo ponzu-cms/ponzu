@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -537,9 +538,6 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	order := strings.ToLower(q.Get("order"))
 	status := q.Get("status")
 
-	posts := db.ContentAll(t + "_sorted")
-	b := &bytes.Buffer{}
-
 	if _, ok := content.Types[t]; !ok {
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error405()
@@ -570,6 +568,47 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	if ok {
 		hasExt = true
 	}
+
+	count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+	if err != nil {
+		if q.Get("count") == "" {
+			count = 10
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
+	if err != nil {
+		if q.Get("offset") == "" {
+			offset = 0
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	opts := db.QueryOptions{
+		Count:  count,
+		Offset: offset,
+		Order:  order,
+	}
+
+	posts := db.Query(t+"_sorted", opts)
+	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
 					<div class="card-content">
@@ -636,7 +675,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		case "pending":
 			// get _pending posts of type t from the db
-			posts = db.ContentAll(t + "_pending")
+			posts = db.Query(t+"_pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
