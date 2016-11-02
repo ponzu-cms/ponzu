@@ -45,7 +45,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	urlPathPrefix := "api"
 	uploadDirName := "uploads"
 
-	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%d", tm.Month()))
+	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 
 	// loop over all files and save them to disk
