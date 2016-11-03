@@ -169,7 +169,7 @@ func newProjectInDir(path string) error {
 		var answer string
 		_, err := fmt.Scanf("%s\n", &answer)
 		if err.Error() == "unexpected newline" {
-			return err
+			answer = ""
 		} else if err != nil {
 			return err
 		}
