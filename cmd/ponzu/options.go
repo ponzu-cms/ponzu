@@ -177,6 +177,7 @@ func newProjectInDir(path string) error {
 		switch answer {
 		case "n", "no", "\r\n", "\n", "":
 			fmt.Println("")
+			fmt.Println(answer)
 
 		case "y", "yes":
 			err := os.RemoveAll(path)
