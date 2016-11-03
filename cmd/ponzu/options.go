@@ -168,10 +168,12 @@ func newProjectInDir(path string) error {
 
 		var answer string
 		_, err := fmt.Scanf("%s\n", &answer)
-		if err.Error() == "unexpected newline" {
-			answer = ""
-		} else if err != nil {
-			return err
+		if err != nil {
+			if err.Error() == "unexpected newline" {
+				answer = ""
+			} else {
+				return err
+			}
 		}
 
 		answer = strings.ToLower(answer)
@@ -179,7 +181,6 @@ func newProjectInDir(path string) error {
 		switch answer {
 		case "n", "no", "\r\n", "\n", "":
 			fmt.Println("")
-			fmt.Println(answer)
 
 		case "y", "yes":
 			err := os.RemoveAll(path)
