@@ -175,7 +175,7 @@ func newProjectInDir(path string) error {
 		answer = strings.ToLower(answer)
 
 		switch answer {
-		case "n", "no", "":
+		case "n", "no", "\r\n", "\n", "":
 			fmt.Println("")
 
 		case "y", "yes":
@@ -286,6 +286,14 @@ func createProjInDir(path string) error {
 	if err != nil {
 		// TODO: rollback, remove ponzu project from path
 		return err
+	}
+
+	// TODO: remove .git from ponzu project path
+	gitDir := filepath.Join(path, ".git")
+	fmt.Println(gitDir)
+	err = os.RemoveAll(gitDir)
+	if err != nil {
+		fmt.Println("Failed to remove .git directory from your project path. Consider removing it manually.")
 	}
 
 	fmt.Println("New ponzu project created at", path)
