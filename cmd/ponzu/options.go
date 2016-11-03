@@ -167,7 +167,7 @@ func newProjectInDir(path string) error {
 		// answer, err := input.ReadString('\n')
 
 		var answer string
-		_, err := fmt.Scanf("%s\n", &answer)
+		_, err := fmt.Scanf("%c\n", &answer)
 		if err != nil {
 			return err
 		}
