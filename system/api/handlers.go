@@ -92,6 +92,11 @@ func postHandler(res http.ResponseWriter, req *http.Request) {
 	id := q.Get("id")
 	t := q.Get("type")
 
+	if _, ok := content.Types[t]; !ok {
+		res.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	if t == "" || id == "" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
