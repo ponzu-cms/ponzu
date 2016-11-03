@@ -28,6 +28,11 @@ func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
 }
 
+// SetContentID sets the Item's ID field
+func (i *Item) SetContentID(id int) {
+	i.ID = id
+}
+
 // Sluggable makes a struct locatable by URL with it's own path
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
 // make your content struct (or one which imbeds Item) implement Sluggable
