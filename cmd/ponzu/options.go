@@ -167,8 +167,10 @@ func newProjectInDir(path string) error {
 		// answer, err := input.ReadString('\n')
 
 		var answer string
-		_, err := fmt.Scanf("%c\n", &answer)
-		if err != nil {
+		_, err := fmt.Scanf("%s\n", &answer)
+		if err.Error() == "unexpected newline" {
+			return err
+		} else if err != nil {
 			return err
 		}
 
