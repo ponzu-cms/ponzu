@@ -8,9 +8,9 @@ import (
 func Run() {
 	http.HandleFunc("/api/types", CORS(Record(typesHandler)))
 
-	http.HandleFunc("/api/posts", CORS(Record(postsHandler)))
+	http.HandleFunc("/api/contents", CORS(Record(postsHandler)))
 
-	http.HandleFunc("/api/post", CORS(Record(postHandler)))
+	http.HandleFunc("/api/content", CORS(Record(postHandler)))
 
-	http.HandleFunc("/api/external/posts", CORS(Record(externalPostsHandler)))
+	http.HandleFunc("/api/content/external", CORS(Record(externalPostHandler)))
 }

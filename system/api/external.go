@@ -27,7 +27,7 @@ type Mergeable interface {
 	Approve(req *http.Request) error
 }
 
-func externalPostsHandler(res http.ResponseWriter, req *http.Request) {
+func externalPostHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
