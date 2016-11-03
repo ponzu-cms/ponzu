@@ -8,10 +8,7 @@ import (
 
 // Editable ensures data is editable
 type Editable interface {
-	SetContentID(id int)
-	ContentID() int
 	ContentName() string
-	SetSlug(slug string)
 	Editor() *Editor
 	MarshalEditor() ([]byte, error)
 }
@@ -20,7 +17,7 @@ type Editable interface {
 type Sortable interface {
 	Time() int64
 	Touch() int64
-	ContentID() int
+	ItemID() int
 }
 
 // Editor is a view containing fields to manage content

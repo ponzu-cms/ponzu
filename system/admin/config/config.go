@@ -18,17 +18,8 @@ type Config struct {
 	CacheInvalidate []string `json:"-"`
 }
 
-// SetContentID partially implements editor.Editable
-func (c *Config) SetContentID(id int) { c.ID = id }
-
-// ContentID partially implements editor.Editable
-func (c *Config) ContentID() int { return c.ID }
-
 // ContentName partially implements editor.Editable
 func (c *Config) ContentName() string { return c.Name }
-
-// SetSlug partially implements editor.Editable
-func (c *Config) SetSlug(slug string) { c.Slug = slug }
 
 // Editor partially implements editor.Editable
 func (c *Config) Editor() *editor.Editor { return &c.editor }

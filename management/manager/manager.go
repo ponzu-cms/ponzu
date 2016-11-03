@@ -112,11 +112,16 @@ type manager struct {
 func Manage(e editor.Editable, typeName string) ([]byte, error) {
 	v, err := e.MarshalEditor()
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't marshal editor for content %T. %s", e, err.Error())
+		return nil, fmt.Errorf("Couldn't marshal editor for content %s. %s", typeName, err.Error())
+	}
+
+	s, ok := e.(editor.Sortable)
+	if !ok {
+		return nil, fmt.Errorf("Content type %s does not implement content.Identifiable.", typeName)
 	}
 
 	m := manager{
-		ID:     e.ContentID(),
+		ID:     s.ItemID(),
 		Kind:   typeName,
 		Editor: template.HTML(v),
 	}

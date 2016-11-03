@@ -80,13 +80,14 @@ type {{ .name }} struct {
 	Theme	 string ` + "`json:" + `"theme"` + "`" + `
 }
 
-// MarshalEditor writes a buffer of html to edit a {{ .name }} and partially implements editor.Editable
+// MarshalEditor writes a buffer of html to edit a {{ .name }}
+// partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form({{ .initial }},
 		editor.Field{
-			// Take careful note that the first argument to these Input-like methods 
-            // is the string version of each {{ .name }} struct tag, and must follow this pattern
-            // for auto-decoding and -encoding reasons.
+			// Take note that the first argument to these Input-like methods 
+            // is the string version of each {{ .name }} field, and must follow 
+            // this pattern for auto-decoding and auto-encoding reasons.
 			View: editor.Input("Title", {{ .initial }}, map[string]string{
 				"label":       "{{ .name }} Title",
 				"type":        "text",
@@ -138,19 +139,12 @@ func init() {
 	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
 }
 
-// SetContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetContentID(id int) { {{ .initial }}.ID = id }
-
-// ContentID partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentID() int { return {{ .initial }}.ID }
-
-// ContentName partially implements editor.Editable
+// ContentName is required to set the display name for a piece of content in the editor
+// Partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
 
-// SetSlug partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) SetSlug(slug string) { {{ .initial }}.Slug = slug }
-
-// Editor partially implements editor.Editable
+// Editor is a buffer of bytes for the Form function to write input views
+// partially implements editor.Editable
 func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
 
 `
@@ -163,8 +157,6 @@ func newProjectInDir(path string) error {
 	// check if anything exists at the path, ask if it should be overwritten
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		fmt.Println("Path exists, overwrite contents? (y/N):")
-		// input := bufio.NewReader(os.Stdin)
-		// answer, err := input.ReadString('\n')
 
 		var answer string
 		_, err := fmt.Scanf("%s\n", &answer)

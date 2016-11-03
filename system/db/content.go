@@ -381,7 +381,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	post.(editor.Editable).SetSlug(slug)
+	post.(content.Sluggable).SetSlug(slug)
 
 	// marshall content struct to json for db storage
 	j, err := json.Marshal(post)

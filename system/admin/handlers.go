@@ -752,10 +752,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 // adminPostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
 // specifier is passed to append a name to a namespace like _pending
-func adminPostListItem(p editor.Editable, t, status string) []byte {
-	s, ok := p.(editor.Sortable)
+func adminPostListItem(e editor.Editable, typeName, status string) []byte {
+	s, ok := e.(editor.Sortable)
 	if !ok {
-		log.Println("Content type", t, "doesn't implement editor.Sortable")
+		log.Println("Content type", typeName, "doesn't implement editor.Sortable")
 		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces.</li>`
 		return []byte(post)
 	}
@@ -766,7 +766,7 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 	updatedTime := upTime.Format("01/02/06 03:04 PM")
 	publishTime := tsTime.Format("01/02/06")
 
-	cid := fmt.Sprintf("%d", p.ContentID())
+	cid := fmt.Sprintf("%d", s.ItemID())
 
 	switch status {
 	case "public", "":
@@ -777,14 +777,14 @@ func adminPostListItem(p editor.Editable, t, status string) []byte {
 
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + t + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + p.ContentName() + `</a>
+				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + e.ContentName() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
 				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
-					<input type="hidden" name="type" value="` + t + status + `" />
+					<input type="hidden" name="type" value="` + typeName + status + `" />
 				</form>
 			</li>`
 
@@ -940,7 +940,13 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		} else {
-			post.(editor.Editable).SetContentID(-1)
+			s, ok := post.(content.Identifiable)
+			if !ok {
+				log.Println("Content type", typeName, "doesn't implement editor.Sortable")
+				return
+			}
+			s.SetContentID(-1)
+
 		}
 
 		m, err := manager.Manage(post.(editor.Editable), t)

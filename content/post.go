@@ -74,17 +74,10 @@ func init() {
 	Types["Post"] = func() interface{} { return new(Post) }
 }
 
-// SetContentID partially implements editor.Editable
-func (p *Post) SetContentID(id int) { p.ID = id }
-
-// ContentID partially implements editor.Editable
-func (p *Post) ContentID() int { return p.ID }
-
-// ContentName partially implements editor.Editable
+// ContentName is required to set the display name for a piece of content in the editor
+// Partially implements editor.Editable
 func (p *Post) ContentName() string { return p.Title }
 
-// SetSlug partially implements editor.Editable
-func (p *Post) SetSlug(slug string) { p.Slug = slug }
-
-// Editor partially implements editor.Editable
+// Editor is a buffer of bytes for the Form function to write input views
+// partially implements editor.Editable
 func (p *Post) Editor() *editor.Editor { return &p.editor }
