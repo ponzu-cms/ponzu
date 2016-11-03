@@ -942,7 +942,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		} else {
 			s, ok := post.(content.Identifiable)
 			if !ok {
-				log.Println("Content type", t, "doesn't implement editor.Sortable")
+				log.Println("Content type", t, "doesn't implement editor.Identifiable")
 				return
 			}
 			s.SetContentID(-1)
