@@ -288,9 +288,7 @@ func createProjInDir(path string) error {
 		return err
 	}
 
-	// TODO: remove .git from ponzu project path
 	gitDir := filepath.Join(path, ".git")
-	fmt.Println(gitDir)
 	err = os.RemoveAll(gitDir)
 	if err != nil {
 		fmt.Println("Failed to remove .git directory from your project path. Consider removing it manually.")
