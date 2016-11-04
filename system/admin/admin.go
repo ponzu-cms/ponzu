@@ -369,7 +369,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 }
 
 var analyticsHTML = `
-<div class="init col s5">
+<div class="analytics">
 <div class="card">
 <div class="card-content">
     <div class="card-title">API Requests</div>
@@ -379,25 +379,15 @@ var analyticsHTML = `
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            labels: ["10/28", 10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
             datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
+                label: 'Total Requests by Day',
+                data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
                 ],
                 borderColor: [
-                    'rgba(255,99,132,1)',
                     'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
                 ],
                 borderWidth: 1
             }]
