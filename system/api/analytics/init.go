@@ -4,14 +4,12 @@
 package analytics
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 	"time"
-
-	"runtime"
-
-	"encoding/json"
 
 	"github.com/boltdb/bolt"
 )
@@ -84,7 +82,8 @@ func serve() {
 	// make timer to notify select to remove old analytics
 	// interval: 2 weeks
 	// TODO: enable analytics backup service to cloud
-	pruneThreshold := time.Hour * 24 * 14
+	// pruneThreshold := time.Hour * 24 * 14
+	pruneThreshold := time.Second * 10
 	pruneDBTimer := time.NewTicker(pruneThreshold)
 
 	for {
