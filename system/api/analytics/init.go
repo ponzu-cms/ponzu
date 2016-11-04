@@ -151,7 +151,7 @@ func Week() (map[string]string, error) {
 		return nil, err
 	}
 
-	dates := [7]json.RawMessage{}
+	dates := []string{}
 	ips := [7]map[string]struct{}{}
 	total := [7]int{}
 	unique := [7]int{}
@@ -162,12 +162,12 @@ CHECK_REQUEST:
 
 		for j := range times {
 			// format times[j] (time.Time) into a MM/DD format for dates
-			dates[j] = json.RawMessage(times[j].Format("01/02"))
+			dates = append(dates, times[j].Format("01/02"))
 
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
 			if j == len(times) {
-				if ts.After(times[j]) || ts.Equal(times[j]) {
+				if ts.After(times[j-1]) || ts.Equal(times[j]) {
 					// do all record keeping
 					total[j]++
 
@@ -175,6 +175,8 @@ CHECK_REQUEST:
 						unique[j-1]++
 						ips[j][requests[i].RemoteAddr] = struct{}{}
 					}
+
+					continue CHECK_REQUEST
 				}
 			}
 
@@ -187,6 +189,8 @@ CHECK_REQUEST:
 					unique[j]++
 					ips[j][requests[i].RemoteAddr] = struct{}{}
 				}
+
+				continue CHECK_REQUEST
 			}
 
 			if ts.Before(times[j]) {
@@ -217,13 +221,10 @@ CHECK_REQUEST:
 		return nil, err
 	}
 
-	jsDates, err := json.Marshal(dates)
-	if err != nil {
-		return nil, err
-	}
+	jsDates := strings.Join(dates, ",")
 
 	return map[string]string{
-		"dates":  string(jsDates),
+		"dates":  jsDates,
 		"unique": string(jsUnique),
 		"total":  string(jsTotal),
 	}, nil
