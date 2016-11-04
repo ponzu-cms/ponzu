@@ -27,8 +27,8 @@ type apiRequest struct {
 }
 
 var (
-	store      *bolt.DB
-	recordChan chan apiRequest
+	store       *bolt.DB
+	requestChan chan apiRequest
 )
 
 // Record queues an apiRequest for metrics
@@ -45,8 +45,8 @@ func Record(req *http.Request) {
 		External:   external,
 	}
 
-	// put r on buffered recordChan to take advantage of batch insertion in DB
-	recordChan <- r
+	// put r on buffered requestChan to take advantage of batch insertion in DB
+	requestChan <- r
 }
 
 // Close exports the abillity to close our db file. Should be called with defer
@@ -67,7 +67,7 @@ func Init() {
 		log.Fatalln(err)
 	}
 
-	recordChan = make(chan apiRequest, 1024*64*runtime.NumCPU())
+	requestChan = make(chan apiRequest, 1024*64*runtime.NumCPU())
 
 	go serve()
 
@@ -77,31 +77,29 @@ func Init() {
 }
 
 func serve() {
-	// make timer to notify select to batch request insert from recordChan
+	// make timer to notify select to batch request insert from requestChan
 	// interval: 30 seconds
 	apiRequestTimer := time.NewTicker(time.Second * 30)
 
 	// make timer to notify select to remove old analytics
 	// interval: 2 weeks
 	// TODO: enable analytics backup service to cloud
-	pruneDBTimer := time.NewTicker(time.Hour * 24 * 14)
+	pruneThreshold := time.Hour * 24 * 14
+	pruneDBTimer := time.NewTicker(pruneThreshold)
 
 	for {
 		select {
 		case <-apiRequestTimer.C:
-			var reqs []apiRequest
-			batchSize := len(recordChan)
-
-			for i := 0; i < batchSize; i++ {
-				reqs = append(reqs, <-recordChan)
-			}
-
-			err := batchInsert(reqs)
+			err := batchInsert(requestChan)
 			if err != nil {
 				log.Println(err)
 			}
 
 		case <-pruneDBTimer.C:
+			err := batchPrune(pruneThreshold)
+			if err != nil {
+				log.Println(err)
+			}
 
 		case <-time.After(time.Second * 30):
 			continue
