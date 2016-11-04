@@ -373,6 +373,7 @@ var analyticsHTML = `
 <div class="analytics">
 <div class="card">
 <div class="card-content">
+    <p class="right">Data range: {{ .from }} - {{ .to }}</p>
     <div class="card-title">API Requests</div>
     <canvas id="analytics-chart"></canvas>
     <script>
@@ -421,7 +422,7 @@ var analyticsHTML = `
 func Dashboard() ([]byte, error) {
 	buf := &bytes.Buffer{}
 
-	data, err := analytics.Week()
+	data, err := analytics.ChartData()
 	if err != nil {
 		return nil, err
 	}

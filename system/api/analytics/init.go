@@ -56,13 +56,25 @@ func Close() {
 	}
 }
 
-// Init creates a db connection, should run an initial prune of old data, and
+// Init creates a db connection, initializes the db with schema and data and
 // sets up the queue/batching channel
 func Init() {
 	var err error
 	store, err = bolt.Open("analytics.db", 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	err = store.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("requests"))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.Fatalln("Error idempotently creating requests bucket in analytics.db:", err)
 	}
 
 	requestChan = make(chan apiRequest, 1024*64*runtime.NumCPU())
@@ -105,8 +117,8 @@ func serve() {
 	}
 }
 
-// Week returns the map containing decoded javascript needed to chart a week of data by day
-func Week() (map[string]interface{}, error) {
+// ChartData returns the map containing decoded javascript needed to chart 2 weeks of data by day
+func ChartData() (map[string]interface{}, error) {
 	// set thresholds for today and the 6 days preceeding
 	times := [14]time.Time{}
 	dates := [14]string{}
@@ -224,5 +236,7 @@ CHECK_REQUEST:
 		"dates":  dates,
 		"unique": string(jsUnique),
 		"total":  string(jsTotal),
+		"from":   dates[0],
+		"to":     dates[len(dates)-1],
 	}, nil
 }
