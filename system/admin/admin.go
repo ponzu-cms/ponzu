@@ -10,6 +10,7 @@ import (
 
 	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -382,19 +383,21 @@ var analyticsHTML = `
     var chart = new Chart(target, {
         type: 'bar',
         data: {
-            labels: ["10/28", "10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
+            labels: {{ .dates }},
             datasets: [{
                 type: 'line',
-                label: 'Unique Requests',
-                data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
+                label: '{{ .unique.label }}',
+                // data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
+                data: {{ .unique.data }},
                 backgroundColor: 'rgba(76, 175, 80, 0.2)',
                 borderColor: 'rgba(76, 175, 80, 1)',
                 borderWidth: 1
             },
             {
                 type: 'bar',
-                label: 'Total Requests',
-                data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
+                label: '{{ .total.label }}',
+                // data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
+                data: {{ .total.data }},
                 backgroundColor: 'rgba(33, 150, 243, 0.2)',
                 borderColor: 'rgba(33, 150, 243, 1)',
                 borderWidth: 1
@@ -415,6 +418,29 @@ var analyticsHTML = `
 </div>
 </div>
 `
+
+// Dashboard returns the admin view with analytics dashboard
+func Dashboard() ([]byte, error) {
+	buf := &bytes.Buffer{}
+
+	data, err := analytics.Week()
+	if err != nil {
+		return nil, err
+	}
+
+	tmpl := template.Must(template.New("analytics").Parse(analyticsHTML))
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		return nil, err
+	}
+
+	view, err := Admin(buf.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
+}
 
 var err400HTML = `
 <div class="error-page e400 col s6">

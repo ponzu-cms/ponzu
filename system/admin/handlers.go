@@ -25,7 +25,7 @@ import (
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
-	view, err := Admin([]byte(analyticsHTML))
+	view, err := Dashboard()
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
