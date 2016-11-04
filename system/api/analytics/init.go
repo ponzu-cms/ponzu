@@ -4,7 +4,6 @@
 package analytics
 
 import (
-	"html"
 	"log"
 	"net/http"
 	"strings"
@@ -152,7 +151,7 @@ func Week() (map[string]string, error) {
 		return nil, err
 	}
 
-	dates := [7]string{}
+	dates := [7]json.RawMessage{}
 	ips := [7]map[string]struct{}{}
 	total := [7]int{}
 	unique := [7]int{}
@@ -163,7 +162,7 @@ CHECK_REQUEST:
 
 		for j := range times {
 			// format times[j] (time.Time) into a MM/DD format for dates
-			dates[j] = times[j].Format("01/02")
+			dates[j] = []byte(times[j].Format("01/02"))
 
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
@@ -224,7 +223,7 @@ CHECK_REQUEST:
 	}
 
 	return map[string]string{
-		"dates":  html.UnescapeString(string(jsDates)),
+		"dates":  string(jsDates),
 		"unique": string(jsUnique),
 		"total":  string(jsTotal),
 	}, nil
