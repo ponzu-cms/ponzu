@@ -114,7 +114,7 @@ func Week() (map[string]interface{}, error) {
 	times := [7]time.Time{}
 	dates := [7]string{}
 	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 
 	for i := range times {
 		// subtract 24 * i hours to make days prior
