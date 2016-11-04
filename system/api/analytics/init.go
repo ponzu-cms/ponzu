@@ -154,6 +154,10 @@ func Week() (map[string]interface{}, error) {
 	}
 
 	ips := [7]map[string]struct{}{}
+	for i := range ips {
+		ips[i] = make(map[string]struct{})
+	}
+
 	total := [7]int{}
 	unique := [7]int{}
 
