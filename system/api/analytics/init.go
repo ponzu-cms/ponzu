@@ -103,8 +103,8 @@ func serve() {
 
 		case <-pruneDBTimer.C:
 
-		default:
-			time.Sleep(time.Millisecond * 1)
+		case <-time.After(time.Second * 30):
+			continue
 		}
 	}
 }
