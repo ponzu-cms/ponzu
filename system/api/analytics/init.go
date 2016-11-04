@@ -4,6 +4,7 @@
 package analytics
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -125,6 +126,9 @@ func Week() (map[string]interface{}, error) {
 		times[len(times)-1-i] = day
 		dates[len(times)-1-i] = day.Format("01/02")
 	}
+
+	fmt.Println(times)
+	fmt.Println(dates)
 
 	// get api request analytics from db
 	var requests = []apiRequest{}
