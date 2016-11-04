@@ -124,6 +124,12 @@ func Week() (map[string]string, error) {
 		times[len(times)-1-i] = day
 	}
 
+	dates := []string{}
+	for i := range times {
+		// format times[j] (time.Time) into a MM/DD format for dates
+		dates = append(dates, times[i].Format("01/02"))
+	}
+
 	// get api request analytics from db
 	var requests = []apiRequest{}
 	err := store.View(func(tx *bolt.Tx) error {
@@ -151,7 +157,6 @@ func Week() (map[string]string, error) {
 		return nil, err
 	}
 
-	dates := []string{}
 	ips := [7]map[string]struct{}{}
 	total := [7]int{}
 	unique := [7]int{}
@@ -161,9 +166,6 @@ CHECK_REQUEST:
 		ts := time.Unix(requests[i].Timestamp/1000, 0)
 
 		for j := range times {
-			// format times[j] (time.Time) into a MM/DD format for dates
-			dates = append(dates, times[j].Format("01/02"))
-
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
 			if j == len(times) {
