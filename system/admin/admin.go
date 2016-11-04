@@ -377,7 +377,7 @@ var analyticsHTML = `
     <script>
     var target = document.getElementById("analytics-chart");
     Chart.defaults.global.defaultFontColor = '#212121';
-    Chart.defaults.global.defaultFontFamily = "'Roboto', Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+    Chart.defaults.global.defaultFontFamily = "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
     Chart.defaults.global.title.position = 'right';
     var chart = new Chart(target, {
         type: 'bar',
