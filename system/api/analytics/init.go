@@ -114,7 +114,7 @@ func Week() (map[string]interface{}, error) {
 	times := [7]time.Time{}
 	dates := [7]string{}
 	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 	for i := range times {
 		// subtract 24 * i hours to make days prior
@@ -168,7 +168,7 @@ CHECK_REQUEST:
 		for j := range times {
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
-			if j == len(times) {
+			if j == len(times)-1 {
 				if ts.After(times[j]) || ts.Equal(times[j]) {
 					// do all record keeping
 					total[j]++
