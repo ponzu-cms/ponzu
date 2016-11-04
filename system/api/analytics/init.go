@@ -109,9 +109,10 @@ func serve() {
 }
 
 // Week returns the map containing decoded javascript needed to chart a week of data by day
-func Week() (map[string]string, error) {
+func Week() (map[string]interface{}, error) {
 	// set thresholds for today and the 6 days preceeding
 	times := [7]time.Time{}
+	dates := [7]string{}
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
@@ -122,12 +123,7 @@ func Week() (map[string]string, error) {
 
 		// day threshold is [...n-1-i, n-1, n]
 		times[len(times)-1-i] = day
-	}
-
-	dates := []string{}
-	for i := range times {
-		// format times[j] (time.Time) into a MM/DD format for dates
-		dates = append(dates, times[i].Format("01/02"))
+		dates[len(times)-1-i] = day.Format("01/02")
 	}
 
 	// get api request analytics from db
@@ -223,10 +219,8 @@ CHECK_REQUEST:
 		return nil, err
 	}
 
-	jsDates := strings.Join(dates, ",")
-
-	return map[string]string{
-		"dates":  jsDates,
+	return map[string]interface{}{
+		"dates":  dates,
 		"unique": string(jsUnique),
 		"total":  string(jsTotal),
 	}, nil

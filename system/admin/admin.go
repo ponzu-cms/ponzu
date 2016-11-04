@@ -383,7 +383,7 @@ var analyticsHTML = `
     var chart = new Chart(target, {
         type: 'bar',
         data: {
-            labels: [{{ .dates }}],
+            labels: [{{ range $date := .dates }} "{{ $date }}",  {{ end }}],
             datasets: [{
                 type: 'line',
                 label: 'Unique Clients',
