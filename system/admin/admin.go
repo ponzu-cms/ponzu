@@ -384,16 +384,26 @@ var analyticsHTML = `
         data: {
             labels: ["10/28", "10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
             datasets: [{
-                label: 'Total Requests by Day',
+                type: 'bar',
+                label: 'Total Requests',
                 data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 1
+            },
+            {
+                type: 'bar',
+                label: 'Unique Requests',
+                data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: 'rgba(76, 175, 80, 1)',
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 yAxes: [{
+                    stacked: true,
                     ticks: {
                         beginAtZero:true
                     }
