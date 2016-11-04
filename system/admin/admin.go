@@ -377,26 +377,26 @@ var analyticsHTML = `
     <script>
     var target = document.getElementById("analytics-chart");
     Chart.defaults.global.defaultFontColor = '#212121';
-    Chart.defaults.global.defaultFontFamily = "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+    Chart.defaults.global.defaultFontFamily = "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'";
     Chart.defaults.global.title.position = 'right';
     var chart = new Chart(target, {
         type: 'bar',
         data: {
             labels: ["10/28", "10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
             datasets: [{
-                type: 'bar',
-                label: 'Total Requests',
-                data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
-                backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                borderColor: 'rgba(33, 150, 243, 1)',
-                borderWidth: 1
-            },
-            {
                 type: 'line',
                 label: 'Unique Requests',
                 data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
                 backgroundColor: 'rgba(76, 175, 80, 0.2)',
                 borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 1
+            },
+            {
+                type: 'bar',
+                label: 'Total Requests',
+                data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
                 borderWidth: 1
             }]
         },
