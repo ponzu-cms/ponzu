@@ -79,12 +79,11 @@ func serve() {
 	// interval: 30 seconds
 	apiRequestTimer := time.NewTicker(time.Second * 30)
 
-	// make timer to notify select to remove old analytics
-	// interval: 2 weeks
+	// make timer to notify select to remove analytics older than 14 days
+	// interval: 1 weeks
 	// TODO: enable analytics backup service to cloud
-	// pruneThreshold := time.Hour * 24 * 14
-	pruneThreshold := time.Second * 10
-	pruneDBTimer := time.NewTicker(pruneThreshold)
+	pruneThreshold := time.Hour * 24 * 14
+	pruneDBTimer := time.NewTicker(pruneThreshold / 2)
 
 	for {
 		select {
