@@ -74,7 +74,7 @@ func batchPrune(threshold time.Duration) error {
 			}
 
 			// delete if timestamp is below or equal to max
-			ts := time.Unix(r.Timestamp, 0)
+			ts := time.Unix(r.Timestamp/1000, 0)
 			if ts.Equal(max) || ts.Before(max) {
 				err := b.Delete(k)
 				if err != nil {
