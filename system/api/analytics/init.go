@@ -162,7 +162,7 @@ CHECK_REQUEST:
 
 		for j := range times {
 			// format times[j] (time.Time) into a MM/DD format for dates
-			dates[j] = []byte(times[j].Format("01/02"))
+			dates[j] = json.RawMessage(times[j].Format("01/02"))
 
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
