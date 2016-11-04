@@ -66,7 +66,7 @@ func batchPrune(threshold time.Duration) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("requests"))
 
-		b.ForEach(func(k, v []byte) error {
+		err := b.ForEach(func(k, v []byte) error {
 			var r apiRequest
 			err := json.Unmarshal(v, &r)
 			if err != nil {
@@ -84,6 +84,11 @@ func batchPrune(threshold time.Duration) error {
 
 			return nil
 		})
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
 	if err != nil {
 		return err
