@@ -108,8 +108,8 @@ func serve() {
 // Week returns the map containing decoded javascript needed to chart a week of data by day
 func Week() (map[string]interface{}, error) {
 	// set thresholds for today and the 6 days preceeding
-	times := [7]time.Time{}
-	dates := [7]string{}
+	times := [14]time.Time{}
+	dates := [14]string{}
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
@@ -150,13 +150,13 @@ func Week() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	ips := [7]map[string]struct{}{}
+	ips := [14]map[string]struct{}{}
 	for i := range ips {
 		ips[i] = make(map[string]struct{})
 	}
 
-	total := [7]int{}
-	unique := [7]int{}
+	total := [14]int{}
+	unique := [14]int{}
 
 CHECK_REQUEST:
 	for i := range requests {
