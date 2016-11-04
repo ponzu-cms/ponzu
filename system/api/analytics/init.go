@@ -4,7 +4,6 @@
 package analytics
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -127,9 +126,6 @@ func Week() (map[string]interface{}, error) {
 		dates[len(times)-1-i] = day.Format("01/02")
 	}
 
-	fmt.Println(times)
-	fmt.Println(dates)
-
 	// get api request analytics from db
 	var requests = []apiRequest{}
 	err := store.View(func(tx *bolt.Tx) error {
@@ -173,7 +169,7 @@ CHECK_REQUEST:
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
 			if j == len(times) {
-				if ts.After(times[j-1]) || ts.Equal(times[j]) {
+				if ts.After(times[j]) || ts.Equal(times[j]) {
 					// do all record keeping
 					total[j]++
 
