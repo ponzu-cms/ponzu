@@ -109,7 +109,7 @@ func serve() {
 }
 
 // Week returns the map containing decoded javascript needed to chart a week of data by day
-func Week() (map[string]interface{}, error) {
+func Week() (map[string]string, error) {
 	// set thresholds for today and the 6 days preceeding
 	times := [7]time.Time{}
 	now := time.Now()
@@ -222,9 +222,9 @@ CHECK_REQUEST:
 		return nil, err
 	}
 
-	return map[string]interface{}{
-		"dates":  jsDates,
-		"unique": jsUnique,
-		"total":  jsTotal,
+	return map[string]string{
+		"dates":  string(jsDates),
+		"unique": string(jsUnique),
+		"total":  string(jsTotal),
 	}, nil
 }
