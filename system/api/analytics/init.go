@@ -4,6 +4,7 @@
 package analytics
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -162,7 +163,7 @@ CHECK_REQUEST:
 
 		for j := range times {
 			// format times[j] (time.Time) into a MM/DD format for dates
-			dates[j] = times[j].Format(`01/02`)
+			dates[j] = times[j].Format("01/02")
 
 			// if on today, there will be no next iteration to set values for
 			// day prior so all valid requests belong to today
@@ -221,6 +222,8 @@ CHECK_REQUEST:
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(dates)
 
 	return map[string]string{
 		"dates":  string(jsDates),
