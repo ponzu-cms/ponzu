@@ -4,7 +4,7 @@
 package analytics
 
 import (
-	"fmt"
+	"html"
 	"log"
 	"net/http"
 	"strings"
@@ -223,10 +223,8 @@ CHECK_REQUEST:
 		return nil, err
 	}
 
-	fmt.Println(dates)
-
 	return map[string]string{
-		"dates":  string(jsDates),
+		"dates":  html.UnescapeString(string(jsDates)),
 		"unique": string(jsUnique),
 		"total":  string(jsTotal),
 	}, nil
