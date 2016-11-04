@@ -10,6 +10,7 @@ import (
 
 	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 )
 
@@ -20,6 +21,7 @@ var startAdminHTML = `<!doctype html>
         <script type="text/javascript" src="/admin/static/common/js/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="/admin/static/common/js/util.js"></script>
         <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
+        <script type="text/javascript" src="/admin/static/dashboard/js/chart.bundle.min.js"></script>
         <script type="text/javascript" src="/admin/static/editor/js/materialNote.js"></script> 
         <script type="text/javascript" src="/admin/static/editor/js/ckMaterializeOverrides.js"></script>
                   
@@ -354,6 +356,78 @@ func UsersList(req *http.Request) ([]byte, error) {
 		"Users": usrs,
 	}
 
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		return nil, err
+	}
+
+	view, err := Admin(buf.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	return view, nil
+}
+
+var analyticsHTML = `
+<div class="analytics">
+<div class="card">
+<div class="card-content">
+    <p class="right">Data range: {{ .from }} - {{ .to }}</p>
+    <div class="card-title">API Requests</div>
+    <canvas id="analytics-chart"></canvas>
+    <script>
+    var target = document.getElementById("analytics-chart");
+    Chart.defaults.global.defaultFontColor = '#212121';
+    Chart.defaults.global.defaultFontFamily = "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'";
+    Chart.defaults.global.title.position = 'right';
+    var chart = new Chart(target, {
+        type: 'bar',
+        data: {
+            labels: [{{ range $date := .dates }} "{{ $date }}",  {{ end }}],
+            datasets: [{
+                type: 'line',
+                label: 'Unique Clients',
+                data: $.parseJSON({{ .unique }}),
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 1
+            },
+            {
+                type: 'bar',
+                label: 'Total Requests',
+                data: $.parseJSON({{ .total }}),
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+</div>
+</div>
+</div>
+`
+
+// Dashboard returns the admin view with analytics dashboard
+func Dashboard() ([]byte, error) {
+	buf := &bytes.Buffer{}
+
+	data, err := analytics.ChartData()
+	if err != nil {
+		return nil, err
+	}
+
+	tmpl := template.Must(template.New("analytics").Parse(analyticsHTML))
 	err = tmpl.Execute(buf, data)
 	if err != nil {
 		return nil, err
