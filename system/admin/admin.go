@@ -20,6 +20,7 @@ var startAdminHTML = `<!doctype html>
         <script type="text/javascript" src="/admin/static/common/js/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="/admin/static/common/js/util.js"></script>
         <script type="text/javascript" src="/admin/static/dashboard/js/materialize.min.js"></script>
+        <script type="text/javascript" src="/admin/static/dashboard/js/chart.bundle.min.js"></script>
         <script type="text/javascript" src="/admin/static/editor/js/materialNote.js"></script> 
         <script type="text/javascript" src="/admin/static/editor/js/ckMaterializeOverrides.js"></script>
                   
@@ -366,6 +367,56 @@ func UsersList(req *http.Request) ([]byte, error) {
 
 	return view, nil
 }
+
+var analyticsHTML = `
+<div class="init col s5">
+<div class="card">
+<div class="card-content">
+    <div class="card-title">API Requests</div>
+    <canvas id="analytics-chart" width="100%" height="100%"></canvas>
+    <script>
+    var ctx = document.getElementById("analytics-chart");
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+</div>
+</div>
+</div>
+`
 
 var err400HTML = `
 <div class="error-page e400 col s6">

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"runtime"
+
 	"github.com/boltdb/bolt"
 )
 
@@ -16,6 +18,7 @@ type apiRequest struct {
 	URL        string `json:"url"`
 	Method     string `json:"http_method"`
 	Origin     string `json:"origin"`
+	Proto      string `json:"http_protocol"`
 	RemoteAddr string `json:"ip_address"`
 	Timestamp  int64  `json:"timestamp"`
 	External   bool   `json:"external"`
@@ -34,6 +37,7 @@ func Record(req *http.Request) {
 		URL:        req.URL.String(),
 		Method:     req.Method,
 		Origin:     req.Header.Get("Origin"),
+		Proto:      req.Proto,
 		RemoteAddr: req.RemoteAddr,
 		Timestamp:  time.Now().Unix() * 1000,
 		External:   external,
@@ -61,7 +65,7 @@ func Init() {
 		log.Fatalln(err)
 	}
 
-	recordChan = make(chan apiRequest, 1024*128)
+	recordChan = make(chan apiRequest, 1024*64*runtime.NumCPU())
 
 	go serve()
 
@@ -72,8 +76,8 @@ func Init() {
 
 func serve() {
 	// make timer to notify select to batch request insert from recordChan
-	// interval: 1 minute
-	apiRequestTimer := time.NewTicker(time.Minute * 1)
+	// interval: 30 seconds
+	apiRequestTimer := time.NewTicker(time.Second * 30)
 
 	// make timer to notify select to remove old analytics
 	// interval: 2 weeks
@@ -100,4 +104,10 @@ func serve() {
 		default:
 		}
 	}
+}
+
+// Week returns the []byte of javascript needed to chart a week of data by day
+func Week() {
+	// get request analytics for today and the 6 days preceeding
+
 }
