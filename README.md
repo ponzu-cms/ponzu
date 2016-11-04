@@ -64,14 +64,15 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 
 
 ## Credits
-- [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/text/unicode/norm](https://golang.org/x/text/unicode/norm)
-- [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
-- [github.com/nilslice/rand](https://github.com/nilslice/rand)
+- [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
-- [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
+- [github.com/nilslice/rand](https://github.com/nilslice/rand)
+- [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
+- [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/sluu99/um](https://github.com/sluu99/um)
-- [Materialize.css](http://materialize.css)
 - [Materialnote Editor](http://www.web-forge.info/projects/materialNote)
+- [Materialize.css](http://materialize.css)
 - [jQuery](https://jquery.com/)
+- [Chart.js](http://www.chartjs.org/)
