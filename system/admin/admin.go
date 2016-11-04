@@ -373,10 +373,13 @@ var analyticsHTML = `
 <div class="card">
 <div class="card-content">
     <div class="card-title">API Requests</div>
-    <canvas id="analytics-chart" width="100%" height="300px"></canvas>
+    <canvas id="analytics-chart"></canvas>
     <script>
-    var ctx = document.getElementById("analytics-chart");
-    var myChart = new Chart(ctx, {
+    var target = document.getElementById("analytics-chart");
+    Chart.defaults.global.defaultFontColor = '#212121';
+    Chart.defaults.global.defaultFontFamily = "'Roboto', Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+    Chart.defaults.global.title.position = 'right';
+    var chart = new Chart(target, {
         type: 'bar',
         data: {
             labels: ["10/28", "10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
