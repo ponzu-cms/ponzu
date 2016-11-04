@@ -387,7 +387,7 @@ var analyticsHTML = `
             datasets: [{
                 type: 'line',
                 label: 'Unique Clients',
-                data: {{ .unique }},
+                data: $.parseJSON({{ .unique }})),
                 backgroundColor: 'rgba(76, 175, 80, 0.2)',
                 borderColor: 'rgba(76, 175, 80, 1)',
                 borderWidth: 1
@@ -395,7 +395,7 @@ var analyticsHTML = `
             {
                 type: 'bar',
                 label: 'Total Requests',
-                data: {{ .total }},
+                data: $.parseJSON({{ .total }}),
                 backgroundColor: 'rgba(33, 150, 243, 0.2)',
                 borderColor: 'rgba(33, 150, 243, 1)',
                 borderWidth: 1
