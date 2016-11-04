@@ -392,7 +392,7 @@ var analyticsHTML = `
                 borderWidth: 1
             },
             {
-                type: 'bar',
+                type: 'line',
                 label: 'Unique Requests',
                 data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
                 backgroundColor: 'rgba(76, 175, 80, 0.2)',
@@ -403,7 +403,6 @@ var analyticsHTML = `
         options: {
             scales: {
                 yAxes: [{
-                    stacked: true,
                     ticks: {
                         beginAtZero:true
                     }
