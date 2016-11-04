@@ -373,7 +373,7 @@ var analyticsHTML = `
 <div class="card">
 <div class="card-content">
     <div class="card-title">API Requests</div>
-    <canvas id="analytics-chart" width="100%" height="100%"></canvas>
+    <canvas id="analytics-chart" width="100%" height="300px"></canvas>
     <script>
     var ctx = document.getElementById("analytics-chart");
     var myChart = new Chart(ctx, {
@@ -383,12 +383,8 @@ var analyticsHTML = `
             datasets: [{
                 label: 'Total Requests by Day',
                 data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]
         },
