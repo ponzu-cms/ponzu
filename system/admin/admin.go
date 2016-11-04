@@ -379,7 +379,7 @@ var analyticsHTML = `
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ["10/28", 10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
+            labels: ["10/28", "10/29", "10/30", "10/31", "11/1", "11/2", "11/3"],
             datasets: [{
                 label: 'Total Requests by Day',
                 data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
