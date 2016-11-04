@@ -104,6 +104,7 @@ func serve() {
 		case <-pruneDBTimer.C:
 
 		default:
+			time.Sleep(time.Millisecond * 1)
 		}
 	}
 }
@@ -174,7 +175,7 @@ CHECK_REQUEST:
 					total[j]++
 
 					if _, ok := ips[j][requests[i].RemoteAddr]; !ok {
-						unique[j-1]++
+						unique[j]++
 						ips[j][requests[i].RemoteAddr] = struct{}{}
 					}
 
