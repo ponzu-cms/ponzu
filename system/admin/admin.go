@@ -386,18 +386,16 @@ var analyticsHTML = `
             labels: {{ .dates }},
             datasets: [{
                 type: 'line',
-                label: '{{ .unique.label }}',
-                // data: [4435, 7231, 3555, 19121, 10876, 5009, 3564],
-                data: {{ .unique.data }},
+                label: 'Unique Clients',
+                data: {{ .unique }},
                 backgroundColor: 'rgba(76, 175, 80, 0.2)',
                 borderColor: 'rgba(76, 175, 80, 1)',
                 borderWidth: 1
             },
             {
                 type: 'bar',
-                label: '{{ .total.label }}',
-                // data: [12332, 19333, 13545, 51776, 22334, 13334, 9089],
-                data: {{ .total.data }},
+                label: 'Total Requests',
+                data: {{ .total }},
                 backgroundColor: 'rgba(33, 150, 243, 0.2)',
                 borderColor: 'rgba(33, 150, 243, 1)',
                 borderWidth: 1

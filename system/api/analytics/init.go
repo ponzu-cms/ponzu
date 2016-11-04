@@ -131,7 +131,7 @@ func Week() (map[string]interface{}, error) {
 
 		err := b.ForEach(func(k, v []byte) error {
 			var r apiRequest
-			err := json.Unmarshal(v, r)
+			err := json.Unmarshal(v, &r)
 			if err != nil {
 				log.Println("Error decoding json from analytics db:", err)
 				return nil
