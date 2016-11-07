@@ -344,7 +344,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	tags := values.Slice(0, values.Len()).Interface().([]string) // casts reflect.Value to []string
 
 	html := `
-	<div class="col s12 tags ` + name + `">
+	<div class="col s12 __ponzu-tags ` + name + `">
 		<label class="active">` + attrs["label"] + ` (Type and press "Enter")</label>
 		<div class="chips ` + name + `"></div>
 	`
@@ -353,7 +353,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	i := 0
 	for _, tag := range tags {
 		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
-		html += `<input type="hidden" class="tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		html += `<input type="hidden" class="__ponzu-tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
 		initial = append(initial, `{tag: '`+tag+`'}`)
 		i++
 	}
@@ -361,7 +361,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	script := `
 	<script>
 		$(function() {
-			var tags = $('.tags.` + name + `');
+			var tags = $('.__ponzu-tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
 				secondaryPlaceholder: '+` + name + `'
@@ -386,7 +386,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 			chips.on('chip.delete', function(e, chip) {
 				// convert tag string to class-like selector "some tag" -> ".some.tag"
-				var sel = '.tag.'+chip.tag.split(' ').join('.');	
+				var sel = '.__ponzu-tag.'+chip.tag.split(' ').join('.');	
 				console.log(sel);
 				console.log(chips.parent().find(sel));			
 				chips.parent().find(sel).remove();
