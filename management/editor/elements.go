@@ -353,7 +353,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	i := 0
 	for _, tag := range tags {
 		tagName := tagNameFromStructFieldMulti(fieldName, i, p)
-		html += `<input type="hidden" class="tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		html += `<input type="hidden" class="__ponzu-tags ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
 		initial = append(initial, `{tag: '`+tag+`'}`)
 		i++
 	}
@@ -372,6 +372,9 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			
 			chips.on('chip.add', function(e, chip) {
 				chips.parent().find('.empty-tag').remove();
+
+				// escape content of chip tag
+				chip.tag = URIEscapeComponent(chip.tag);
 				
 				var input = $('<input>');
 				input.attr({
