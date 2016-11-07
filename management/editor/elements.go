@@ -372,9 +372,6 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			
 			chips.on('chip.add', function(e, chip) {
 				chips.parent().find('.empty-tag').remove();
-
-				// escape content of chip tag
-				chip.tag = URIEscapeComponent(chip.tag);
 				
 				var input = $('<input>');
 				input.attr({
