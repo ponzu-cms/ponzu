@@ -825,6 +825,7 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 	// check if we have a Mergeable
 	m, ok := post.(api.Mergeable)
 	if !ok {
+		log.Println("Contant type", t, "must implement api.Mergable before it can bee approved.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
