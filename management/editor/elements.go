@@ -361,7 +361,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	script := `
 	<script>
 		$(function() {
-			var tags = $('.tags.` + name + `');
+			var tags = $('.__ponzu-tags.` + name + `');
 			$('.chips.` + name + `').material_chip({
 				data: [` + strings.Join(initial, ",") + `],
 				secondaryPlaceholder: '+` + name + `'
