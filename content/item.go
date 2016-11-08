@@ -28,8 +28,8 @@ func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
 }
 
-// SetContentID sets the Item's ID field
-func (i *Item) SetContentID(id int) {
+// SetItemID sets the Item's ID field
+func (i *Item) SetItemID(id int) {
 	i.ID = id
 }
 
@@ -46,5 +46,5 @@ type Sluggable interface {
 // a newly initialized struct would have an ID of 0, the int zero-value, and
 // BoltDB's starting key per bucket is 0, thus overwriting the first record.
 type Identifiable interface {
-	SetContentID(int)
+	SetItemID(int)
 }

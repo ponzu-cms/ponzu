@@ -946,7 +946,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				log.Println("Content type", t, "doesn't implement editor.Identifiable")
 				return
 			}
-			s.SetContentID(-1)
+			s.SetItemID(-1)
 
 		}
 
