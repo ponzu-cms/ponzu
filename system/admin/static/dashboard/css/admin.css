@@ -154,7 +154,7 @@ footer p {
     color: #9e9e9e;
 }
 
-.post-controls .save-post. .post-controls .approve-post {
+.post-controls .save-post, .post-controls .approve-post {
     margin-left: 10px;
 }
 
