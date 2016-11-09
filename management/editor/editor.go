@@ -112,7 +112,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
 		<button class="right waves-effect waves-light btn grey darken-2 reject-post" type="submit">Reject</button>
 	</div>	
-	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published.</label> 
+	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published. By clicking 'Reject', it will be deleted.</label> 
 </div>
 
 <script>
