@@ -109,9 +109,10 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 <div class="row external post-controls">
 	<div class="col s12 input-field">
+		<button class="right waves-effect waves-light btn gray reject-post" type="submit">Reject</button>
 		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
 	</div>	
-	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published.</label> 
+	<label class="approve-details right-align col s12">g approval. By clicking 'Approve', it will be immediately published.</label> 
 </div>
 
 <script>
@@ -119,18 +120,18 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		var form = $('form'),
 			save = form.find('button.save-post'),
 			del = form.find('button.delete-post'),
-			approve = form.find('.post-controls.external'),
+			external = form.find('.post-controls.external'),
 			id = form.find('input[name=id]');
 		
 		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
-			approve.hide();
+			external.hide();
 		}
 
 		// hide approval if not on a pending content item
 		if (getParam('status') !== 'pending') {
-			approve.hide();
+			external.hide();
 		} 
 
 		save.on('click', function(e) {
@@ -155,13 +156,24 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			}
 		});
 
-		approve.find('button').on('click', function(e) {
+		external.find('button.approve-post').on('click', function(e) {
 			e.preventDefault();
 			var action = form.attr('action');
 			action = action + '/approve';
 			form.attr('action', action);
 
 			form.submit();
+		});
+
+		external.find('button.reject-post').on('click', function(e) {
+			e.preventDefault();
+			var action = form.attr('action');
+			action = action + '/delete?reject=true';
+			form.attr('action', action);
+
+			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to reject this post?\nDoing so will delete it, and cannot be undone.")) {
+				form.submit();
+			}
 		});
 	});
 </script>

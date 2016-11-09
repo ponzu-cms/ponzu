@@ -1,5 +1,7 @@
 package content
 
+import "net/http"
+
 // Item should only be embedded into content type structs.
 type Item struct {
 	ID        int    `json:"id"`
@@ -33,6 +35,26 @@ func (i *Item) SetItemID(id int) {
 	i.ID = id
 }
 
+// BeforeSave is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) BeforeSave(req *http.Request) error {
+	return nil
+}
+
+// AfterSave is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) AfterSave(req *http.Request) error {
+	return nil
+}
+
+// BeforeDelete is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) BeforeDelete(req *http.Request) error {
+	return nil
+}
+
+// AfterDelete is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) AfterDelete(req *http.Request) error {
+	return nil
+}
+
 // Sluggable makes a struct locatable by URL with it's own path
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
 // make your content struct (or one which imbeds Item) implement Sluggable
@@ -47,4 +69,21 @@ type Sluggable interface {
 // BoltDB's starting key per bucket is 0, thus overwriting the first record.
 type Identifiable interface {
 	SetItemID(int)
+}
+
+// Hookable provides our user with an easy way to intercept or add functionality
+// to the different lifecycles/events a struct may encounter. Item implements
+// Hookable with no-ops so our user can override only whichever ones necessary.
+type Hookable interface {
+	BeforeSave(req *http.Request) error
+	AfterSave(req *http.Request) error
+
+	BeforeDelete(req *http.Request) error
+	AfterDelete(req *http.Request) error
+
+	BeforeApprove(req *http.Request) error
+	AfterApprove(req *http.Request) error
+
+	BeforeReject(req *http.Request) error
+	AfterReject(req *http.Request) error
 }
