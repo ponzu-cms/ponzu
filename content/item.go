@@ -36,32 +36,42 @@ func (i *Item) SetItemID(id int) {
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeSave(req *http.Request) error {
+func (i Item) BeforeSave(req *http.Request) error {
 	return nil
 }
 
 // AfterSave is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterSave(req *http.Request) error {
+func (i Item) AfterSave(req *http.Request) error {
 	return nil
 }
 
 // BeforeDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeDelete(req *http.Request) error {
+func (i Item) BeforeDelete(req *http.Request) error {
 	return nil
 }
 
 // AfterDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterDelete(req *http.Request) error {
+func (i Item) AfterDelete(req *http.Request) error {
+	return nil
+}
+
+// BeforeApprove is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeApprove(req *http.Request) error {
+	return nil
+}
+
+// AfterApprove is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterApprove(req *http.Request) error {
 	return nil
 }
 
 // BeforeReject is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeReject(req *http.Request) error {
+func (i Item) BeforeReject(req *http.Request) error {
 	return nil
 }
 
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterReject(req *http.Request) error {
+func (i Item) AfterReject(req *http.Request) error {
 	return nil
 }
 
