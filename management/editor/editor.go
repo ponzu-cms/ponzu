@@ -5,7 +5,7 @@ package editor
 import (
 	"bytes"
 
-	"github.com/bosssauce/ponzu/system/api"
+	"github.com/bosssauce/ponzu/management/manager"
 )
 
 // Editable ensures data is editable
@@ -109,7 +109,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 `
-	m, ok := post.(api.Mergeable)
+	m, ok := post.(manager.Mergeable)
 	if ok {
 		submit +=
 			`
