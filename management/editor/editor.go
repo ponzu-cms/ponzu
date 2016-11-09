@@ -4,6 +4,8 @@ package editor
 
 import (
 	"bytes"
+
+	"github.com/bosssauce/ponzu/system/api"
 )
 
 // Editable ensures data is editable
@@ -106,7 +108,11 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
-
+`
+	m, ok := post.(api.Mergeable)
+	if ok {
+		submit +=
+			`
 <div class="row external post-controls">
 	<div class="col s12 input-field">
 		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
@@ -114,7 +120,10 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	</div>	
 	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published. By clicking 'Reject', it will be deleted.</label> 
 </div>
+`
+	}
 
+	script := `
 <script>
 	$(function() {
 		var form = $('form'),
@@ -178,7 +187,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	});
 </script>
 `
-	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
+	editor.ViewBuf.Write([]byte(submit + script + `</td></tr></tbody></table>`))
 
 	return editor.ViewBuf.Bytes(), nil
 }
