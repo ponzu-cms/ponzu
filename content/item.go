@@ -55,6 +55,16 @@ func (i *Item) AfterDelete(req *http.Request) error {
 	return nil
 }
 
+// BeforeReject is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) BeforeReject(req *http.Request) error {
+	return nil
+}
+
+// AfterReject is a no-op to ensure structs which embed Item implement Hookable
+func (i *Item) AfterReject(req *http.Request) error {
+	return nil
+}
+
 // Sluggable makes a struct locatable by URL with it's own path
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
 // make your content struct (or one which imbeds Item) implement Sluggable
