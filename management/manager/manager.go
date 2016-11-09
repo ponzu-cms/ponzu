@@ -4,18 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"net/http"
 
 	"github.com/bosssauce/ponzu/management/editor"
 )
-
-// Mergeable allows external post content to be approved and published through
-// the public-facing API
-type Mergeable interface {
-	// Approve copies an external post to the internal collection and triggers
-	// a re-sort of its content type posts
-	Approve(req *http.Request) error
-}
 
 const managerHTML = `
 <div class="card editor">
