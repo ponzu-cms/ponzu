@@ -544,7 +544,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	if _, ok := content.Types[t]; !ok {
 		res.WriteHeader(http.StatusBadRequest)
-		errView, err := Error405()
+		errView, err := Error400()
 		if err != nil {
 			return
 		}
