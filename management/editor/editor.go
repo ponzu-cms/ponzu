@@ -4,8 +4,7 @@ package editor
 
 import (
 	"bytes"
-
-	"github.com/bosssauce/ponzu/content"
+	"net/http"
 )
 
 // Editable ensures data is editable
@@ -20,6 +19,14 @@ type Sortable interface {
 	Time() int64
 	Touch() int64
 	ItemID() int
+}
+
+// Mergeable allows external post content to be approved and published through
+// the public-facing API
+type Mergeable interface {
+	// Approve copies an external post to the internal collection and triggers
+	// a re-sort of its content type posts
+	Approve(req *http.Request) error
 }
 
 // Editor is a view containing fields to manage content
@@ -109,7 +116,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 `
-	m, ok := post.(content.Mergeable)
+	m, ok := post.(Mergeable)
 	if ok {
 		submit +=
 			`
