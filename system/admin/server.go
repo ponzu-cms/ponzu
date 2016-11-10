@@ -18,6 +18,10 @@ func Run() {
 	http.HandleFunc("/admin/login", loginHandler)
 	http.HandleFunc("/admin/logout", logoutHandler)
 
+	http.HandleFunc("/admin/recover", forgotPasswordHandler)
+	http.HandleFunc("/admin/recover/key", recoveryKeyHandler)
+	http.HandleFunc("/admin/recover/edit", recoveryEditHandler)
+
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
 	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))

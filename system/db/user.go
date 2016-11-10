@@ -11,6 +11,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
+	"github.com/nilslice/rand"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user
@@ -135,6 +136,10 @@ func User(email string) ([]byte, error) {
 		return nil, err
 	}
 
+	if val.Bytes() == nil {
+		return nil, ErrNoUserExists
+	}
+
 	return val.Bytes(), nil
 }
 
@@ -183,4 +188,54 @@ func CurrentUser(req *http.Request) ([]byte, error) {
 	}
 
 	return usr, nil
+}
+
+// SetRecoveryKey generates and saves a random secret key to verify an email
+// address submitted in order to recover/reset an account password
+func SetRecoveryKey(email string) (string, error) {
+	key := fmt.Sprintf("%d", rand.Int63())
+
+	err := store.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("_recoveryKeys"))
+		if err != nil {
+			return err
+		}
+
+		err = b.Put([]byte(email), []byte(key))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return key, nil
+}
+
+// RecoveryKey generates and saves a random secret key to verify an email
+// address submitted in order to recover/reset an account password
+func RecoveryKey(email string) (string, error) {
+	key := &bytes.Buffer{}
+
+	err := store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("_recoveryKeys"))
+		if b == nil {
+			return errors.New("No database found for checking keys.")
+		}
+
+		_, err := key.Write(b.Get([]byte("email")))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return key.String(), nil
 }

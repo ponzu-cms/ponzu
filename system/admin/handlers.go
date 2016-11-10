@@ -21,6 +21,7 @@ import (
 	"github.com/bosssauce/ponzu/system/db"
 
 	"github.com/gorilla/schema"
+	emailer "github.com/nilslice/email"
 	"github.com/nilslice/jwt"
 )
 
@@ -521,12 +522,187 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 	http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/login", http.StatusFound)
 }
 
+func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		view, err := ForgotPassword()
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Write(view)
+
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// check email for user, if no user return Error
+		email := strings.ToLower(req.FormValue("email"))
+		if email == "" {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err, u := db.User(email)
+		if err.Error() == db.ErrNoUserExists {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		if err.Error() != db.ErrNoUserExists && err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// create temporary key to verify user
+		key, err := db.SetRecoveryKey(email)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		domain := db.ConfigCache("domain")
+		body := fmt.Sprintf(`
+		There has been an account recovery request made for the user with email:
+		%s
+
+		To recover your account, please go to http://%s/admin/recover/key and enter 
+		this email address along with the following secret key:
+		
+		%s
+
+		If you did not make the request, ignore this message and your password 
+		will remain as-is.
+
+
+		Thank you,
+		Ponzu CMS at %s
+
+		`, email, domain, key, domain)
+		msg := emailer.Message{
+			To:      email,
+			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s", domain),
+			Subject: fmt.Sprintf("Account Recovery [%s]", domain),
+			Body:    body,
+		}
+
+		/*
+			err = msg.Send()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		*/
+		fmt.Println(msg)
+
+		// redirect to /admin/recover/key and send email with key and URL
+		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/recover/key", http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+}
+
+func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		view, err := RecoveryKey()
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Write(view)
+
+	case http.MethodPost:
+
+		// check for email & key match
+
+		// set user with new password
+
+		// redirect to /admin/login
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+}
+
+func recoveryEditHandler(res http.ResponseWriter, req *http.Request) {
+
+}
+
 func postsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
 		res.WriteHeader(http.StatusBadRequest)
-		errView, err := Error405()
+		errView, err := Error400()
 		if err != nil {
 			return
 		}
@@ -837,9 +1013,9 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// check if we have a Mergeable
-	m, ok := post.(content.Mergeable)
+	m, ok := post.(editor.Mergeable)
 	if !ok {
-		log.Println("Content type", t, "must implement api.Mergable before it can bee approved.")
+		log.Println("Content type", t, "must implement editor.Mergable before it can bee approved.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {

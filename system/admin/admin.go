@@ -205,7 +205,8 @@ var loginAdminHTML = `
         </div>
         <div class="input-field col s12">
             <input placeholder="Enter your password" class="validate required" type="password" id="password" name="password"/>
-            <label for="password" class="active">Password</label>        
+            <a href="/admin/recover" class="right">Forgot password?</a>            
+            <label for="password" class="active">Password</label>  
         </div>
         <button class="btn waves-effect waves-light right">Log in</button>
     </form>
@@ -238,6 +239,118 @@ func Login() ([]byte, error) {
 
 	buf := &bytes.Buffer{}
 	tmpl := template.Must(template.New("login").Parse(html))
+	err = tmpl.Execute(buf, a)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+var forgotPasswordHTML = `
+<div class="init col s5">
+<div class="card">
+<div class="card-content">
+    <div class="card-title">Account Recovery</div>
+    <blockquote>Please enter the email for your account and a recovery message will be sent to you at this address. Check your spam folder in case the message was flagged.</blockquote>
+    <form method="post" action="/admin/recover" class="row">
+        <div class="input-field col s12">
+            <input placeholder="Enter your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
+            <label for="email" class="active">Email</label>
+        </div>
+        
+        <button class="btn waves-effect waves-light right">Send Recovery Email</button>
+    </form>
+</div>
+</div>
+</div>
+<script>
+    $(function() {
+        $('.nav-wrapper ul.right').hide();
+    });
+</script>
+`
+
+// ForgotPassword ...
+func ForgotPassword() ([]byte, error) {
+	html := startAdminHTML + forgotPasswordHTML + endAdminHTML
+
+	cfg, err := db.Config("name")
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg == nil {
+		cfg = []byte("")
+	}
+
+	a := admin{
+		Logo: string(cfg),
+	}
+
+	buf := &bytes.Buffer{}
+	tmpl := template.Must(template.New("forgotPassword").Parse(html))
+	err = tmpl.Execute(buf, a)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+var recoveryKeyHTML = `
+<div class="init col s5">
+<div class="card">
+<div class="card-content">
+    <div class="card-title">Account Recovery</div>
+    <blockquote>Please check for your recovery key inside an email sent to the address you provided. Check your spam folder in case the message was flagged.</blockquote>
+    <form method="post" action="/admin/recover/key" class="row">
+        <div class="input-field col s12">
+            <input placeholder="Enter your recovery key" class="validate required" type="text" id="key" name="key"/>
+            <label for="key" class="active">Recovery Key</label>
+        </div>
+
+        <div class="input-field col s12">
+            <input placeholder="Enter your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
+            <label for="email" class="active">Email</label>
+        </div>
+
+        <div class="input-field col s12">
+            <input placeholder="Enter your password" class="validate required" type="password" id="password" name="password"/>
+            <label for="password" class="active">New Password</label>
+        </div>
+        
+        <button class="btn waves-effect waves-light right">Update Account</button>
+    </form>
+</div>
+</div>
+</div>
+<script>
+    $(function() {
+        $('.nav-wrapper ul.right').hide();
+    });
+</script>
+`
+
+// RecoveryKey ...
+func RecoveryKey() ([]byte, error) {
+	html := startAdminHTML + recoveryKeyHTML + endAdminHTML
+
+	cfg, err := db.Config("name")
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg == nil {
+		cfg = []byte("")
+	}
+
+	a := admin{
+		Logo: string(cfg),
+	}
+
+	buf := &bytes.Buffer{}
+	tmpl := template.Must(template.New("recoveryKey").Parse(html))
 	err = tmpl.Execute(buf, a)
 	if err != nil {
 		return nil, err
