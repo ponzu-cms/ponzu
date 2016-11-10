@@ -565,8 +565,8 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err, u := db.User(email)
-		if err.Error() == db.ErrNoUserExists {
+		_, err = db.User(email)
+		if err == db.ErrNoUserExists {
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error400()
 			if err != nil {
@@ -577,7 +577,7 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if err.Error() != db.ErrNoUserExists && err != nil {
+		if err != db.ErrNoUserExists && err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			errView, err := Error500()
 			if err != nil {
