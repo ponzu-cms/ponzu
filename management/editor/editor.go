@@ -116,7 +116,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 `
-	m, ok := post.(Mergeable)
+	_, ok := post.(Mergeable)
 	if ok {
 		submit +=
 			`
