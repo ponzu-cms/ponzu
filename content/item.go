@@ -2,6 +2,40 @@ package content
 
 import "net/http"
 
+// Sluggable makes a struct locatable by URL with it's own path
+// As an Item implementing Sluggable, slugs may overlap. If this is an issue,
+// make your content struct (or one which imbeds Item) implement Sluggable
+// and it will override the slug created by Item's SetSlug with your struct's
+type Sluggable interface {
+	SetSlug(string)
+}
+
+// Identifiable enables a struct to have its ID set. Typically this is done
+// to set an ID to -1 indicating it is new for DB inserts, since by default
+// a newly initialized struct would have an ID of 0, the int zero-value, and
+// BoltDB's starting key per bucket is 0, thus overwriting the first record.
+type Identifiable interface {
+	SetItemID(int)
+}
+
+// Hookable provides our user with an easy way to intercept or add functionality
+// to the different lifecycles/events a struct may encounter. Item implements
+// Hookable with no-ops so our user can override only whichever ones necessary.
+type Hookable interface {
+	BeforeSave(req *http.Request) error
+	AfterSave(req *http.Request) error
+
+	BeforeDelete(req *http.Request) error
+	AfterDelete(req *http.Request) error
+
+	BeforeApprove(req *http.Request) error
+	AfterApprove(req *http.Request) error
+
+	BeforeReject(req *http.Request) error
+	AfterReject(req *http.Request) error
+}
+
+
 // Item should only be embedded into content type structs.
 type Item struct {
 	ID        int    `json:"id"`
@@ -73,37 +107,4 @@ func (i Item) BeforeReject(req *http.Request) error {
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
 func (i Item) AfterReject(req *http.Request) error {
 	return nil
-}
-
-// Sluggable makes a struct locatable by URL with it's own path
-// As an Item implementing Sluggable, slugs may overlap. If this is an issue,
-// make your content struct (or one which imbeds Item) implement Sluggable
-// and it will override the slug created by Item's SetSlug with your struct's
-type Sluggable interface {
-	SetSlug(string)
-}
-
-// Identifiable enables a struct to have its ID set. Typically this is done
-// to set an ID to -1 indicating it is new for DB inserts, since by default
-// a newly initialized struct would have an ID of 0, the int zero-value, and
-// BoltDB's starting key per bucket is 0, thus overwriting the first record.
-type Identifiable interface {
-	SetItemID(int)
-}
-
-// Hookable provides our user with an easy way to intercept or add functionality
-// to the different lifecycles/events a struct may encounter. Item implements
-// Hookable with no-ops so our user can override only whichever ones necessary.
-type Hookable interface {
-	BeforeSave(req *http.Request) error
-	AfterSave(req *http.Request) error
-
-	BeforeDelete(req *http.Request) error
-	AfterDelete(req *http.Request) error
-
-	BeforeApprove(req *http.Request) error
-	AfterApprove(req *http.Request) error
-
-	BeforeReject(req *http.Request) error
-	AfterReject(req *http.Request) error
 }
