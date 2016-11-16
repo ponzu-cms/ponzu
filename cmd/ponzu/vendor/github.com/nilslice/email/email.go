@@ -62,7 +62,7 @@ func newClient(mx []*net.MX, ports []int) (*smtp.Client, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Coudln't connect to servers %v on any common port.", mx)
+	return nil, fmt.Errorf("Couldn't connect to servers %v on any common port.", mx)
 }
 
 func send(m Message, c *smtp.Client) error {
