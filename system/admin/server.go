@@ -18,6 +18,10 @@ func Run() {
 	http.HandleFunc("/admin/login", loginHandler)
 	http.HandleFunc("/admin/logout", logoutHandler)
 
+	http.HandleFunc("/admin/recover", forgotPasswordHandler)
+	http.HandleFunc("/admin/recover/key", recoveryKeyHandler)
+	http.HandleFunc("/admin/recover/edit", recoveryEditHandler)
+
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
 	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))
@@ -37,11 +41,11 @@ func Run() {
 	}
 
 	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "system")
-	http.Handle("/admin/static/", CacheControl(http.FileServer(http.Dir(staticDir))))
+	http.Handle("/admin/static/", CacheControl(http.FileServer(restrict(http.Dir(staticDir)))))
 
 	// API path needs to be registered within server package so that it is handled
 	// even if the API server is not running. Otherwise, images/files uploaded
 	// through the editor will not load within the admin system.
 	uploadsDir := filepath.Join(pwd, "uploads")
-	http.Handle("/api/uploads/", CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(http.Dir(uploadsDir)))))
+	http.Handle("/api/uploads/", CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))
 }

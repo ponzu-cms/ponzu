@@ -4,6 +4,7 @@ package editor
 
 import (
 	"bytes"
+	"net/http"
 )
 
 // Editable ensures data is editable
@@ -18,6 +19,14 @@ type Sortable interface {
 	Time() int64
 	Touch() int64
 	ItemID() int
+}
+
+// Mergeable allows external post content to be approved and published through
+// the public-facing API
+type Mergeable interface {
+	// Approve copies an external post to the internal collection and triggers
+	// a re-sort of its content type posts
+	Approve(req *http.Request) error
 }
 
 // Editor is a view containing fields to manage content
@@ -106,31 +115,39 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
-
+`
+	_, ok := post.(Mergeable)
+	if ok {
+		submit +=
+			`
 <div class="row external post-controls">
 	<div class="col s12 input-field">
 		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
+		<button class="right waves-effect waves-light btn grey darken-2 reject-post" type="submit">Reject</button>
 	</div>	
-	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published.</label> 
+	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published. By clicking 'Reject', it will be deleted.</label> 
 </div>
+`
+	}
 
+	script := `
 <script>
 	$(function() {
 		var form = $('form'),
 			save = form.find('button.save-post'),
 			del = form.find('button.delete-post'),
-			approve = form.find('.post-controls.external'),
+			external = form.find('.post-controls.external'),
 			id = form.find('input[name=id]');
 		
 		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
-			approve.hide();
+			external.hide();
 		}
 
 		// hide approval if not on a pending content item
 		if (getParam('status') !== 'pending') {
-			approve.hide();
+			external.hide();
 		} 
 
 		save.on('click', function(e) {
@@ -155,7 +172,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			}
 		});
 
-		approve.find('button').on('click', function(e) {
+		external.find('button.approve-post').on('click', function(e) {
 			e.preventDefault();
 			var action = form.attr('action');
 			action = action + '/approve';
@@ -163,10 +180,21 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 			form.submit();
 		});
+
+		external.find('button.reject-post').on('click', function(e) {
+			e.preventDefault();
+			var action = form.attr('action');
+			action = action + '/delete?reject=true';
+			form.attr('action', action);
+
+			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to reject this post?\nDoing so will delete it, and cannot be undone.")) {
+				form.submit();
+			}
+		});
 	});
 </script>
 `
-	editor.ViewBuf.Write([]byte(submit + `</td></tr></tbody></table>`))
+	editor.ViewBuf.Write([]byte(submit + script + `</td></tr></tbody></table>`))
 
 	return editor.ViewBuf.Bytes(), nil
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/bosssauce/ponzu/system/db"
 
 	"github.com/gorilla/schema"
+	emailer "github.com/nilslice/email"
 	"github.com/nilslice/jwt"
 )
 
@@ -521,12 +522,187 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 	http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/login", http.StatusFound)
 }
 
+func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		view, err := ForgotPassword()
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Write(view)
+
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// check email for user, if no user return Error
+		email := strings.ToLower(req.FormValue("email"))
+		if email == "" {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		_, err = db.User(email)
+		if err == db.ErrNoUserExists {
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		if err != db.ErrNoUserExists && err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// create temporary key to verify user
+		key, err := db.SetRecoveryKey(email)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		domain := db.ConfigCache("domain")
+		body := fmt.Sprintf(`
+		There has been an account recovery request made for the user with email:
+		%s
+
+		To recover your account, please go to http://%s/admin/recover/key and enter 
+		this email address along with the following secret key:
+		
+		%s
+
+		If you did not make the request, ignore this message and your password 
+		will remain as-is.
+
+
+		Thank you,
+		Ponzu CMS at %s
+
+		`, email, domain, key, domain)
+		msg := emailer.Message{
+			To:      email,
+			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s", domain),
+			Subject: fmt.Sprintf("Account Recovery [%s]", domain),
+			Body:    body,
+		}
+
+		/*
+			err = msg.Send()
+			if err != nil {
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		*/
+		fmt.Println(msg)
+
+		// redirect to /admin/recover/key and send email with key and URL
+		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/recover/key", http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+}
+
+func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		view, err := RecoveryKey()
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		res.Write(view)
+
+	case http.MethodPost:
+
+		// check for email & key match
+
+		// set user with new password
+
+		// redirect to /admin/login
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		errView, err := Error405()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+}
+
+func recoveryEditHandler(res http.ResponseWriter, req *http.Request) {
+
+}
+
 func postsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
 		res.WriteHeader(http.StatusBadRequest)
-		errView, err := Error405()
+		errView, err := Error400()
 		if err != nil {
 			return
 		}
@@ -544,7 +720,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	if _, ok := content.Types[t]; !ok {
 		res.WriteHeader(http.StatusBadRequest)
-		errView, err := Error405()
+		errView, err := Error400()
 		if err != nil {
 			return
 		}
@@ -717,7 +893,22 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
+	} else {
+		for i := range posts {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t, status)
+			b.Write(post)
+		}
 	}
+	
 	html += `<ul class="posts row">`
 
 	b.Write([]byte(`</ul></div></div>`))
@@ -822,10 +1013,24 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 
 	post := content.Types[t]()
 
-	// check if we have a Mergeable
-	m, ok := post.(api.Mergeable)
+	// run hooks
+	hook, ok := post.(content.Hookable)
 	if !ok {
-		log.Println("Content type", t, "must implement api.Mergable before it can bee approved.")
+		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	// check if we have a Mergeable
+	m, ok := post.(editor.Mergeable)
+	if !ok {
+		log.Println("Content type", t, "must implement editor.Mergable before it can bee approved.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
@@ -851,6 +1056,18 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	err = hook.BeforeApprove(req)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
 	// call its Approve method
 	err = m.Approve(req)
 	if err != nil {
@@ -864,8 +1081,44 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	err = hook.AfterApprove(req)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	err = hook.BeforeSave(req)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
 	// Store the content in the bucket t
 	id, err := db.SetContent(t+":-1", req.Form)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	err = hook.AfterSave(req)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
@@ -946,7 +1199,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				log.Println("Content type", t, "doesn't implement editor.Identifiable")
 				return
 			}
-			s.SetContentID(-1)
+			s.SetItemID(-1)
 
 		}
 
@@ -1040,7 +1293,64 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
+		if strings.Contains(t, "_") {
+			t = strings.Split(t, "_")[0]
+		}
+
+		p, ok := content.Types[t]
+		if !ok {
+			log.Println("Type", t, "is not a content type. Cannot edit or save.")
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		post := p()
+		hook, ok := post.(content.Hookable)
+		if !ok {
+			log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err = hook.BeforeSave(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
 		id, err := db.SetContent(t+":"+cid, req.PostForm)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err = hook.AfterSave(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -1057,9 +1367,6 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		host := req.URL.Host
 		path := req.URL.Path
 		sid := fmt.Sprintf("%d", id)
-		if strings.Contains(t, "_") {
-			t = strings.Split(t, "_")[0]
-		}
 		redir := scheme + host + path + "?type=" + t + "&id=" + sid
 
 		if req.URL.Query().Get("status") == "pending" {
@@ -1088,9 +1395,72 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	id := req.FormValue("id")
 	t := req.FormValue("type")
+	ct := t
 
 	if id == "" || t == "" {
 		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// catch specifier suffix from delete form value
+	if strings.Contains(t, "_") {
+		spec := strings.Split(t, "_")
+		ct = spec[0]
+	}
+
+	p, ok := content.Types[ct]
+	if !ok {
+		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	post := p()
+	hook, ok := post.(content.Hookable)
+	if !ok {
+		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	reject := req.URL.Query().Get("reject")
+	if reject == "true" {
+		err = hook.BeforeReject(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	err = hook.BeforeDelete(req)
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
 		return
 	}
 
@@ -1101,14 +1471,36 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// catch specifier suffix from delete form value
-	if strings.Contains(t, "_") {
-		spec := strings.Split(t, "_")
-		t = spec[0]
+	err = hook.AfterDelete(req)
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	if reject == "true" {
+		err = hook.AfterReject(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
 	}
 
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-	redir = redir + "/posts?type=" + t
+	redir = redir + "/posts?type=" + ct
 	http.Redirect(res, req, redir, http.StatusFound)
 }
 

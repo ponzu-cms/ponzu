@@ -19,14 +19,6 @@ type Externalable interface {
 	Accepts() bool
 }
 
-// Mergeable allows external post content to be approved and published through
-// the public-facing API
-type Mergeable interface {
-	// Approve copies an external post to the internal collection and triggers
-	// a re-sort of its content type posts
-	Approve(req *http.Request) error
-}
-
 func externalPostHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -99,7 +91,28 @@ func externalPostHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
+		hook, ok := post.(content.Hookable)
+		if !ok {
+			log.Println("[External] error: Type", t, "does not implement content.Hookable or embed content.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = hook.BeforeSave(req)
+		if err != nil {
+			log.Println("[External] error:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		_, err = db.SetContent(t+"_pending:-1", req.PostForm)
+		if err != nil {
+			log.Println("[External] error:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		err = hook.AfterSave(req)
 		if err != nil {
 			log.Println("[External] error:", err)
 			res.WriteHeader(http.StatusInternalServerError)
