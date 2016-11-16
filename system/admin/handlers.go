@@ -893,7 +893,22 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
+	} else {
+		for i := range posts {
+			err := json.Unmarshal(posts[i], &p)
+			if err != nil {
+				log.Println("Error unmarshal json into", t, err, posts[i])
+
+				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+				b.Write([]byte(post))
+				continue
+			}
+
+			post := adminPostListItem(p, t, status)
+			b.Write(post)
+		}
 	}
+	
 	html += `<ul class="posts row">`
 
 	b.Write([]byte(`</ul></div></div>`))
