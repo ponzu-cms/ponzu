@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,143 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 )
-
-func generateContentType(name, path string) error {
-	fileName := strings.ToLower(name) + ".go"
-	typeName := strings.ToUpper(string(name[0])) + string(name[1:])
-
-	// contain processed name an info for template
-	data := map[string]string{
-		"name":    typeName,
-		"initial": string(fileName[0]),
-	}
-
-	// open file in ./content/ dir
-	// if exists, alert user of conflict
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	if path != "" {
-		pwd = path
-	}
-
-	contentDir := filepath.Join(pwd, "content")
-	filePath := filepath.Join(contentDir, fileName)
-
-	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-		return fmt.Errorf("Please remove '%s' before executing this command.", fileName)
-	}
-
-	// no file exists.. ok to write new one
-	file, err := os.Create(filePath)
-	defer file.Close()
-	if err != nil {
-		return err
-	}
-
-	// execute template
-	tmpl := template.Must(template.New("content").Parse(contentTypeTmpl))
-	err = tmpl.Execute(file, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-const contentTypeTmpl = `
-package content
-
-import (
-	"fmt"
-
-	"github.com/bosssauce/ponzu/management/editor"
-)
-
-// {{ .name }} is the generic content struct
-type {{ .name }} struct {
-	Item
-	editor editor.Editor
-
-    // required: all maintained {{ .name }} fields must have json tags!
-	Title    string ` + "`json:" + `"title"` + "`" + `
-	Content  string ` + "`json:" + `"content"` + "`" + `
-	Author   string ` + "`json:" + `"author"` + "`" + `
-	Photo    string ` + "`json:" + `"photo"` + "`" + `	
-	Category []string ` + "`json:" + `"category"` + "`" + `
-	Theme	 string ` + "`json:" + `"theme"` + "`" + `
-}
-
-// MarshalEditor writes a buffer of html to edit a {{ .name }}
-// partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) MarshalEditor() ([]byte, error) {
-	view, err := editor.Form({{ .initial }},
-		editor.Field{
-			// Take note that the first argument to these Input-like methods 
-            // is the string version of each {{ .name }} field, and must follow 
-            // this pattern for auto-decoding and auto-encoding reasons.
-			View: editor.Input("Title", {{ .initial }}, map[string]string{
-				"label":       "{{ .name }} Title",
-				"type":        "text",
-				"placeholder": "Enter your {{ .name }} Title here",
-			}),
-		},
-		editor.Field{
-			View: editor.Richtext("Content", {{ .initial }}, map[string]string{
-				"label":       "Content",
-				"placeholder": "Add the content of your {{ .name }} here",
-			}),
-		},
-		editor.Field{
-			View: editor.Input("Author", {{ .initial }}, map[string]string{
-				"label":       "Author",
-				"type":        "text",
-				"placeholder": "Enter the author name here",
-			}),
-		},
-		editor.Field{
-			View: editor.File("Photo", {{ .initial }}, map[string]string{
-				"label":       "Author Photo",
-				"placeholder": "Upload a profile picture for the author",
-			}),
-		},
-		editor.Field{
-			View: editor.Tags("Category", {{ .initial }}, map[string]string{
-				"label": "{{ .name }} Category",
-			}),
-		},
-		editor.Field{
-			View: editor.Select("Theme", {{ .initial }}, map[string]string{
-				"label": "Theme Style",
-			}, map[string]string{
-				"dark": "Dark",
-				"light": "Light",
-			}),
-		},
-	)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to render {{ .name }} editor view: %s", err.Error())
-	}
-
-	return view, nil
-}
-
-func init() {
-	Types["{{ .name }}"] = func() interface{} { return new({{ .name }}) }
-}
-
-// ContentName is required to set the display name for a piece of content in the editor
-// Partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) ContentName() string { return {{ .initial }}.Title }
-
-// Editor is a buffer of bytes for the Form function to write input views
-// partially implements editor.Editable
-func ({{ .initial }} *{{ .name }}) Editor() *editor.Editor { return &{{ .initial }}.editor }
-
-`
 
 func newProjectInDir(path string) error {
 	// set path to be nested inside $GOPATH/src
@@ -230,12 +92,6 @@ func createProjInDir(path string) error {
 			return err
 		}
 
-		err = generateContentType("post", path)
-		if err != nil {
-			// TODO: rollback, remove ponzu project from path
-			return err
-		}
-
 		fmt.Println("Dev build cloned from " + local + ":ponzu-dev")
 		return nil
 	}
@@ -278,12 +134,6 @@ func createProjInDir(path string) error {
 		return err
 	}
 
-	err = generateContentType("post", path)
-	if err != nil {
-		// TODO: rollback, remove ponzu project from path
-		return err
-	}
-
 	gitDir := filepath.Join(path, ".git")
 	err = os.RemoveAll(gitDir)
 	if err != nil {
@@ -311,8 +161,7 @@ func vendorCorePackages(path string) error {
 		}
 	}
 
-	// create a user 'content' package, and give it a single 'post.go' file
-	// using generateContentType("post")
+	// create a user 'content' package
 	contentPath := filepath.Join(path, "content")
 	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
 	if err != nil {
