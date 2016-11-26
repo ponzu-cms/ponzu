@@ -231,7 +231,8 @@ func buildPonzuServer(args []string) error {
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
 	mainPath := filepath.Join(pwd, "cmd", "ponzu", "main.go")
 	optsPath := filepath.Join(pwd, "cmd", "ponzu", "options.go")
-	build := exec.Command("go", "build", "-o", "ponzu-server", mainPath, optsPath)
+	genPath := filepath.Join(pwd, "cmd", "ponzu", "generate.go")
+	build := exec.Command("go", "build", "-o", "ponzu-server", mainPath, optsPath, genPath)
 	build.Stderr = os.Stderr
 	build.Stdout = os.Stdout
 
