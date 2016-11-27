@@ -132,7 +132,7 @@ func isHyphen(char rune) bool {
 	return char == '-'
 }
 
-func generateContentType(args []string, path string) error {
+func generateContentType(args []string) error {
 	name := args[0]
 	fileName := strings.ToLower(name) + ".go"
 
@@ -141,10 +141,6 @@ func generateContentType(args []string, path string) error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
-	}
-
-	if path != "" {
-		pwd = path
 	}
 
 	contentDir := filepath.Join(pwd, "content")
@@ -167,7 +163,8 @@ func generateContentType(args []string, path string) error {
 		return fmt.Errorf("Failed to parse type args: %s", err.Error())
 	}
 
-	tmpl, err := template.ParseFiles("contentType.tmpl")
+	tmplPath := filepath.Join(pwd, "cmd", "ponzu", "contentType.tmpl")
+	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("Failed to parse template: %s", err.Error())
 	}
