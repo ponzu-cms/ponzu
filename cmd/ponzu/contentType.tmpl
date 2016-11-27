@@ -48,7 +48,7 @@ func init() {
 
 // ContentName is required to set the display name for a piece of content in the editor
 // Partially implements editor.Editable
-func ({{ .Initial }} *{{ .Name }}) ContentName() string { return {{ .Name }}-{{ .Initial }}.ItemID() }
+func ({{ .Initial }} *{{ .Name }}) ContentName() string { return fmt.Sprintf("{{ .Name }} - ID: %d", {{ .Initial }}.ItemID()) }
 
 // Editor is a buffer of bytes for the Form function to write input views
 // partially implements editor.Editable
