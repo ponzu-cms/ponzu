@@ -6,7 +6,6 @@ import (
 	"github.com/bosssauce/ponzu/management/editor"
 )
 
-
 type {{ .Name }} struct {
     Item
     editor editor.Editor
@@ -22,17 +21,14 @@ func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
         // Take note that the first argument to these Input-like functions 
         // is the string version of each {{ .Name }} field, and must follow 
         // this pattern for auto-decoding and auto-encoding reasons:
-        
         {{ $initial := .Initial }}
-        {{ range .Fields }}
-		editor.Field{
+        {{ range .Fields }}editor.Field{
 			View: editor.Input("{{ .Name }}", {{ $initial }}, map[string]string{
 				"label":       "{{ .Name }}",
 				"type":        "text",
 				"placeholder": "Enter the {{ .Name }} here",
 			}),
-		},
-        {{ end }}
+		},{{ end }}
 	)
 
 	if err != nil {
