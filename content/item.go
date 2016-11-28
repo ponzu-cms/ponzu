@@ -1,6 +1,10 @@
 package content
 
-import "net/http"
+import (
+	"net/http"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 // Sluggable makes a struct locatable by URL with it's own path
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
@@ -35,13 +39,13 @@ type Hookable interface {
 	AfterReject(req *http.Request) error
 }
 
-
 // Item should only be embedded into content type structs.
 type Item struct {
-	ID        int    `json:"id"`
-	Slug      string `json:"slug"`
-	Timestamp int64  `json:"timestamp"`
-	Updated   int64  `json:"updated"`
+	UUID      uuid.UUID `json:"uuid"`
+	ID        int       `json:"id"`
+	Slug      string    `json:"slug"`
+	Timestamp int64     `json:"timestamp"`
+	Updated   int64     `json:"updated"`
 }
 
 // Time partially implements the Sortable interface

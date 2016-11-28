@@ -16,6 +16,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
+	uuid "github.com/satori/go.uuid"
 )
 
 // SetContent inserts or updates values in the database.
@@ -106,6 +107,10 @@ func insert(ns string, data url.Values) (int, error) {
 			return err
 		}
 		data.Set("id", cid)
+
+		// add UUID to data for use in embedded Item
+		uid := uuid.NewV4()
+		data.Set("uuid", uid.String())
 
 		j, err := postToJSON(ns, data)
 		if err != nil {
