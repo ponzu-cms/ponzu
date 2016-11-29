@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 type generateType struct {
