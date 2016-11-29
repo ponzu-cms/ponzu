@@ -908,7 +908,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			b.Write(post)
 		}
 	}
-	
+
 	html += `<ul class="posts row">`
 
 	b.Write([]byte(`</ul></div></div>`))
@@ -947,7 +947,14 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	s, ok := e.(editor.Sortable)
 	if !ok {
 		log.Println("Content type", typeName, "doesn't implement editor.Sortable")
-		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces.</li>`
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (editor.Sortable)</li>`
+		return []byte(post)
+	}
+
+	i, ok := e.(content.Identifiable)
+	if !ok {
+		log.Println("Content type", typeName, "doesn't implement content.Identifiable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (content.Identifiable)</li>`
 		return []byte(post)
 	}
 
@@ -957,7 +964,7 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	updatedTime := upTime.Format("01/02/06 03:04 PM")
 	publishTime := tsTime.Format("01/02/06")
 
-	cid := fmt.Sprintf("%d", s.ItemID())
+	cid := fmt.Sprintf("%d", i.ItemID())
 
 	switch status {
 	case "public", "":
@@ -1200,7 +1207,6 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 			s.SetItemID(-1)
-
 		}
 
 		m, err := manager.Manage(post.(editor.Editable), t)
