@@ -14,12 +14,14 @@ type Sluggable interface {
 	SetSlug(string)
 }
 
-// Identifiable enables a struct to have its ID set. Typically this is done
+// Identifiable enables a struct to have its ID set/get. Typically this is done
 // to set an ID to -1 indicating it is new for DB inserts, since by default
 // a newly initialized struct would have an ID of 0, the int zero-value, and
 // BoltDB's starting key per bucket is 0, thus overwriting the first record.
 type Identifiable interface {
+	ItemID() int
 	SetItemID(int)
+	UniqueID() uuid.UUID
 }
 
 // Hookable provides our user with an easy way to intercept or add functionality
@@ -58,19 +60,27 @@ func (i Item) Touch() int64 {
 	return i.Updated
 }
 
-// ItemID partially implements the Sortable interface
-func (i Item) ItemID() int {
-	return i.ID
-}
-
 // SetSlug sets the item's slug for its URL
 func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
 }
 
+// ItemID gets the Item's ID field
+// partially implements the Identifiable interface
+func (i Item) ItemID() int {
+	return i.ID
+}
+
 // SetItemID sets the Item's ID field
+// partially implements the Identifiable interface
 func (i *Item) SetItemID(id int) {
 	i.ID = id
+}
+
+// UniqueID gets the Item's UUID field
+// partially implements the Identifiable interface
+func (i Item) UniqueID() uuid.UUID {
+	return i.UUID
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable

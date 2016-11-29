@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
+	uuid "github.com/satori/go.uuid"
 )
 
 const managerHTML = `
 <div class="card editor">
     <form method="post" action="/admin/edit" enctype="multipart/form-data">
+		<input type="hidden" name="uuid" value="{{.UUID}}"/>
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
 		{{ .Editor }}
@@ -104,6 +107,7 @@ const managerHTML = `
 
 type manager struct {
 	ID     int
+	UUID   uuid.UUID
 	Kind   string
 	Editor template.HTML
 }
@@ -115,13 +119,14 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 		return nil, fmt.Errorf("Couldn't marshal editor for content %s. %s", typeName, err.Error())
 	}
 
-	s, ok := e.(editor.Sortable)
+	i, ok := e.(content.Identifiable)
 	if !ok {
-		return nil, fmt.Errorf("Content type %s does not implement content.Identifiable.", typeName)
+		return nil, fmt.Errorf("Content type %s does not implement content.Sortable.", typeName)
 	}
 
 	m := manager{
-		ID:     s.ItemID(),
+		ID:     i.ItemID(),
+		UUID:   i.UniqueID(),
 		Kind:   typeName,
 		Editor: template.HTML(v),
 	}
