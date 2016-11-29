@@ -1,13 +1,12 @@
 package admin
 
 import (
-    "net/http"
+	"net/http"
 	"os"
 )
 
-
 func restrict(dir http.Dir) justFilesFilesystem {
-    return justFilesFilesystem{dir}
+	return justFilesFilesystem{dir}
 }
 
 // the code below removes the open directory listing when accessing a URL which
@@ -16,21 +15,21 @@ func restrict(dir http.Dir) justFilesFilesystem {
 // credit: Brad Fitzpatrick (c) 2012
 
 type justFilesFilesystem struct {
-    fs http.FileSystem
+	fs http.FileSystem
 }
 
 func (fs justFilesFilesystem) Open(name string) (http.File, error) {
-    f, err := fs.fs.Open(name)
-    if err != nil {
-        return nil, err
-    }
-    return neuteredReaddirFile{f}, nil
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return neuteredReaddirFile{f}, nil
 }
 
 type neuteredReaddirFile struct {
-    http.File
+	http.File
 }
 
 func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
-    return nil, nil
+	return nil, nil
 }

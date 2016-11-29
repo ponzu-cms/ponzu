@@ -1,0 +1,51 @@
+package content
+
+import (
+	"fmt"
+
+	"github.com/bosssauce/ponzu/management/editor"
+)
+
+type {{ .Name }} struct {
+    Item
+    editor editor.Editor
+
+    {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
+    {{ end }}	
+}
+
+// MarshalEditor writes a buffer of html to edit a {{ .Name }}
+// partially implements editor.Editable
+func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
+	view, err := editor.Form({{ .Initial }},
+        // Take note that the first argument to these Input-like functions 
+        // is the string version of each {{ .Name }} field, and must follow 
+        // this pattern for auto-decoding and auto-encoding reasons:{{ $initial := .Initial }}
+        {{ range .Fields }}editor.Field{
+			View: editor.Input("{{ .Name }}", {{ $initial }}, map[string]string{
+				"label":       "{{ .Name }}",
+				"type":        "text",
+				"placeholder": "Enter the {{ .Name }} here",
+			}),
+		},{{ end }}
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to render {{ .Name }} editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
+}
+
+// ContentName is required to set the display name for a piece of content in the editor
+// Partially implements editor.Editable
+func ({{ .Initial }} *{{ .Name }}) ContentName() string { return fmt.Sprintf("{{ .Name }} - ID: %s", {{ .Initial }}.UniqueID()) }
+
+// Editor is a buffer of bytes for the Form function to write input views
+// partially implements editor.Editable
+func ({{ .Initial }} *{{ .Name }}) Editor() *editor.Editor { return &{{ .Initial }}.editor }
+

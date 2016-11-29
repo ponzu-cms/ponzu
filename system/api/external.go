@@ -13,7 +13,7 @@ import (
 )
 
 // Externalable accepts or rejects external POST requests to endpoints such as:
-// /external/posts?type=Review
+// /external/content?type=Review
 type Externalable interface {
 	// Accepts determines whether a type will allow external submissions
 	Accepts() bool

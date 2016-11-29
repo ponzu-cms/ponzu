@@ -120,11 +120,12 @@ func main() {
 			os.Exit(0)
 		}
 
-		err := generateContentType(args[1], "")
+		err := generateContentType(args[1:])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
 	case "build":
 		err := buildPonzuServer(args)
 		if err != nil {
@@ -197,8 +198,10 @@ func main() {
 		}
 
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+
 	case "":
 		flag.PrintDefaults()
+
 	default:
 		flag.PrintDefaults()
 	}

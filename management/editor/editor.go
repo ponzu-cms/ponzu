@@ -18,7 +18,6 @@ type Editable interface {
 type Sortable interface {
 	Time() int64
 	Touch() int64
-	ItemID() int
 }
 
 // Mergeable allows external post content to be approved and published through
