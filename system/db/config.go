@@ -57,9 +57,7 @@ func SetConfig(data url.Values) error {
 		}
 
 		// check for "invalidate" value to reset the Etag
-		fmt.Println(len(cfg.CacheInvalidate))
-		if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
-			fmt.Println(cfg.CacheInvalidate)
+		if cfg.CacheInvalidate[0] == "invalidate" {
 			cfg.Etag = NewEtag()
 			cfg.CacheInvalidate = []string{}
 		}
