@@ -62,13 +62,13 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 ```
 
 
-
 ## Credits
 - [golang.org/x/text/unicode/norm](https://golang.org/x/text/unicode/norm)
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
 - [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
 - [github.com/nilslice/rand](https://github.com/nilslice/rand)
+- [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
 - [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
