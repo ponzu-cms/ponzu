@@ -67,7 +67,7 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Checkbox("cacheInvalidate", c, map[string]string{
+			View: editor.Checkbox("CacheInvalidate", c, map[string]string{
 				"label": "Invalidate cache on save",
 			}, map[string]string{
 				"cache": "Invalidate",
