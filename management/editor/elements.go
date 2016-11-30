@@ -565,9 +565,11 @@ func valueFromStructField(name string, post interface{}) string {
 	case reflect.String:
 		return field.String()
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return fmt.Sprintf("%v", field.Int())
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return fmt.Sprintf("%v", field.Uint())
 
 	case reflect.Bool:
 		return fmt.Sprintf("%t", field.Bool())
