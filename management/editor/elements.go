@@ -584,13 +584,8 @@ func valueFromStructField(name string, post interface{}) string {
 		s := []string{}
 
 		for i := 0; i < field.Len(); i++ {
-			item := field.Slice(i, field.Len())
-			if item.Len() > 0 {
-				ss := item.Interface().([]int)
-				pos := ss[0]
-				s = append(s, fmt.Sprintf("%v", pos))
-			}
-
+			pos := field.Index(i)
+			s = append(s, fmt.Sprintf("%v", pos))
 		}
 
 		return strings.Join(s, "__ponzu")
