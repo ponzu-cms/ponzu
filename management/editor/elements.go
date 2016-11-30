@@ -291,7 +291,7 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 // form of the struct field that this editor input is representing
 func Checkbox(fieldName string, p interface{}, attrs, options map[string]string) []byte {
 	attrs["class"] = "input-field col s12"
-	div := newElement("div", attrs["label"], "", p, attrs)
+	div := newElement("div", attrs["label"], fieldName, p, attrs)
 
 	var opts []*element
 
