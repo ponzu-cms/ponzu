@@ -561,8 +561,6 @@ func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 func valueFromStructField(name string, post interface{}) string {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
 
-	fmt.Println(name, field.Kind() == reflect.Slice)
-
 	switch field.Kind() {
 	case reflect.String:
 		return field.String()
