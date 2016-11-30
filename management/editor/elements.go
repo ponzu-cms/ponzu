@@ -44,10 +44,10 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte {
 	var data string
 	val := valueFromStructField(fieldName, p)
-	if val.Int() == 0 {
+	if val == "0" {
 		data = ""
 	} else {
-		data = fmt.Sprintf("%d", val.Int())
+		data = val
 	}
 
 	e := &element{
@@ -81,7 +81,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 				</div>
 			</div>
 			<div class="preview"><div class="img-clip"></div></div>			
-			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + valueFromStructField(fieldName, p).String() + `" />
+			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + valueFromStructField(fieldName, p) + `" />
 		</div>`
 
 	script :=
@@ -157,7 +157,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	}
 
 	// create a hidden input to store the value from the struct
-	val := valueFromStructField(fieldName, p).String()
+	val := valueFromStructField(fieldName, p)
 	name := tagNameFromStructField(fieldName, p)
 	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val) + `"/>`
 
@@ -240,7 +240,7 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 	// <option value="{map key}">{map value}</option>
 
 	// find the field value in p to determine if an option is pre-selected
-	fieldVal := valueFromStructField(fieldName, p).String()
+	fieldVal := valueFromStructField(fieldName, p)
 
 	// may need to alloc a buffer, as we will probably loop through options
 	// and append the []byte from domElement() called for each option
@@ -296,8 +296,8 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 	var opts []*element
 
 	// get the pre-checked options if this is already an existing post
-	checkedVals := valueFromStructField(fieldName, p)                         // returns refelct.Value
-	checked := checkedVals.Slice(0, checkedVals.Len()).Interface().([]string) // casts reflect.Value to []string
+	checkedVals := valueFromStructField(fieldName, p)
+	checked := strings.Split(checkedVals, "__ponzu")
 
 	i := 0
 	for k, v := range options {
@@ -340,8 +340,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	name := tagNameFromStructField(fieldName, p)
 
 	// get the saved tags if this is already an existing post
-	values := valueFromStructField(fieldName, p)                 // returns refelct.Value
-	tags := values.Slice(0, values.Len()).Interface().([]string) // casts reflect.Value to []string
+	values := valueFromStructField(fieldName, p)
+	tags := strings.Split(values, "__ponzu")
 
 	html := `
 	<div class="col s12 __ponzu-tags ` + name + `">
@@ -558,10 +558,44 @@ func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 	return fmt.Sprintf("%s.%d", tag, i)
 }
 
-func valueFromStructField(name string, post interface{}) reflect.Value {
+func valueFromStructField(name string, post interface{}) string {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
 
-	return field
+	switch field.Kind() {
+	case reflect.String:
+		return field.String()
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return fmt.Sprintf("%v", field.Int())
+
+	case reflect.Bool:
+		return fmt.Sprintf("%t", field.Bool())
+
+	case reflect.Complex64, reflect.Complex128:
+		return fmt.Sprintf("%v", field.Complex())
+
+	case reflect.Float32, reflect.Float64:
+		return fmt.Sprintf("%v", field.Float())
+
+	case reflect.Slice:
+		s := []string{}
+
+		for i := 0; i < field.Len(); i++ {
+			item := field.Slice(i, field.Len())
+			if item.Len() > 0 {
+				ss := item.Interface().([]int)
+				pos := ss[0]
+				s = append(s, fmt.Sprintf("%v", pos))
+			}
+
+		}
+
+		return strings.Join(s, "__ponzu")
+
+	default:
+		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", field.Type(), name))
+	}
 }
 
 func newElement(tagName, label, fieldName string, p interface{}, attrs map[string]string) *element {
@@ -570,7 +604,7 @@ func newElement(tagName, label, fieldName string, p interface{}, attrs map[strin
 		Attrs:   attrs,
 		Name:    tagNameFromStructField(fieldName, p),
 		label:   label,
-		data:    valueFromStructField(fieldName, p).String(),
+		data:    valueFromStructField(fieldName, p),
 		viewBuf: &bytes.Buffer{},
 	}
 }
