@@ -15,7 +15,7 @@ type Config struct {
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
-	CacheInvalidate []string `json:"-"`
+	CacheInvalidate []string `json:"cache"`
 }
 
 // ContentName partially implements editor.Editable
@@ -67,10 +67,10 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			}),
 		},
 		editor.Field{
-			View: editor.Checkbox("CacheInvalidate", c, map[string]string{
+			View: editor.Checkbox("cacheInvalidate", c, map[string]string{
 				"label": "Invalidate cache on save",
 			}, map[string]string{
-				"cache": "invalidate",
+				"cache": "Invalidate",
 			}),
 		},
 	)

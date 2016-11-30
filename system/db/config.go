@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/bosssauce/ponzu/system/admin/config"
@@ -25,8 +26,9 @@ func SetConfig(data url.Values) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("_config"))
 
-		if data.Get("cache") == "invalidate" {
+		if strings.ToLower(data.Get("cache")) == "invalidate" {
 			data.Set("etag", NewEtag())
+			data.Del("cache")
 		}
 
 		cfg := &config.Config{}
