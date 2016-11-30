@@ -57,9 +57,11 @@ func SetConfig(data url.Values) error {
 		}
 
 		// check for "invalidate" value to reset the Etag
-		fmt.Println(cfg.CacheInvalidate)
+		fmt.Println(len(cfg.CacheInvalidate))
 		if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
+			fmt.Println(cfg.CacheInvalidate)
 			cfg.Etag = NewEtag()
+			cfg.CacheInvalidate = []string{}
 		}
 
 		j, err := json.Marshal(cfg)
