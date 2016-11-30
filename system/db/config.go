@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/bosssauce/ponzu/system/admin/config"
@@ -26,11 +25,6 @@ func SetConfig(data url.Values) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("_config"))
 
-		if strings.ToLower(data.Get("cache")) == "invalidate" {
-			data.Set("etag", NewEtag())
-			data.Del("cache")
-		}
-
 		cfg := &config.Config{}
 		dec := schema.NewDecoder()
 		dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
@@ -38,6 +32,11 @@ func SetConfig(data url.Values) error {
 		err := dec.Decode(cfg, data)
 		if err != nil {
 			return err
+		}
+
+		// check for "invalidate" value to reset the Etag
+		if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
+			cfg.Etag = NewEtag()
 		}
 
 		j, err := json.Marshal(cfg)
