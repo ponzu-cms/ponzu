@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/bosssauce/ponzu/system/admin/config"
@@ -24,6 +25,27 @@ func init() {
 func SetConfig(data url.Values) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("_config"))
+
+		// check for any multi-value fields (ex. checkbox fields)
+		// and correctly format for db storage. Essentially, we need
+		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+		var discardKeys []string
+		for k, v := range data {
+			if strings.Contains(k, ".") {
+				key := strings.Split(k, ".")[0]
+
+				if data.Get(key) == "" {
+					data.Set(key, v[0])
+					discardKeys = append(discardKeys, k)
+				} else {
+					data.Add(key, v[0])
+				}
+			}
+		}
+
+		for _, discardKey := range discardKeys {
+			data.Del(discardKey)
+		}
 
 		cfg := &config.Config{}
 		dec := schema.NewDecoder()
