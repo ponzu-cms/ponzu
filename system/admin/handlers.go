@@ -675,6 +675,7 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		if key != actual {
 			res.WriteHeader(http.StatusBadRequest)
 			log.Println("Bad recovery key submitted:", key)
+			log.Println("Actual:", actual)
 			return
 		}
 
