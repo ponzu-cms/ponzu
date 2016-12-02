@@ -253,7 +253,7 @@ var forgotPasswordHTML = `
 <div class="card-content">
     <div class="card-title">Account Recovery</div>
     <blockquote>Please enter the email for your account and a recovery message will be sent to you at this address. Check your spam folder in case the message was flagged.</blockquote>
-    <form method="post" action="/admin/recover" class="row">
+    <form method="post" action="/admin/recover" class="row" enctype="multipart/form-data">
         <div class="input-field col s12">
             <input placeholder="Enter your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
             <label for="email" class="active">Email</label>
