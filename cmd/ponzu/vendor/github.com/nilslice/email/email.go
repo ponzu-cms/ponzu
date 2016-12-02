@@ -87,7 +87,7 @@ func send(m Message, c *smtp.Client) error {
 	}
 
 	if m.From != "" {
-		_, err = msg.Write([]byte("From: " + m.From + "\r\n"))
+		_, err = msg.Write([]byte("From: " + m.From + " <" + m.From + ">\r\n"))
 		if err != nil {
 			return err
 		}
