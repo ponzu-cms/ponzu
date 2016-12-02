@@ -656,8 +656,10 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
 			log.Println("Error parsing recovery key form:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
@@ -666,16 +668,20 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		key := req.FormValue("key")
 
 		var actual string
-		if actual, err = db.RecoveryKey(email); err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
+		if actual, err = db.RecoveryKey(email); err != nil || actual == "" {
 			log.Println("Error getting recovery key from database:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
 		if key != actual {
-			res.WriteHeader(http.StatusBadRequest)
 			log.Println("Bad recovery key submitted:", key)
 			log.Println("Actual:", actual)
+
+			res.WriteHeader(http.StatusBadRequest)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
@@ -683,21 +689,27 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		usr := &user.User{}
 		u, err := db.User(email)
 		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
 			log.Println("Error finding user by email:", email, err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
 		if u == nil {
-			res.WriteHeader(http.StatusBadRequest)
 			log.Println("No user found with email:", email)
+
+			res.WriteHeader(http.StatusBadRequest)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
 		err = json.Unmarshal(u, usr)
 		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
 			log.Println("Error decoding user from database:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
@@ -710,8 +722,10 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 
 		err = db.UpdateUser(usr, update)
 		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
 			log.Println("Error updating user:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
