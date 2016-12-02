@@ -607,7 +607,7 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		`, email, domain, key, domain)
 		msg := emailer.Message{
 			To:      email,
-			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s", domain),
+			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s>", domain),
 			Subject: fmt.Sprintf("Account Recovery [%s]", domain),
 			Body:    body,
 		}
@@ -648,33 +648,78 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		view, err := RecoveryKey()
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
 			return
 		}
 
 		res.Write(view)
 
 	case http.MethodPost:
-
-		// check for email & key match
-
-		// set user with new password
-
-		// redirect to /admin/login
-
-	default:
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		errView, err := Error405()
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Error parsing recovery key form:", err)
 			return
 		}
 
-		res.Write(errView)
+		// check for email & key match
+		email := strings.ToLower(req.FormValue("email"))
+		key := req.FormValue("key")
+
+		var actual string
+		if actual, err = db.RecoveryKey(email); err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Error getting recovery key from database:", err)
+			return
+		}
+
+		if key != actual {
+			res.WriteHeader(http.StatusBadRequest)
+			log.Println("Bad recovery key submitted:", key)
+			return
+		}
+
+		// set user with new password
+		usr := &user.User{}
+		u, err := db.User(email)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Error finding user by email:", email, err)
+			return
+		}
+
+		if u == nil {
+			res.WriteHeader(http.StatusBadRequest)
+			log.Println("No user found with email:", email)
+			return
+		}
+
+		err = json.Unmarshal(u, usr)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Error decoding user from database:", err)
+			return
+		}
+
+		update := &user.User{
+			ID:    usr.ID,
+			Email: usr.Email,
+			Hash:  usr.Hash,
+			Salt:  usr.Salt,
+		}
+
+		err = db.UpdateUser(usr, update)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Error updating user:", err)
+			return
+		}
+
+		// redirect to /admin/login
+		redir := req.URL.Scheme + req.URL.Host + "/admin/login"
+		http.Redirect(res, req, redir, http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 }
