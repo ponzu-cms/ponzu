@@ -259,6 +259,7 @@ var forgotPasswordHTML = `
             <label for="email" class="active">Email</label>
         </div>
         
+        <a href="/admin/recover/key">Already have a recovery key?</a>
         <button class="btn waves-effect waves-light right">Send Recovery Email</button>
     </form>
 </div>
@@ -304,7 +305,7 @@ var recoveryKeyHTML = `
 <div class="card-content">
     <div class="card-title">Account Recovery</div>
     <blockquote>Please check for your recovery key inside an email sent to the address you provided. Check your spam folder in case the message was flagged.</blockquote>
-    <form method="post" action="/admin/recover/key" class="row">
+    <form method="post" action="/admin/recover/key" class="row" enctype="multipart/form-data">
         <div class="input-field col s12">
             <input placeholder="Enter your recovery key" class="validate required" type="text" id="key" name="key"/>
             <label for="key" class="active">Recovery Key</label>
