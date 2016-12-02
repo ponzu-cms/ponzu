@@ -215,8 +215,8 @@ func SetRecoveryKey(email string) (string, error) {
 	return key, nil
 }
 
-// RecoveryKey generates and saves a random secret key to verify an email
-// address submitted in order to recover/reset an account password
+// RecoveryKey gets a previously set recovery key to verify an email address
+// submitted in order to recover/reset an account password
 func RecoveryKey(email string) (string, error) {
 	key := &bytes.Buffer{}
 
