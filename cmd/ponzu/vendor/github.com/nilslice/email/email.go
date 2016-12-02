@@ -94,7 +94,7 @@ func send(m Message, c *smtp.Client) error {
 	}
 
 	if m.To != "" {
-		_, err = msg.Write([]byte("To: " + m.To + "\r\n"))
+		_, err = msg.Write([]byte("To: " + m.To + " <" + m.To + ">\r\n"))
 		if err != nil {
 			return err
 		}
