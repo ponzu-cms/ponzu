@@ -686,6 +686,7 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// set user with new password
+		password := req.FormValue("password")
 		usr := &user.User{}
 		u, err := db.User(email)
 		if err != nil {
@@ -713,12 +714,8 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		update := &user.User{
-			ID:    usr.ID,
-			Email: usr.Email,
-			Hash:  usr.Hash,
-			Salt:  usr.Salt,
-		}
+		update := user.NewUser(email, password)
+		update.ID = usr.ID
 
 		err = db.UpdateUser(usr, update)
 		if err != nil {

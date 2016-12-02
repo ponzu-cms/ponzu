@@ -61,6 +61,11 @@ func SetUser(usr *user.User) (int, error) {
 
 // UpdateUser sets key:value pairs in the db for existing user settings
 func UpdateUser(usr, updatedUsr *user.User) error {
+	// ensure user ID remains the same
+	if updatedUsr.ID != usr.ID {
+		updatedUsr.ID = usr.ID
+	}
+
 	err := store.Update(func(tx *bolt.Tx) error {
 		users := tx.Bucket([]byte("_users"))
 
