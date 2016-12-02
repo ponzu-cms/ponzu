@@ -556,35 +556,20 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		email := strings.ToLower(req.FormValue("email"))
 		if email == "" {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			fmt.Println("Email was empty.")
 			return
 		}
 
 		_, err = db.User(email)
 		if err == db.ErrNoUserExists {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			fmt.Println("No user exists.")
 			return
 		}
 
 		if err != db.ErrNoUserExists && err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			fmt.Println("Error:", err)
 			return
 		}
 
@@ -592,12 +577,7 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		key, err := db.SetRecoveryKey(email)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			fmt.Println("Failed to set key.", err)
 			return
 		}
 
