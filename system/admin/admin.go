@@ -205,7 +205,7 @@ var loginAdminHTML = `
         </div>
         <div class="input-field col s12">
             <input placeholder="Enter your password" class="validate required" type="password" id="password" name="password"/>
-            <a href="/admin/recover" class="right">Forgot password?</a>            
+            <a href="/admin/recover">Forgot password?</a>            
             <label for="password" class="active">Password</label>  
         </div>
         <button class="btn waves-effect waves-light right">Log in</button>
