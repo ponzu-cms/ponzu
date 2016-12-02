@@ -110,5 +110,10 @@ func send(m Message, c *smtp.Client) error {
 		return err
 	}
 
+	err = c.Quit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
