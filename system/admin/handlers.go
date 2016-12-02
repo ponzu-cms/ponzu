@@ -589,22 +589,23 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		body := fmt.Sprintf(`
-		There has been an account recovery request made for the user with email:
-		%s
+There has been an account recovery request made for the user with email:
+%s
 
-		To recover your account, please go to http://%s/admin/recover/key and enter 
-		this email address along with the following secret key:
-		
-		%s
+To recover your account, please go to http://%s/admin/recover/key and enter 
+this email address along with the following secret key:
 
-		If you did not make the request, ignore this message and your password 
-		will remain as-is.
+%s
+
+If you did not make the request, ignore this message and your password 
+will remain as-is.
 
 
-		Thank you,
-		Ponzu CMS at %s
+Thank you,
+Ponzu CMS at %s
 
-		`, email, domain, key, domain)
+`, email, domain, key, domain)
+
 		msg := emailer.Message{
 			To:      email,
 			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s>", domain),
@@ -612,20 +613,12 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 			Body:    body,
 		}
 
-		/*
+		go func() {
 			err = msg.Send()
 			if err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := Error500()
-				if err != nil {
-					return
-				}
-
-				res.Write(errView)
-				return
+				log.Println("Failed to send message to:", msg.To, "about", msg.Subject, "Error:", err)
 			}
-		*/
-		fmt.Println(msg)
+		}()
 
 		// redirect to /admin/recover/key and send email with key and URL
 		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/recover/key", http.StatusFound)
