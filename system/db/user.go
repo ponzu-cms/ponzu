@@ -226,7 +226,7 @@ func RecoveryKey(email string) (string, error) {
 			return errors.New("No database found for checking keys.")
 		}
 
-		_, err := key.Write(b.Get([]byte("email")))
+		_, err := key.Write(b.Get([]byte(email)))
 		if err != nil {
 			return err
 		}
