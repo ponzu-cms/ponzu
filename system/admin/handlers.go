@@ -556,20 +556,20 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		email := strings.ToLower(req.FormValue("email"))
 		if email == "" {
 			res.WriteHeader(http.StatusBadRequest)
-			fmt.Println("Email was empty.")
+			log.Println("Failed account recovery. No email address submitted.")
 			return
 		}
 
 		_, err = db.User(email)
 		if err == db.ErrNoUserExists {
 			res.WriteHeader(http.StatusBadRequest)
-			fmt.Println("No user exists.")
+			log.Println("No user exists.", err)
 			return
 		}
 
 		if err != db.ErrNoUserExists && err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			fmt.Println("Error:", err)
+			log.Println("Error:", err)
 			return
 		}
 
@@ -577,11 +577,17 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		key, err := db.SetRecoveryKey(email)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			fmt.Println("Failed to set key.", err)
+			log.Println("Failed to set account recovery key.", err)
 			return
 		}
 
-		domain := db.ConfigCache("domain")
+		domain, err := db.Config("domain")
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Failed to get domain from configuration.", err)
+			return
+		}
+
 		body := fmt.Sprintf(`
 		There has been an account recovery request made for the user with email:
 		%s
