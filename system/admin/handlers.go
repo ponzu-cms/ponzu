@@ -608,7 +608,7 @@ Ponzu CMS at %s
 
 		msg := emailer.Message{
 			To:      email,
-			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s>", domain),
+			From:    fmt.Sprintf("ponzu@%s", domain),
 			Subject: fmt.Sprintf("Account Recovery [%s]", domain),
 			Body:    body,
 		}
