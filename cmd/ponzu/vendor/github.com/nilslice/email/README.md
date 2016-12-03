@@ -19,7 +19,7 @@ import (
 func main() {
     msg := email.Message{
         To: "you@server.name", // do not add < > or name in quotes
-        From: "Name <me@server.name>", // ok to format in From field
+        From: "me@server.name", // do not add < > or name in quotes
         Subject: "A simple email",
         Body: "Plain text email body. HTML not yet supported, but send a PR!",
     }
