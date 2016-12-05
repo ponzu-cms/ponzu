@@ -871,7 +871,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 					</div>`
 	if hasExt {
 		if status == "" {
-			q.Add("status", "public")
+			q.Set("status", "public")
 		}
 
 		// always start from top of results when changing public/pending
@@ -1355,7 +1355,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		for name, urlPath := range urlPaths {
-			req.PostForm.Add(name, urlPath)
+			req.PostForm.Set(name, urlPath)
 		}
 
 		// check for any multi-value fields (ex. checkbox fields)

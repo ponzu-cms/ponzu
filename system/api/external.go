@@ -72,7 +72,7 @@ func externalPostHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	for name, urlPath := range urlPaths {
-		req.PostForm.Add(name, urlPath)
+		req.PostForm.Set(name, urlPath)
 	}
 
 	// check for any multi-value fields (ex. checkbox fields)
