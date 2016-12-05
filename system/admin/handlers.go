@@ -964,17 +964,30 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		nextStatus = statusDisabled
 	}
 
+	// set up pagination values
 	urlFmt := req.URL.Path + "?count=%d&offset=%d&status=%s&type=%s"
 	prevURL := fmt.Sprintf(urlFmt, count, offset-1, status, t)
 	nextURL := fmt.Sprintf(urlFmt, count, offset+1, status, t)
 	start := 1 + count*offset
-	end := start + count
+	end := start + count - 1
+	if total < count {
+		total = count
+	}
+
 	pagination := fmt.Sprintf(`
 	<ul class="pagination row">
 		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
 		<li class="col s4">%d to %d of %d</li>
 		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
 	</ul>
+	<script>
+		// disable link from being clicked if parent is 'disabled'
+		$(function() {
+			$('li.disabled a').on('click', function(e) {
+				e.preventDefault();
+			});
+		});
+	</script>
 	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
 
 	b.Write([]byte(pagination + `</div></div>`))
