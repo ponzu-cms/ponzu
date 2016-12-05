@@ -72,7 +72,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	bb := db.Query(t+"_sorted", opts)
+	_, bb := db.Query(t+"_sorted", opts)
 	var result = []json.RawMessage{}
 	for i := range bb {
 		result = append(result, bb[i])

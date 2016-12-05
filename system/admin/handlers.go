@@ -823,7 +823,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	posts := db.Query(t+"_sorted", opts)
+	total, posts := db.Query(t+"_sorted", opts)
 	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
@@ -874,6 +874,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			q.Add("status", "public")
 		}
 
+		// always start from top of results when changing public/pending
+		q.Del("count")
+		q.Del("offset")
+
 		q.Set("status", "public")
 		publicURL := req.URL.Path + "?" + q.Encode()
 
@@ -905,7 +909,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 		case "pending":
 			// get _pending posts of type t from the db
-			posts = db.Query(t+"_pending", opts)
+			_, posts = db.Query(t+"_pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
@@ -949,17 +953,29 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	b.Write([]byte(`</ul>`))
 
-	pagination := `
-	<ul class="pagination">
-		<li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
-		<li class="active"><a href="#!">1</a></li>
-		<li class="waves-effect"><a href="#!">2</a></li>
-		<li class="waves-effect"><a href="#!">3</a></li>
-		<li class="waves-effect"><a href="#!">4</a></li>
-		<li class="waves-effect"><a href="#!">5</a></li>
-		<li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+	statusDisabled := "disabled"
+	prevStatus := ""
+	nextStatus := ""
+	if offset == 0 {
+		prevStatus = statusDisabled
+	}
+
+	if offset*count >= total {
+		nextStatus = statusDisabled
+	}
+
+	urlFmt := req.URL.Path + "/admin/posts?count=%d&offset=%d&status=%s&type=%s"
+	prevURL := fmt.Sprintf(urlFmt, count, offset-1, status, t)
+	nextURL := fmt.Sprintf(urlFmt, count, offset+1, status, t)
+	start := 1 + count*offset
+	end := start + count
+	pagination := fmt.Sprintf(`
+	<ul class="pagination row">
+		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
+		<li class="col s4">%d to %d of %d</li>
+		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
 	</ul>
-	`
+	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
 
 	b.Write([]byte(pagination + `</div></div>`))
 

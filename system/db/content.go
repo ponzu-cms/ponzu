@@ -215,8 +215,21 @@ type QueryOptions struct {
 }
 
 // Query retrieves a set of content from the db based on options
-func Query(namespace string, opts QueryOptions) [][]byte {
+// and returns the total number of content in the namespace and the content
+func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 	var posts [][]byte
+	var total int
+
+	// correct bad input rather than return nil or error
+	// similar to default case for opts.Order switch below
+	if opts.Count < 0 {
+		opts.Count = 0
+	}
+
+	if opts.Offset < 0 {
+		opts.Offset = 0
+	}
+
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		if b == nil {
@@ -225,6 +238,12 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 
 		c := b.Cursor()
 		n := b.Stats().KeyN
+		total = n
+
+		// return nil if no content
+		if n == 0 {
+			return nil
+		}
 
 		var start, end int
 		switch opts.Count {
@@ -279,12 +298,29 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 				i++
 				cur++
 			}
+
+		default:
+			// results for DESC order
+			for k, v := c.First(); k != nil; k, v = c.Next() {
+				if cur < start {
+					cur++
+					continue
+				}
+
+				if cur >= end {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+				cur++
+			}
 		}
 
 		return nil
 	})
 
-	return posts
+	return total, posts
 }
 
 // SortContent sorts all content of the type supplied as the namespace by time,
