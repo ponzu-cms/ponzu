@@ -964,7 +964,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		nextStatus = statusDisabled
 	}
 
-	urlFmt := req.URL.Path + "/admin/posts?count=%d&offset=%d&status=%s&type=%s"
+	urlFmt := req.URL.Path + "?count=%d&offset=%d&status=%s&type=%s"
 	prevURL := fmt.Sprintf(urlFmt, count, offset-1, status, t)
 	nextURL := fmt.Sprintf(urlFmt, count, offset+1, status, t)
 	start := 1 + count*offset
