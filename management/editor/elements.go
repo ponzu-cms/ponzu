@@ -386,6 +386,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 			chips.on('chip.delete', function(e, chip) {
 				// convert tag string to class-like selector "some tag" -> ".some.tag"
+				console.log(chip.id);
 				var sel = '.__ponzu-tag.' + chip.tag.split(' ').join('.');
 				chips.parent().find(sel).remove();
 
