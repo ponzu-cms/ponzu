@@ -965,7 +965,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		prevStatus = statusDisabled
 	}
 	// nothing after current list
-	if offset*count >= total {
+	if (offset+1)*count >= total {
 		nextStatus = statusDisabled
 	}
 
@@ -978,9 +978,9 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	pagination := fmt.Sprintf(`
 	<ul class="pagination row">
-		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
-		<li class="col s4">%d to %d of %d</li>
-		<li class="waves-effect col s4 %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
+		<li class="waves-effect %s"><a href="%s"><i class="col s2 material-icons">chevron_left</i></a></li>
+		<li class="col s8">%d to %d of %d</li>
+		<li class="waves-effect %s"><a href="%s"><i class="col s2 material-icons">chevron_right</i></a></li>
 	</ul>
 	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
 
