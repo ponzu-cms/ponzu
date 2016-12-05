@@ -387,7 +387,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 			chips.on('chip.delete', function(e, chip) {
 				// convert tag string to class-like selector "some tag" -> ".some.tag"
 				console.log(chip.tag);
-				var sel = '.__ponzu-tag' + chip.tag.split(' ').join('.');
+				var sel = '.__ponzu-tag.' + chip.tag.split(' ').join('.');
+				console.log(sel);
 				chips.parent().find(sel).remove();
 
 				// iterate through all hidden tag inputs to re-name them with the correct ` + name + `.index
