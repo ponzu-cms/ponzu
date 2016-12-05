@@ -968,11 +968,12 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	urlFmt := req.URL.Path + "?count=%d&offset=%d&status=%s&type=%s"
 	prevURL := fmt.Sprintf(urlFmt, count, offset-1, status, t)
 	nextURL := fmt.Sprintf(urlFmt, count, offset+1, status, t)
-	start := 1 + count*offset
-	end := start + count - 1
+	// total may be less than 10 (default count), so reset count to match total
 	if total < count {
 		count = total
 	}
+	start := 1 + count*offset
+	end := start + count - 1
 
 	pagination := fmt.Sprintf(`
 	<ul class="pagination row">
