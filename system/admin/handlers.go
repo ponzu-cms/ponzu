@@ -971,7 +971,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	start := 1 + count*offset
 	end := start + count - 1
 	if total < count {
-		total = count
+		count = total
 	}
 
 	pagination := fmt.Sprintf(`
