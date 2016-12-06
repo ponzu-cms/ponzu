@@ -410,7 +410,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 					});
 					
 					tags.append(input);
-					return;
+					// return;
 				}
 				
 				for (var i = 0; i < hidden.length; i++) {
