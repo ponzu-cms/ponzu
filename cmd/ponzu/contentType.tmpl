@@ -41,10 +41,6 @@ func init() {
 	Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
 }
 
-// ContentName is required to set the display name for a piece of content in the editor
-// Partially implements editor.Editable
-func ({{ .Initial }} *{{ .Name }}) ContentName() string { return fmt.Sprintf("{{ .Name }} - ID: %s", {{ .Initial }}.UniqueID()) }
-
 // Editor is a buffer of bytes for the Form function to write input views
 // partially implements editor.Editable
 func ({{ .Initial }} *{{ .Name }}) Editor() *editor.Editor { return &{{ .Initial }}.editor }
