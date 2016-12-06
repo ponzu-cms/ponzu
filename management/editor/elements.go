@@ -343,6 +343,8 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	values := valueFromStructField(fieldName, p)
 	tags := strings.Split(values, "__ponzu")
 
+	fmt.Println(tags, len(tags))
+
 	html := `
 	<div class="col s12 __ponzu-tags ` + name + `">
 		<label class="active">` + attrs["label"] + ` (Type and press "Enter")</label>
