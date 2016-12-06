@@ -341,10 +341,14 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	// get the saved tags if this is already an existing post
 	values := valueFromStructField(fieldName, p)
-	fmt.Println(values)
 	var tags []string
 	if strings.Contains(values, "__ponzu") {
 		tags = strings.Split(values, "__ponzu")
+	}
+
+	// case where there is only one tag stored, thus has no separator
+	if len(values) > 0 && !strings.Contains(values, "__ponzu") {
+		tags = append(tags, values)
 	}
 
 	html := `
