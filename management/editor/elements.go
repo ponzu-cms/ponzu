@@ -410,9 +410,9 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 					});
 					
 					tags.append(input);
-					// return;
 				}
 				
+				// re-name hidden storage elements in necessary format 
 				for (var i = 0; i < hidden.length; i++) {
 					$(hidden[i]).attr('name', '` + name + `.'+String(i));
 				}
