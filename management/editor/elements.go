@@ -341,9 +341,10 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	// get the saved tags if this is already an existing post
 	values := valueFromStructField(fieldName, p)
-	tags := strings.Split(values, "__ponzu")
-
-	fmt.Println(tags, len(tags))
+	var tags []string
+	if strings.Contains(values, "__ponzu") {
+		tags = strings.Split(values, "__ponzu")
+	}
 
 	html := `
 	<div class="col s12 __ponzu-tags ` + name + `">
