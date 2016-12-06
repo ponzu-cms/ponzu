@@ -976,6 +976,10 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	start := 1 + count*offset
 	end := start + count - 1
 
+	if total < end {
+		end = total
+	}
+
 	pagination := fmt.Sprintf(`
 	<ul class="pagination row">
 		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
@@ -983,6 +987,18 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
 	</ul>
 	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
+
+	// show indicator that a collection of items will be listed implicitly, but
+	// that none are created yet
+	if total < 1 {
+		pagination = `
+		<ul class="pagination row">
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_left</i></a></li>
+			<li class="col s8">0 to 0 of 0</li>
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_right</i></a></li>
+		</ul>
+		`
+	}
 
 	b.Write([]byte(pagination + `</div></div>`))
 
