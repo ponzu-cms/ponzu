@@ -341,7 +341,15 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	// get the saved tags if this is already an existing post
 	values := valueFromStructField(fieldName, p)
-	tags := strings.Split(values, "__ponzu")
+	var tags []string
+	if strings.Contains(values, "__ponzu") {
+		tags = strings.Split(values, "__ponzu")
+	}
+
+	// case where there is only one tag stored, thus has no separator
+	if len(values) > 0 && !strings.Contains(values, "__ponzu") {
+		tags = append(tags, values)
+	}
 
 	html := `
 	<div class="col s12 __ponzu-tags ` + name + `">
@@ -375,7 +383,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 				
 				var input = $('<input>');
 				input.attr({
-					class: 'tag '+chip.tag,
+					class: '__ponzu-tag '+chip.tag.split(' ').join('__'),
 					name: '` + name + `.'+String(tags.find('input[type=hidden]').length),
 					value: chip.tag,
 					type: 'hidden'
@@ -386,9 +394,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 			chips.on('chip.delete', function(e, chip) {
 				// convert tag string to class-like selector "some tag" -> ".some.tag"
-				var sel = '.__ponzu-tag.'+chip.tag.split(' ').join('.');	
-				console.log(sel);
-				console.log(chips.parent().find(sel));			
+				var sel = '.__ponzu-tag.' + chip.tag.split(' ').join('__');
 				chips.parent().find(sel).remove();
 
 				// iterate through all hidden tag inputs to re-name them with the correct ` + name + `.index
@@ -404,9 +410,9 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 					});
 					
 					tags.append(input);
-					return;
 				}
 				
+				// re-name hidden storage elements in necessary format 
 				for (var i = 0; i < hidden.length; i++) {
 					$(hidden[i]).attr('name', '` + name + `.'+String(i));
 				}

@@ -24,7 +24,7 @@ func init() {
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
 	err := store.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_config"))
+		b := tx.Bucket([]byte("__config"))
 
 		// check for any multi-value fields (ex. checkbox fields)
 		// and correctly format for db storage. Essentially, we need
@@ -108,7 +108,7 @@ func Config(key string) ([]byte, error) {
 func ConfigAll() ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_config"))
+		b := tx.Bucket([]byte("__config"))
 		val.Write(b.Get([]byte("settings")))
 
 		return nil

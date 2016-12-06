@@ -39,11 +39,11 @@ func SetContent(target string, data url.Values) (int, error) {
 }
 
 func update(ns, id string, data url.Values) (int, error) {
-	var specifier string // i.e. _pending, _sorted, etc.
-	if strings.Contains(ns, "_") {
-		spec := strings.Split(ns, "_")
+	var specifier string // i.e. __pending, __sorted, etc.
+	if strings.Contains(ns, "__") {
+		spec := strings.Split(ns, "__")
 		ns = spec[0]
-		specifier = "_" + spec[1]
+		specifier = "__" + spec[1]
 	}
 
 	cid, err := strconv.Atoi(id)
@@ -82,11 +82,11 @@ func update(ns, id string, data url.Values) (int, error) {
 
 func insert(ns string, data url.Values) (int, error) {
 	var effectedID int
-	var specifier string // i.e. _pending, _sorted, etc.
-	if strings.Contains(ns, "_") {
-		spec := strings.Split(ns, "_")
+	var specifier string // i.e. __pending, __sorted, etc.
+	if strings.Contains(ns, "__") {
+		spec := strings.Split(ns, "__")
 		ns = spec[0]
-		specifier = "_" + spec[1]
+		specifier = "__" + spec[1]
 	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
@@ -215,8 +215,21 @@ type QueryOptions struct {
 }
 
 // Query retrieves a set of content from the db based on options
-func Query(namespace string, opts QueryOptions) [][]byte {
+// and returns the total number of content in the namespace and the content
+func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 	var posts [][]byte
+	var total int
+
+	// correct bad input rather than return nil or error
+	// similar to default case for opts.Order switch below
+	if opts.Count < 0 {
+		opts.Count = 0
+	}
+
+	if opts.Offset < 0 {
+		opts.Offset = 0
+	}
+
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		if b == nil {
@@ -225,6 +238,12 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 
 		c := b.Cursor()
 		n := b.Stats().KeyN
+		total = n
+
+		// return nil if no content
+		if n == 0 {
+			return nil
+		}
 
 		var start, end int
 		switch opts.Count {
@@ -279,12 +298,29 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 				i++
 				cur++
 			}
+
+		default:
+			// results for DESC order
+			for k, v := c.First(); k != nil; k, v = c.Next() {
+				if cur < start {
+					cur++
+					continue
+				}
+
+				if cur >= end {
+					break
+				}
+
+				posts = append(posts, v)
+				i++
+				cur++
+			}
 		}
 
 		return nil
 	})
 
-	return posts
+	return total, posts
 }
 
 // SortContent sorts all content of the type supplied as the namespace by time,
@@ -292,13 +328,13 @@ func Query(namespace string, opts QueryOptions) [][]byte {
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
 	// only sort main content types i.e. Post
-	if strings.Contains(namespace, "_") {
+	if strings.Contains(namespace, "__") {
 		return
 	}
 
 	all := ContentAll(namespace)
 
-	var posts sortablePosts
+	var posts sortableContent
 	// decode each (json) into type to then sort
 	for i := range all {
 		j := all[i]
@@ -318,7 +354,7 @@ func SortContent(namespace string) {
 
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
-		bname := []byte(namespace + "_sorted")
+		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
 		if err != nil {
 			return err
@@ -351,23 +387,22 @@ func SortContent(namespace string) {
 
 }
 
-type sortablePosts []editor.Sortable
+type sortableContent []editor.Sortable
 
-func (s sortablePosts) Len() int {
+func (s sortableContent) Len() int {
 	return len(s)
 }
 
-func (s sortablePosts) Less(i, j int) bool {
+func (s sortableContent) Less(i, j int) bool {
 	return s[i].Time() > s[j].Time()
 }
 
-func (s sortablePosts) Swap(i, j int) {
+func (s sortableContent) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
 func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// find the content type and decode values into it
-	ns = strings.TrimSuffix(ns, "_external")
 	t, ok := content.Types[ns]
 	if !ok {
 		return nil, fmt.Errorf(content.ErrTypeNotRegistered, ns)
@@ -382,7 +417,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 		return nil, err
 	}
 
-	slug, err := manager.Slug(post.(editor.Editable))
+	slug, err := manager.Slug(post.(content.Identifiable))
 	if err != nil {
 		return nil, err
 	}

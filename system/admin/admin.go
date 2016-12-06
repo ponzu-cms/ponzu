@@ -57,7 +57,7 @@ var mainAdminHTML = `
                                     
                     {{ range $t, $f := .Types }}
                     <div class="row collection-item">
-                        <li><a class="col s12" href="/admin/posts?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
+                        <li><a class="col s12" href="/admin/contents?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
                     </div>
                     {{ end }}
 
@@ -205,7 +205,7 @@ var loginAdminHTML = `
         </div>
         <div class="input-field col s12">
             <input placeholder="Enter your password" class="validate required" type="password" id="password" name="password"/>
-            <a href="/admin/recover" class="right">Forgot password?</a>            
+            <a href="/admin/recover">Forgot password?</a>            
             <label for="password" class="active">Password</label>  
         </div>
         <button class="btn waves-effect waves-light right">Log in</button>
@@ -253,12 +253,13 @@ var forgotPasswordHTML = `
 <div class="card-content">
     <div class="card-title">Account Recovery</div>
     <blockquote>Please enter the email for your account and a recovery message will be sent to you at this address. Check your spam folder in case the message was flagged.</blockquote>
-    <form method="post" action="/admin/recover" class="row">
+    <form method="post" action="/admin/recover" class="row" enctype="multipart/form-data">
         <div class="input-field col s12">
             <input placeholder="Enter your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
             <label for="email" class="active">Email</label>
         </div>
         
+        <a href="/admin/recover/key">Already have a recovery key?</a>
         <button class="btn waves-effect waves-light right">Send Recovery Email</button>
     </form>
 </div>
@@ -304,7 +305,7 @@ var recoveryKeyHTML = `
 <div class="card-content">
     <div class="card-title">Account Recovery</div>
     <blockquote>Please check for your recovery key inside an email sent to the address you provided. Check your spam folder in case the message was flagged.</blockquote>
-    <form method="post" action="/admin/recover/key" class="row">
+    <form method="post" action="/admin/recover/key" class="row" enctype="multipart/form-data">
         <div class="input-field col s12">
             <input placeholder="Enter your recovery key" class="validate required" type="text" id="key" name="key"/>
             <label for="key" class="active">Recovery Key</label>

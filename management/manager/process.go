@@ -5,16 +5,16 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/content"
 
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )
 
 // Slug returns a URL friendly string from the title of a post item
-func Slug(e editor.Editable) (string, error) {
+func Slug(i content.Identifiable) (string, error) {
 	// get the name of the post item
-	name := strings.TrimSpace(e.ContentName())
+	name := strings.TrimSpace(i.String())
 
 	// filter out non-alphanumeric character or non-whitespace
 	slug, err := stringToSlug(name)

@@ -18,8 +18,8 @@ type Config struct {
 	CacheInvalidate []string `json:"cache"`
 }
 
-// ContentName partially implements editor.Editable
-func (c *Config) ContentName() string { return c.Name }
+// String partially implements content.Identifiable and overrides Item's String()
+func (c *Config) String() string { return c.Name }
 
 // Editor partially implements editor.Editable
 func (c *Config) Editor() *editor.Editor { return &c.editor }

@@ -87,14 +87,14 @@ func send(m Message, c *smtp.Client) error {
 	}
 
 	if m.From != "" {
-		_, err = msg.Write([]byte("From: " + m.From + "\r\n"))
+		_, err = msg.Write([]byte("From: <" + m.From + ">\r\n"))
 		if err != nil {
 			return err
 		}
 	}
 
 	if m.To != "" {
-		_, err = msg.Write([]byte("To: " + m.To + "\r\n"))
+		_, err = msg.Write([]byte("To: <" + m.To + ">\r\n"))
 		if err != nil {
 			return err
 		}
@@ -106,6 +106,11 @@ func send(m Message, c *smtp.Client) error {
 	}
 
 	err = msg.Close()
+	if err != nil {
+		return err
+	}
+
+	err = c.Quit()
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, j, http.StatusOK)
 }
 
-func postsHandler(res http.ResponseWriter, req *http.Request) {
+func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
@@ -72,7 +72,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	bb := db.Query(t+"_sorted", opts)
+	_, bb := db.Query(t+"__sorted", opts)
 	var result = []json.RawMessage{}
 	for i := range bb {
 		result = append(result, bb[i])
@@ -87,7 +87,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, j, http.StatusOK)
 }
 
-func postHandler(res http.ResponseWriter, req *http.Request) {
+func contentHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	id := q.Get("id")
 	t := q.Get("type")

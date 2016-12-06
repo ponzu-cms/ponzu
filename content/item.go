@@ -1,6 +1,7 @@
 package content
 
 import (
+	"fmt"
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
@@ -22,6 +23,7 @@ type Identifiable interface {
 	ItemID() int
 	SetItemID(int)
 	UniqueID() uuid.UUID
+	String() string
 }
 
 // Hookable provides our user with an easy way to intercept or add functionality
@@ -81,6 +83,12 @@ func (i *Item) SetItemID(id int) {
 // partially implements the Identifiable interface
 func (i Item) UniqueID() uuid.UUID {
 	return i.UUID
+}
+
+// String formats an Item into a printable value
+// partially implements the Identifiable interface
+func (i Item) String() string {
+	return fmt.Sprintf("Item ID: %s", i.UniqueID())
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable

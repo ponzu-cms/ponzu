@@ -24,7 +24,7 @@ var ErrNoUserExists = errors.New("Error. No user exists.")
 func SetUser(usr *user.User) (int, error) {
 	err := store.Update(func(tx *bolt.Tx) error {
 		email := []byte(usr.Email)
-		users := tx.Bucket([]byte("_users"))
+		users := tx.Bucket([]byte("__users"))
 
 		// check if user is found by email, fail if nil
 		exists := users.Get(email)
@@ -61,8 +61,13 @@ func SetUser(usr *user.User) (int, error) {
 
 // UpdateUser sets key:value pairs in the db for existing user settings
 func UpdateUser(usr, updatedUsr *user.User) error {
+	// ensure user ID remains the same
+	if updatedUsr.ID != usr.ID {
+		updatedUsr.ID = usr.ID
+	}
+
 	err := store.Update(func(tx *bolt.Tx) error {
-		users := tx.Bucket([]byte("_users"))
+		users := tx.Bucket([]byte("__users"))
 
 		// check if user is found by email, fail if nil
 		exists := users.Get([]byte(usr.Email))
@@ -103,7 +108,7 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 // DeleteUser deletes a user from the db by email
 func DeleteUser(email string) error {
 	err := store.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_users"))
+		b := tx.Bucket([]byte("__users"))
 		err := b.Delete([]byte(email))
 		if err != nil {
 			return err
@@ -122,7 +127,7 @@ func DeleteUser(email string) error {
 func User(email string) ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_users"))
+		b := tx.Bucket([]byte("__users"))
 		usr := b.Get([]byte(email))
 
 		_, err := val.Write(usr)
@@ -147,7 +152,7 @@ func User(email string) ([]byte, error) {
 func UserAll() ([][]byte, error) {
 	var users [][]byte
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_users"))
+		b := tx.Bucket([]byte("__users"))
 		err := b.ForEach(func(k, v []byte) error {
 			users = append(users, v)
 			return nil
@@ -196,7 +201,7 @@ func SetRecoveryKey(email string) (string, error) {
 	key := fmt.Sprintf("%d", rand.Int63())
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("_recoveryKeys"))
+		b, err := tx.CreateBucketIfNotExists([]byte("__recoveryKeys"))
 		if err != nil {
 			return err
 		}
@@ -215,18 +220,18 @@ func SetRecoveryKey(email string) (string, error) {
 	return key, nil
 }
 
-// RecoveryKey generates and saves a random secret key to verify an email
-// address submitted in order to recover/reset an account password
+// RecoveryKey gets a previously set recovery key to verify an email address
+// submitted in order to recover/reset an account password
 func RecoveryKey(email string) (string, error) {
 	key := &bytes.Buffer{}
 
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("_recoveryKeys"))
+		b := tx.Bucket([]byte("__recoveryKeys"))
 		if b == nil {
 			return errors.New("No database found for checking keys.")
 		}
 
-		_, err := key.Write(b.Get([]byte("email")))
+		_, err := key.Write(b.Get([]byte(email)))
 		if err != nil {
 			return err
 		}

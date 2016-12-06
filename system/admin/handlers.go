@@ -556,35 +556,20 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		email := strings.ToLower(req.FormValue("email"))
 		if email == "" {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Failed account recovery. No email address submitted.")
 			return
 		}
 
 		_, err = db.User(email)
 		if err == db.ErrNoUserExists {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("No user exists.", err)
 			return
 		}
 
 		if err != db.ErrNoUserExists && err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error:", err)
 			return
 		}
 
@@ -592,54 +577,48 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 		key, err := db.SetRecoveryKey(email)
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Failed to set account recovery key.", err)
 			return
 		}
 
-		domain := db.ConfigCache("domain")
+		domain, err := db.Config("domain")
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("Failed to get domain from configuration.", err)
+			return
+		}
+
 		body := fmt.Sprintf(`
-		There has been an account recovery request made for the user with email:
-		%s
+There has been an account recovery request made for the user with email:
+%s
 
-		To recover your account, please go to http://%s/admin/recover/key and enter 
-		this email address along with the following secret key:
-		
-		%s
+To recover your account, please go to http://%s/admin/recover/key and enter 
+this email address along with the following secret key:
 
-		If you did not make the request, ignore this message and your password 
-		will remain as-is.
+%s
+
+If you did not make the request, ignore this message and your password 
+will remain as-is.
 
 
-		Thank you,
-		Ponzu CMS at %s
+Thank you,
+Ponzu CMS at %s
 
-		`, email, domain, key, domain)
+`, email, domain, key, domain)
+
 		msg := emailer.Message{
 			To:      email,
-			From:    fmt.Sprintf("Ponzu CMS <ponzu-cms@%s", domain),
+			From:    fmt.Sprintf("ponzu@%s", domain),
 			Subject: fmt.Sprintf("Account Recovery [%s]", domain),
 			Body:    body,
 		}
 
-		/*
+		go func() {
 			err = msg.Send()
 			if err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := Error500()
-				if err != nil {
-					return
-				}
-
-				res.Write(errView)
-				return
+				log.Println("Failed to send message to:", msg.To, "about", msg.Subject, "Error:", err)
 			}
-		*/
-		fmt.Println(msg)
+		}()
 
 		// redirect to /admin/recover/key and send email with key and URL
 		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin/recover/key", http.StatusFound)
@@ -662,33 +641,90 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 		view, err := RecoveryKey()
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
 			return
 		}
 
 		res.Write(view)
 
 	case http.MethodPost:
-
-		// check for email & key match
-
-		// set user with new password
-
-		// redirect to /admin/login
-
-	default:
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		errView, err := Error405()
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
+			log.Println("Error parsing recovery key form:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
 			return
 		}
 
-		res.Write(errView)
+		// check for email & key match
+		email := strings.ToLower(req.FormValue("email"))
+		key := req.FormValue("key")
+
+		var actual string
+		if actual, err = db.RecoveryKey(email); err != nil || actual == "" {
+			log.Println("Error getting recovery key from database:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		if key != actual {
+			log.Println("Bad recovery key submitted:", key)
+			log.Println("Actual:", actual)
+
+			res.WriteHeader(http.StatusBadRequest)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		// set user with new password
+		password := req.FormValue("password")
+		usr := &user.User{}
+		u, err := db.User(email)
+		if err != nil {
+			log.Println("Error finding user by email:", email, err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		if u == nil {
+			log.Println("No user found with email:", email)
+
+			res.WriteHeader(http.StatusBadRequest)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		err = json.Unmarshal(u, usr)
+		if err != nil {
+			log.Println("Error decoding user from database:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		update := user.NewUser(email, password)
+		update.ID = usr.ID
+
+		err = db.UpdateUser(usr, update)
+		if err != nil {
+			log.Println("Error updating user:", err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
+		// redirect to /admin/login
+		redir := req.URL.Scheme + req.URL.Host + "/admin/login"
+		http.Redirect(res, req, redir, http.StatusFound)
+
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 }
@@ -697,7 +733,7 @@ func recoveryEditHandler(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func postsHandler(res http.ResponseWriter, req *http.Request) {
+func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
@@ -787,7 +823,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	posts := db.Query(t+"_sorted", opts)
+	total, posts := db.Query(t+"__sorted", opts)
 	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
@@ -824,19 +860,24 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
 							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
+							<input type="hidden" name="status" value="` + status + `" />
 						</div>
                     </form>	
 					</div>`
 	if hasExt {
 		if status == "" {
-			q.Add("status", "public")
+			q.Set("status", "public")
 		}
+
+		// always start from top of results when changing public/pending
+		q.Del("count")
+		q.Del("offset")
 
 		q.Set("status", "public")
 		publicURL := req.URL.Path + "?" + q.Encode()
@@ -868,8 +909,8 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 		case "pending":
-			// get _pending posts of type t from the db
-			posts = db.Query(t+"_pending", opts)
+			// get __pending posts of type t from the db
+			_, posts = db.Query(t+"__pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
@@ -911,7 +952,56 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 	html += `<ul class="posts row">`
 
-	b.Write([]byte(`</ul></div></div>`))
+	b.Write([]byte(`</ul>`))
+
+	statusDisabled := "disabled"
+	prevStatus := ""
+	nextStatus := ""
+	// total may be less than 10 (default count), so reset count to match total
+	if total < count {
+		count = total
+	}
+	// nothing previous to current list
+	if offset == 0 {
+		prevStatus = statusDisabled
+	}
+	// nothing after current list
+	if (offset+1)*count >= total {
+		nextStatus = statusDisabled
+	}
+
+	// set up pagination values
+	urlFmt := req.URL.Path + "?count=%d&offset=%d&&order=%s&status=%s&type=%s"
+	prevURL := fmt.Sprintf(urlFmt, count, offset-1, order, status, t)
+	nextURL := fmt.Sprintf(urlFmt, count, offset+1, order, status, t)
+	start := 1 + count*offset
+	end := start + count - 1
+
+	if total < end {
+		end = total
+	}
+
+	pagination := fmt.Sprintf(`
+	<ul class="pagination row">
+		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
+		<li class="col s8">%d to %d of %d</li>
+		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
+	</ul>
+	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
+
+	// show indicator that a collection of items will be listed implicitly, but
+	// that none are created yet
+	if total < 1 {
+		pagination = `
+		<ul class="pagination row">
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_left</i></a></li>
+			<li class="col s8">0 to 0 of 0</li>
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_right</i></a></li>
+		</ul>
+		`
+	}
+
+	b.Write([]byte(pagination + `</div></div>`))
 
 	script := `
 	<script>
@@ -921,6 +1011,13 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 				if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
 					$(e.target).parent().submit();
 				}
+			});
+		});
+
+		// disable link from being clicked if parent is 'disabled'
+		$(function() {
+			$('ul.pagination li.disabled a').on('click', function(e) {
+				e.preventDefault();
 			});
 		});
 	</script>
@@ -942,7 +1039,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 
 // adminPostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
-// specifier is passed to append a name to a namespace like _pending
+// specifier is passed to append a name to a namespace like __pending
 func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	s, ok := e.(editor.Sortable)
 	if !ok {
@@ -970,12 +1067,12 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	case "public", "":
 		status = ""
 	default:
-		status = "_" + status
+		status = "__" + status
 	}
 
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + e.ContentName() + `</a>
+				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
@@ -989,7 +1086,7 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	return []byte(post)
 }
 
-func approvePostHandler(res http.ResponseWriter, req *http.Request) {
+func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		errView, err := Error405()
@@ -1014,8 +1111,8 @@ func approvePostHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	t := req.FormValue("type")
-	if strings.Contains(t, "_") {
-		t = strings.Split(t, "_")[0]
+	if strings.Contains(t, "__") {
+		t = strings.Split(t, "__")[0]
 	}
 
 	post := content.Types[t]()
@@ -1160,7 +1257,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		if i != "" {
 			if status == "pending" {
-				t = t + "_pending"
+				t = t + "__pending"
 			}
 
 			data, err := db.Content(t + ":" + i)
@@ -1275,7 +1372,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		for name, urlPath := range urlPaths {
-			req.PostForm.Add(name, urlPath)
+			req.PostForm.Set(name, urlPath)
 		}
 
 		// check for any multi-value fields (ex. checkbox fields)
@@ -1299,8 +1396,8 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
-		if strings.Contains(t, "_") {
-			t = strings.Split(t, "_")[0]
+		if strings.Contains(t, "__") {
+			t = strings.Split(t, "__")[0]
 		}
 
 		p, ok := content.Types[t]
@@ -1409,8 +1506,8 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// catch specifier suffix from delete form value
-	if strings.Contains(t, "_") {
-		spec := strings.Split(t, "_")
+	if strings.Contains(t, "__") {
+		spec := strings.Split(t, "__")
 		ct = spec[0]
 	}
 
@@ -1506,7 +1603,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-	redir = redir + "/posts?type=" + ct
+	redir = redir + "/contents?type=" + ct
 	http.Redirect(res, req, redir, http.StatusFound)
 }
 
@@ -1531,13 +1628,19 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	search := q.Get("q")
+	status := q.Get("status")
+	var specifier string
 
 	if t == "" || search == "" {
 		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
 		return
 	}
 
-	posts := db.ContentAll(t)
+	if status == "pending" {
+		specifier = "__" + status
+	}
+
+	posts := db.ContentAll(t + specifier)
 	b := &bytes.Buffer{}
 	p := content.Types[t]().(editor.Editable)
 
@@ -1545,11 +1648,13 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 					<div class="card-content">
 					<div class="row">
 					<div class="card-title col s7">` + t + ` Results</div>	
-					<form class="col s5" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/contents/search" method="get">
 						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Search for ` + t + ` content" class="search"/>
+							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
+							<input type="hidden" name="status" value="` + status + `" />
 						</div>
                     </form>	
 					</div>
@@ -1572,7 +1677,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		post := adminPostListItem(p, t, "")
+		post := adminPostListItem(p, t, status)
 		b.Write([]byte(post))
 	}
 

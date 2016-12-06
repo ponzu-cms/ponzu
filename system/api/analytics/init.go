@@ -66,7 +66,7 @@ func Init() {
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("requests"))
+		_, err := tx.CreateBucketIfNotExists([]byte("__requests"))
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func ChartData() (map[string]interface{}, error) {
 	// get api request analytics from db
 	var requests = []apiRequest{}
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("requests"))
+		b := tx.Bucket([]byte("__requests"))
 
 		err := b.ForEach(func(k, v []byte) error {
 			var r apiRequest
