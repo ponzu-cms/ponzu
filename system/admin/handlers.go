@@ -866,6 +866,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							<i class="right material-icons search-icon">search</i>
 							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
+							<input type="hidden" name="status" value="` + status + `" />
 						</div>
                     </form>	
 					</div>`
@@ -1627,13 +1628,19 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	search := q.Get("q")
+	status := q.Get("status")
+	var specifier string
 
 	if t == "" || search == "" {
 		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
 		return
 	}
 
-	posts := db.ContentAll(t)
+	if status == "pending" {
+		specifier = "_" + status
+	}
+
+	posts := db.ContentAll(t + specifier)
 	b := &bytes.Buffer{}
 	p := content.Types[t]().(editor.Editable)
 
@@ -1641,11 +1648,13 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 					<div class="card-content">
 					<div class="row">
 					<div class="card-title col s7">` + t + ` Results</div>	
-					<form class="col s5" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/posts/search" method="get">
 						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Search for ` + t + ` content" class="search"/>
+							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />
+							<input type="hidden" name="status" value="` + status + `" />
 						</div>
                     </form>	
 					</div>
