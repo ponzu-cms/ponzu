@@ -334,7 +334,7 @@ func SortContent(namespace string) {
 
 	all := ContentAll(namespace)
 
-	var posts sortablePosts
+	var posts sortableContent
 	// decode each (json) into type to then sort
 	for i := range all {
 		j := all[i]
@@ -387,17 +387,17 @@ func SortContent(namespace string) {
 
 }
 
-type sortableContents []editor.Sortable
+type sortableContent []editor.Sortable
 
-func (s sortableContents) Len() int {
+func (s sortableContent) Len() int {
 	return len(s)
 }
 
-func (s sortableContents) Less(i, j int) bool {
+func (s sortableContent) Less(i, j int) bool {
 	return s[i].Time() > s[j].Time()
 }
 
-func (s sortableContents) Swap(i, j int) {
+func (s sortableContent) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
