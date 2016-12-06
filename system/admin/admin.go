@@ -57,7 +57,7 @@ var mainAdminHTML = `
                                     
                     {{ range $t, $f := .Types }}
                     <div class="row collection-item">
-                        <li><a class="col s12" href="/admin/posts?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
+                        <li><a class="col s12" href="/admin/contents?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
                     </div>
                     {{ end }}
 

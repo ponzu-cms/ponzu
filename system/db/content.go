@@ -387,17 +387,17 @@ func SortContent(namespace string) {
 
 }
 
-type sortablePosts []editor.Sortable
+type sortableContents []editor.Sortable
 
-func (s sortablePosts) Len() int {
+func (s sortableContents) Len() int {
 	return len(s)
 }
 
-func (s sortablePosts) Less(i, j int) bool {
+func (s sortableContents) Less(i, j int) bool {
 	return s[i].Time() > s[j].Time()
 }
 
-func (s sortablePosts) Swap(i, j int) {
+func (s sortableContents) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 

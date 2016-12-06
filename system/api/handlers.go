@@ -28,7 +28,7 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, j, http.StatusOK)
 }
 
-func postsHandler(res http.ResponseWriter, req *http.Request) {
+func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
@@ -87,7 +87,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, j, http.StatusOK)
 }
 
-func postHandler(res http.ResponseWriter, req *http.Request) {
+func contentHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	id := q.Get("id")
 	t := q.Get("type")

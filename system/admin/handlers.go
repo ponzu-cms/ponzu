@@ -733,7 +733,7 @@ func recoveryEditHandler(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func postsHandler(res http.ResponseWriter, req *http.Request) {
+func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
@@ -860,7 +860,7 @@ func postsHandler(res http.ResponseWriter, req *http.Request) {
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -1086,7 +1086,7 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	return []byte(post)
 }
 
-func approvePostHandler(res http.ResponseWriter, req *http.Request) {
+func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		errView, err := Error405()
@@ -1603,7 +1603,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-	redir = redir + "/posts?type=" + ct
+	redir = redir + "/contents?type=" + ct
 	http.Redirect(res, req, redir, http.StatusFound)
 }
 
@@ -1648,7 +1648,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 					<div class="card-content">
 					<div class="row">
 					<div class="card-title col s7">` + t + ` Results</div>	
-					<form class="col s4" action="/admin/posts/search" method="get">
+					<form class="col s4" action="/admin/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
