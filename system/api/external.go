@@ -132,7 +132,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	} else {
-		spec = "_pending"
+		spec = "__pending"
 	}
 
 	_, err = db.SetContent(t+spec+":-1", req.PostForm)

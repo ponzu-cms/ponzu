@@ -823,7 +823,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	total, posts := db.Query(t+"_sorted", opts)
+	total, posts := db.Query(t+"__sorted", opts)
 	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
@@ -909,8 +909,8 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 		case "pending":
-			// get _pending posts of type t from the db
-			_, posts = db.Query(t+"_pending", opts)
+			// get __pending posts of type t from the db
+			_, posts = db.Query(t+"__pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
@@ -1039,7 +1039,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 
 // adminPostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
-// specifier is passed to append a name to a namespace like _pending
+// specifier is passed to append a name to a namespace like __pending
 func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	s, ok := e.(editor.Sortable)
 	if !ok {
@@ -1067,12 +1067,12 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	case "public", "":
 		status = ""
 	default:
-		status = "_" + status
+		status = "__" + status
 	}
 
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "_") + `&id=` + cid + `">` + i.String() + `</a>
+				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
@@ -1111,8 +1111,8 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	t := req.FormValue("type")
-	if strings.Contains(t, "_") {
-		t = strings.Split(t, "_")[0]
+	if strings.Contains(t, "__") {
+		t = strings.Split(t, "__")[0]
 	}
 
 	post := content.Types[t]()
@@ -1257,7 +1257,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		if i != "" {
 			if status == "pending" {
-				t = t + "_pending"
+				t = t + "__pending"
 			}
 
 			data, err := db.Content(t + ":" + i)
@@ -1396,8 +1396,8 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
-		if strings.Contains(t, "_") {
-			t = strings.Split(t, "_")[0]
+		if strings.Contains(t, "__") {
+			t = strings.Split(t, "__")[0]
 		}
 
 		p, ok := content.Types[t]
@@ -1506,8 +1506,8 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// catch specifier suffix from delete form value
-	if strings.Contains(t, "_") {
-		spec := strings.Split(t, "_")
+	if strings.Contains(t, "__") {
+		spec := strings.Split(t, "__")
 		ct = spec[0]
 	}
 
@@ -1637,7 +1637,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if status == "pending" {
-		specifier = "_" + status
+		specifier = "__" + status
 	}
 
 	posts := db.ContentAll(t + specifier)

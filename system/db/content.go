@@ -39,11 +39,11 @@ func SetContent(target string, data url.Values) (int, error) {
 }
 
 func update(ns, id string, data url.Values) (int, error) {
-	var specifier string // i.e. _pending, _sorted, etc.
-	if strings.Contains(ns, "_") {
-		spec := strings.Split(ns, "_")
+	var specifier string // i.e. __pending, __sorted, etc.
+	if strings.Contains(ns, "__") {
+		spec := strings.Split(ns, "__")
 		ns = spec[0]
-		specifier = "_" + spec[1]
+		specifier = "__" + spec[1]
 	}
 
 	cid, err := strconv.Atoi(id)
@@ -82,11 +82,11 @@ func update(ns, id string, data url.Values) (int, error) {
 
 func insert(ns string, data url.Values) (int, error) {
 	var effectedID int
-	var specifier string // i.e. _pending, _sorted, etc.
-	if strings.Contains(ns, "_") {
-		spec := strings.Split(ns, "_")
+	var specifier string // i.e. __pending, __sorted, etc.
+	if strings.Contains(ns, "__") {
+		spec := strings.Split(ns, "__")
 		ns = spec[0]
-		specifier = "_" + spec[1]
+		specifier = "__" + spec[1]
 	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
@@ -328,7 +328,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
 	// only sort main content types i.e. Post
-	if strings.Contains(namespace, "_") {
+	if strings.Contains(namespace, "__") {
 		return
 	}
 
@@ -354,7 +354,7 @@ func SortContent(namespace string) {
 
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
-		bname := []byte(namespace + "_sorted")
+		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
 		if err != nil {
 			return err

@@ -38,14 +38,14 @@ func Init() {
 				return err
 			}
 
-			_, err = tx.CreateBucketIfNotExists([]byte(t + "_sorted"))
+			_, err = tx.CreateBucketIfNotExists([]byte(t + "__sorted"))
 			if err != nil {
 				return err
 			}
 		}
 
 		// init db with other buckets as needed
-		buckets := []string{"_config", "_users"}
+		buckets := []string{"__config", "__users"}
 		for _, name := range buckets {
 			_, err := tx.CreateBucketIfNotExists([]byte(name))
 			if err != nil {
@@ -54,7 +54,7 @@ func Init() {
 		}
 
 		// seed db with configs structure if not present
-		b := tx.Bucket([]byte("_config"))
+		b := tx.Bucket([]byte("__config"))
 		if b.Get([]byte("settings")) == nil {
 			j, err := json.Marshal(&config.Config{})
 			if err != nil {
@@ -93,7 +93,7 @@ func SystemInitComplete() bool {
 	complete := false
 
 	err := store.View(func(tx *bolt.Tx) error {
-		users := tx.Bucket([]byte("_users"))
+		users := tx.Bucket([]byte("__users"))
 
 		err := users.ForEach(func(k, v []byte) error {
 			complete = true

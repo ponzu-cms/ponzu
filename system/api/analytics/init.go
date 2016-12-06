@@ -66,7 +66,7 @@ func Init() {
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("requests"))
+		_, err := tx.CreateBucketIfNotExists([]byte("__requests"))
 		if err != nil {
 			return err
 		}
