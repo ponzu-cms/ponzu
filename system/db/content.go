@@ -418,7 +418,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 		return nil, err
 	}
 
-	slug, err := manager.Slug(post.(editor.Editable))
+	slug, err := manager.Slug(post.(content.Identifiable))
 	if err != nil {
 		return nil, err
 	}

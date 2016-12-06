@@ -9,7 +9,6 @@ import (
 
 // Editable ensures data is editable
 type Editable interface {
-	ContentName() string
 	Editor() *Editor
 	MarshalEditor() ([]byte, error)
 }
