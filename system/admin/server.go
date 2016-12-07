@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/bosssauce/ponzu/system/admin/user"
+	"github.com/bosssauce/ponzu/system/db"
 )
 
 // Run adds Handlers to default http listener for Admin
@@ -41,11 +42,11 @@ func Run() {
 	}
 
 	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "system")
-	http.Handle("/admin/static/", CacheControl(http.FileServer(restrict(http.Dir(staticDir)))))
+	http.Handle("/admin/static/", db.CacheControl(http.FileServer(restrict(http.Dir(staticDir)))))
 
 	// API path needs to be registered within server package so that it is handled
 	// even if the API server is not running. Otherwise, images/files uploaded
 	// through the editor will not load within the admin system.
 	uploadsDir := filepath.Join(pwd, "uploads")
-	http.Handle("/api/uploads/", CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))
+	http.Handle("/api/uploads/", db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))
 }

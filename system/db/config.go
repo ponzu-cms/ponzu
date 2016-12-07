@@ -2,12 +2,9 @@ package db
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/bosssauce/ponzu/system/admin/config"
 
@@ -123,12 +120,4 @@ func ConfigAll() ([]byte, error) {
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
 func ConfigCache(key string) string {
 	return configCache.Get(key)
-}
-
-// NewEtag generates a new Etag for response caching
-func NewEtag() string {
-	now := fmt.Sprintf("%d", time.Now().Unix())
-	etag := base64.StdEncoding.EncodeToString([]byte(now))
-
-	return etag
 }
