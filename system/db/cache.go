@@ -53,7 +53,7 @@ func InvalidateCache() error {
 
 	kv["etag"] = NewEtag()
 
-	var data url.Values
+	data := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
 		case string:
