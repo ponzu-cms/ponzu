@@ -61,7 +61,11 @@ func InvalidateCache() error {
 		case []string:
 			vv := v.([]string)
 			for i := range vv {
-				data.Add(k, vv[i])
+				if i == 0 {
+					data.Set(k, vv[i])
+				} else {
+					data.Add(k, vv[i])
+				}
 			}
 		}
 	}
