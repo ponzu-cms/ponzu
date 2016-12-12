@@ -14,8 +14,8 @@ import (
 func CacheControl(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		etag := ConfigCache("etag")
-		policy := fmt.Sprintf("max-age=%d, public, must-revalidate, proxy-revalidate", 60*60*24*30)
-		res.Header().Add("Etag", etag)
+		policy := fmt.Sprintf("max-age=%d, public", 60*60*24*30)
+		res.Header().Add("ETag", etag)
 		res.Header().Add("Cache-Control", policy)
 
 		if match := req.Header.Get("If-None-Match"); match != "" {
