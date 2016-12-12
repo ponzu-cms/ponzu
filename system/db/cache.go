@@ -18,7 +18,7 @@ func CacheControl(next http.Handler) http.HandlerFunc {
 		res.Header().Add("Etag", etag)
 		res.Header().Add("Cache-Control", policy)
 
-		if match := res.Header().Get("If-None-Match"); match != "" {
+		if match := req.Header.Get("If-None-Match"); match != "" {
 			if strings.Contains(match, etag) {
 				fmt.Println("matched etag")
 				res.WriteHeader(http.StatusNotModified)
