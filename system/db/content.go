@@ -77,6 +77,12 @@ func update(ns, id string, data url.Values) (int, error) {
 		go SortContent(ns)
 	}
 
+	// update changes data, so invalidate client caching
+	err = InvalidateCache()
+	if err != nil {
+		return 0, err
+	}
+
 	return cid, nil
 }
 
@@ -132,6 +138,12 @@ func insert(ns string, data url.Values) (int, error) {
 		go SortContent(ns)
 	}
 
+	// insert changes data, so invalidate client caching
+	err = InvalidateCache()
+	if err != nil {
+		return 0, err
+	}
+
 	return effectedID, nil
 }
 
@@ -145,6 +157,12 @@ func DeleteContent(target string) error {
 		tx.Bucket([]byte(ns)).Delete([]byte(id))
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// delete changes data, so invalidate client caching
+	err = InvalidateCache()
 	if err != nil {
 		return err
 	}

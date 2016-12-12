@@ -200,14 +200,14 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 
 // CORS wraps a HandleFunc to response to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {
 			SendPreflight(res)
 			return
 		}
 
 		next.ServeHTTP(res, req)
-	})
+	}))
 }
 
 // Record wraps a HandleFunc to record API requests for analytical purposes
