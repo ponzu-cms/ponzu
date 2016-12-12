@@ -20,12 +20,9 @@ func CacheControl(next http.Handler) http.HandlerFunc {
 
 		if match := req.Header.Get("If-None-Match"); match != "" {
 			if strings.Contains(match, etag) {
-				fmt.Println("matched etag")
 				res.WriteHeader(http.StatusNotModified)
 				return
 			}
-
-			fmt.Println("checked, no match")
 		}
 
 		next.ServeHTTP(res, req)
