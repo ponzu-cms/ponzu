@@ -158,7 +158,7 @@ func ChartData() (map[string]interface{}, error) {
 	var requests = []apiRequest{}
 	var metrics = [14]apiMetric{}
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bolt.Tx) error {
 		m := tx.Bucket([]byte("__metrics"))
 		b := tx.Bucket([]byte("__requests"))
 
@@ -270,14 +270,36 @@ CHECK_REQUEST:
 
 	// loop through total and unique to see which dates are accounted for and
 	// insert data from metrics array where dates are not
-	for i := range metrics {
-		if total[i] == 0 {
-			total[i] = metrics[i].Total
+	err = store.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("__metrics"))
+
+		for i := range metrics {
+			if total[i] == 0 {
+				total[i] = metrics[i].Total
+			}
+
+			if unique[i] == 0 {
+				unique[i] = metrics[i].Unique
+			}
+
+			k := metrics[i].Date
+			if b.Get([]byte(k)) == nil {
+				v, err := json.Marshal(metrics[i])
+				if err != nil {
+					return err
+				}
+
+				err = b.Put([]byte(k), v)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		if unique[i] == 0 {
-			unique[i] = metrics[i].Unique
-		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	// marshal array counts to js arrays for output to chart
