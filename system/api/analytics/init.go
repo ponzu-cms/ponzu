@@ -195,15 +195,13 @@ func ChartData() (map[string]interface{}, error) {
 			// delete the record in db if it belongs to a day already in metrics,
 			// otherwise append it to requests to be analyzed
 			d := time.Unix(r.Timestamp/1000, 0).Format("01/02")
-			for i := range dates {
-				if metrics[i].Date == d {
-					err := b.Delete(k)
-					if err != nil {
-						return err
-					}
-				} else {
-					requests = append(requests, r)
+			if m.Get([]byte(d)) != nil {
+				err := b.Delete(k)
+				if err != nil {
+					return err
 				}
+			} else {
+				requests = append(requests, r)
 			}
 
 			return nil
