@@ -199,7 +199,7 @@ func ChartData() (map[string]interface{}, error) {
 			// append request to requests for analysis if its timestamp is today
 			// and its day is not already in cache
 			d := time.Unix(r.Timestamp/1000, 0)
-			if !d.Before(today) && m.Get([]byte(d.Format("01/02"))) != nil {
+			if !d.Before(today) && m.Get([]byte(d.Format("01/02"))) == nil {
 				requests = append(requests, r)
 			}
 
