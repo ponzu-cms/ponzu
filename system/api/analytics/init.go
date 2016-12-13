@@ -21,7 +21,7 @@ type apiRequest struct {
 	Proto      string `json:"http_protocol"`
 	RemoteAddr string `json:"ip_address"`
 	Timestamp  int64  `json:"timestamp"`
-	External   bool   `json:"external"`
+	External   bool   `json:"external_content"`
 }
 
 type apiMetric struct {
@@ -34,6 +34,10 @@ var (
 	store       *bolt.DB
 	requestChan chan apiRequest
 )
+
+// RANGE determines the number of days ponzu request analytics and metrics are
+// stored and displayed within the system
+const RANGE = 14
 
 // Record queues an apiRequest for metrics
 func Record(req *http.Request) {
@@ -102,10 +106,10 @@ func serve() {
 	// interval: 30 seconds
 	apiRequestTimer := time.NewTicker(time.Second * 30)
 
-	// make timer to notify select to remove analytics older than 14 days
-	// interval: 1 week
+	// make timer to notify select to remove analytics older than RANGE days
+	// interval: RANGE/2 days
 	// TODO: enable analytics backup service to cloud
-	pruneThreshold := time.Hour * 24 * 14
+	pruneThreshold := time.Hour * 24 * RANGE
 	pruneDBTimer := time.NewTicker(pruneThreshold / 2)
 
 	for {
@@ -130,19 +134,19 @@ func serve() {
 
 // ChartData returns the map containing decoded javascript needed to chart 2 weeks of data by day
 func ChartData() (map[string]interface{}, error) {
-	// set thresholds for today and the 13 days preceeding
-	times := [14]time.Time{}
-	dates := [14]string{}
+	// set thresholds for today and the RANGE-1 days preceeding
+	times := [RANGE]time.Time{}
+	dates := [RANGE]string{}
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
-	ips := [14]map[string]struct{}{}
+	ips := [RANGE]map[string]struct{}{}
 	for i := range ips {
 		ips[i] = make(map[string]struct{})
 	}
 
-	total := [14]int{}
-	unique := [14]int{}
+	total := [RANGE]int{}
+	unique := [RANGE]int{}
 
 	for i := range times {
 		// subtract 24 * i hours to make days prior
@@ -156,7 +160,7 @@ func ChartData() (map[string]interface{}, error) {
 
 	// get api request analytics and metrics from db
 	var requests = []apiRequest{}
-	var metrics = [14]apiMetric{}
+	var metrics = [RANGE]apiMetric{}
 
 	err := store.Update(func(tx *bolt.Tx) error {
 		m := tx.Bucket([]byte("__metrics"))
@@ -284,14 +288,16 @@ CHECK_REQUEST:
 
 			k := dates[i]
 			if b.Get([]byte(k)) == nil {
-				v, err := json.Marshal(metrics[i])
-				if err != nil {
-					return err
-				}
+				if metrics[i].Total != 0 {
+					v, err := json.Marshal(metrics[i])
+					if err != nil {
+						return err
+					}
 
-				err = b.Put([]byte(k), v)
-				if err != nil {
-					return err
+					err = b.Put([]byte(k), v)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
