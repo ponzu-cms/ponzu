@@ -197,9 +197,9 @@ func ChartData() (map[string]interface{}, error) {
 			}
 
 			// append request to requests for analysis if its timestamp is today
-			// or its day is not already in cache
+			// and its day is not already in cache
 			d := time.Unix(r.Timestamp/1000, 0)
-			if !d.Before(today) || m.Get([]byte(d.Format("01/02"))) != nil {
+			if !d.Before(today) && m.Get([]byte(d.Format("01/02"))) != nil {
 				requests = append(requests, r)
 			}
 
@@ -281,15 +281,15 @@ CHECK_REQUEST:
 				unique[i] = metrics[i].Unique
 			}
 
-			k := dates[i]
-			if b.Get([]byte(k)) == nil {
+			k := []byte(dates[i])
+			if b.Get(k) == nil {
 				if metrics[i].Total != 0 {
 					v, err := json.Marshal(metrics[i])
 					if err != nil {
 						return err
 					}
 
-					err = b.Put([]byte(k), v)
+					err = b.Put(k, v)
 					if err != nil {
 						return err
 					}
