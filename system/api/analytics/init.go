@@ -273,7 +273,7 @@ CHECK_REQUEST:
 	err = store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__metrics"))
 
-		for i := range metrics {
+		for i := range dates {
 			if total[i] == 0 {
 				total[i] = metrics[i].Total
 			}
@@ -282,7 +282,7 @@ CHECK_REQUEST:
 				unique[i] = metrics[i].Unique
 			}
 
-			k := metrics[i].Date
+			k := dates[i]
 			if b.Get([]byte(k)) == nil {
 				v, err := json.Marshal(metrics[i])
 				if err != nil {
