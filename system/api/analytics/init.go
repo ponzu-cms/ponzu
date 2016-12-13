@@ -24,6 +24,12 @@ type apiRequest struct {
 	External   bool   `json:"external"`
 }
 
+type apiMetric struct {
+	Date   string `json:"date"`
+	Total  int    `json:"total"`
+	Unique int    `json:"unique"`
+}
+
 var (
 	store       *bolt.DB
 	requestChan chan apiRequest
@@ -71,6 +77,11 @@ func Init() {
 			return err
 		}
 
+		_, err = tx.CreateBucketIfNotExists([]byte("__metrics"))
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -92,7 +103,7 @@ func serve() {
 	apiRequestTimer := time.NewTicker(time.Second * 30)
 
 	// make timer to notify select to remove analytics older than 14 days
-	// interval: 1 weeks
+	// interval: 1 week
 	// TODO: enable analytics backup service to cloud
 	pruneThreshold := time.Hour * 24 * 14
 	pruneDBTimer := time.NewTicker(pruneThreshold / 2)
@@ -119,11 +130,19 @@ func serve() {
 
 // ChartData returns the map containing decoded javascript needed to chart 2 weeks of data by day
 func ChartData() (map[string]interface{}, error) {
-	// set thresholds for today and the 6 days preceeding
+	// set thresholds for today and the 13 days preceeding
 	times := [14]time.Time{}
 	dates := [14]string{}
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	ips := [14]map[string]struct{}{}
+	for i := range ips {
+		ips[i] = make(map[string]struct{})
+	}
+
+	total := [14]int{}
+	unique := [14]int{}
 
 	for i := range times {
 		// subtract 24 * i hours to make days prior
@@ -135,20 +154,57 @@ func ChartData() (map[string]interface{}, error) {
 		dates[len(times)-1-i] = day.Format("01/02")
 	}
 
-	// get api request analytics from db
+	// get api request analytics and metrics from db
 	var requests = []apiRequest{}
+	var metrics = [14]apiMetric{}
+
 	err := store.View(func(tx *bolt.Tx) error {
+		m := tx.Bucket([]byte("__metrics"))
 		b := tx.Bucket([]byte("__requests"))
 
-		err := b.ForEach(func(k, v []byte) error {
-			var r apiRequest
-			err := json.Unmarshal(v, &r)
+		err := m.ForEach(func(k, v []byte) error {
+			var metric apiMetric
+			err := json.Unmarshal(v, &metric)
 			if err != nil {
-				log.Println("Error decoding json from analytics db:", err)
+				log.Println("Error decoding api metric json from analytics db:", err)
 				return nil
 			}
 
-			requests = append(requests, r)
+			// if the metric date is in current date range, insert it into
+			// metrics array at the position of the date in dates array
+			for i := range dates {
+				if metric.Date == dates[i] {
+					metrics[i] = metric
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		err = b.ForEach(func(k, v []byte) error {
+			var r apiRequest
+			err := json.Unmarshal(v, &r)
+			if err != nil {
+				log.Println("Error decoding api request json from analytics db:", err)
+				return nil
+			}
+
+			// delete the record in db if it belongs to a day already in metrics,
+			// otherwise append it to requests to be analyzed
+			d := time.Unix(r.Timestamp/1000, 0).Format("01/02")
+			for i := range dates {
+				if metrics[i].Date == d {
+					err := b.Delete(k)
+					if err != nil {
+						return err
+					}
+				} else {
+					requests = append(requests, r)
+				}
+			}
 
 			return nil
 		})
@@ -161,14 +217,6 @@ func ChartData() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	ips := [14]map[string]struct{}{}
-	for i := range ips {
-		ips[i] = make(map[string]struct{})
-	}
-
-	total := [14]int{}
-	unique := [14]int{}
 
 CHECK_REQUEST:
 	for i := range requests {
@@ -222,6 +270,19 @@ CHECK_REQUEST:
 		}
 	}
 
+	// loop through total and unique to see which dates are accounted for and
+	// insert data from metrics array where dates are not
+	for i := range metrics {
+		if total[i] == 0 {
+			total[i] = metrics[i].Total
+		}
+
+		if unique[i] == 0 {
+			unique[i] = metrics[i].Unique
+		}
+	}
+
+	// marshal array counts to js arrays for output to chart
 	jsUnique, err := json.Marshal(unique)
 	if err != nil {
 		return nil, err
