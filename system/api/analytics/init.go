@@ -5,7 +5,6 @@ package analytics
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -183,8 +182,6 @@ func ChartData() (map[string]interface{}, error) {
 				}
 			}
 
-			fmt.Println(metrics)
-
 			return nil
 		})
 		if err != nil {
@@ -199,15 +196,10 @@ func ChartData() (map[string]interface{}, error) {
 				return nil
 			}
 
-			// delete the record in db if it belongs to a day already in metrics,
-			// otherwise append it to requests to be analyzed
-			d := time.Unix(r.Timestamp/1000, 0).Format("01/02")
-			if m.Get([]byte(d)) != nil {
-				err := b.Delete(k)
-				if err != nil {
-					return err
-				}
-			} else {
+			// append request to requests for analysis if its timestamp is today
+			// or its day is not already in cache
+			d := time.Unix(r.Timestamp/1000, 0)
+			if !d.Before(today) || m.Get([]byte(d.Format("01/02"))) != nil {
 				requests = append(requests, r)
 			}
 
