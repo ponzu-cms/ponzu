@@ -192,11 +192,16 @@ func ChartData() (map[string]interface{}, error) {
 			}
 
 			// append request to requests for analysis if its timestamp is today
-			// or if its day is not already in cache
+			// or if its day is not already in cache, otherwise delete it
 			d := time.Unix(r.Timestamp/1000, 0)
 			_, inCache := currentMetrics[d.Format("01/02")]
 			if !d.Before(today) || !inCache {
 				requests = append(requests, r)
+			} else {
+				err := b.Delete(k)
+				if err != nil {
+					return err
+				}
 			}
 
 			return nil
