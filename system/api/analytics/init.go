@@ -5,6 +5,7 @@ package analytics
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -181,6 +182,8 @@ func ChartData() (map[string]interface{}, error) {
 					metrics[i] = metric
 				}
 			}
+
+			fmt.Println(metrics)
 
 			return nil
 		})
