@@ -160,8 +160,7 @@ func ChartData() (map[string]interface{}, error) {
 
 	// get api request analytics and metrics from db
 	var requests = []apiRequest{}
-	var metrics = [RANGE]apiMetric{}
-	currentMetrics := make(map[string]struct{})
+	currentMetrics := make(map[string]apiMetric)
 
 	err := store.Update(func(tx *bolt.Tx) error {
 		m := tx.Bucket([]byte("__metrics"))
@@ -176,15 +175,7 @@ func ChartData() (map[string]interface{}, error) {
 			}
 
 			// add metric to currentMetrics map
-			currentMetrics[metric.Date] = struct{}{}
-
-			// if the metric date is in current date range, insert it into
-			// metrics array at the position of the date in dates array
-			for i := range dates {
-				if metric.Date == dates[i] {
-					metrics[i] = metric
-				}
-			}
+			currentMetrics[metric.Date] = metric
 
 			return nil
 		})
@@ -201,10 +192,10 @@ func ChartData() (map[string]interface{}, error) {
 			}
 
 			// append request to requests for analysis if its timestamp is today
-			// and its day is not already in cache
+			// or if its day is not already in cache
 			d := time.Unix(r.Timestamp/1000, 0)
 			_, inCache := currentMetrics[d.Format("01/02")]
-			if !d.Before(today) && !inCache {
+			if !d.Before(today) || !inCache {
 				requests = append(requests, r)
 			}
 
@@ -272,31 +263,52 @@ CHECK_REQUEST:
 		}
 	}
 
+	// add data to currentMetrics from total and unique
+	for i := range dates {
+		_, ok := currentMetrics[dates[i]]
+		if !ok {
+			m := apiMetric{
+				Date:   dates[i],
+				Total:  total[i],
+				Unique: unique[i],
+			}
+
+			currentMetrics[dates[i]] = m
+		}
+	}
+
 	// loop through total and unique to see which dates are accounted for and
 	// insert data from metrics array where dates are not
 	err = store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__metrics"))
 
 		for i := range dates {
+			// populate total and unique with cached data if needed
 			if total[i] == 0 {
-				total[i] = metrics[i].Total
+				total[i] = currentMetrics[dates[i]].Total
 			}
 
 			if unique[i] == 0 {
-				unique[i] = metrics[i].Unique
+				unique[i] = currentMetrics[dates[i]].Unique
 			}
 
-			k := []byte(dates[i])
-			if b.Get(k) == nil {
-				if metrics[i].Total != 0 {
-					v, err := json.Marshal(metrics[i])
-					if err != nil {
-						return err
-					}
+			// check if we need to insert old data into cache - as long as it
+			// is not today's data
+			if dates[i] != today.Format("01/02") {
+				k := []byte(dates[i])
+				if b.Get(k) == nil {
+					// keep zero counts out of cache in case data is added from
+					// other sources
+					if currentMetrics[dates[i]].Total != 0 {
+						v, err := json.Marshal(currentMetrics[dates[i]])
+						if err != nil {
+							return err
+						}
 
-					err = b.Put(k, v)
-					if err != nil {
-						return err
+						err = b.Put(k, v)
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
