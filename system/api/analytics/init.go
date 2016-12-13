@@ -161,6 +161,7 @@ func ChartData() (map[string]interface{}, error) {
 	// get api request analytics and metrics from db
 	var requests = []apiRequest{}
 	var metrics = [RANGE]apiMetric{}
+	currentMetrics := make(map[string]struct{})
 
 	err := store.Update(func(tx *bolt.Tx) error {
 		m := tx.Bucket([]byte("__metrics"))
@@ -173,6 +174,9 @@ func ChartData() (map[string]interface{}, error) {
 				log.Println("Error decoding api metric json from analytics db:", err)
 				return nil
 			}
+
+			// add metric to currentMetrics map
+			currentMetrics[metric.Date] = struct{}{}
 
 			// if the metric date is in current date range, insert it into
 			// metrics array at the position of the date in dates array
@@ -199,7 +203,8 @@ func ChartData() (map[string]interface{}, error) {
 			// append request to requests for analysis if its timestamp is today
 			// and its day is not already in cache
 			d := time.Unix(r.Timestamp/1000, 0)
-			if !d.Before(today) && m.Get([]byte(d.Format("01/02"))) == nil {
+			_, inCache := currentMetrics[d.Format("01/02")]
+			if !d.Before(today) && !inCache {
 				requests = append(requests, r)
 			}
 
