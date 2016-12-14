@@ -1150,6 +1150,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	dec.SetAliasTag("json")
 	err = dec.Decode(post, req.Form)
 	if err != nil {
+		log.Println("Error decoding post form for content approval:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1162,6 +1163,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.BeforeApprove(req)
 	if err != nil {
+		log.Println("Error running BeforeApprove hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1175,6 +1177,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	// call its Approve method
 	err = m.Approve(req)
 	if err != nil {
+		log.Println("Error running Approve method in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1187,6 +1190,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.AfterApprove(req)
 	if err != nil {
+		log.Println("Error running AfterApprove hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1199,6 +1203,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.BeforeSave(req)
 	if err != nil {
+		log.Println("Error running BeforeSave hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1212,6 +1217,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	// Store the content in the bucket t
 	id, err := db.SetContent(t+":-1", req.Form)
 	if err != nil {
+		log.Println("Error storing content in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1224,6 +1230,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.AfterSave(req)
 	if err != nil {
+		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		errView, err := Error500()
 		if err != nil {
@@ -1567,7 +1574,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.DeleteContent(t + ":" + id)
+	err = db.DeleteContent(t+":"+id, req.Form)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)

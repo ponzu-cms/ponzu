@@ -118,6 +118,11 @@ func insert(ns string, data url.Values) (int, error) {
 		uid := uuid.NewV4()
 		data.Set("uuid", uid.String())
 
+		// if type has a specifier, add it to data for downstream processing
+		if specifier != "" {
+			data.Set("__specifier", specifier)
+		}
+
 		j, err := postToJSON(ns, data)
 		if err != nil {
 			return err
@@ -126,6 +131,17 @@ func insert(ns string, data url.Values) (int, error) {
 		err = b.Put([]byte(cid), j)
 		if err != nil {
 			return err
+		}
+
+		// store the slug,type:id in contentIndex if public content
+		if specifier == "" {
+			ci := tx.Bucket([]byte("__contentIndex"))
+			k := []byte(data.Get("slug"))
+			v := []byte(fmt.Sprintf("%s:%d", ns, effectedID))
+			err := ci.Put(k, v)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -149,12 +165,25 @@ func insert(ns string, data url.Values) (int, error) {
 
 // DeleteContent removes an item from the database. Deleting a non-existent item
 // will return a nil error.
-func DeleteContent(target string) error {
+func DeleteContent(target string, data url.Values) error {
 	t := strings.Split(target, ":")
 	ns, id := t[0], t[1]
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		tx.Bucket([]byte(ns)).Delete([]byte(id))
+		err := tx.Bucket([]byte(ns)).Delete([]byte(id))
+		if err != nil {
+			return err
+		}
+
+		// if content has a slug, also delete it from __contentIndex
+		slug := data.Get("slug")
+		if slug != "" {
+			err := tx.Bucket([]byte("__contentIndex")).Delete([]byte(slug))
+			if err != nil {
+				return err
+			}
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -435,11 +464,22 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 		return nil, err
 	}
 
-	slug, err := manager.Slug(post.(content.Identifiable))
-	if err != nil {
-		return nil, err
+	// if the content has no slug, and has no specifier, create a slug, check it
+	// for duplicates, and add it to our values
+	if data.Get("slug") == "" && data.Get("__specifier") == "" {
+		slug, err := manager.Slug(post.(content.Identifiable))
+		if err != nil {
+			return nil, err
+		}
+
+		slug, err = checkSlugForDuplicate(slug)
+		if err != nil {
+			return nil, err
+		}
+
+		post.(content.Sluggable).SetSlug(slug)
+		data.Set("slug", slug)
 	}
-	post.(content.Sluggable).SetSlug(slug)
 
 	// marshall content struct to json for db storage
 	j, err := json.Marshal(post)
@@ -448,4 +488,30 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	}
 
 	return j, nil
+}
+
+func checkSlugForDuplicate(slug string) (string, error) {
+	// check for existing slug in __contentIndex
+	err := store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("__contentIndex"))
+		exists := true
+		i := 0
+		for exists {
+			s := b.Get([]byte(slug))
+			if s == nil {
+				exists = false
+				return nil
+			}
+
+			i++
+			slug = fmt.Sprintf("%s-%d", slug, i)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return slug, nil
 }
