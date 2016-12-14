@@ -823,7 +823,14 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		Order:  order,
 	}
 
-	total, posts := db.Query(t+"__sorted", opts)
+	var specifier string
+	if status == "public" {
+		specifier = "__sorted"
+	} else if status == "pending" {
+		specifier = "__pending"
+	}
+
+	total, posts := db.Query(t+specifier, opts)
 	b := &bytes.Buffer{}
 
 	html := `<div class="col s9 card">		
