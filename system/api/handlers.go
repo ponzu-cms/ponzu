@@ -91,6 +91,12 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	id := q.Get("id")
 	t := q.Get("type")
+	slug := q.Get("slug")
+
+	if slug != "" {
+		contentHandlerBySlug(res, req)
+		return
+	}
 
 	if _, ok := content.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
@@ -104,6 +110,26 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 
 	post, err := db.Content(t + ":" + id)
 	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	j, err := fmtJSON(json.RawMessage(post))
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	sendData(res, j, http.StatusOK)
+}
+
+func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
+	slug := req.URL.Query().Get("slug")
+
+	// lookup type:id by slug key in __contentIndex
+	post, err := db.ContentBySlug(slug)
+	if err != nil {
+		log.Println("Error finding content by slug:", slug, err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

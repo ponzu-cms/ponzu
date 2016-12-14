@@ -16,6 +16,7 @@ const managerHTML = `
 		<input type="hidden" name="uuid" value="{{.UUID}}"/>
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
+		<input type="hidden" name="slug" value="{{.Slug}}"/>
 		{{ .Editor }}
 	</form>
 	<script>
@@ -109,6 +110,7 @@ type manager struct {
 	ID     int
 	UUID   uuid.UUID
 	Kind   string
+	Slug   string
 	Editor template.HTML
 }
 
@@ -121,13 +123,19 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 
 	i, ok := e.(content.Identifiable)
 	if !ok {
-		return nil, fmt.Errorf("Content type %s does not implement content.Sortable.", typeName)
+		return nil, fmt.Errorf("Content type %s does not implement content.Identifiable.", typeName)
+	}
+
+	s, ok := e.(content.Sluggable)
+	if !ok {
+		return nil, fmt.Errorf("Content type %s does not implement content.Sluggable.", typeName)
 	}
 
 	m := manager{
 		ID:     i.ItemID(),
 		UUID:   i.UniqueID(),
 		Kind:   typeName,
+		Slug:   s.ItemSlug(), // TODO: just added this and its implementation -- need to rebuild & test
 		Editor: template.HTML(v),
 	}
 

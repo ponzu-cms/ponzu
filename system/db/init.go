@@ -45,7 +45,7 @@ func Init() {
 		}
 
 		// init db with other buckets as needed
-		buckets := []string{"__config", "__users"}
+		buckets := []string{"__config", "__users", "__contentIndex"}
 		for _, name := range buckets {
 			_, err := tx.CreateBucketIfNotExists([]byte(name))
 			if err != nil {

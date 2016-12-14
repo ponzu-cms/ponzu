@@ -13,6 +13,7 @@ import (
 // and it will override the slug created by Item's SetSlug with your struct's
 type Sluggable interface {
 	SetSlug(string)
+	ItemSlug() string
 }
 
 // Identifiable enables a struct to have its ID set/get. Typically this is done
@@ -65,6 +66,11 @@ func (i Item) Touch() int64 {
 // SetSlug sets the item's slug for its URL
 func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
+}
+
+// ItemSlug sets the item's slug for its URL
+func (i *Item) ItemSlug() string {
+	return i.Slug
 }
 
 // ItemID gets the Item's ID field
