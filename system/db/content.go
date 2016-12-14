@@ -494,6 +494,7 @@ func checkSlugForDuplicate(slug string) (string, error) {
 	// check for existing slug in __contentIndex
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
+		original := slug
 		exists := true
 		i := 0
 		for exists {
@@ -504,7 +505,7 @@ func checkSlugForDuplicate(slug string) (string, error) {
 			}
 
 			i++
-			slug = fmt.Sprintf("%s-%d", slug, i)
+			slug = fmt.Sprintf("%s-%d", original, i)
 		}
 
 		return nil
