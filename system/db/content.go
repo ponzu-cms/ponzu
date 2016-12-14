@@ -229,6 +229,41 @@ func Content(target string) ([]byte, error) {
 	return val.Bytes(), nil
 }
 
+// ContentBySlug does a lookup in the content index to find the type and id of
+// the requested content. Subsequently, issues the lookup in the type bucket and
+// returns the data at that ID or nil if nothing exists.
+func ContentBySlug(slug string) ([]byte, error) {
+	val := &bytes.Buffer{}
+	err := store.View(func(tx *bolt.Tx) error {
+		var t, id string
+		b := tx.Bucket([]byte("__contentIndex"))
+		idx := b.Get([]byte(slug))
+
+		if idx != nil {
+			tid := strings.Split(string(idx), ":")
+
+			if len(tid) < 2 {
+				return fmt.Errorf("Bad data in content index for slug: %s", slug)
+			}
+
+			t, id = tid[0], tid[1]
+		}
+
+		c := tx.Bucket([]byte(t))
+		_, err := val.Write(c.Get([]byte(id)))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return val.Bytes(), nil
+}
+
 // ContentAll retrives all items from the database within the provided namespace
 func ContentAll(namespace string) [][]byte {
 	var posts [][]byte
