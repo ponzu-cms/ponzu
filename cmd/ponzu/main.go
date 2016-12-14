@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/bosssauce/ponzu/system/admin"
 	"github.com/bosssauce/ponzu/system/api"
@@ -16,11 +17,37 @@ import (
 	"github.com/bosssauce/ponzu/system/tls"
 )
 
-var usage = `
-$ ponzu [specifiers] option <params>
+var year = fmt.Sprintf("%d", time.Now().Year())
 
-Options 
+var usageHeader = `
+$ ponzu [specifiers] command <params>
 
+Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
+framework. It provides automatic, free, and secure HTTP/2 over TLS (certificates 
+obtained via Let's Encrypt - https://letsencrypt.org), a useful CMS and 
+scaffolding to generate content editors, and a fast HTTP API on which to build 
+modern applications.
+
+Ponzu is released under the BSD-3-Clause license (see LICENSE).
+(c) ` + year + ` Boss Sauce Creative, LLC
+
+COMMANDS
+
+`
+
+var usageHelp = `
+help, h (command):
+
+	Help command will print the usage for Ponzu, or if a command is entered, it
+	will show only the usage for that specific command.
+
+	Example:
+	$ ponzu help generate
+	
+	
+`
+
+var usageNew = `
 new <directory>:
 
 	Creates a 'ponzu' directorty, or one by the name supplied as a parameter 
@@ -34,28 +61,68 @@ new <directory>:
 	$ ponzu new myProject
 	> New ponzu project created at $GOPATH/src/myProject
 
+	Errors will be reported, but successful commands retrun nothing.
 
 
-generate, gen, g <type>:
+`
+
+var usageGenerate = `
+generate, gen, g <type (,...fields)>:
 
 	Generate a content type file with boilerplate code to implement
 	the editor.Editable interface. Must be given one (1) parameter of
-	the name of the type for the new content.
+	the name of the type for the new content. The fields following a 
+	type determine the field names and types of the content struct to 
+	be generated. These must be in the following format:
+	fieldName:"T"
 
 	Example:
-	$ ponzu gen review
+	$ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
+
+	The command above will generate a file 'content/review.go' with boilerplate
+	methods, as well as struct definition, and cooresponding field tags like:
+
+	type Review struct {
+		Title  string   ` + "`json:" + `"title"` + "`" + `
+		Body   string   ` + "`json:" + `"body"` + "`" + `
+		Rating int      ` + "`json:" + `"rating"` + "`" + `
+		Tags   []string ` + "`json:" + `"tags"` + "`" + `
+	}
+
+	The generate command will intelligently parse more sophisticated field names
+	such as 'field_name' and convert it to 'FieldName' and vice versa, only where 
+	appropriate as per common Go idioms. Errors will be reported, but successful 
+	generate commands retrun nothing.
 
 
+`
 
+var usageBuild = `
+build
+
+	From within your Ponzu project directory, running build will copy and move 
+	the necessary files from your workspace into the vendored directory, and 
+	will build/compile the project to then be run. 
+	
+	Example:
+	$ ponzu build
+
+	Errors will be reported, but successful build commands return nothing.
+
+`
+
+var usageRun = `
 [[--port=8080] [--https]] run <service(,service)>:
 
 	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 	The segments, separated by a comma, describe which services to start, either 
 	'admin' (Admin System / CMS backend) or 'api' (JSON API), and, optionally, 
-	if the server(s) should utilize TLS encryption (served over HTTPS), which is
+	if the server should utilize TLS encryption - served over HTTPS, which is
 	automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 	Example: 
+	$ ponzu run
+	(or)
 	$ ponzu --port=8080 --https run admin,api
 	(or) 
 	$ ponzu run admin
@@ -70,9 +137,11 @@ generate, gen, g <type>:
 	to run the Admin and API on separate processes, you must call them with the
 	'ponzu' command independently.
 
+
 `
 
 var (
+	usage = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
 	port  int
 	https bool
 
@@ -97,14 +166,39 @@ func main() {
 	args := flag.Args()
 
 	if len(args) < 1 {
-		flag.Usage()
+		fmt.Println(usage)
 		os.Exit(0)
 	}
 
 	switch args[0] {
+	case "help", "h":
+		if len(args) < 2 {
+			fmt.Println(usageHelp)
+			fmt.Println(usage)
+			os.Exit(0)
+		}
+
+		switch args[1] {
+		case "new":
+			fmt.Println(usageNew)
+			os.Exit(0)
+
+		case "generate", "gen", "g":
+			fmt.Println(usageGenerate)
+			os.Exit(0)
+
+		case "build":
+			fmt.Println(usageBuild)
+			os.Exit(0)
+
+		case "run":
+			fmt.Println(usageRun)
+			os.Exit(0)
+		}
+
 	case "new":
 		if len(args) < 2 {
-			flag.PrintDefaults()
+			fmt.Println(usage)
 			os.Exit(0)
 		}
 
@@ -200,9 +294,11 @@ func main() {
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 
 	case "":
-		flag.PrintDefaults()
+		fmt.Println(usage)
+		fmt.Println(usageHelp)
 
 	default:
-		flag.PrintDefaults()
+		fmt.Println(usage)
+		fmt.Println(usageHelp)
 	}
 }
