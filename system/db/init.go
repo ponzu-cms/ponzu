@@ -79,6 +79,12 @@ func Init() {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
 	}
 
+	// invalidate cache on system start
+	err = InvalidateCache()
+	if err != nil {
+		log.Fatalln("Failed to invalidate cache.", err)
+	}
+
 	go func() {
 		for t := range content.Types {
 			SortContent(t)
