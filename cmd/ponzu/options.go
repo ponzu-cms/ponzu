@@ -178,17 +178,22 @@ type copyPlan struct {
 
 func copyFile(info os.FileInfo, src string, dst string) error {
 	dstFile, err := os.Create(filepath.Join(dst, info.Name()))
+	defer dstFile.Close()
 	if err != nil {
+		fmt.Println("Error in os.Create", src, dst)
 		return err
 	}
 
 	srcFile, err := os.Open(filepath.Join(src, info.Name()))
+	defer srcFile.Close()
 	if err != nil {
+		fmt.Println("Error in os.Open", src, dst)
 		return err
 	}
 
 	_, err = io.Copy(dstFile, srcFile)
 	if err != nil {
+		fmt.Println("Error in io.Copy", src, dst)
 		return err
 	}
 
@@ -205,7 +210,7 @@ func copyDirWithPlan(plan copyPlan) error {
 			path := plan.srcPath
 			if plan.ignoreRootDir {
 				dirs := strings.Split(plan.srcPath, string(filepath.Separator))[1:]
-				filepath.Join(dirs...)
+				path = filepath.Join(dirs...)
 			}
 
 			dirPath := filepath.Join(path, info.Name())
