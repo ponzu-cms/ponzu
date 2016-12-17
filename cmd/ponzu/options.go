@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -127,8 +126,8 @@ func createProjInDir(path string) error {
 		}
 	}
 
-	// create a 'vendor' directory in $path/cmd/ponzu and move 'content',
-	// 'management' and 'system' packages into it
+	// create an internal vendor directory in ./cmd/ponzu and move content,
+	// management and system packages into it
 	err = vendorCorePackages(path)
 	if err != nil {
 		return err
@@ -148,7 +147,6 @@ func vendorCorePackages(path string) error {
 	vendorPath := filepath.Join(path, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu")
 	err := os.MkdirAll(vendorPath, os.ModeDir|os.ModePerm)
 	if err != nil {
-		// TODO: rollback, remove ponzu project from path
 		return err
 	}
 
@@ -156,16 +154,99 @@ func vendorCorePackages(path string) error {
 	for _, dir := range dirs {
 		err = os.Rename(filepath.Join(path, dir), filepath.Join(vendorPath, dir))
 		if err != nil {
-			// TODO: rollback, remove ponzu project from path
 			return err
 		}
 	}
 
-	// create a user 'content' package
+	// create a user content directory
 	contentPath := filepath.Join(path, "content")
 	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
 	if err != nil {
-		// TODO: rollback, remove ponzu project from path
+		return err
+	}
+
+	return nil
+}
+
+type copyPlan struct {
+	srcPath           string
+	dstPath           string
+	reservedFileNames []string
+	reservedDirNames  []string
+	ignoreRootDir     bool
+}
+
+func copyFile(info os.FileInfo, src string, dst string) error {
+	dstFile, err := os.Create(filepath.Join(dst, info.Name()))
+	if err != nil {
+		return err
+	}
+
+	srcFile, err := os.Open(filepath.Join(src, info.Name()))
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func copyDirWithPlan(plan copyPlan) error {
+	err := filepath.Walk(plan.srcPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			path := plan.srcPath
+			if plan.ignoreRootDir {
+				dirs := strings.Split(plan.srcPath, string(filepath.Separator))[1:]
+				filepath.Join(dirs...)
+			}
+
+			dirPath := filepath.Join(path, info.Name())
+			err := os.MkdirAll(dirPath, os.ModeDir|os.ModePerm)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		var mustRenameFiles = []string{}
+		for _, conflict := range plan.reservedFileNames {
+			if info.Name() == conflict {
+				mustRenameFiles = append(mustRenameFiles, conflict)
+				continue
+			}
+		}
+
+		if len(mustRenameFiles) > 1 {
+			fmt.Println("Ponzu couldn't fully build your project:")
+			fmt.Println("You must rename the following files, as they conflict with Ponzu core:")
+			for _, file := range mustRenameFiles {
+				fmt.Println(file)
+			}
+
+			fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
+			return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
+		}
+
+		src := filepath.Join(plan.srcPath, info.Name())
+		dst := filepath.Join(plan.dstPath, info.Name())
+
+		err = copyFile(info, src, dst)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 
@@ -173,59 +254,31 @@ func vendorCorePackages(path string) error {
 }
 
 func buildPonzuServer(args []string) error {
-	// copy all ./content .go files to $vendor/content
-	// check to see if any file exists, move on to next file if so,
-	// and report this conflict to user for them to fix & re-run build
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	contentSrcPath := filepath.Join(pwd, "content")
-	contentDstPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "content")
-
-	srcFiles, err := ioutil.ReadDir(contentSrcPath)
+	// copy all ./content files to internal vendor directory
+	err = copyDirWithPlan(copyPlan{
+		srcPath:           filepath.Join(pwd, "content"),
+		dstPath:           filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu"),
+		reservedFileNames: []string{"item.go", "types.go"},
+		ignoreRootDir:     false,
+	})
 	if err != nil {
 		return err
 	}
 
-	var conflictFiles = []string{"item.go", "types.go"}
-	var mustRenameFiles = []string{}
-	for _, srcFileInfo := range srcFiles {
-		// check srcFile exists in contentDstPath
-		for _, conflict := range conflictFiles {
-			if srcFileInfo.Name() == conflict {
-				mustRenameFiles = append(mustRenameFiles, conflict)
-				continue
-			}
-		}
-
-		dstFile, err := os.Create(filepath.Join(contentDstPath, srcFileInfo.Name()))
-		if err != nil {
-			return err
-		}
-
-		srcFile, err := os.Open(filepath.Join(contentSrcPath, srcFileInfo.Name()))
-		if err != nil {
-			return err
-		}
-
-		_, err = io.Copy(dstFile, srcFile)
-		if err != nil {
-			return err
-		}
-	}
-
-	if len(mustRenameFiles) > 1 {
-		fmt.Println("Ponzu couldn't fully build your project:")
-		fmt.Println("Some of your files in the content directory exist in the vendored directory.")
-		fmt.Println("You must rename the following files, as they conflict with Ponzu core:")
-		for _, file := range mustRenameFiles {
-			fmt.Println(file)
-		}
-
-		fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
-		return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
+	// copy all ./addons files & dirs to internal vendor directory
+	err = copyDirWithPlan(copyPlan{
+		srcPath:           filepath.Join(pwd, "addons"),
+		dstPath:           filepath.Join(pwd, "cmd", "ponzu", "vendor"),
+		reservedFileNames: []string{},
+		ignoreRootDir:     true,
+	})
+	if err != nil {
+		return err
 	}
 
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
