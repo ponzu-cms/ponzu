@@ -168,14 +168,16 @@ func vendorCorePackages(path string) error {
 	return nil
 }
 
-func copyFile(info os.FileInfo, src string, dst string) error {
-	dstFile, err := os.Create(filepath.Join(dst, info.Name()))
+func copyFile(src, dst string) error {
+	noRoot := strings.Split(src, string(filepath.Separator))[1:]
+	path := filepath.Join(noRoot...)
+	dstFile, err := os.Create(filepath.Join(dst, path))
 	defer dstFile.Close()
 	if err != nil {
 		return err
 	}
 
-	srcFile, err := os.Open(filepath.Join(src, info.Name()))
+	srcFile, err := os.Open(src)
 	defer srcFile.Close()
 	if err != nil {
 		return err
@@ -221,7 +223,7 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 			}
 		}
 
-		err = copyFile(info, srcDir, dstDir)
+		err = copyFile(path, dstDir)
 		if err != nil {
 			return err
 		}
