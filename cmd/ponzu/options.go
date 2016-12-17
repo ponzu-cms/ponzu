@@ -203,8 +203,8 @@ func copyFile(info os.FileInfo, src string, dst string) error {
 func copyDirWithPlan(plan copyPlan) error {
 	err := filepath.Walk(plan.srcPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
 			fmt.Println("Error in walkFn", plan)
+			return err
 		}
 
 		if info.IsDir() {
@@ -217,8 +217,8 @@ func copyDirWithPlan(plan copyPlan) error {
 			dirPath := filepath.Join(path, info.Name())
 			err := os.MkdirAll(dirPath, os.ModeDir|os.ModePerm)
 			if err != nil {
-				return err
 				fmt.Println("Error in os.MkdirAll", plan)
+				return err
 			}
 
 			return nil
