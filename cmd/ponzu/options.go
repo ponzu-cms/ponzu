@@ -196,6 +196,7 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 		}
 
 		if info.IsDir() {
+			fmt.Println(path, srcDir)
 			path = path[len(srcDir)+1:]
 			dir := filepath.Join(dstDir, path)
 			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
