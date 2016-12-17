@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"text/template"
-
-	"get"
 
 	"github.com/bosssauce/ponzu/management/editor"
 )
@@ -27,7 +27,7 @@ func Select(fieldName string, p interface{}, attrs map[string]string, contentTyp
 	options := make(map[string]string)
 
 	var data []map[string]interface{}
-	j := get.ContentAll(contentType)
+	j := ContentAll(contentType)
 
 	err := json.Unmarshal(j, data)
 	if err != nil {
@@ -46,4 +46,24 @@ func Select(fieldName string, p interface{}, attrs map[string]string, contentTyp
 	}
 
 	return editor.Select(fieldName, p, attrs, options)
+}
+
+// ContentAll retrives all items from the HTTP API within the provided namespace
+func ContentAll(namespace string) []byte {
+	endpoint := "http://0.0.0.0:8080/api/contents?type="
+	buf := []byte{}
+	r := bytes.NewReader(buf)
+	req, err := http.NewRequest(http.MethodGet, endpoint+namespace, r)
+	if err != nil {
+		log.Println("Error creating request for reference from:", namespace)
+		return nil
+	}
+
+	c := http.Client{}
+	res, err := c.Do(req)
+	defer res.Body.Close()
+
+	fmt.Println(res, string(buf))
+
+	return buf
 }
