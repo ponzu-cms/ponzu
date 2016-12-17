@@ -171,14 +171,12 @@ func vendorCorePackages(path string) error {
 func copyFile(src, dst string) error {
 	noRoot := strings.Split(src, string(filepath.Separator))[1:]
 	path := filepath.Join(noRoot...)
-	fmt.Println("dstFile:", filepath.Join(dst, path))
 	dstFile, err := os.Create(filepath.Join(dst, path))
 	defer dstFile.Close()
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("srcFile:", src)
 	srcFile, err := os.Open(src)
 	defer srcFile.Close()
 	if err != nil {
@@ -195,13 +193,16 @@ func copyFile(src, dst string) error {
 
 func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
-		fmt.Println("hit:", path)
 		if err != nil {
 			return err
 		}
 
 		if info.IsDir() {
-			if len(path) > len(srcDir) && path != srcDir {
+			if path == srcDir {
+				return nil
+			}
+
+			if len(path) > len(srcDir) {
 				path = path[len(srcDir)+1:]
 			}
 			dir := filepath.Join(dstDir, path)
@@ -218,7 +219,7 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 				fmt.Println("Ponzu couldn't fully build your project:")
 				fmt.Println("You must rename the following file, as it conflicts with Ponzu core:")
 				fmt.Println(path)
-
+				fmt.Println("")
 				fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
 				return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
 			}
