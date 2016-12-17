@@ -224,7 +224,7 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 	sendData(res, data, 200)
 }
 
-// CORS wraps a HandleFunc to response to OPTIONS requests properly
+// CORS wraps a HandleFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {
