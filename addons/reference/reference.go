@@ -1,11 +1,11 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"text/template"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
 	"github.com/bosssauce/ponzu/system/api"
 )
@@ -20,38 +20,28 @@ type Referenceable interface {
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs map[string]string, contentType string) []byte {
-	ct, ok := content.Types[contentType]
-	if !ok {
-		log.Println("Cannot reference an invalid content type:", contentType)
-		return nil
-	}
-
-	// get a handle to the underlying interface type for decoding
-	t := ct()
-
+func Select(fieldName string, p interface{}, attrs map[string]string, contentType string, tmpl template.Template) []byte {
 	// decode all content type from db into options map
 	// map["?type=<contentType>&id=<id>"]t.String()
 	options := make(map[string]string)
-	// jj := db.ContentAll(contentType + "__sorted") // make this an API call
-	jj := api.ContentAll(contentType)
 
-	for i := range jj {
-		err := json.Unmarshal(jj[i], t)
+	var data []map[string]interface{}
+	j := api.ContentAll(contentType)
+
+	err := json.Unmarshal(j, data)
+	if err != nil {
+		return nil
+	}
+
+	for i := range data {
+		k := fmt.Sprintf("?type=%s&id=%s", contentType, data[i]["id"].(string))
+		v := &bytes.Buffer{}
+		err := tmpl.Execute(v, data[i])
 		if err != nil {
-			log.Println("Error decoding into reference handle:", contentType, err)
-		}
-
-		// make sure it is a content.Identifiable
-		item, ok := t.(content.Identifiable)
-		if !ok {
-			log.Println("Cannot use type", contentType, "as a reference since it does not implement content.Identifiable")
 			return nil
 		}
 
-		k := fmt.Sprintf("?type=%s&id=%d", contentType, item.ItemID())
-		v := item.String()
-		options[k] = v
+		options[k] = v.String()
 	}
 
 	return editor.Select(fieldName, p, attrs, options)
