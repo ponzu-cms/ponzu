@@ -270,8 +270,8 @@ func buildPonzuServer(args []string) error {
 
 	// copy all ./content files to internal vendor directory
 	err = copyDirWithPlan(copyPlan{
-		srcPath:           filepath.Join(pwd, "content"),
-		dstPath:           filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu"),
+		srcPath:           "content",
+		dstPath:           filepath.Join("cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu"),
 		reservedFileNames: []string{"item.go", "types.go"},
 		ignoreRootDir:     false,
 	})
@@ -281,8 +281,8 @@ func buildPonzuServer(args []string) error {
 
 	// copy all ./addons files & dirs to internal vendor directory
 	err = copyDirWithPlan(copyPlan{
-		srcPath:           filepath.Join(pwd, "addons"),
-		dstPath:           filepath.Join(pwd, "cmd", "ponzu", "vendor"),
+		srcPath:           "addons",
+		dstPath:           filepath.Join("cmd", "ponzu", "vendor"),
 		reservedFileNames: []string{},
 		ignoreRootDir:     true,
 	})
