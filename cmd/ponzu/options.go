@@ -168,94 +168,63 @@ func vendorCorePackages(path string) error {
 	return nil
 }
 
-type copyPlan struct {
-	srcPath           string
-	dstPath           string
-	reservedFileNames []string
-	reservedDirNames  []string
-	ignoreRootDir     bool
-}
-
 func copyFile(info os.FileInfo, src string, dst string) error {
 	dstFile, err := os.Create(filepath.Join(dst, info.Name()))
 	defer dstFile.Close()
 	if err != nil {
-		fmt.Println("Error in os.Create", src, dst)
 		return err
 	}
 
 	srcFile, err := os.Open(filepath.Join(src, info.Name()))
 	defer srcFile.Close()
 	if err != nil {
-		fmt.Println("Error in os.Open", src, dst)
 		return err
 	}
 
 	_, err = io.Copy(dstFile, srcFile)
 	if err != nil {
-		fmt.Println("Error in io.Copy", src, dst)
 		return err
 	}
 
 	return nil
 }
 
-func copyDirWithPlan(plan copyPlan) error {
-	err := filepath.Walk(plan.srcPath, func(path string, info os.FileInfo, err error) error {
+func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
+	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println("Error in walkFn", plan)
 			return err
 		}
 
 		if info.IsDir() {
-			path := plan.srcPath
-			if plan.ignoreRootDir {
-				dirs := strings.Split(plan.srcPath, string(filepath.Separator))[1:]
-				path = filepath.Join(dirs...)
-			}
-
-			dirPath := filepath.Join(path, info.Name())
-			err := os.MkdirAll(dirPath, os.ModeDir|os.ModePerm)
+			path = path[len(srcDir)+1:]
+			dir := filepath.Join(dstDir, path)
+			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
 			if err != nil {
-				fmt.Println("Error in os.MkdirAll", plan)
 				return err
 			}
 
 			return nil
 		}
 
-		var mustRenameFiles = []string{}
-		for _, conflict := range plan.reservedFileNames {
+		for _, conflict := range conflicts {
 			if info.Name() == conflict {
-				mustRenameFiles = append(mustRenameFiles, conflict)
-				continue
+				fmt.Println("Ponzu couldn't fully build your project:")
+				fmt.Println("You must rename the following file, as it conflicts with Ponzu core:")
+				fmt.Println(path)
+
+				fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
+				return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
 			}
 		}
 
-		if len(mustRenameFiles) > 1 {
-			fmt.Println("Ponzu couldn't fully build your project:")
-			fmt.Println("You must rename the following files, as they conflict with Ponzu core:")
-			for _, file := range mustRenameFiles {
-				fmt.Println(file)
-			}
-
-			fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
-			return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
-		}
-
-		src := filepath.Join(plan.srcPath, info.Name())
-		dst := filepath.Join(plan.dstPath, info.Name())
-
-		err = copyFile(info, src, dst)
+		err = copyFile(info, srcDir, dstDir)
 		if err != nil {
-			fmt.Println("Error in copyFile", plan, info, src, dst)
 			return err
 		}
 
 		return nil
 	})
 	if err != nil {
-		fmt.Println("Error in copyDirWithPlan", plan)
 		return err
 	}
 
@@ -269,23 +238,17 @@ func buildPonzuServer(args []string) error {
 	}
 
 	// copy all ./content files to internal vendor directory
-	err = copyDirWithPlan(copyPlan{
-		srcPath:           "content",
-		dstPath:           filepath.Join("cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu"),
-		reservedFileNames: []string{"item.go", "types.go"},
-		ignoreRootDir:     false,
-	})
+	src := "content"
+	dst := filepath.Join("cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "content")
+	err = copyFilesWarnConflicts(src, dst, []string{"item.go", "types.go"})
 	if err != nil {
 		return err
 	}
 
 	// copy all ./addons files & dirs to internal vendor directory
-	err = copyDirWithPlan(copyPlan{
-		srcPath:           "addons",
-		dstPath:           filepath.Join("cmd", "ponzu", "vendor"),
-		reservedFileNames: []string{},
-		ignoreRootDir:     true,
-	})
+	src = "addons"
+	dst = filepath.Join("cmd", "ponzu", "vendor")
+	err = copyFilesWarnConflicts(src, dst, nil)
 	if err != nil {
 		return err
 	}
