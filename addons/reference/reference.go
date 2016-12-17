@@ -10,11 +10,11 @@ import (
 	"github.com/bosssauce/ponzu/system/db"
 )
 
-// New returns the []byte of a <select> HTML element plus internal <options> with a label.
+// Select returns the []byte of a <select> HTML element plus internal <options> with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func New(fieldName string, p interface{}, attrs map[string]string, contentType, fmtString string) []byte {
+func Select(fieldName string, p interface{}, attrs map[string]string, contentType string) []byte {
 	ct, ok := content.Types[contentType]
 	if !ok {
 		log.Println("Cannot reference an invalid content type:", contentType)
@@ -40,7 +40,7 @@ func New(fieldName string, p interface{}, attrs map[string]string, contentType, 
 		// make sure it is an Identifiable
 		item, ok := t.(content.Identifiable)
 		if !ok {
-			log.Println("Cannot use type", contentType, "as reference as it does not implement content.Identifiable")
+			log.Println("Cannot use type", contentType, "as a reference since it does not implement content.Identifiable")
 			return nil
 		}
 
@@ -49,42 +49,5 @@ func New(fieldName string, p interface{}, attrs map[string]string, contentType, 
 		options[k] = v
 	}
 
-	options[""] = contentType + "Content loading..."
-
 	return editor.Select(fieldName, p, attrs, options)
 }
-
-/*
-<script>
-        // fmtString = "{name} - ( Age: {age} | Power: {power} )"
-		// $(function() {
-		// 	var API = '/api/contents?type=` + contentType + `';
-		// 	var select = $('select[name="` + name + `"]);
-
-		// 	$.getJSON(API, function(resp, status) {
-		// 		if (status !== '200' || status !== '304') {
-		// 			console.log('Error loading Reference for', '` + contentType + `')
-		// 			return
-		// 		}
-
-		// 		var data = resp.data,
-		// 			options = [],
-		// 			re = /{(.*?)}/g,
-		// 			tmpl = '` + fmtString + `'
-		// 			tags = tmpl.match(re),
-		// 			keys = [];
-
-		// 		// get keys from tags ({x} -> x)
-		// 		for (var i = 0; i < tags.length; i++) {
-		// 			var key = tags[i].slice(1, tags[i].length-1);
-		// 			keys.push(key);
-		// 		}
-
-		// 		// create options as objects of "?type=<contentType>&id=<id>":displayName
-		// 		for (var i = 0; i < data.length; i++) {
-
-		// 		}
-		// 	});
-		// });
-	</script>
-*/
