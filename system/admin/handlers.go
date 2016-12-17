@@ -1048,10 +1048,10 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 // p is the asserted post as an Editable, t is the Type of the post.
 // specifier is passed to append a name to a namespace like __pending
 func adminPostListItem(e editor.Editable, typeName, status string) []byte {
-	s, ok := e.(editor.Sortable)
+	s, ok := e.(content.Sortable)
 	if !ok {
-		log.Println("Content type", typeName, "doesn't implement editor.Sortable")
-		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (editor.Sortable)</li>`
+		log.Println("Content type", typeName, "doesn't implement content.Sortable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (content.Sortable)</li>`
 		return []byte(post)
 	}
 
@@ -1312,12 +1312,12 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		} else {
-			s, ok := post.(content.Identifiable)
+			item, ok := post.(content.Identifiable)
 			if !ok {
-				log.Println("Content type", t, "doesn't implement editor.Identifiable")
+				log.Println("Content type", t, "doesn't implement content.Identifiable")
 				return
 			}
-			s.SetItemID(-1)
+			item.SetItemID(-1)
 		}
 
 		m, err := manager.Manage(post.(editor.Editable), t)

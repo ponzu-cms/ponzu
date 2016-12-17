@@ -11,8 +11,6 @@ import (
 	"strings"
 
 	"github.com/bosssauce/ponzu/content"
-	"github.com/bosssauce/ponzu/management/editor"
-	"github.com/bosssauce/ponzu/management/manager"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
@@ -305,7 +303,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 	// correct bad input rather than return nil or error
 	// similar to default case for opts.Order switch below
 	if opts.Count < 0 {
-		opts.Count = 0
+		opts.Count = -1
 	}
 
 	if opts.Offset < 0 {
@@ -428,7 +426,7 @@ func SortContent(namespace string) {
 			return
 		}
 
-		posts = append(posts, post.(editor.Sortable))
+		posts = append(posts, post.(content.Sortable))
 	}
 
 	// sort posts
@@ -469,7 +467,7 @@ func SortContent(namespace string) {
 
 }
 
-type sortableContent []editor.Sortable
+type sortableContent []content.Sortable
 
 func (s sortableContent) Len() int {
 	return len(s)
@@ -502,7 +500,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// if the content has no slug, and has no specifier, create a slug, check it
 	// for duplicates, and add it to our values
 	if data.Get("slug") == "" && data.Get("__specifier") == "" {
-		slug, err := manager.Slug(post.(content.Identifiable))
+		slug, err := content.Slug(post.(content.Identifiable))
 		if err != nil {
 			return nil, err
 		}
