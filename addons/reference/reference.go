@@ -21,7 +21,7 @@ type Referenceable interface {
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs map[string]string, contentType string, tmpl template.Template) []byte {
+func Select(fieldName string, p interface{}, attrs map[string]string, contentType string, tmpl *template.Template) []byte {
 	// decode all content type from db into options map
 	// map["?type=<contentType>&id=<id>"]t.String()
 	options := make(map[string]string)
