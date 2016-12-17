@@ -201,7 +201,7 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 		}
 
 		if info.IsDir() {
-			if len(path) > len(srcDir) {
+			if len(path) > len(srcDir) && path != srcDir {
 				path = path[len(srcDir)+1:]
 			}
 			dir := filepath.Join(dstDir, path)
