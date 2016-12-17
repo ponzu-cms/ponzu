@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"text/template"
 
+	"get"
+
 	"github.com/bosssauce/ponzu/management/editor"
-	"github.com/bosssauce/ponzu/system/api"
 )
 
 // Referenceable enures there is a way to reference the implenting type from
@@ -26,7 +27,7 @@ func Select(fieldName string, p interface{}, attrs map[string]string, contentTyp
 	options := make(map[string]string)
 
 	var data []map[string]interface{}
-	j := api.ContentAll(contentType)
+	j := get.ContentAll(contentType)
 
 	err := json.Unmarshal(j, data)
 	if err != nil {
