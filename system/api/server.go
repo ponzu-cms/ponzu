@@ -19,13 +19,13 @@ func Run() {
 }
 
 // ContentAll retrives all items from the HTTP API within the provided namespace
-func ContentAll(namespace string) [][]bytes {
+func ContentAll(namespace string) [][]byte {
 	endpoint := "http://0.0.0.0:8080/api/contents?type="
 	buf := []byte{}
 	r := bytes.NewReader(buf)
 	req, err := http.NewRequest(http.MethodGet, endpoint+namespace, r)
 	if err != nil {
-		log.Println("Error creating request for reference from:", contentType)
+		log.Println("Error creating request for reference from:", namespace)
 		return nil
 	}
 
@@ -34,5 +34,6 @@ func ContentAll(namespace string) [][]bytes {
 
 	fmt.Println(res, string(buf))
 
-	return []byte{buf}
+	ret := [][]byte{}
+	return append(ret, buf)
 }
