@@ -191,13 +191,16 @@ func copyFile(info os.FileInfo, src string, dst string) error {
 
 func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
 		if err != nil {
 			return err
 		}
 
 		if info.IsDir() {
 			fmt.Println(path, srcDir)
-			path = path[len(srcDir)+1:]
+			if len(path) >= len(srcDir) {
+				path = path[len(srcDir)+1:]
+			}
 			dir := filepath.Join(dstDir, path)
 			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
 			if err != nil {
