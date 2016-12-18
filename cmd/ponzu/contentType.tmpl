@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/system/item"	
 )
 
 type {{ .Name }} struct {
-    Item
+    item.Item
     editor editor.Editor
 
     {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
@@ -38,7 +39,7 @@ func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 }
 
 func init() {
-	Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
+	item.Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
 }
 
 // Editor is a buffer of bytes for the Form function to write input views

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/admin/upload"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
 // Externalable accepts or rejects external POST requests to endpoints such as:
@@ -44,7 +44,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	p, found := content.Types[t]
+	p, found := item.Types[t]
 	if !found {
 		log.Println("[External] attempt to submit unknown type:", t, "from:", req.RemoteAddr)
 		res.WriteHeader(http.StatusNotFound)
@@ -105,9 +105,9 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	hook, ok := post.(content.Hookable)
+	hook, ok := post.(item.Hookable)
 	if !ok {
-		log.Println("[External] error: Type", t, "does not implement content.Hookable or embed content.Item.")
+		log.Println("[External] error: Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -1,13 +1,13 @@
 package config
 
 import (
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
 //Config represents the confirgurable options of the system
 type Config struct {
-	content.Item
+	item.Item
 	editor editor.Editor
 
 	Name            string   `json:"name"`
@@ -19,7 +19,7 @@ type Config struct {
 	CacheInvalidate []string `json:"cache"`
 }
 
-// String partially implements content.Identifiable and overrides Item's String()
+// String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
 
 // Editor partially implements editor.Editable

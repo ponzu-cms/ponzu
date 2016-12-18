@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bosssauce/ponzu/content"
+	"github.com/bosssauce/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
@@ -418,7 +418,7 @@ func SortContent(namespace string) {
 	// decode each (json) into type to then sort
 	for i := range all {
 		j := all[i]
-		post := content.Types[namespace]()
+		post := item.Types[namespace]()
 
 		err := json.Unmarshal(j, &post)
 		if err != nil {
@@ -426,7 +426,7 @@ func SortContent(namespace string) {
 			return
 		}
 
-		posts = append(posts, post.(content.Sortable))
+		posts = append(posts, post.(item.Sortable))
 	}
 
 	// sort posts
@@ -467,7 +467,7 @@ func SortContent(namespace string) {
 
 }
 
-type sortableContent []content.Sortable
+type sortableContent []item.Sortable
 
 func (s sortableContent) Len() int {
 	return len(s)
@@ -483,9 +483,9 @@ func (s sortableContent) Swap(i, j int) {
 
 func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// find the content type and decode values into it
-	t, ok := content.Types[ns]
+	t, ok := item.Types[ns]
 	if !ok {
-		return nil, fmt.Errorf(content.ErrTypeNotRegistered, ns)
+		return nil, fmt.Errorf(item.ErrTypeNotRegistered, ns)
 	}
 	post := t()
 
@@ -500,7 +500,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// if the content has no slug, and has no specifier, create a slug, check it
 	// for duplicates, and add it to our values
 	if data.Get("slug") == "" && data.Get("__specifier") == "" {
-		slug, err := content.Slug(post.(content.Identifiable))
+		slug, err := item.Slug(post.(item.Identifiable))
 		if err != nil {
 			return nil, err
 		}
@@ -510,7 +510,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 			return nil, err
 		}
 
-		post.(content.Sluggable).SetSlug(slug)
+		post.(item.Sluggable).SetSlug(slug)
 		data.Set("slug", slug)
 	}
 

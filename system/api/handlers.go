@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
-	for t := range content.Types {
+	for t := range item.Types {
 		types = append(types, string(t))
 	}
 
@@ -36,7 +36,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := content.Types[t]; !ok {
+	if _, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -98,7 +98,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := content.Types[t]; !ok {
+	if _, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}

@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
 	"github.com/bosssauce/ponzu/management/manager"
 	"github.com/bosssauce/ponzu/system/admin/config"
@@ -19,6 +18,7 @@ import (
 	"github.com/bosssauce/ponzu/system/admin/user"
 	"github.com/bosssauce/ponzu/system/api"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/item"
 
 	"github.com/gorilla/schema"
 	emailer "github.com/nilslice/email"
@@ -759,7 +759,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 
 	status := q.Get("status")
 
-	if _, ok := content.Types[t]; !ok {
+	if _, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
@@ -770,7 +770,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	pt := content.Types[t]()
+	pt := item.Types[t]()
 
 	p, ok := pt.(editor.Editable)
 	if !ok {
@@ -1053,17 +1053,17 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 // p is the asserted post as an Editable, t is the Type of the post.
 // specifier is passed to append a name to a namespace like __pending
 func adminPostListItem(e editor.Editable, typeName, status string) []byte {
-	s, ok := e.(content.Sortable)
+	s, ok := e.(item.Sortable)
 	if !ok {
-		log.Println("Content type", typeName, "doesn't implement content.Sortable")
-		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (content.Sortable)</li>`
+		log.Println("Content type", typeName, "doesn't implement item.Sortable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (item.Sortable)</li>`
 		return []byte(post)
 	}
 
-	i, ok := e.(content.Identifiable)
+	i, ok := e.(item.Identifiable)
 	if !ok {
-		log.Println("Content type", typeName, "doesn't implement content.Identifiable")
-		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (content.Identifiable)</li>`
+		log.Println("Content type", typeName, "doesn't implement item.Identifiable")
+		post := `<li class="col s12">Error retreiving data. Your data type doesn't implement necessary interfaces. (item.Identifiable)</li>`
 		return []byte(post)
 	}
 
@@ -1127,12 +1127,12 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		t = strings.Split(t, "__")[0]
 	}
 
-	post := content.Types[t]()
+	post := item.Types[t]()
 
 	// run hooks
-	hook, ok := post.(content.Hookable)
+	hook, ok := post.(item.Hookable)
 	if !ok {
-		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
@@ -1267,9 +1267,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		t := q.Get("type")
 		status := q.Get("status")
 
-		contentType, ok := content.Types[t]
+		contentType, ok := item.Types[t]
 		if !ok {
-			fmt.Fprintf(res, content.ErrTypeNotRegistered, t)
+			fmt.Fprintf(res, item.ErrTypeNotRegistered, t)
 			return
 		}
 		post := contentType()
@@ -1317,9 +1317,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		} else {
-			item, ok := post.(content.Identifiable)
+			item, ok := post.(item.Identifiable)
 			if !ok {
-				log.Println("Content type", t, "doesn't implement content.Identifiable")
+				log.Println("Content type", t, "doesn't implement item.Identifiable")
 				return
 			}
 			item.SetItemID(-1)
@@ -1419,7 +1419,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			t = strings.Split(t, "__")[0]
 		}
 
-		p, ok := content.Types[t]
+		p, ok := item.Types[t]
 		if !ok {
 			log.Println("Type", t, "is not a content type. Cannot edit or save.")
 			res.WriteHeader(http.StatusBadRequest)
@@ -1433,9 +1433,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		post := p()
-		hook, ok := post.(content.Hookable)
+		hook, ok := post.(item.Hookable)
 		if !ok {
-			log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error400()
 			if err != nil {
@@ -1530,9 +1530,9 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		ct = spec[0]
 	}
 
-	p, ok := content.Types[ct]
+	p, ok := item.Types[ct]
 	if !ok {
-		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
@@ -1544,9 +1544,9 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	post := p()
-	hook, ok := post.(content.Hookable)
+	hook, ok := post.(item.Hookable)
 	if !ok {
-		log.Println("Type", t, "does not implement content.Hookable or embed content.Item.")
+		log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
@@ -1661,7 +1661,7 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	posts := db.ContentAll(t + specifier)
 	b := &bytes.Buffer{}
-	p := content.Types[t]().(editor.Editable)
+	p := item.Types[t]().(editor.Editable)
 
 	html := `<div class="col s9 card">		
 					<div class="card-content">

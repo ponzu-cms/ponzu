@@ -8,10 +8,10 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/admin/user"
 	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
 var startAdminHTML = `<!doctype html>
@@ -104,7 +104,7 @@ func Admin(view []byte) ([]byte, error) {
 
 	a := admin{
 		Logo:    string(cfg),
-		Types:   content.Types,
+		Types:   item.Types,
 		Subview: template.HTML(view),
 	}
 

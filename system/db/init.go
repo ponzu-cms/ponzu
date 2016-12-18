@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/admin/config"
+	"github.com/bosssauce/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
@@ -32,7 +32,7 @@ func Init() {
 
 	err = store.Update(func(tx *bolt.Tx) error {
 		// initialize db with all content type buckets & sorted bucket for type
-		for t := range content.Types {
+		for t := range item.Types {
 			_, err := tx.CreateBucketIfNotExists([]byte(t))
 			if err != nil {
 				return err
@@ -86,7 +86,7 @@ func Init() {
 	}
 
 	go func() {
-		for t := range content.Types {
+		for t := range item.Types {
 			SortContent(t)
 		}
 	}()
