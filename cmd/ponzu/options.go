@@ -150,7 +150,7 @@ func vendorCorePackages(path string) error {
 		return err
 	}
 
-	// create a user content directory
+	// create a user content directory to be vendored
 	contentPath := filepath.Join(path, "content")
 	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
 	if err != nil {
@@ -163,6 +163,13 @@ func vendorCorePackages(path string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// create a user content directory at project root
+	contentPath = filepath.Join(path, "content")
+	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
+	if err != nil {
+		return err
 	}
 
 	return nil
