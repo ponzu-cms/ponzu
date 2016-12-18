@@ -12,6 +12,7 @@ type Config struct {
 
 	Name            string   `json:"name"`
 	Domain          string   `json:"domain"`
+	HTTPPort        string   `json:"http_port"`
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`

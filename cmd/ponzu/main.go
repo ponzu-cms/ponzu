@@ -291,7 +291,14 @@ func main() {
 			tls.Enable()
 		}
 
-		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+		// save the port the system is listening on so internal system can make
+		// HTTP api calls while in dev or production w/o adding more cli flags
+		err := db.PutConfig("http_port", fmt.Sprintf("%d", port))
+		if err != nil {
+			log.Fatalln("System failed to save config. Please try to run again.")
+		}
+
+		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 
 	case "":
 		fmt.Println(usage)

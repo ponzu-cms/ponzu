@@ -71,6 +71,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		etag := db.NewEtag()
 		req.Form.Set("etag", etag)
 
+		// create and save admin user
 		email := strings.ToLower(req.FormValue("email"))
 		password := req.FormValue("password")
 		usr := user.NewUser(email, password)
@@ -81,6 +82,10 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		// set HTTP port which should be previously added to config cache
+		port := db.ConfigCache("http_port")
+		req.Form.Set("http_port", port)
 
 		// set initial user email as admin_email and make config
 		req.Form.Set("admin_email", email)

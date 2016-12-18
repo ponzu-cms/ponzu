@@ -117,7 +117,47 @@ func ConfigAll() ([]byte, error) {
 	return val.Bytes(), nil
 }
 
+// PutConfig updates a single k/v in the config
+func PutConfig(key string, value interface{}) error {
+	kv := make(map[string]interface{})
+
+	c, err := ConfigAll()
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(c, &kv)
+	if err != nil {
+		return err
+	}
+
+	data := make(url.Values)
+	for k, v := range kv {
+		switch v.(type) {
+		case string:
+			data.Set(k, v.(string))
+		case []string:
+			vv := v.([]string)
+			for i := range vv {
+				if i == 0 {
+					data.Set(k, vv[i])
+				} else {
+					data.Add(k, vv[i])
+				}
+			}
+		}
+	}
+
+	err = SetConfig(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
+// 'key' is the JSON tag associated with the config field
 func ConfigCache(key string) string {
 	return configCache.Get(key)
 }
