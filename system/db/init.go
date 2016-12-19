@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/bosssauce/ponzu/system/admin/config"
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/admin/config"
+	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"

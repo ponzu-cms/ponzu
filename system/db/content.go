@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"

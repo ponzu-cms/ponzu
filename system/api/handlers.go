@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bosssauce/ponzu/system/api/analytics"
-	"github.com/bosssauce/ponzu/system/db"
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/api/analytics"
+	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/item"
 )
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {

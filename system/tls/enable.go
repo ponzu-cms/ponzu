@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bosssauce/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/db"
 
 	"golang.org/x/crypto/acme/autocert"
 )

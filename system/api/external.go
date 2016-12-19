@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bosssauce/ponzu/system/admin/upload"
-	"github.com/bosssauce/ponzu/system/db"
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/admin/upload"
+	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/item"
 )
 
 // Externalable accepts or rejects external POST requests to endpoints such as:

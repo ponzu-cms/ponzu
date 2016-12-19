@@ -10,14 +10,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bosssauce/ponzu/system/admin"
-	"github.com/bosssauce/ponzu/system/api"
-	"github.com/bosssauce/ponzu/system/api/analytics"
-	"github.com/bosssauce/ponzu/system/db"
-	"github.com/bosssauce/ponzu/system/tls"
+	"github.com/ponzu-cms/ponzu/system/admin"
+	"github.com/ponzu-cms/ponzu/system/api"
+	"github.com/ponzu-cms/ponzu/system/api/analytics"
+	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/tls"
 
 	// import registers content types
-	_ "github.com/bosssauce/ponzu/content"
+	_ "github.com/ponzu-cms/ponzu/content"
 )
 
 var year = fmt.Sprintf("%d", time.Now().Year())
@@ -57,7 +57,7 @@ new <directory>:
 	immediately following the 'new' option in the $GOPATH/src directory. Note: 
 	'new' depends on the program 'git' and possibly a network connection. If 
 	there is no local repository to clone from at the local machine's $GOPATH, 
-	'new' will attempt to clone the 'github.com/bosssauce/ponzu' package from 
+	'new' will attempt to clone the 'github.com/ponzu-cms/ponzu' package from 
 	over the network.
 
 	Example:

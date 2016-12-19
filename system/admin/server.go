@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bosssauce/ponzu/system/admin/user"
-	"github.com/bosssauce/ponzu/system/api"
-	"github.com/bosssauce/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/admin/user"
+	"github.com/ponzu-cms/ponzu/system/api"
+	"github.com/ponzu-cms/ponzu/system/db"
 )
 
 // Run adds Handlers to default http listener for Admin
@@ -42,7 +42,7 @@ func Run() {
 		log.Fatal("Couldn't find current directory for file server.")
 	}
 
-	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "system")
+	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system")
 	http.Handle("/admin/static/", db.CacheControl(http.FileServer(restrict(http.Dir(staticDir)))))
 
 	// API path needs to be registered within server package so that it is handled

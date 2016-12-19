@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/bosssauce/ponzu/management/editor"
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/management/editor"
+	"github.com/ponzu-cms/ponzu/system/item"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -7,7 +7,7 @@ to get thoughts/feedback!
 ## Installation
 
 ```
-$ go get github.com/bosssauce/ponzu/...
+$ go get github.com/ponzu-cms/ponzu/...
 ```
 
 ## Contributing
@@ -25,11 +25,11 @@ $ go get github.com/bosssauce/ponzu/...
 _A typical contribution workflow might look like:_
 ```bash
 # clone the repository and checkout ponzu-dev
-$ git clone https://github.com/bosssauce/ponzu 'path/to/local/ponzu'
+$ git clone https://github.com/ponzu-cms/ponzu 'path/to/local/ponzu'
 $ git checkout ponzu-dev
 
 # install ponzu with go get or from your own local path
-$ go get github.com/bosssauce/ponzu/...
+$ go get github.com/ponzu-cms/ponzu/...
 # or
 $ cd /path/to/local/ponzu 
 $ go install ./...
@@ -45,9 +45,9 @@ $ ponzu --dev new /path/to/new/project # will create $GOPATH/src/path/to/new/pro
 $ cd /path/to/new/project
 $ ponzu build && ponzu run
 
-# push to your origin:ponzu-dev branch and create a PR at bosssauce/ponzu
+# push to your origin:ponzu-dev branch and create a PR at ponzu-cms/ponzu
 $ git push origin ponzu-dev
-# ... go to https://github.com/bosssauce/ponzu and create a PR
+# ... go to https://github.com/ponzu-cms/ponzu and create a PR
 ```
 
 **Note:** if you intend to work on your own fork and contribute from it, you will

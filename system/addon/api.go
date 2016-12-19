@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bosssauce/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/db"
 )
 
 // ContentAll retrives all items from the HTTP API within the provided namespace

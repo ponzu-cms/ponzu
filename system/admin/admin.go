@@ -8,10 +8,10 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/bosssauce/ponzu/system/admin/user"
-	"github.com/bosssauce/ponzu/system/api/analytics"
-	"github.com/bosssauce/ponzu/system/db"
-	"github.com/bosssauce/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/admin/user"
+	"github.com/ponzu-cms/ponzu/system/api/analytics"
+	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/item"
 )
 
 var startAdminHTML = `<!doctype html>
