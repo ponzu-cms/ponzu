@@ -10,8 +10,8 @@ import (
 	"html/template"
 	"log"
 
-	"github.com/bosssauce/ponzu/management/editor"
-	"github.com/bosssauce/ponzu/system/addon"
+	"github.com/ponzu-cms/ponzu/management/editor"
+	"github.com/ponzu-cms/ponzu/system/addon"
 )
 
 // Select returns the []byte of a <select> HTML element plus internal <options> with a label.
@@ -20,7 +20,7 @@ import (
 // form of the struct field that this editor input is representing
 func Select(fieldName string, p interface{}, attrs map[string]string, contentType, tmplString string) []byte {
 	// decode all content type from db into options map
-	// map["?type=<contentType>&id=<id>"]t.String()
+	// options in form of map["?type=<contentType>&id=<id>"]t.String()
 	options := make(map[string]string)
 
 	var all map[string]interface{}
