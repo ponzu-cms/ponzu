@@ -137,9 +137,18 @@ func PutConfig(key string, value interface{}) error {
 	data := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
+		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+			data.Set(k, fmt.Sprintf("%d", v))
+
+		case float32, float64:
+			data.Set(k, fmt.Sprintf("%f", v))
+
+		case bool:
+			data.Set(k, fmt.Sprintf("%t", v))
+
 		case string:
-			fmt.Println("type string:", v)
 			data.Set(k, v.(string))
+
 		case []string:
 			vv := v.([]string)
 			for i := range vv {
@@ -149,6 +158,7 @@ func PutConfig(key string, value interface{}) error {
 					data.Add(k, vv[i])
 				}
 			}
+
 		default:
 			log.Println("No type case for:", k, v, "in PutConfig")
 			data.Set(k, fmt.Sprintf("%v", v))
