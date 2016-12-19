@@ -20,6 +20,7 @@ func ContentAll(namespace string) []byte {
 	buf := []byte{}
 	r := bytes.NewReader(buf)
 	url := fmt.Sprintf(endpoint, host, port, namespace)
+	fmt.Println(url)
 
 	req, err := http.NewRequest(http.MethodGet, url, r)
 	if err != nil {
@@ -31,6 +32,10 @@ func ContentAll(namespace string) []byte {
 		Timeout: time.Duration(time.Second * 5),
 	}
 	res, err := c.Do(req)
+	if err != nil {
+		log.Println("Error making HTTP request for reference of:", namespace)
+		return nil
+	}
 	defer res.Body.Close()
 
 	j, err := ioutil.ReadAll(res.Body)

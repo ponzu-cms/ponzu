@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 
@@ -119,6 +120,7 @@ func ConfigAll() ([]byte, error) {
 
 // PutConfig updates a single k/v in the config
 func PutConfig(key string, value interface{}) error {
+	fmt.Println(key, value)
 	kv := make(map[string]interface{})
 
 	c, err := ConfigAll()
