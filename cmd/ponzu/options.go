@@ -204,16 +204,8 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 			return err
 		}
 
-		if info.IsDir() {
-			if len(path) > len(srcDir) {
-				path = path[len(srcDir)+1:]
-			}
-			dir := filepath.Join(dstDir, path)
-			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
-			if err != nil {
-				return err
-			}
-
+		// skip copy root directory
+		if path == srcDir {
 			return nil
 		}
 
@@ -226,6 +218,19 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 				fmt.Println("Once the files above have been renamed, run '$ ponzu build' to retry.")
 				return errors.New("Ponzu has very few internal conflicts, sorry for the inconvenience.")
 			}
+		}
+
+		if info.IsDir() {
+			if len(path) > len(srcDir) {
+				path = path[len(srcDir)+1:]
+			}
+			dir := filepath.Join(dstDir, path)
+			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		}
 
 		err = copyFile(path, dstDir)

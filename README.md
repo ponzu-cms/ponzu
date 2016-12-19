@@ -8,7 +8,7 @@ $ go get github.com/ponzu-cms/ponzu/...
 ## Usage
 
 ```
-$ ponzu [specifiers] command <params>
+$ ponzu [flags] command <params>
 
 Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
 framework. It provides automatic, free, and secure HTTP/2 over TLS (certificates 
