@@ -22,6 +22,7 @@ func init() {
 
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
+	fmt.Println("SetConfig:", data)
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 
@@ -133,6 +134,8 @@ func PutConfig(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(kv)
 
 	data := make(url.Values)
 	for k, v := range kv {
