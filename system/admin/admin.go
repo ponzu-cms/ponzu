@@ -86,10 +86,9 @@ var endAdminHTML = `
 </html>`
 
 type admin struct {
-	Logo     string
-	Types    map[string]func() interface{}
-	Subview  template.HTML
-	HTTPPort string
+	Logo    string
+	Types   map[string]func() interface{}
+	Subview template.HTML
 }
 
 // Admin ...

@@ -20,7 +20,6 @@ func ContentAll(namespace string) []byte {
 	buf := []byte{}
 	r := bytes.NewReader(buf)
 	url := fmt.Sprintf(endpoint, host, port, namespace)
-	fmt.Println(url)
 
 	req, err := http.NewRequest(http.MethodGet, url, r)
 	if err != nil {

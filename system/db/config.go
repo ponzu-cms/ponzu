@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
@@ -22,7 +21,6 @@ func init() {
 
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
-	fmt.Println("SetConfig:", data)
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 
@@ -122,7 +120,6 @@ func ConfigAll() ([]byte, error) {
 
 // PutConfig updates a single k/v in the config
 func PutConfig(key string, value interface{}) error {
-	fmt.Println("PutConfig:", key, value)
 	kv := make(map[string]interface{})
 
 	c, err := ConfigAll()
@@ -151,13 +148,9 @@ func PutConfig(key string, value interface{}) error {
 			}
 
 		default:
-			log.Println("No type case for:", k, v, "in PutConfig")
 			data.Set(k, fmt.Sprintf("%v", v))
 		}
 	}
-
-	fmt.Println("data should match 2 lines below:")
-	fmt.Println("PutConfig:", data)
 
 	err = SetConfig(data)
 	if err != nil {
