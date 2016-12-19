@@ -150,12 +150,12 @@ func vendorCorePackages(path string) error {
 		return err
 	}
 
-	// create a user content directory to be vendored
-	contentPath := filepath.Join(path, "content")
-	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
-	if err != nil {
-		return err
-	}
+	// // create a user content directory to be vendored
+	// contentPath := filepath.Join(path, "content")
+	// err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
+	// if err != nil {
+	// 	return err
+	// }
 
 	dirs := []string{"content", "management", "system"}
 	for _, dir := range dirs {
@@ -166,7 +166,7 @@ func vendorCorePackages(path string) error {
 	}
 
 	// create a user content directory at project root
-	contentPath = filepath.Join(path, "content")
+	contentPath := filepath.Join(path, "content")
 	err = os.Mkdir(contentPath, os.ModeDir|os.ModePerm)
 	if err != nil {
 		return err
@@ -251,7 +251,7 @@ func buildPonzuServer(args []string) error {
 	// copy all ./content files to internal vendor directory
 	src := "content"
 	dst := filepath.Join("cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "content")
-	err = copyFilesWarnConflicts(src, dst, nil)
+	err = copyFilesWarnConflicts(src, dst, []string{"doc.go"})
 	if err != nil {
 		return err
 	}
