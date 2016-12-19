@@ -150,7 +150,8 @@ func PutConfig(key string, value interface{}) error {
 				}
 			}
 		default:
-			log.Println("No assertion made for data value in PutConfig:", value)
+			log.Println("No type case for:", k, v, "in PutConfig")
+			data.Set(k, fmt.Sprintf("%v", v))
 		}
 	}
 
