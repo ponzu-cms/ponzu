@@ -1,8 +1,6 @@
 package api
 
-import (
-	"net/http"
-)
+import "net/http"
 
 // Run adds Handlers to default http listener for API
 func Run() {

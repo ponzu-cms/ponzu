@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
-	for t := range content.Types {
+	for t := range item.Types {
 		types = append(types, string(t))
 	}
 
@@ -36,7 +36,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := content.Types[t]; !ok {
+	if _, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -98,7 +98,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := content.Types[t]; !ok {
+	if _, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -224,7 +224,7 @@ func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
 	sendData(res, data, 200)
 }
 
-// CORS wraps a HandleFunc to response to OPTIONS requests properly
+// CORS wraps a HandleFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {

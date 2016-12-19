@@ -13,12 +13,6 @@ type Editable interface {
 	MarshalEditor() ([]byte, error)
 }
 
-// Sortable ensures data is sortable by time
-type Sortable interface {
-	Time() int64
-	Touch() int64
-}
-
 // Mergeable allows external post content to be approved and published through
 // the public-facing API
 type Mergeable interface {

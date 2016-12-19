@@ -242,8 +242,6 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 	// find the field value in p to determine if an option is pre-selected
 	fieldVal := valueFromStructField(fieldName, p)
 
-	// may need to alloc a buffer, as we will probably loop through options
-	// and append the []byte from domElement() called for each option
 	attrs["class"] = "browser-default"
 	sel := newElement("select", attrs["label"], fieldName, p, attrs)
 	var opts []*element

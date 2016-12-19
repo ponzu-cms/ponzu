@@ -1,10 +1,15 @@
-package content
+package item
 
 import (
 	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
+	"unicode"
 
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // Sluggable makes a struct locatable by URL with it's own path
@@ -25,6 +30,12 @@ type Identifiable interface {
 	SetItemID(int)
 	UniqueID() uuid.UUID
 	String() string
+}
+
+// Sortable ensures data is sortable by time
+type Sortable interface {
+	Time() int64
+	Touch() int64
 }
 
 // Hookable provides our user with an easy way to intercept or add functionality
@@ -135,4 +146,64 @@ func (i Item) BeforeReject(req *http.Request) error {
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
 func (i Item) AfterReject(req *http.Request) error {
 	return nil
+}
+
+// Slug returns a URL friendly string from the title of a post item
+func Slug(i Identifiable) (string, error) {
+	// get the name of the post item
+	name := strings.TrimSpace(i.String())
+
+	// filter out non-alphanumeric character or non-whitespace
+	slug, err := stringToSlug(name)
+	if err != nil {
+		return "", err
+	}
+
+	return slug, nil
+}
+
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
+// modified version of: https://www.socketloop.com/tutorials/golang-format-strings-to-seo-friendly-url-example
+func stringToSlug(s string) (string, error) {
+	src := []byte(strings.ToLower(s))
+
+	// convert all spaces to dash
+	rx := regexp.MustCompile("[[:space:]]")
+	src = rx.ReplaceAll(src, []byte("-"))
+
+	// remove all blanks such as tab
+	rx = regexp.MustCompile("[[:blank:]]")
+	src = rx.ReplaceAll(src, []byte(""))
+
+	rx = regexp.MustCompile("[!/:-@[-`{-~]")
+	src = rx.ReplaceAll(src, []byte(""))
+
+	rx = regexp.MustCompile("/[^\x20-\x7F]/")
+	src = rx.ReplaceAll(src, []byte(""))
+
+	rx = regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i")
+	src = rx.ReplaceAll(src, []byte("-"))
+
+	rx = regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i")
+	src = rx.ReplaceAll(src, []byte("\\1"))
+
+	rx = regexp.MustCompile("`[^a-z0-9]`i")
+	src = rx.ReplaceAll(src, []byte("-"))
+
+	rx = regexp.MustCompile("`[-]+`")
+	src = rx.ReplaceAll(src, []byte("-"))
+
+	str := strings.Replace(string(src), "'", "", -1)
+	str = strings.Replace(str, `"`, "", -1)
+
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	slug, _, err := transform.String(t, str)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(slug), nil
 }

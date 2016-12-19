@@ -2,10 +2,8 @@ package db
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 )
@@ -39,40 +37,9 @@ func NewEtag() string {
 
 // InvalidateCache sets a new Etag for http responses
 func InvalidateCache() error {
-	kv := make(map[string]interface{})
-
-	c, err := ConfigAll()
+	err := PutConfig("etag", NewEtag())
 	if err != nil {
 		return err
-	}
-
-	err = json.Unmarshal(c, &kv)
-	if err != nil {
-		return err
-	}
-
-	kv["etag"] = NewEtag()
-
-	data := make(url.Values)
-	for k, v := range kv {
-		switch v.(type) {
-		case string:
-			data.Set(k, v.(string))
-		case []string:
-			vv := v.([]string)
-			for i := range vv {
-				if i == 0 {
-					data.Set(k, vv[i])
-				} else {
-					data.Add(k, vv[i])
-				}
-			}
-		}
-	}
-
-	err = SetConfig(data)
-	if err != nil {
-
 	}
 
 	return nil

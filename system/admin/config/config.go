@@ -1,24 +1,25 @@
 package config
 
 import (
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/system/item"
 )
 
-//Config represents the confirgurable options of the system
+// Config represents the confirgurable options of the system
 type Config struct {
-	content.Item
+	item.Item
 	editor editor.Editor
 
 	Name            string   `json:"name"`
 	Domain          string   `json:"domain"`
+	HTTPPort        string   `json:"http_port"`
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
 	CacheInvalidate []string `json:"cache"`
 }
 
-// String partially implements content.Identifiable and overrides Item's String()
+// String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
 
 // Editor partially implements editor.Editable
@@ -37,6 +38,11 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Input("Domain", c, map[string]string{
 				"label":       "Domain Name (required for SSL certificate)",
 				"placeholder": "e.g. www.example.com or example.com",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("HTTPPort", c, map[string]string{
+				"type": "hidden",
 			}),
 		},
 		editor.Field{

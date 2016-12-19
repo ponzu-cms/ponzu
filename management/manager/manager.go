@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/bosssauce/ponzu/content"
 	"github.com/bosssauce/ponzu/management/editor"
+	"github.com/bosssauce/ponzu/system/item"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -121,14 +121,14 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 		return nil, fmt.Errorf("Couldn't marshal editor for content %s. %s", typeName, err.Error())
 	}
 
-	i, ok := e.(content.Identifiable)
+	i, ok := e.(item.Identifiable)
 	if !ok {
-		return nil, fmt.Errorf("Content type %s does not implement content.Identifiable.", typeName)
+		return nil, fmt.Errorf("Content type %s does not implement item.Identifiable.", typeName)
 	}
 
-	s, ok := e.(content.Sluggable)
+	s, ok := e.(item.Sluggable)
 	if !ok {
-		return nil, fmt.Errorf("Content type %s does not implement content.Sluggable.", typeName)
+		return nil, fmt.Errorf("Content type %s does not implement item.Sluggable.", typeName)
 	}
 
 	m := manager{
