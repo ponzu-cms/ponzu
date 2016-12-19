@@ -7,7 +7,7 @@ $ go get github.com/ponzu-cms/ponzu/...
 
 ## Usage
 
-```bash
+```
 $ ponzu [specifiers] command <params>
 
 Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
