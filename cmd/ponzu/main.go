@@ -302,6 +302,9 @@ func main() {
 			log.Fatalln("System failed to save config. Please try to run again.")
 		}
 
+		cfg, _ := db.ConfigAll()
+		fmt.Println(string(cfg))
+
 		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 
 	case "":
