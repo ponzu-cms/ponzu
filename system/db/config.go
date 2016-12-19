@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 
@@ -147,6 +148,8 @@ func PutConfig(key string, value interface{}) error {
 					data.Add(k, vv[i])
 				}
 			}
+		default:
+			log.Println("No assertion made for data value in PutConfig:", value)
 		}
 	}
 
@@ -154,8 +157,6 @@ func PutConfig(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(data)
 
 	return nil
 }
