@@ -15,6 +15,9 @@ import (
 	"github.com/bosssauce/ponzu/system/api/analytics"
 	"github.com/bosssauce/ponzu/system/db"
 	"github.com/bosssauce/ponzu/system/tls"
+
+	// import registers content types
+	_ "github.com/bosssauce/ponzu/content"
 )
 
 var year = fmt.Sprintf("%d", time.Now().Year())
