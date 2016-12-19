@@ -155,6 +155,8 @@ func PutConfig(key string, value interface{}) error {
 		return err
 	}
 
+	fmt.Println(data)
+
 	return nil
 }
 
