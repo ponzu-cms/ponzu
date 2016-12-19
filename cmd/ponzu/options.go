@@ -215,20 +215,22 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 			}
 		}
 
-		// don't copy root directory
-		if path != srcDir {
-			if info.IsDir() {
-				if len(path) > len(srcDir) {
-					path = path[len(srcDir)+1:]
-				}
-				dir := filepath.Join(dstDir, path)
-				err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
-				if err != nil {
-					return err
-				}
-
+		if info.IsDir() {
+			// don't copy root directory
+			if path == srcDir {
 				return nil
 			}
+
+			if len(path) > len(srcDir) {
+				path = path[len(srcDir)+1:]
+			}
+			dir := filepath.Join(dstDir, path)
+			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		}
 
 		err = copyFile(path, dstDir)
