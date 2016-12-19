@@ -86,9 +86,10 @@ var endAdminHTML = `
 </html>`
 
 type admin struct {
-	Logo    string
-	Types   map[string]func() interface{}
-	Subview template.HTML
+	Logo     string
+	Types    map[string]func() interface{}
+	Subview  template.HTML
+	HTTPPort string
 }
 
 // Admin ...
@@ -146,6 +147,7 @@ var initAdminHTML = `
             <input placeholder="Enter a strong password" class="validate required" type="password" id="password" name="password"/>
             <label for="password" class="active">Password</label>        
         </div>
+        <input type="hidden" name="http_port" value="{{.HTTPPort}}"/>
         <button class="btn waves-effect waves-light right">Start</button>
     </form>
 </div>
@@ -179,7 +181,8 @@ func Init() ([]byte, error) {
 	}
 
 	a := admin{
-		Logo: string(cfg),
+		Logo:     string(cfg),
+		HTTPPort: db.ConfigCache("http_port"),
 	}
 
 	buf := &bytes.Buffer{}
