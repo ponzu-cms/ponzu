@@ -121,7 +121,7 @@ func ConfigAll() ([]byte, error) {
 
 // PutConfig updates a single k/v in the config
 func PutConfig(key string, value interface{}) error {
-	fmt.Println(key, value)
+	fmt.Println("PutConfig:", key, value)
 	kv := make(map[string]interface{})
 
 	c, err := ConfigAll()

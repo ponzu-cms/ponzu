@@ -5,7 +5,7 @@ import (
 	"github.com/bosssauce/ponzu/system/item"
 )
 
-//Config represents the confirgurable options of the system
+// Config represents the confirgurable options of the system
 type Config struct {
 	item.Item
 	editor editor.Editor
@@ -38,6 +38,11 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Input("Domain", c, map[string]string{
 				"label":       "Domain Name (required for SSL certificate)",
 				"placeholder": "e.g. www.example.com or example.com",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("HTTPPort", c, map[string]string{
+				"type": "hidden",
 			}),
 		},
 		editor.Field{
