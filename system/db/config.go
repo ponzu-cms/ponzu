@@ -135,7 +135,8 @@ func PutConfig(key string, value interface{}) error {
 		return err
 	}
 
-	fmt.Println("decoded map:", kv)
+	// set k/v from params to decoded map
+	kv[key] = value
 
 	data := make(url.Values)
 	for k, v := range kv {
