@@ -9,5 +9,5 @@ To submit an official addon, fork the repository at the URL above and make a
 pull request including your addon inside a directory without its own git 
 repository.
 
-Questions? Reach out to @ponzu_cms on Twitter, or open an issue at 
-https://github.com/ponzu-cms/ponzu
+Questions? Reach out to [@ponzu_cms](https://twitter.com/ponzu_cms) on Twitter, 
+or open an issue at https://github.com/ponzu-cms/ponzu
