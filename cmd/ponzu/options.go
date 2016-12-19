@@ -255,7 +255,7 @@ func buildPonzuServer(args []string) error {
 	// copy all ./content files to internal vendor directory
 	src := "content"
 	dst := filepath.Join("cmd", "ponzu", "vendor", "github.com", "bosssauce", "ponzu", "content")
-	err = copyFilesWarnConflicts(src, dst, []string{})
+	err = copyFilesWarnConflicts(src, dst, nil)
 	if err != nil {
 		return err
 	}
