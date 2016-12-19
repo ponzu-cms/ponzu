@@ -138,6 +138,7 @@ func PutConfig(key string, value interface{}) error {
 	for k, v := range kv {
 		switch v.(type) {
 		case string:
+			fmt.Println("type string:", v)
 			data.Set(k, v.(string))
 		case []string:
 			vv := v.([]string)
