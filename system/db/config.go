@@ -135,6 +135,8 @@ func PutConfig(key string, value interface{}) error {
 		return err
 	}
 
+	fmt.Println("decoded map:", kv)
+
 	data := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
