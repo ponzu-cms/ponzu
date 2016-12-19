@@ -204,11 +204,6 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 			return err
 		}
 
-		// skip copy root directory
-		if path == srcDir {
-			return nil
-		}
-
 		for _, conflict := range conflicts {
 			if info.Name() == conflict {
 				fmt.Println("Ponzu couldn't fully build your project:")
@@ -220,17 +215,20 @@ func copyFilesWarnConflicts(srcDir, dstDir string, conflicts []string) error {
 			}
 		}
 
-		if info.IsDir() {
-			if len(path) > len(srcDir) {
-				path = path[len(srcDir)+1:]
-			}
-			dir := filepath.Join(dstDir, path)
-			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
-			if err != nil {
-				return err
-			}
+		// don't copy root directory
+		if path != srcDir {
+			if info.IsDir() {
+				if len(path) > len(srcDir) {
+					path = path[len(srcDir)+1:]
+				}
+				dir := filepath.Join(dstDir, path)
+				err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
+				if err != nil {
+					return err
+				}
 
-			return nil
+				return nil
+			}
 		}
 
 		err = copyFile(path, dstDir)
