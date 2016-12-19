@@ -171,18 +171,23 @@ var initAdminHTML = `
 func Init() ([]byte, error) {
 	html := startAdminHTML + initAdminHTML + endAdminHTML
 
-	cfg, err := db.Config("name")
+	name, err := db.Config("name")
 	if err != nil {
 		return nil, err
 	}
 
-	if cfg == nil {
-		cfg = []byte("")
+	if name == nil {
+		name = []byte("")
+	}
+
+	port, err := db.Config("http_port")
+	if err != nil {
+		return nil, err
 	}
 
 	a := admin{
-		Logo:     string(cfg),
-		HTTPPort: db.ConfigCache("http_port"),
+		Logo:     string(name),
+		HTTPPort: string(port),
 	}
 
 	buf := &bytes.Buffer{}
