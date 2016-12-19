@@ -147,7 +147,6 @@ var initAdminHTML = `
             <input placeholder="Enter a strong password" class="validate required" type="password" id="password" name="password"/>
             <label for="password" class="active">Password</label>        
         </div>
-        <input type="hidden" name="http_port" value="{{.HTTPPort}}"/>
         <button class="btn waves-effect waves-light right">Start</button>
     </form>
 </div>
@@ -180,14 +179,8 @@ func Init() ([]byte, error) {
 		name = []byte("")
 	}
 
-	port, err := db.Config("http_port")
-	if err != nil {
-		return nil, err
-	}
-
 	a := admin{
-		Logo:     string(name),
-		HTTPPort: string(port),
+		Logo: string(name),
 	}
 
 	buf := &bytes.Buffer{}

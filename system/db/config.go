@@ -135,8 +135,6 @@ func PutConfig(key string, value interface{}) error {
 		return err
 	}
 
-	fmt.Println(kv)
-
 	data := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
@@ -146,11 +144,7 @@ func PutConfig(key string, value interface{}) error {
 		case []string:
 			vv := v.([]string)
 			for i := range vv {
-				if i == 0 {
-					data.Set(k, vv[i])
-				} else {
-					data.Add(k, vv[i])
-				}
+				data.Add(k, vv[i])
 			}
 
 		default:
@@ -158,6 +152,9 @@ func PutConfig(key string, value interface{}) error {
 			data.Set(k, fmt.Sprintf("%v", v))
 		}
 	}
+
+	fmt.Println("data should match 2 lines below:")
+	fmt.Println("PutConfig:", data)
 
 	err = SetConfig(data)
 	if err != nil {
