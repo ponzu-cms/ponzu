@@ -2,25 +2,29 @@ package editor
 
 import (
 	"bytes"
-	"fmt"
 	"html"
-	"reflect"
 	"strings"
 )
-
-type element struct {
-	TagName string
-	Attrs   map[string]string
-	Name    string
-	label   string
-	data    string
-	viewBuf *bytes.Buffer
-}
 
 // Input returns the []byte of an <input> HTML element with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
+// 	type Person struct {
+// 		Name string `json:"name"`
+// 	}
+//
+// 	func (p *Person) MarshalEditor() ([]byte, error) {
+// 		view, err := Form(p,
+// 			editor.Field{
+// 				View: editor.Input("Name", p, map[string]string{
+// 					"label":       "Name",
+// 					"type":        "text",
+// 					"placeholder": "Enter the Name here",
+// 				}),
+// 			}
+// 		)
+// 	}
 func Input(fieldName string, p interface{}, attrs map[string]string) []byte {
 	e := newElement("input", attrs["label"], fieldName, p, attrs)
 
@@ -431,190 +435,4 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	html += `</div>`
 
 	return []byte(html + script)
-}
-
-// domElementSelfClose is a special DOM element which is parsed as a
-// self-closing tag and thus needs to be created differently
-func domElementSelfClose(e *element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s12">`))
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active" for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
-	}
-	e.viewBuf.Write([]byte(`<` + e.TagName + ` value="`))
-	e.viewBuf.Write([]byte(html.EscapeString(e.data) + `" `))
-
-	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
-	}
-	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
-	e.viewBuf.Write([]byte(` />`))
-
-	e.viewBuf.Write([]byte(`</div>`))
-	return e.viewBuf.Bytes()
-}
-
-// domElementCheckbox is a special DOM element which is parsed as a
-// checkbox input tag and thus needs to be created differently
-func domElementCheckbox(e *element) []byte {
-	e.viewBuf.Write([]byte(`<p class="col s6">`))
-	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
-
-	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
-	}
-	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
-	e.viewBuf.Write([]byte(` /> `))
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
-	}
-	e.viewBuf.Write([]byte(`</p>`))
-	return e.viewBuf.Bytes()
-}
-
-// domElement creates a DOM element
-func domElement(e *element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s12">`))
-
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active" for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
-	}
-	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
-
-	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `" `))
-	}
-	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
-	e.viewBuf.Write([]byte(` >`))
-
-	e.viewBuf.Write([]byte(html.EscapeString(e.data)))
-	e.viewBuf.Write([]byte(`</` + e.TagName + `>`))
-
-	e.viewBuf.Write([]byte(`</div>`))
-	return e.viewBuf.Bytes()
-}
-
-func domElementWithChildrenSelect(e *element, children []*element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s6">`))
-
-	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
-
-	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `" `))
-	}
-	e.viewBuf.Write([]byte(` name="` + e.Name + `"`))
-	e.viewBuf.Write([]byte(` >`))
-
-	// loop over children and create domElement for each child
-	for _, child := range children {
-		e.viewBuf.Write(domElement(child))
-	}
-
-	e.viewBuf.Write([]byte(`</` + e.TagName + `>`))
-
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active">` + e.label + `</label>`))
-	}
-
-	e.viewBuf.Write([]byte(`</div>`))
-	return e.viewBuf.Bytes()
-}
-
-func domElementWithChildrenCheckbox(e *element, children []*element) []byte {
-	e.viewBuf.Write([]byte(`<` + e.TagName + ` `))
-
-	for attr, value := range e.Attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
-	}
-
-	e.viewBuf.Write([]byte(` >`))
-
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active">` + e.label + `</label>`))
-	}
-
-	// loop over children and create domElement for each child
-	for _, child := range children {
-		e.viewBuf.Write(domElementCheckbox(child))
-	}
-
-	e.viewBuf.Write([]byte(`</` + e.TagName + `><div class="clear padding">&nbsp;</div>`))
-
-	return e.viewBuf.Bytes()
-}
-
-func tagNameFromStructField(name string, post interface{}) string {
-	// sometimes elements in these environments will not have a name,
-	// and thus no tag name in the struct which correlates to it.
-	if name == "" {
-		return name
-	}
-
-	field, ok := reflect.TypeOf(post).Elem().FieldByName(name)
-	if !ok {
-		panic("Couldn't get struct field for: " + name + ". Make sure you pass the right field name to editor field elements.")
-	}
-
-	tag, ok := field.Tag.Lookup("json")
-	if !ok {
-		panic("Couldn't get json struct tag for: " + name + ". Struct fields for content types must have 'json' tags.")
-	}
-
-	return tag
-}
-
-// due to the format in which gorilla/schema expects form names to be when
-// one is associated with multiple values, we need to output the name as such.
-// Ex. 'category.0', 'category.1', 'category.2' and so on.
-func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
-	tag := tagNameFromStructField(name, post)
-
-	return fmt.Sprintf("%s.%d", tag, i)
-}
-
-func valueFromStructField(name string, post interface{}) string {
-	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
-
-	switch field.Kind() {
-	case reflect.String:
-		return field.String()
-
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return fmt.Sprintf("%v", field.Int())
-
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return fmt.Sprintf("%v", field.Uint())
-
-	case reflect.Bool:
-		return fmt.Sprintf("%t", field.Bool())
-
-	case reflect.Complex64, reflect.Complex128:
-		return fmt.Sprintf("%v", field.Complex())
-
-	case reflect.Float32, reflect.Float64:
-		return fmt.Sprintf("%v", field.Float())
-
-	case reflect.Slice:
-		s := []string{}
-
-		for i := 0; i < field.Len(); i++ {
-			pos := field.Index(i)
-			s = append(s, fmt.Sprintf("%v", pos))
-		}
-
-		return strings.Join(s, "__ponzu")
-
-	default:
-		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", field.Type(), name))
-	}
-}
-
-func newElement(tagName, label, fieldName string, p interface{}, attrs map[string]string) *element {
-	return &element{
-		TagName: tagName,
-		Attrs:   attrs,
-		Name:    tagNameFromStructField(fieldName, p),
-		label:   label,
-		data:    valueFromStructField(fieldName, p),
-		viewBuf: &bytes.Buffer{},
-	}
 }
