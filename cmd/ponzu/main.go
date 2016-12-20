@@ -53,7 +53,7 @@ help, h (command):
 var usageNew = `
 new <directory>:
 
-	Creates a 'ponzu' directorty, or one by the name supplied as a parameter 
+	Creates a 'ponzu' directory, or one by the name supplied as a parameter 
 	immediately following the 'new' option in the $GOPATH/src directory. Note: 
 	'new' depends on the program 'git' and possibly a network connection. If 
 	there is no local repository to clone from at the local machine's $GOPATH, 
@@ -136,7 +136,7 @@ var usageRun = `
 
 	Note: 
 	Admin and API cannot run on separate processes unless you use a copy of the
-	database, since the first process to open it recieves a lock. If you intend
+	database, since the first process to open it receives a lock. If you intend
 	to run the Admin and API on separate processes, you must call them with the
 	'ponzu' command independently.
 
