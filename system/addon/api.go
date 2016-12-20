@@ -37,8 +37,8 @@ func ContentAll(namespace string) []byte {
 func Query(namespace string, opts QueryOptions) []byte {
 	host := db.ConfigCache("domain")
 	port := db.ConfigCache("http_port")
-	endpoint := "http://%s:%s/api/contents?type=%s&count=%d&order=%s&offset=%d"
-	URL := fmt.Sprintf(endpoint, host, port, namespace, opts.Count, opts.Order, opts.Offset)
+	endpoint := "http://%s:%s/api/contents?type=%s&count=%d&offset=%d&order=%s"
+	URL := fmt.Sprintf(endpoint, host, port, namespace, opts.Count, opts.Offset, opts.Order)
 
 	j, err := Get(URL)
 	if err != nil {
