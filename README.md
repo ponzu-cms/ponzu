@@ -1,4 +1,4 @@
-[[ponzu-banner.png]]
+![My friend, "Gotoro"](ponzu-banner.png)
 
 # Ponzu
 ## Installation
@@ -177,3 +177,13 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 - [Materialize.css](http://materialize.css)
 - [jQuery](https://jquery.com/)
 - [Chart.js](http://www.chartjs.org/)
+
+
+### Logo
+The Go gopher was designed by Renee Frech. (http://reneefrench.blogspot.com)
+The design is licensed under the Creative Commons 3.0 Attributions license.
+Read this article for more details: http://blog.golang.org/gopher
+
+The Go gopher vector illustraition by Hugo Arganda [@argandas](https://twitter.com/argandas) (http://about.me/argandas)
+
+"Gotoro", the sushi chef, is a modification of Hugo Arganda's illustration by Steve Manuel (https://github.com/nilslice).
