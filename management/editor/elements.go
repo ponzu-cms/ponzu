@@ -325,7 +325,7 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 			}
 		}
 
-		// create a *element manually using the maodified tagNameFromStructFieldMulti
+		// create a *element manually using the modified tagNameFromStructFieldMulti
 		// func since this is for a multi-value name
 		input := &element{
 			TagName: "input",
