@@ -1,3 +1,5 @@
+[[ponzu-banner.png]]
+
 # Ponzu
 ## Installation
 
