@@ -1146,7 +1146,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	// check if we have a Mergeable
 	m, ok := post.(editor.Mergeable)
 	if !ok {
-		log.Println("Content type", t, "must implement editor.Mergable before it can bee approved.")
+		log.Println("Content type", t, "must implement editor.Mergeable before it can be approved.")
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()
 		if err != nil {
