@@ -487,7 +487,7 @@ var analyticsHTML = `
 <div class="analytics">
 <div class="card">
 <div class="card-content">
-    <p class="right">Data range: {{ .from }} - {{ .to }}</p>
+    <p class="right">Data range: {{ .from }} - {{ .to }} (GMT)</p>
     <div class="card-title">API Requests</div>
     <canvas id="analytics-chart"></canvas>
     <script>
