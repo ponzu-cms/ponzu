@@ -222,3 +222,7 @@ li:hover .quick-delete-post, li:hover .delete-user {
     text-align: right;
     padding: 10px 0 !important;
 }
+
+select {
+    border: 1px solid #e2e2e2;
+}
