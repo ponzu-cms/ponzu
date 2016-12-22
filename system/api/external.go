@@ -85,10 +85,11 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 			if req.PostForm.Get(key) == "" {
 				req.PostForm.Set(key, v[0])
-				discardKeys = append(discardKeys, k)
 			} else {
 				req.PostForm.Add(key, v[0])
 			}
+
+			discardKeys = append(discardKeys, k)
 		}
 	}
 

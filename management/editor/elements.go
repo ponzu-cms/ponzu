@@ -15,7 +15,7 @@ import (
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
-// 		view, err := Form(p,
+// 		view, err := editor.Form(p,
 // 			editor.Field{
 // 				View: editor.Input("Name", p, map[string]string{
 // 					"label":       "Name",

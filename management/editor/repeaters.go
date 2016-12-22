@@ -2,10 +2,64 @@ package editor
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
+// InputRepeater returns the []byte of an <input> HTML element with a label.
+// It also includes repeat controllers (+ / -) so the element can be
+// dynamically multiplied or reduced.
+// IMPORTANT:
+// The `fieldName` argument will cause a panic if it is not exactly the string
+// form of the struct field that this editor input is representing
+// 	type Person struct {
+// 		Name string `json:"name"`
+// 	}
+//
+// 	func (p *Person) MarshalEditor() ([]byte, error) {
+// 		view, err := editor.Form(p,
+// 			editor.Field{
+// 				View: editor.InputRepeater("Name", p, map[string]string{
+// 					"label":       "Name",
+// 					"type":        "text",
+// 					"placeholder": "Enter the Name here",
+// 				}),
+// 			}
+// 		)
+// 	}
+func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []byte {
+	// find the field values in p to determine pre-filled inputs
+	fieldVals := valueFromStructField(fieldName, p)
+	vals := strings.Split(fieldVals, "__ponzu")
+
+	scope := tagNameFromStructField(fieldName, p)
+	html := bytes.Buffer{}
+
+	html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
+	for i, val := range vals {
+		el := &element{
+			TagName: "input",
+			Attrs:   attrs,
+			Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+			data:    val,
+			viewBuf: &bytes.Buffer{},
+		}
+
+		// only add the label to the first input in repeated list
+		if i == 0 {
+			el.label = attrs["label"]
+		}
+
+		html.Write(domElementSelfClose(el))
+	}
+	html.WriteString(`</span>`)
+
+	return append(html.Bytes(), RepeatController(fieldName, p, "input", ".input-field")...)
+}
+
 // SelectRepeater returns the []byte of a <select> HTML element plus internal <options> with a label.
+// It also includes repeat controllers (+ / -) so the element can be
+// dynamically multiplied or reduced.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
@@ -13,7 +67,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 	// options are the value attr and the display value, i.e.
 	// <option value="{map key}">{map value}</option>
 	scope := tagNameFromStructField(fieldName, p)
-	html := &bytes.Buffer{}
+	html := bytes.Buffer{}
 	html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
 
 	// find the field values in p to determine if an option is pre-selected
@@ -82,31 +136,44 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 }
 
 // FileRepeater returns the []byte of a <input type="file"> HTML element with a label.
+// It also includes repeat controllers (+ / -) so the element can be
+// dynamically multiplied or reduced.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []byte {
-	name := tagNameFromStructField(fieldName, p)
+	// find the field values in p to determine if an option is pre-selected
+	fieldVals := valueFromStructField(fieldName, p)
+	vals := strings.Split(fieldVals, "__ponzu")
+
+	addLabelFirst := func(i int, label string) string {
+		if i == 0 {
+			return `<label class="active">` + label + `</label>`
+		}
+
+		return ""
+	}
+
 	tmpl :=
-		`<div class="file-input ` + name + ` input-field col s12">
-			<label class="active">` + attrs["label"] + `</label>
+		`<div class="file-input %[5]s %[4]s input-field col s12">
+			%[2]s
 			<div class="file-field input-field">
 				<div class="btn">
 					<span>Upload</span>
-					<input class="upload" type="file">
+					<input class="upload %[4]s" type="file" />
 				</div>
 				<div class="file-path-wrapper">
-					<input class="file-path validate" placeholder="` + attrs["label"] + `" type="text">
+					<input class="file-path validate" placeholder="Add %[5]s" type="text" />
 				</div>
 			</div>
 			<div class="preview"><div class="img-clip"></div></div>			
-			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + valueFromStructField(fieldName, p) + `" />
+			<input class="store %[4]s" type="hidden" name="%[1]s" value="%[3]s" />
 		</div>`
-
+		// 1=nameidx, 2=addLabelFirst, 3=val, 4=className, 5=fieldName
 	script :=
 		`<script>
 			$(function() {
-				var $file = $('.file-input.` + name + `'),
+				var $file = $('.file-input.%[2]s'),
 					upload = $file.find('input.upload'),
 					store = $file.find('input.store'),
 					preview = $file.find('.preview'),
@@ -116,9 +183,9 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 					uploadSrc = store.val();
 					preview.hide();
 				
-				// when ` + name + ` input changes (file is selected), remove
+				// when %[2]s input changes (file is selected), remove
 				// the 'name' and 'value' attrs from the hidden store input.
-				// add the 'name' attr to ` + name + ` input
+				// add the 'name' attr to %[2]s input
 				upload.on('change', function(e) {
 					resetImage();
 				});
@@ -128,10 +195,11 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 					clip.append(img);
 					preview.show();
 
-					$(reset).addClass('reset ` + name + ` btn waves-effect waves-light grey');
+					$(reset).addClass('reset %[2]s btn waves-effect waves-light grey');
 					$(reset).html('<i class="material-icons tiny">clear<i>');
 					$(reset).on('click', function(e) {
 						e.preventDefault();
+						var preview = $(this).parent().closest('.preview');
 						preview.animate({"opacity": 0.1}, 200, function() {
 							preview.slideUp(250, function() {
 								resetImage();
@@ -145,14 +213,26 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 				function resetImage() {
 					store.val('');
 					store.attr('name', '');
-					upload.attr('name', '` + name + `');
+					upload.attr('name', '%[1]s');
 					clip.empty();
 				}
 			});	
 		</script>`
+		// 1=nameidx, 2=className
 
-	html := `<span class="__ponzu-repeat ` + name + `">` + tmpl + `</span>`
-	return append([]byte(html+script), RepeatController(fieldName, p, "input.store."+name, "div.file-input."+name)...)
+	name := tagNameFromStructField(fieldName, p)
+
+	html := bytes.Buffer{}
+	html.WriteString(`<span class="__ponzu-repeat ` + name + `">`)
+	for i, val := range vals {
+		className := fmt.Sprintf("%s-%d", name, i)
+		nameidx := tagNameFromStructFieldMulti(fieldName, i, p)
+		html.WriteString(fmt.Sprintf(tmpl, nameidx, addLabelFirst(i, attrs["label"]), val, className, fieldName))
+		html.WriteString(fmt.Sprintf(script, nameidx, className))
+	}
+	html.WriteString(`</span>`)
+
+	return append(html.Bytes(), RepeatController(fieldName, p, "input.upload", "div.file-input."+fieldName)...)
 }
 
 // RepeatController generates the javascript to control any repeatable form
@@ -166,19 +246,45 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
             var scope = $('.__ponzu-repeat.` + scope + `');
 
             var getChildren = function() {
-                return scope.find('` + inputSelector + `')
+                return scope.find('` + cloneSelector + `')
             }
 
             var resetFieldNames = function() {
                 // loop through children, set its name to the fieldName.i where
                 // i is the current index number of children array
                 var children = getChildren();
+
                 for (var i = 0; i < children.length; i++) {
-                    var el = children[i];
-                    $(el).attr('name', '` + scope + `.'+String(i));
-                    
+					var preset = false;					
+                    var $el = children.eq(i);
+					var name = '` + scope + `.'+String(i);
+
+                    $el.find('` + inputSelector + `').attr('name', name);
+
+					// ensure no other input-like elements besides ` + inputSelector + `
+					// get the new name by setting it to an empty string
+					$el.find('input, select, textarea').each(function(i, elem) {
+						var $elem = $(elem);
+						
+						// if the elem is not ` + inputSelector + ` and has no value 
+						// set the name to an empty string
+						if (!$elem.is('` + inputSelector + `')) {
+							if ($elem.val() === '') {
+								$elem.attr('name', '');
+							} else {
+								preset = true;
+							}						
+						}
+					});      
+
+					// if there is a preset value, remove the name attr from the
+					// ` + inputSelector + ` element so it doesn't overwrite db
+					if (preset) {
+						$el.find('` + inputSelector + `').attr('name', '');														
+					}          
+
                     // reset controllers
-                    $(el).find('.controls').remove();
+                    $el.find('.controls').remove();
                 }
 
                 applyRepeatControllers();
@@ -190,17 +296,21 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
                 var add = e.target;
 
                 // find and clone the repeatable input-like element
-                var subject = $(add).parent().closest('` + cloneSelector + `');
-                var clone = subject.clone();
+                var source = $(add).parent().closest('` + cloneSelector + `');
+                var clone = source.clone();
 
-                // if repeat has label, remove it
+                // if clone has label, remove it
                 clone.find('label').remove();
                 
                 // remove the pre-filled value from clone
-                clone.find('` + inputSelector + `').val("");
+                clone.find('` + inputSelector + `').val('');
+				clone.find('input').val('');
 
-                // remove controls if already present
+                // remove controls from clone if already present
                 clone.find('.controls').remove();
+
+				// remove input preview on clone if copied from source
+				clone.find('.preview').remove();
 
                 // add clone to scope and reset field name attributes
                 scope.append(clone);
@@ -260,10 +370,10 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
                 for (var i = 0; i < children.length; i++) {
                     var el = children[i];
                     
-                    $(el).parent().find('.controls').remove();
+                    $(el).find('` + inputSelector + `').parent().find('.controls').remove();
                     
                     var controls = createControls();                                        
-                    $(el).parent().append(controls);
+                    $(el).append(controls);
                 }
             }
 
