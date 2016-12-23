@@ -185,6 +185,11 @@ li:hover .quick-delete-post, li:hover .delete-user {
     padding: 20px;
 }
 
+.controls button {
+    padding: 0px 10px 5px 10px;
+    position: relative;
+    top: -10px;
+}
 
 /* OVERRIDE Bootstrap + Materialize conflicts */
 .iso-texteditor.input-field label {
@@ -216,4 +221,8 @@ li:hover .quick-delete-post, li:hover .delete-user {
 .approve-details {
     text-align: right;
     padding: 10px 0 !important;
+}
+
+select {
+    border: 1px solid #e2e2e2;
 }

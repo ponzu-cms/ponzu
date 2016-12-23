@@ -34,10 +34,11 @@ func SetConfig(data url.Values) error {
 
 				if data.Get(key) == "" {
 					data.Set(key, v[0])
-					discardKeys = append(discardKeys, k)
 				} else {
 					data.Add(key, v[0])
 				}
+
+				discardKeys = append(discardKeys, k)
 			}
 		}
 

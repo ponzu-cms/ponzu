@@ -136,7 +136,7 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 		ID:     i.ItemID(),
 		UUID:   i.UniqueID(),
 		Kind:   typeName,
-		Slug:   s.ItemSlug(), // TODO: just added this and its implementation -- need to rebuild & test
+		Slug:   s.ItemSlug(),
 		Editor: template.HTML(v),
 	}
 

@@ -15,7 +15,7 @@ import (
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
-// 		view, err := Form(p,
+// 		view, err := editor.Form(p,
 // 			editor.Field{
 // 				View: editor.Input("Name", p, map[string]string{
 // 					"label":       "Name",
@@ -325,7 +325,7 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 			}
 		}
 
-		// create a *element manually using the maodified tagNameFromStructFieldMulti
+		// create a *element manually using the modified tagNameFromStructFieldMulti
 		// func since this is for a multi-value name
 		input := &element{
 			TagName: "input",
