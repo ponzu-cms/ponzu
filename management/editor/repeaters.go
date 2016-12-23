@@ -13,16 +13,16 @@ import (
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 // 	type Person struct {
-// 		Name string `json:"name"`
+// 		Names []string `json:"names"`
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
 // 		view, err := editor.Form(p,
 // 			editor.Field{
-// 				View: editor.InputRepeater("Name", p, map[string]string{
-// 					"label":       "Name",
+// 				View: editor.InputRepeater("Names", p, map[string]string{
+// 					"label":       "Names",
 // 					"type":        "text",
-// 					"placeholder": "Enter the Name here",
+// 					"placeholder": "Enter a Name here",
 // 				}),
 // 			}
 // 		)
