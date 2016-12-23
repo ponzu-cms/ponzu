@@ -269,7 +269,7 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
 						// if the elem is not ` + inputSelector + ` and has no value 
 						// set the name to an empty string
 						if (!$elem.is('` + inputSelector + `')) {
-							if ($elem.val() === '') {
+							if ($elem.val() === '' || $elem.is('.file-path')) {
 								$elem.attr('name', '');
 							} else {
 								$elem.attr('name', name);
@@ -378,7 +378,7 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
                 }
             }
 
-            applyRepeatControllers();
+			resetFieldNames();
         });
 
     </script>
