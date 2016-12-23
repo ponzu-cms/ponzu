@@ -272,6 +272,7 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
 							if ($elem.val() === '') {
 								$elem.attr('name', '');
 							} else {
+								$elem.attr('name', name);
 								preset = true;
 							}						
 						}
