@@ -226,3 +226,7 @@ li:hover .quick-delete-post, li:hover .delete-user {
 select {
     border: 1px solid #e2e2e2;
 }
+
+.note-editor * {
+    max-width: 100%;
+}
