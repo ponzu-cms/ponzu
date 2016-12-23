@@ -25,7 +25,7 @@ $ ponzu [flags] command <params>
 ### COMMANDS
 
 
-### new <directory>:
+### new \<directory\>:
 
 Creates a 'ponzu' directory, or one by the name supplied as a parameter 
 immediately following the 'new' option in the $GOPATH/src directory. Note: 
@@ -44,7 +44,7 @@ Errors will be reported, but successful commands retrun nothing.
 
 ---
 
-### generate, gen, g <type (,...fields)>:
+### generate, gen, g \<type (,...fields)\>:
 
 Generate a content type file with boilerplate code to implement
 the editor.Editable interface. Must be given one (1) parameter of
@@ -92,9 +92,7 @@ Errors will be reported, but successful build commands return nothing.
 
 ---
 
-### run
-
-[[--port=8080] [--https]] run <service(,service)>:
+### [[--port=8080] [--https]] run \<service(,service)\>:
 
 Starts the HTTP server for the JSON API, Admin System, or both.
 The segments, separated by a comma, describe which services to start, either 
