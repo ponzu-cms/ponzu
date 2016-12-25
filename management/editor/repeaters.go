@@ -13,7 +13,11 @@ import (
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 // 	type Person struct {
+//		item.Item
+//		editor editor.Editor
+//
 // 		Names []string `json:"names"`
+//		//...
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
@@ -38,9 +42,9 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 	html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
 	for i, val := range vals {
 		el := &element{
-			TagName: "input",
-			Attrs:   attrs,
-			Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+			tagName: "input",
+			attrs:   attrs,
+			name:    tagNameFromStructFieldMulti(fieldName, i, p),
 			data:    val,
 			viewBuf: &bytes.Buffer{},
 		}
@@ -80,9 +84,9 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 	if len(vals) > 0 {
 		for i, val := range vals {
 			sel := &element{
-				TagName: "select",
-				Attrs:   attrs,
-				Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+				tagName: "select",
+				attrs:   attrs,
+				name:    tagNameFromStructFieldMulti(fieldName, i, p),
 				viewBuf: &bytes.Buffer{},
 			}
 
@@ -96,16 +100,16 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 
 			// provide a call to action for the select element
 			cta := &element{
-				TagName: "option",
-				Attrs:   map[string]string{"disabled": "true", "selected": "true"},
+				tagName: "option",
+				attrs:   map[string]string{"disabled": "true", "selected": "true"},
 				data:    "Select an option...",
 				viewBuf: &bytes.Buffer{},
 			}
 
 			// provide a selection reset (will store empty string in db)
 			reset := &element{
-				TagName: "option",
-				Attrs:   map[string]string{"value": ""},
+				tagName: "option",
+				attrs:   map[string]string{"value": ""},
 				data:    "None",
 				viewBuf: &bytes.Buffer{},
 			}
@@ -118,8 +122,8 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 					optAttrs["selected"] = "true"
 				}
 				opt := &element{
-					TagName: "option",
-					Attrs:   optAttrs,
+					tagName: "option",
+					attrs:   optAttrs,
 					data:    v,
 					viewBuf: &bytes.Buffer{},
 				}
