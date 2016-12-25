@@ -66,7 +66,7 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 			return nil
 		}
 	}
-	_, err := html.WriteString(`</span>`)
+	_, err = html.WriteString(`</span>`)
 	if err != nil {
 		log.Println("Error writing HTML string to InputRepeater buffer")
 		return nil
