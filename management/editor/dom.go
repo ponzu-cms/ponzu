@@ -3,6 +3,7 @@ package editor
 import (
 	"bytes"
 	"html"
+	"log"
 	"strings"
 )
 
@@ -29,108 +30,265 @@ func newElement(tagName, label, fieldName string, p interface{}, attrs map[strin
 // domElementSelfClose is a special DOM element which is parsed as a
 // self-closing tag and thus needs to be created differently
 func domElementSelfClose(e *element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s12">`))
-	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active" for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
+	_, err := e.viewBuf.WriteString(`<div class="input-field col s12">`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementSelfClose")
+		return nil
 	}
-	e.viewBuf.Write([]byte(`<` + e.tagName + ` value="`))
-	e.viewBuf.Write([]byte(html.EscapeString(e.data) + `" `))
+
+	if e.label != "" {
+		_, err = e.viewBuf.WriteString(
+			`<label class="active" for="` +
+				strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label +
+				`</label>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementSelfClose")
+			return nil
+		}
+	}
+
+	_, err = e.viewBuf.WriteString(`<` + e.tagName + ` value="`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementSelfClose")
+		return nil
+	}
+
+	_, err = e.viewBuf.WriteString(html.EscapeString(e.data) + `" `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementSelfClose")
+		return nil
+	}
 
 	for attr, value := range e.attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
+		_, err := e.viewBuf.WriteString(attr + `="` + value + `" `)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementSelfClose")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(` name="` + e.name + `"`))
-	e.viewBuf.Write([]byte(` />`))
+	_, err = e.viewBuf.WriteString(` name="` + e.name + `" />`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementSelfClose")
+		return nil
+	}
 
-	e.viewBuf.Write([]byte(`</div>`))
+	_, err = e.viewBuf.WriteString(`</div>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementSelfClose")
+		return nil
+	}
+
 	return e.viewBuf.Bytes()
 }
 
 // domElementCheckbox is a special DOM element which is parsed as a
 // checkbox input tag and thus needs to be created differently
 func domElementCheckbox(e *element) []byte {
-	e.viewBuf.Write([]byte(`<p class="col s6">`))
-	e.viewBuf.Write([]byte(`<` + e.tagName + ` `))
+	_, err := e.viewBuf.WriteString(`<p class="col s6">`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementCheckbox")
+		return nil
+	}
+
+	_, err = e.viewBuf.WriteString(`<` + e.tagName + ` `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementCheckbox")
+		return nil
+	}
 
 	for attr, value := range e.attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
+		_, err := e.viewBuf.WriteString(attr + `="` + value + `" `)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementCheckbox")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(` name="` + e.name + `"`))
-	e.viewBuf.Write([]byte(` /> `))
+	_, err = e.viewBuf.WriteString(` name="` + e.name + `" />`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementCheckbox")
+		return nil
+	}
+
 	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
+		_, err = e.viewBuf.WriteString(
+			`<label for="` +
+				strings.Join(strings.Split(e.label, " "), "-") + `">` +
+				e.label + `</label>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementCheckbox")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(`</p>`))
+
+	_, err = e.viewBuf.WriteString(`</p>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementCheckbox")
+		return nil
+	}
+
 	return e.viewBuf.Bytes()
 }
 
 // domElement creates a DOM element
 func domElement(e *element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s12">`))
+	_, err := e.viewBuf.WriteString(`<div class="input-field col s12">`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
 
 	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active" for="` + strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label + `</label>`))
+		_, err = e.viewBuf.WriteString(
+			`<label class="active" for="` +
+				strings.Join(strings.Split(e.label, " "), "-") + `">` + e.label +
+				`</label>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElement")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(`<` + e.tagName + ` `))
+
+	_, err = e.viewBuf.WriteString(`<` + e.tagName + ` `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
 
 	for attr, value := range e.attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `" `))
+		_, err = e.viewBuf.WriteString(attr + `="` + string(value) + `" `)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElement")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(` name="` + e.name + `"`))
-	e.viewBuf.Write([]byte(` >`))
+	_, err = e.viewBuf.WriteString(` name="` + e.name + `" > `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
 
-	e.viewBuf.Write([]byte(html.EscapeString(e.data)))
-	e.viewBuf.Write([]byte(`</` + e.tagName + `>`))
+	_, err = e.viewBuf.WriteString(html.EscapeString(e.data))
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
 
-	e.viewBuf.Write([]byte(`</div>`))
+	_, err = e.viewBuf.WriteString(`</` + e.tagName + `>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
+
+	_, err = e.viewBuf.WriteString(`</div>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElement")
+		return nil
+	}
+
 	return e.viewBuf.Bytes()
 }
 
 func domElementWithChildrenSelect(e *element, children []*element) []byte {
-	e.viewBuf.Write([]byte(`<div class="input-field col s6">`))
+	_, err := e.viewBuf.WriteString(`<div class="input-field col s6">`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+		return nil
+	}
 
-	e.viewBuf.Write([]byte(`<` + e.tagName + ` `))
+	_, err = e.viewBuf.WriteString(`<` + e.tagName + ` `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+		return nil
+	}
 
 	for attr, value := range e.attrs {
-		e.viewBuf.Write([]byte(attr + `="` + string(value) + `" `))
+		_, err = e.viewBuf.WriteString(attr + `="` + value + `" `)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+			return nil
+		}
 	}
-	e.viewBuf.Write([]byte(` name="` + e.name + `"`))
-	e.viewBuf.Write([]byte(` >`))
+	_, err = e.viewBuf.WriteString(` name="` + e.name + `" >`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+		return nil
+	}
 
 	// loop over children and create domElement for each child
 	for _, child := range children {
-		e.viewBuf.Write(domElement(child))
+		_, err = e.viewBuf.Write(domElement(child))
+		if err != nil {
+			log.Println("Error writing HTML domElement to buffer: domElementWithChildrenSelect")
+			return nil
+		}
 	}
 
-	e.viewBuf.Write([]byte(`</` + e.tagName + `>`))
+	_, err = e.viewBuf.WriteString(`</` + e.tagName + `>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+		return nil
+	}
 
 	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active">` + e.label + `</label>`))
+		_, err = e.viewBuf.WriteString(`<label class="active">` + e.label + `</label>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+			return nil
+		}
 	}
 
-	e.viewBuf.Write([]byte(`</div>`))
+	_, err = e.viewBuf.WriteString(`</div>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenSelect")
+		return nil
+	}
+
 	return e.viewBuf.Bytes()
 }
 
 func domElementWithChildrenCheckbox(e *element, children []*element) []byte {
-	e.viewBuf.Write([]byte(`<` + e.tagName + ` `))
-
-	for attr, value := range e.attrs {
-		e.viewBuf.Write([]byte(attr + `="` + value + `" `))
+	_, err := e.viewBuf.WriteString(`<` + e.tagName + ` `)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenCheckbox")
+		return nil
 	}
 
-	e.viewBuf.Write([]byte(` >`))
+	for attr, value := range e.attrs {
+		_, err = e.viewBuf.WriteString(attr + `="` + value + `" `)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementWithChildrenCheckbox")
+			return nil
+		}
+	}
+
+	_, err = e.viewBuf.WriteString(` >`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenCheckbox")
+		return nil
+	}
 
 	if e.label != "" {
-		e.viewBuf.Write([]byte(`<label class="active">` + e.label + `</label>`))
+		_, err = e.viewBuf.WriteString(`<label class="active">` + e.label + `</label>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: domElementWithChildrenCheckbox")
+			return nil
+		}
 	}
 
 	// loop over children and create domElement for each child
 	for _, child := range children {
-		e.viewBuf.Write(domElementCheckbox(child))
+		_, err = e.viewBuf.Write(domElementCheckbox(child))
+		if err != nil {
+			log.Println("Error writing HTML domElementCheckbox to buffer: domElementWithChildrenCheckbox")
+			return nil
+		}
 	}
 
-	e.viewBuf.Write([]byte(`</` + e.tagName + `><div class="clear padding">&nbsp;</div>`))
+	_, err = e.viewBuf.WriteString(`</` + e.tagName + `><div class="clear padding">&nbsp;</div>`)
+	if err != nil {
+		log.Println("Error writing HTML string to buffer: domElementWithChildrenCheckbox")
+		return nil
+	}
 
 	return e.viewBuf.Bytes()
 }
