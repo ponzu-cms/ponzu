@@ -180,15 +180,6 @@ func toJSON(data []string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func wrapJSON(json []byte) []byte {
-	var buf = &bytes.Buffer{}
-	buf.Write([]byte(`{"data":`))
-	buf.Write(json)
-	buf.Write([]byte(`}`))
-
-	return buf.Bytes()
-}
-
 // sendData() should be used any time you want to communicate
 // data back to a foreign client
 func sendData(res http.ResponseWriter, data []byte, code int) {
@@ -196,7 +187,10 @@ func sendData(res http.ResponseWriter, data []byte, code int) {
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(code)
-	res.Write(data)
+	_, err := res.Write(data)
+	if err != nil {
+		log.Println("Error writing to response in sendData")
+	}
 }
 
 // SendPreflight is used to respond to a cross-origin "OPTIONS" request
