@@ -114,30 +114,29 @@ func setupDev() {
 	// overwrite/create directory for devcerts
 	pwd, err := os.Getwd()
 	if err != nil {
-		log.Fatalln("Couldn't find working directory to locate or save dev certificates.")
+		log.Fatalln("Couldn't find working directory to locate or save dev certificates:", err)
 	}
 
 	devcertsPath := filepath.Join(pwd, "system", "tls", "devcerts")
+	fmt.Println(devcertsPath)
 
 	err = os.Mkdir(devcertsPath, os.ModePerm|os.ModePerm)
 	if err != nil {
-		log.Fatalln("Failed to create directory to locate or save dev certificates.")
+		log.Fatalln("Failed to create directory to locate or save dev certificates:", err)
 	}
 
 	certOut, err := os.Create(filepath.Join(devcertsPath, "cert.pem"))
 	if err != nil {
-		log.Fatalf("failed to open devcerts/cert.pem for writing: %s", err)
+		log.Fatalln("Failed to open devcerts/cert.pem for writing:", err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
-	log.Print("written devcerts/cert.pem\n")
 
 	keyOut, err := os.OpenFile(filepath.Join(devcertsPath, "key.pem"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Print("failed to open devcerts/key.pem for writing:", err)
+		log.Fatalln("Failed to open devcerts/key.pem for writing:", err)
 		return
 	}
 	pem.Encode(keyOut, pemBlockForKey(priv))
 	keyOut.Close()
-	log.Print("written devcerts/key.pem\n")
 }
