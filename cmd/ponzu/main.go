@@ -20,9 +20,10 @@ import (
 )
 
 var (
-	usage = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
-	port  int
-	https bool
+	usage    = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
+	port     int
+	https    bool
+	devhttps bool
 
 	// for ponzu internal / core development
 	dev   bool
@@ -30,15 +31,14 @@ var (
 	gocmd string
 )
 
-func init() {
+func main() {
 	flag.Usage = func() {
 		fmt.Println(usage)
 	}
-}
 
-func main() {
 	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its listener")
 	flag.BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
+	flag.BoolVar(&devhttps, "devhttps", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
 	flag.StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
 	flag.StringVar(&gocmd, "gocmd", "go", "custom go command if using beta or new release of Go")
@@ -116,6 +116,10 @@ func main() {
 			addTLS = "--https=false"
 		}
 
+		if devhttps {
+			addTLS = "--devhttps"
+		}
+
 		var services string
 		if len(args) > 1 {
 			services = args[1]
@@ -167,7 +171,11 @@ func main() {
 			}
 		}
 
-		if https {
+		// cannot run production HTTPS and development HTTPS together
+		if devhttps {
+			fmt.Println("Enabling self-signed HTTPS...")
+			tls.EnableDev()
+		} else if https {
 			fmt.Println("Enabling HTTPS...")
 			tls.Enable()
 		}

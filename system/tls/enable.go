@@ -65,7 +65,8 @@ func setup() {
 
 }
 
-// Enable runs the setup for creating or locating certificates and starts the TLS server
+// Enable runs the setup for creating or locating production certificates and 
+// starts the TLS server
 func Enable() {
 	setup()
 
