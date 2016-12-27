@@ -117,7 +117,7 @@ func setupDev() {
 		log.Fatalln("Couldn't find working directory to locate or save dev certificates:", err)
 	}
 
-	vendorTLSPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "ponzu-cms", "ponzu", "system", "tls")
+	vendorTLSPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system", "tls")
 	devcertsPath := filepath.Join(vendorTLSPath, "devcerts")
 	fmt.Println(devcertsPath)
 
