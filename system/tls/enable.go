@@ -65,7 +65,7 @@ func setup() {
 
 }
 
-// Enable runs the setup for creating or locating production certificates and 
+// Enable runs the setup for creating or locating production certificates and
 // starts the TLS server
 func Enable() {
 	setup()
@@ -76,5 +76,5 @@ func Enable() {
 	}
 
 	go log.Fatalln(server.ListenAndServeTLS("", ""))
-	fmt.Println("Server listening for HTTPS requests...")
+	fmt.Println("Server listening on :443 for HTTPS requests...")
 }

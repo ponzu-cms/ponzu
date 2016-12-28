@@ -1,6 +1,7 @@
 package tls
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,8 +25,7 @@ func EnableDev() {
 
 	cert := filepath.Join(vendorPath, "devcerts", "cert.pem")
 	key := filepath.Join(vendorPath, "devcerts", "key.pem")
-	err = http.ListenAndServeTLS(":10443", cert, key, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
+
+	go log.Fatalln(http.ListenAndServeTLS(":10443", cert, key, nil))
+	fmt.Println("Server listening on :10443 for HTTPS requests... [DEV]")
 }
