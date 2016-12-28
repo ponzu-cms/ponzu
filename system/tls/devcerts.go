@@ -13,6 +13,7 @@ package tls
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -60,7 +61,8 @@ func setupDev() {
 	var priv interface{}
 	var err error
 
-	priv, err = rsa.GenerateKey(rand.Reader, 2048)
+	// priv, err = rsa.GenerateKey(rand.Reader, 2048)
+	priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 
 	if err != nil {
 		log.Fatalf("failed to generate private key: %s", err)
