@@ -3,6 +3,7 @@ package tls
 import (
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -14,9 +15,16 @@ import (
 func EnableDev() {
 	setupDev()
 
-	cert := filepath.Join("devcerts", "cert.pem")
-	key := filepath.Join("devcerts", "key.pem")
-	err := http.ListenAndServeTLS(":10443", cert, key, nil)
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln("Couldn't find working directory to activate dev certificates:", err)
+	}
+
+	vendorPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system", "tls")
+
+	cert := filepath.Join(vendorPath, "devcerts", "cert.pem")
+	key := filepath.Join(vendorPath, "devcerts", "key.pem")
+	err = http.ListenAndServeTLS(":10443", cert, key, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
