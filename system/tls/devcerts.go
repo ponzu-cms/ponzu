@@ -105,6 +105,7 @@ func setupDev() {
 	// make all certs CA
 	template.IsCA = true
 	template.KeyUsage |= x509.KeyUsageCertSign
+	template.KeyUsage |= x509.KeyUsageDigitalSignature
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 	if err != nil {
