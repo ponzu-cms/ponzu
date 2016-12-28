@@ -79,7 +79,7 @@ func setupDev() {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"Acme Co"},
+			Organization: []string{"Ponzu Dev Server"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
@@ -103,9 +103,8 @@ func setupDev() {
 	}
 
 	// make all certs CA
-	template.IsCA = true
-	template.KeyUsage |= x509.KeyUsageCertSign
-	template.KeyUsage |= x509.KeyUsageDigitalSignature
+	// template.IsCA = true
+	// template.KeyUsage |= x509.KeyUsageCertSign
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 	if err != nil {
