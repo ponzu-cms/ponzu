@@ -121,6 +121,12 @@ func setupDev() {
 	devcertsPath := filepath.Join(vendorTLSPath, "devcerts")
 	fmt.Println(devcertsPath)
 
+	// clear all old certs if found
+	err = os.RemoveAll(devcertsPath)
+	if err != nil {
+		log.Fatalln("Failed to remove old files from dev certificate directory:", err)
+	}
+
 	err = os.Mkdir(devcertsPath, os.ModePerm|os.ModePerm)
 	if err != nil {
 		log.Fatalln("Failed to create directory to locate or save dev certificates:", err)
