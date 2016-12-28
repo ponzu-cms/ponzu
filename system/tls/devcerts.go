@@ -24,7 +24,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/db"
@@ -89,11 +88,12 @@ func setupDev() {
 		BasicConstraintsValid: true,
 	}
 
-	host := db.ConfigCache("domain")
-	if host == "" {
-		host = "localhost, 0.0.0.0"
+	hosts := []string{"localhost", "0.0.0.0"}
+	domain := db.ConfigCache("domain")
+	if domain != "" {
+		hosts = append(hosts, domain)
 	}
-	hosts := strings.Split(host, ",")
+
 	for _, h := range hosts {
 		if ip := net.ParseIP(h); ip != nil {
 			template.IPAddresses = append(template.IPAddresses, ip)
@@ -102,9 +102,10 @@ func setupDev() {
 		}
 	}
 
+	hosts = []string{"localhost", "0.0.0.0"}
 	// make all certs CA
 	// template.IsCA = true
-	// template.KeyUsage |= x509.KeyUsageCertSign
+	template.KeyUsage |= x509.KeyUsageCertSign
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 	if err != nil {
