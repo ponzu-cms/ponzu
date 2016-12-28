@@ -119,7 +119,6 @@ func setupDev() {
 
 	vendorTLSPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system", "tls")
 	devcertsPath := filepath.Join(vendorTLSPath, "devcerts")
-	fmt.Println(devcertsPath)
 
 	// clear all old certs if found
 	err = os.RemoveAll(devcertsPath)
