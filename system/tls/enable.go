@@ -75,6 +75,6 @@ func Enable() {
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 
-	go log.Fatalln(server.ListenAndServeTLS("", ""))
+	log.Fatalln(server.ListenAndServeTLS("", ""))
 	fmt.Println("Server listening on :443 for HTTPS requests...")
 }

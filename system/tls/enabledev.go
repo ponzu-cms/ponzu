@@ -26,7 +26,7 @@ func EnableDev() {
 	cert := filepath.Join(vendorPath, "devcerts", "cert.pem")
 	key := filepath.Join(vendorPath, "devcerts", "key.pem")
 
-	go log.Fatalln(http.ListenAndServeTLS(":10443", cert, key, nil))
+	log.Fatalln(http.ListenAndServeTLS(":10443", cert, key, nil))
 	fmt.Println("Server listening on https://localhost:10443 for requests... [DEV]")
 	fmt.Println("----")
 	fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")

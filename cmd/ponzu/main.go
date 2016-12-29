@@ -174,10 +174,10 @@ func main() {
 		// cannot run production HTTPS and development HTTPS together
 		if devhttps {
 			fmt.Println("Enabling self-signed HTTPS... [DEV]")
-			tls.EnableDev()
+			go tls.EnableDev()
 		} else if https {
 			fmt.Println("Enabling HTTPS...")
-			tls.Enable()
+			go tls.Enable()
 		}
 
 		// save the port the system is listening on so internal system can make
