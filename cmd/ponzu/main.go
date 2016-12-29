@@ -174,10 +174,18 @@ func main() {
 		// cannot run production HTTPS and development HTTPS together
 		if devhttps {
 			fmt.Println("Enabling self-signed HTTPS... [DEV]")
+
 			go tls.EnableDev()
+			fmt.Println("Server listening on https://localhost:10443 for requests... [DEV]")
+			fmt.Println("----")
+			fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
+			fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
+
 		} else if https {
 			fmt.Println("Enabling HTTPS...")
+
 			go tls.Enable()
+			fmt.Println("Server listening on :443 for HTTPS requests...")
 		}
 
 		// save the port the system is listening on so internal system can make

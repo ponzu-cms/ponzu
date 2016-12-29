@@ -1,7 +1,6 @@
 package tls
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +26,4 @@ func EnableDev() {
 	key := filepath.Join(vendorPath, "devcerts", "key.pem")
 
 	log.Fatalln(http.ListenAndServeTLS(":10443", cert, key, nil))
-	fmt.Println("Server listening on https://localhost:10443 for requests... [DEV]")
-	fmt.Println("----")
-	fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
-	fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
 }

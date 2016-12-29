@@ -76,5 +76,4 @@ func Enable() {
 	}
 
 	log.Fatalln(server.ListenAndServeTLS("", ""))
-	fmt.Println("Server listening on :443 for HTTPS requests...")
 }
