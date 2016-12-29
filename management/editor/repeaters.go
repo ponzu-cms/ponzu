@@ -3,6 +3,7 @@ package editor
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -13,7 +14,11 @@ import (
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 // 	type Person struct {
+//		item.Item
+//		editor editor.Editor
+//
 // 		Names []string `json:"names"`
+//		//...
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
@@ -35,12 +40,17 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 	scope := tagNameFromStructField(fieldName, p)
 	html := bytes.Buffer{}
 
-	html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
+	_, err := html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
+	if err != nil {
+		log.Println("Error writing HTML string to InputRepeater buffer")
+		return nil
+	}
+
 	for i, val := range vals {
 		el := &element{
-			TagName: "input",
-			Attrs:   attrs,
-			Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+			tagName: "input",
+			attrs:   attrs,
+			name:    tagNameFromStructFieldMulti(fieldName, i, p),
 			data:    val,
 			viewBuf: &bytes.Buffer{},
 		}
@@ -50,9 +60,17 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 			el.label = attrs["label"]
 		}
 
-		html.Write(domElementSelfClose(el))
+		_, err := html.Write(domElementSelfClose(el))
+		if err != nil {
+			log.Println("Error writing domElementSelfClose to InputRepeater buffer")
+			return nil
+		}
 	}
-	html.WriteString(`</span>`)
+	_, err = html.WriteString(`</span>`)
+	if err != nil {
+		log.Println("Error writing HTML string to InputRepeater buffer")
+		return nil
+	}
 
 	return append(html.Bytes(), RepeatController(fieldName, p, "input", ".input-field")...)
 }
@@ -68,7 +86,11 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 	// <option value="{map key}">{map value}</option>
 	scope := tagNameFromStructField(fieldName, p)
 	html := bytes.Buffer{}
-	html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
+	_, err := html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
+	if err != nil {
+		log.Println("Error writing HTML string to SelectRepeater buffer")
+		return nil
+	}
 
 	// find the field values in p to determine if an option is pre-selected
 	fieldVals := valueFromStructField(fieldName, p)
@@ -80,9 +102,9 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 	if len(vals) > 0 {
 		for i, val := range vals {
 			sel := &element{
-				TagName: "select",
-				Attrs:   attrs,
-				Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+				tagName: "select",
+				attrs:   attrs,
+				name:    tagNameFromStructFieldMulti(fieldName, i, p),
 				viewBuf: &bytes.Buffer{},
 			}
 
@@ -96,16 +118,16 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 
 			// provide a call to action for the select element
 			cta := &element{
-				TagName: "option",
-				Attrs:   map[string]string{"disabled": "true", "selected": "true"},
+				tagName: "option",
+				attrs:   map[string]string{"disabled": "true", "selected": "true"},
 				data:    "Select an option...",
 				viewBuf: &bytes.Buffer{},
 			}
 
 			// provide a selection reset (will store empty string in db)
 			reset := &element{
-				TagName: "option",
-				Attrs:   map[string]string{"value": ""},
+				tagName: "option",
+				attrs:   map[string]string{"value": ""},
 				data:    "None",
 				viewBuf: &bytes.Buffer{},
 			}
@@ -118,8 +140,8 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 					optAttrs["selected"] = "true"
 				}
 				opt := &element{
-					TagName: "option",
-					Attrs:   optAttrs,
+					tagName: "option",
+					attrs:   optAttrs,
 					data:    v,
 					viewBuf: &bytes.Buffer{},
 				}
@@ -127,11 +149,20 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 				opts = append(opts, opt)
 			}
 
-			html.Write(domElementWithChildrenSelect(sel, opts))
+			_, err := html.Write(domElementWithChildrenSelect(sel, opts))
+			if err != nil {
+				log.Println("Error writing domElementWithChildrenSelect to SelectRepeater buffer")
+				return nil
+			}
 		}
 	}
 
-	html.WriteString(`</span>`)
+	_, err = html.WriteString(`</span>`)
+	if err != nil {
+		log.Println("Error writing HTML string to SelectRepeater buffer")
+		return nil
+	}
+
 	return append(html.Bytes(), RepeatController(fieldName, p, "select", ".input-field")...)
 }
 
@@ -223,14 +254,33 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 	name := tagNameFromStructField(fieldName, p)
 
 	html := bytes.Buffer{}
-	html.WriteString(`<span class="__ponzu-repeat ` + name + `">`)
+	_, err := html.WriteString(`<span class="__ponzu-repeat ` + name + `">`)
+	if err != nil {
+		log.Println("Error writing HTML string to FileRepeater buffer")
+		return nil
+	}
+
 	for i, val := range vals {
 		className := fmt.Sprintf("%s-%d", name, i)
 		nameidx := tagNameFromStructFieldMulti(fieldName, i, p)
-		html.WriteString(fmt.Sprintf(tmpl, nameidx, addLabelFirst(i, attrs["label"]), val, className, fieldName))
-		html.WriteString(fmt.Sprintf(script, nameidx, className))
+
+		_, err := html.WriteString(fmt.Sprintf(tmpl, nameidx, addLabelFirst(i, attrs["label"]), val, className, fieldName))
+		if err != nil {
+			log.Println("Error writing HTML string to FileRepeater buffer")
+			return nil
+		}
+
+		_, err = html.WriteString(fmt.Sprintf(script, nameidx, className))
+		if err != nil {
+			log.Println("Error writing HTML string to FileRepeater buffer")
+			return nil
+		}
 	}
-	html.WriteString(`</span>`)
+	_, err = html.WriteString(`</span>`)
+	if err != nil {
+		log.Println("Error writing HTML string to FileRepeater buffer")
+		return nil
+	}
 
 	return append(html.Bytes(), RepeatController(fieldName, p, "input.upload", "div.file-input."+fieldName)...)
 }

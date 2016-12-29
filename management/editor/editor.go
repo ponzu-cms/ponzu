@@ -4,6 +4,7 @@ package editor
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 )
 
@@ -38,16 +39,28 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor := post.Editor()
 
 	editor.ViewBuf = &bytes.Buffer{}
-	editor.ViewBuf.Write([]byte(`<table><tbody class="row"><tr class="col s8"><td>`))
+	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8"><td>`)
+	if err != nil {
+		log.Println("Error writing HTML string to editor Form buffer")
+		return nil, err
+	}
 
 	for _, f := range fields {
 		addFieldToEditorView(editor, f)
 	}
 
-	editor.ViewBuf.Write([]byte(`</td></tr>`))
+	_, err = editor.ViewBuf.WriteString(`</td></tr>`)
+	if err != nil {
+		log.Println("Error writing HTML string to editor Form buffer")
+		return nil, err
+	}
 
 	// content items with Item embedded have some default fields we need to render
-	editor.ViewBuf.Write([]byte(`<tr class="col s4 default-fields"><td>`))
+	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td>`)
+	if err != nil {
+		log.Println("Error writing HTML string to editor Form buffer")
+		return nil, err
+	}
 
 	publishTime := `
 <div class="row content-only __ponzu">
@@ -98,9 +111,16 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 </div>
 	`
 
-	editor.ViewBuf.Write([]byte(publishTime))
+	_, err = editor.ViewBuf.WriteString(publishTime)
+	if err != nil {
+		log.Println("Error writing HTML string to editor Form buffer")
+		return nil, err
+	}
 
-	addPostDefaultFieldsToEditorView(post, editor)
+	err = addPostDefaultFieldsToEditorView(post, editor)
+	if err != nil {
+		return nil, err
+	}
 
 	submit := `
 <div class="input-field post-controls">
@@ -186,16 +206,26 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	});
 </script>
 `
-	editor.ViewBuf.Write([]byte(submit + script + `</td></tr></tbody></table>`))
+	_, err = editor.ViewBuf.WriteString(submit + script + `</td></tr></tbody></table>`)
+	if err != nil {
+		log.Println("Error writing HTML string to editor Form buffer")
+		return nil, err
+	}
 
 	return editor.ViewBuf.Bytes(), nil
 }
 
-func addFieldToEditorView(e *Editor, f Field) {
-	e.ViewBuf.Write(f.View)
+func addFieldToEditorView(e *Editor, f Field) error {
+	_, err := e.ViewBuf.Write(f.View)
+	if err != nil {
+		log.Println("Error writing field view to editor view buffer")
+		return err
+	}
+
+	return nil
 }
 
-func addPostDefaultFieldsToEditorView(p Editable, e *Editor) {
+func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 	defaults := []Field{
 		Field{
 			View: Input("Slug", p, map[string]string{
@@ -220,7 +250,11 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) {
 	}
 
 	for _, f := range defaults {
-		addFieldToEditorView(e, f)
+		err := addFieldToEditorView(e, f)
+		if err != nil {
+			return err
+		}
 	}
 
+	return nil
 }

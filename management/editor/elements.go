@@ -11,7 +11,11 @@ import (
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 // 	type Person struct {
+//		item.Item
+// 		editor editor.Editor
+//
 // 		Name string `json:"name"`
+//		//...
 // 	}
 //
 // 	func (p *Person) MarshalEditor() ([]byte, error) {
@@ -64,9 +68,9 @@ func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte 
 	}
 
 	e := &element{
-		TagName: "input",
-		Attrs:   attrs,
-		Name:    tagNameFromStructField(fieldName, p),
+		tagName: "input",
+		attrs:   attrs,
+		name:    tagNameFromStructField(fieldName, p),
 		label:   attrs["label"],
 		data:    data,
 		viewBuf: &bytes.Buffer{},
@@ -161,9 +165,9 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	attrs["class"] = "richtext " + fieldName
 	attrs["id"] = "richtext-" + fieldName
 	div := &element{
-		TagName: "div",
-		Attrs:   attrs,
-		Name:    "",
+		tagName: "div",
+		attrs:   attrs,
+		name:    "",
 		label:   "",
 		data:    "",
 		viewBuf: &bytes.Buffer{},
@@ -261,16 +265,16 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 
 	// provide a call to action for the select element
 	cta := &element{
-		TagName: "option",
-		Attrs:   map[string]string{"disabled": "true", "selected": "true"},
+		tagName: "option",
+		attrs:   map[string]string{"disabled": "true", "selected": "true"},
 		data:    "Select an option...",
 		viewBuf: &bytes.Buffer{},
 	}
 
 	// provide a selection reset (will store empty string in db)
 	reset := &element{
-		TagName: "option",
-		Attrs:   map[string]string{"value": ""},
+		tagName: "option",
+		attrs:   map[string]string{"value": ""},
 		data:    "None",
 		viewBuf: &bytes.Buffer{},
 	}
@@ -283,8 +287,8 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 			optAttrs["selected"] = "true"
 		}
 		opt := &element{
-			TagName: "option",
-			Attrs:   optAttrs,
+			tagName: "option",
+			attrs:   optAttrs,
 			data:    v,
 			viewBuf: &bytes.Buffer{},
 		}
@@ -328,9 +332,9 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 		// create a *element manually using the modified tagNameFromStructFieldMulti
 		// func since this is for a multi-value name
 		input := &element{
-			TagName: "input",
-			Attrs:   inputAttrs,
-			Name:    tagNameFromStructFieldMulti(fieldName, i, p),
+			tagName: "input",
+			attrs:   inputAttrs,
+			name:    tagNameFromStructFieldMulti(fieldName, i, p),
 			label:   v,
 			data:    "",
 			viewBuf: &bytes.Buffer{},
