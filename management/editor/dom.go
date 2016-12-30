@@ -161,7 +161,7 @@ func domElement(e *element) []byte {
 			return nil
 		}
 	}
-	_, err = e.viewBuf.WriteString(` name="` + e.name + `" > `)
+	_, err = e.viewBuf.WriteString(` name="` + e.name + `" >`)
 	if err != nil {
 		log.Println("Error writing HTML string to buffer: domElement")
 		return nil
