@@ -11,6 +11,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/tidwall/gjson"
 )
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {
@@ -98,7 +99,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := item.Types[t]; !ok {
+	if pt, ok := item.Types[t]; !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -113,6 +114,8 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	defer push(res, pt, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -180,6 +183,33 @@ func toJSON(data []string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+func push(res http.ResponseWriter, pt func() interface{}, data []byte) {
+	// Push(target string, opts *PushOptions) error
+	if pusher, ok := res.(http.Pusher); ok {
+		if p, ok := pt().(item.Pushable); ok {
+			// get fields to pull values from data
+			fields := p.Push()
+
+			// parse values from data to push
+			values := gjson.GetManyBytes(data, fields...)
+
+			// push all values from Pushable items' fields
+			for i := range values {
+				val := values[i]
+				val.ForEach(func(k, v gjson.Result) bool {
+					err := pusher.Push(v.String(), nil)
+					if err != nil {
+						log.Println("Error during Push of value:", v.String())
+					}
+
+					return true
+				})
+			}
+		}
+	}
+
+}
+
 // sendData() should be used any time you want to communicate
 // data back to a foreign client
 func sendData(res http.ResponseWriter, data []byte, code int) {
@@ -193,36 +223,19 @@ func sendData(res http.ResponseWriter, data []byte, code int) {
 	}
 }
 
-// SendPreflight is used to respond to a cross-origin "OPTIONS" request
-func SendPreflight(res http.ResponseWriter) {
+// sendPreflight is used to respond to a cross-origin "OPTIONS" request
+func sendPreflight(res http.ResponseWriter) {
 	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 	res.WriteHeader(200)
 	return
 }
 
-// SendJSON returns a Response to a client as JSON
-func SendJSON(res http.ResponseWriter, j map[string]interface{}) {
-	var data []byte
-	var err error
-
-	data, err = json.Marshal(j)
-	if err != nil {
-		log.Println(err)
-		data, _ = json.Marshal(map[string]interface{}{
-			"status":  "fail",
-			"message": err.Error(),
-		})
-	}
-
-	sendData(res, data, 200)
-}
-
 // CORS wraps a HandleFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {
-			SendPreflight(res)
+			sendPreflight(res)
 			return
 		}
 
