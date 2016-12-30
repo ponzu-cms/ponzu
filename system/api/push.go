@@ -9,7 +9,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func push(res http.ResponseWriter, pt func() interface{}, data []byte) {
+func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, data []byte) {
 	// Push(target string, opts *PushOptions) error
 	if pusher, ok := res.(http.Pusher); ok {
 		if p, ok := pt().(item.Pushable); ok {
@@ -23,7 +23,7 @@ func push(res http.ResponseWriter, pt func() interface{}, data []byte) {
 			for i := range values {
 				val := values[i]
 				val.ForEach(func(k, v gjson.Result) bool {
-					err := pusher.Push(v.String(), nil)
+					err := pusher.Push(req.URL.Path+v.String(), nil)
 					if err != nil {
 						log.Println("Error during Push of value:", v.String())
 					}

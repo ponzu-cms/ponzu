@@ -115,7 +115,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	defer push(res, pt, post)
+	defer push(res, req, pt, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
