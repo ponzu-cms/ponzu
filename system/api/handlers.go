@@ -16,7 +16,7 @@ import (
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
 	for t, fn := range item.Types {
-		if !hide(fn(), res) {
+		if !hide(fn(), res, req) {
 			types = append(types, t)
 		}
 	}
@@ -44,7 +44,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(it(), res) {
+	if hide(it(), res, req) {
 		return
 	}
 
@@ -116,7 +116,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(pt(), res) {
+	if hide(pt(), res, req) {
 		return
 	}
 
@@ -159,9 +159,11 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(it(), res) {
+	if hide(it(), res, req) {
 		return
 	}
+
+	defer push(res, req, it, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -172,9 +174,19 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	sendData(res, j, http.StatusOK)
 }
 
-func hide(it interface{}, res http.ResponseWriter) bool {
+func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
 	// check if should be hidden
-	if _, ok := it.(item.Hideable); ok {
+	if h, ok := it.(item.Hideable); ok {
+		err := h.Hide(req)
+		if err.Error() == item.AllowHiddenItem {
+			return false
+		}
+
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return true
+		}
+
 		res.WriteHeader(http.StatusNotFound)
 		return true
 	}

@@ -14,6 +14,11 @@ Add this to the file which defines %[1]s{} in the 'content' package:
 				
 
 `
+
+	// AllowHiddenItem should be used as an error to tell a caller of Hideable#Hide
+	// that this type is hidden, but should be shown in a particular case, i.e.
+	// if requested by a valid admin or user
+	AllowHiddenItem = `Allow hidden item`
 )
 
 // Types is a map used to reference a type name to its actual Editable type
