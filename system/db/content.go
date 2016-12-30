@@ -229,11 +229,11 @@ func Content(target string) ([]byte, error) {
 
 // ContentBySlug does a lookup in the content index to find the type and id of
 // the requested content. Subsequently, issues the lookup in the type bucket and
-// returns the data at that ID or nil if nothing exists.
-func ContentBySlug(slug string) ([]byte, error) {
+// returns the the type and data at that ID or nil if nothing exists.
+func ContentBySlug(slug string) (string, []byte, error) {
 	val := &bytes.Buffer{}
+	var t, id string
 	err := store.View(func(tx *bolt.Tx) error {
-		var t, id string
 		b := tx.Bucket([]byte("__contentIndex"))
 		idx := b.Get([]byte(slug))
 
@@ -256,10 +256,10 @@ func ContentBySlug(slug string) ([]byte, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return t, nil, err
 	}
 
-	return val.Bytes(), nil
+	return t, val.Bytes(), nil
 }
 
 // ContentAll retrives all items from the database within the provided namespace

@@ -36,8 +36,13 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, ok := item.Types[t]; !ok {
+	it, ok := item.Types[t]
+	if !ok {
 		res.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if hide(it(), res) {
 		return
 	}
 
@@ -98,14 +103,18 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if t == "" || id == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	pt, ok := item.Types[t]
 	if !ok {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	if t == "" || id == "" {
-		res.WriteHeader(http.StatusBadRequest)
+	if hide(pt(), res) {
 		return
 	}
 
@@ -129,11 +138,26 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	slug := req.URL.Query().Get("slug")
 
+	if slug == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	// lookup type:id by slug key in __contentIndex
-	post, err := db.ContentBySlug(slug)
+	t, post, err := db.ContentBySlug(slug)
 	if err != nil {
 		log.Println("Error finding content by slug:", slug, err)
 		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	it, ok := item.Types[t]
+	if !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if hide(it(), res) {
 		return
 	}
 
@@ -144,6 +168,16 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	}
 
 	sendData(res, j, http.StatusOK)
+}
+
+func hide(it interface{}, res http.ResponseWriter) bool {
+	// check if should be hidden
+	if _, ok := it.(item.Hideable); ok {
+		res.WriteHeader(http.StatusNotFound)
+		return true
+	}
+
+	return false
 }
 
 func fmtJSON(data ...json.RawMessage) ([]byte, error) {

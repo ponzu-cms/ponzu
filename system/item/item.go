@@ -55,6 +55,11 @@ type Hookable interface {
 	AfterReject(req *http.Request) error
 }
 
+// Hideable lets a user keep items hidden
+type Hideable interface {
+	Hide(*http.Request) error
+}
+
 // Pushable lets a user define which values of certain struct fields are
 // 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
 // should be the json tag names of the struct fields to which they coorespond
