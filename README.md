@@ -183,6 +183,7 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 - [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
 - [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
+- [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/sluu99/um](https://github.com/sluu99/um)
 - [Materialnote Editor](http://www.web-forge.info/projects/materialNote)
