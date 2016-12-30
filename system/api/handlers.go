@@ -15,8 +15,10 @@ import (
 
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
-	for t := range item.Types {
-		types = append(types, string(t))
+	for t, fn := range item.Types {
+		if !hide(fn(), res) {
+			types = append(types, t)
+		}
 	}
 
 	j, err := toJSON(types)
