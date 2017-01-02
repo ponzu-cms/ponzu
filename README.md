@@ -69,7 +69,7 @@ $ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
             struct type
 ```
 
-The command above will generate a file `content/review.go` with boilerplate
+The command above will generate the file `content/review.go` with boilerplate
 methods, as well as struct definition, and cooresponding field tags like:
 
 ```go
@@ -95,7 +95,7 @@ the necessary files from your workspace into the vendored directory, and
 will build/compile the project to then be run. 
 
 Optional flags:
-- `--gocmd` sets the binary used when executing `go build` witin `ponzu` build step
+- `--gocmd` sets the binary used when executing `go build` within `ponzu` build step
 
 Example:
 ```bash
