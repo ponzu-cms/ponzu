@@ -909,7 +909,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 			for i := range posts {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
+					log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
 					b.Write([]byte(post))
@@ -934,7 +934,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 			for i := len(posts) - 1; i >= 0; i-- {
 				err := json.Unmarshal(posts[i], &p)
 				if err != nil {
-					log.Println("Error unmarshal json into", t, err, posts[i])
+					log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
 					b.Write([]byte(post))
@@ -950,7 +950,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		for i := range posts {
 			err := json.Unmarshal(posts[i], &p)
 			if err != nil {
-				log.Println("Error unmarshal json into", t, err, posts[i])
+				log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
 				b.Write([]byte(post))
