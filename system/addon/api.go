@@ -25,7 +25,7 @@ func ContentAll(namespace string) []byte {
 
 	j, err := Get(URL)
 	if err != nil {
-		log.Println("Error in ContentAll for reference HTTP request:", endpoint)
+		log.Println("Error in ContentAll for reference HTTP request:", URL)
 		return nil
 	}
 
@@ -42,7 +42,7 @@ func Query(namespace string, opts QueryOptions) []byte {
 
 	j, err := Get(URL)
 	if err != nil {
-		log.Println("Error in Query for reference HTTP request:", endpoint)
+		log.Println("Error in Query for reference HTTP request:", URL)
 		return nil
 	}
 

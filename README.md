@@ -16,16 +16,21 @@ Ponzu is released under the BSD-3-Clause license (see LICENSE).
 $ go get github.com/ponzu-cms/ponzu/...
 ```
 
+### Requirements
+Go 1.8+
+
+Since HTTP/2 Server Push is used, Go 1.8+ is required. However, it is not 
+required of clients conntecing to a Ponzu server to make requests over HTTP/2. 
+
 ## Usage
 
 ```bash
 $ ponzu [flags] command <params>
 ```
 
-### COMMANDS
+## Commands
 
-
-### new \<directory\>:
+### new
 
 Creates a 'ponzu' directory, or one by the name supplied as a parameter 
 immediately following the 'new' option in the $GOPATH/src directory. Note: 
@@ -44,7 +49,7 @@ Errors will be reported, but successful commands retrun nothing.
 
 ---
 
-### generate, gen, g \<type (,...fields)\>:
+### generate, gen, g
 
 Generate a content type file with boilerplate code to implement
 the editor.Editable interface. Must be given one (1) parameter of
@@ -55,7 +60,13 @@ fieldName:"T"
 
 Example:
 ```bash
+                   struct fields and built-in types...
+                   |
+                   v    
 $ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
+            ^
+            |
+            struct type
 ```
 
 The command above will generate a file `content/review.go` with boilerplate
@@ -83,22 +94,32 @@ From within your Ponzu project directory, running build will copy and move
 the necessary files from your workspace into the vendored directory, and 
 will build/compile the project to then be run. 
 
+Optional flags:
+- `--gocmd` sets the binary used when executing `go build` witin `ponzu` build step
+
 Example:
 ```bash
 $ ponzu build
+(or)
+$ ponzu --gocmd=go1.8beta2 build # useful for testing
 ```
 
 Errors will be reported, but successful build commands return nothing.
 
 ---
 
-### [[--port=8080] [--https]] run \<service(,service)\>:
+### run
 
 Starts the HTTP server for the JSON API, Admin System, or both.
 The segments, separated by a comma, describe which services to start, either 
 'admin' (Admin System / CMS backend) or 'api' (JSON API), and, optionally, 
 if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) 
+
+Optional flags:
+- `--port` sets the port on which the server listens for requests [defaults to 8080]
+- `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
+- `--devhttps` generates self-signed SSL certificates for development-only (port is 10443)
 
 Example: 
 ```bash
@@ -109,6 +130,8 @@ $ ponzu --port=8080 --https run admin,api
 $ ponzu run admin
 (or)
 $ ponzu --port=8888 run api
+(or)
+$ ponzu --devhttps run
 ```
 Defaults to `$ ponzu --port=8080 run admin,api` (running Admin & API on port 8080, without TLS)
 
@@ -126,7 +149,7 @@ to run the Admin and API on separate processes, you must call them with the
 1. Checkout branch ponzu-dev
 2. Make code changes
 3. Test changes to ponzu-dev branch
-    - make a commit to ponzu-dev (I know, a little unnatural. Advice gladly accepted.)
+    - make a commit to ponzu-dev
     - to manually test, you will need to use a new copy (ponzu new path/to/code), but pass the --dev flag so that ponzu generates a new copy from the ponzu-dev branch, not master by default (i.e. `$ponzu --dev new /path/to/code`)
     - build and run with $ ponzu build and $ ponzu run
 4. To add back to master: 
@@ -183,6 +206,7 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 - [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
 - [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
+- [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/sluu99/um](https://github.com/sluu99/um)
 - [Materialnote Editor](http://www.web-forge.info/projects/materialNote)
