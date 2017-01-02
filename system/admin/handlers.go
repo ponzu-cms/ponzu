@@ -734,10 +734,6 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func recoveryEditHandler(res http.ResponseWriter, req *http.Request) {
-
-}
-
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")

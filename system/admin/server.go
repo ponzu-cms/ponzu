@@ -22,7 +22,6 @@ func Run() {
 
 	http.HandleFunc("/admin/recover", forgotPasswordHandler)
 	http.HandleFunc("/admin/recover/key", recoveryKeyHandler)
-	http.HandleFunc("/admin/recover/edit", recoveryEditHandler)
 
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
@@ -39,7 +38,7 @@ func Run() {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		log.Fatal("Couldn't find current directory for file server.")
+		log.Fatalln("Couldn't find current directory for file server.")
 	}
 
 	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system")
