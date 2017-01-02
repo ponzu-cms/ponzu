@@ -1249,6 +1249,14 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	pendID := req.FormValue("id")
+	if pendID != "" {
+		err = db.DeleteContent(req.FormValue("type")+":"+pendID, req.Form)
+		if err != nil {
+			log.Println("Failed to remove content after approval:", err)
+		}
+	}
+
 	// redirect to the new approved content's editor
 	redir := req.URL.Scheme + req.URL.Host + strings.TrimSuffix(req.URL.Path, "/approve")
 	redir += fmt.Sprintf("?type=%s&id=%d", t, id)
