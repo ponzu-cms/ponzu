@@ -28,7 +28,8 @@ func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 				"type":        "text",
 				"placeholder": "Enter the {{ .Name }} here",
 			}),
-		},{{ end }}
+		},
+		{{ end }}
 	)
 
 	if err != nil {
