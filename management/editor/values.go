@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-func tagNameFromStructField(name string, post interface{}) string {
+// TagNameFromStructField does a lookup on the `json` struct tag for a given
+// field of a struct
+func TagNameFromStructField(name string, post interface{}) string {
 	// sometimes elements in these environments will not have a name,
 	// and thus no tag name in the struct which correlates to it.
 	if name == "" {
@@ -26,16 +28,19 @@ func tagNameFromStructField(name string, post interface{}) string {
 	return tag
 }
 
+// TagNameFromStructFieldMulti calls TagNameFromStructField and formats is for
+// use with gorilla/schema
 // due to the format in which gorilla/schema expects form names to be when
 // one is associated with multiple values, we need to output the name as such.
 // Ex. 'category.0', 'category.1', 'category.2' and so on.
-func tagNameFromStructFieldMulti(name string, i int, post interface{}) string {
-	tag := tagNameFromStructField(name, post)
+func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
+	tag := TagNameFromStructField(name, post)
 
 	return fmt.Sprintf("%s.%d", tag, i)
 }
 
-func valueFromStructField(name string, post interface{}) string {
+// ValueFromStructField returns the string value of a field in a struct
+func ValueFromStructField(name string, post interface{}) string {
 	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
 
 	switch field.Kind() {
