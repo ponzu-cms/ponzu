@@ -74,7 +74,12 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		// create and save admin user
 		email := strings.ToLower(req.FormValue("email"))
 		password := req.FormValue("password")
-		usr := user.NewUser(email, password)
+		usr, err := user.New(email, password)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		_, err = db.SetUser(usr)
 		if err != nil {
@@ -227,7 +232,12 @@ func configUsersHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		usr := user.NewUser(email, password)
+		usr, err := user.New(email, password)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		_, err = db.SetUser(usr)
 		if err != nil {
@@ -301,9 +311,19 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 		newPassword := req.PostFormValue("new_password")
 		var updatedUser *user.User
 		if newPassword != "" {
-			updatedUser = user.NewUser(email, newPassword)
+			updatedUser, err = user.New(email, newPassword)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		} else {
-			updatedUser = user.NewUser(email, password)
+			updatedUser, err = user.New(email, password)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
 
 		// set the ID to the same ID as current user
@@ -676,7 +696,6 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 
 		if key != actual {
 			log.Println("Bad recovery key submitted:", key)
-			log.Println("Actual:", actual)
 
 			res.WriteHeader(http.StatusBadRequest)
 			res.Write([]byte("Error, please go back and try again."))
@@ -712,7 +731,15 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		update := user.NewUser(email, password)
+		update, err := user.New(email, password)
+		if err != nil {
+			log.Println(err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write([]byte("Error, please go back and try again."))
+			return
+		}
+
 		update.ID = usr.ID
 
 		err = db.UpdateUser(usr, update)

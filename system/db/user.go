@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
-	"github.com/nilslice/rand"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user
@@ -198,7 +199,8 @@ func CurrentUser(req *http.Request) ([]byte, error) {
 // SetRecoveryKey generates and saves a random secret key to verify an email
 // address submitted in order to recover/reset an account password
 func SetRecoveryKey(email string) (string, error) {
-	key := fmt.Sprintf("%d", rand.Int63())
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	key := fmt.Sprintf("%d", r.Int63())
 
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__recoveryKeys"))

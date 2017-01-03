@@ -1,11 +1,15 @@
 package user
 
 import (
+	"bytes"
+	crand "crypto/rand"
 	"encoding/base64"
+	"log"
+	mrand "math/rand"
 	"net/http"
+	"time"
 
 	"github.com/nilslice/jwt"
-	"github.com/nilslice/rand"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,10 +21,21 @@ type User struct {
 	Salt  string `json:"salt"`
 }
 
-// NewUser creates a user
-func NewUser(email, password string) *User {
-	salt := salt128()
-	hash := encryptPassword([]byte(password), salt)
+var (
+	r = mrand.New(mrand.NewSource(time.Now().Unix()))
+)
+
+// New creates a user
+func New(email, password string) (*User, error) {
+	salt, err := randSalt()
+	if err != nil {
+		return nil, err
+	}
+
+	hash, err := hashPassword([]byte(password), salt)
+	if err != nil {
+		return nil, err
+	}
 
 	user := &User{
 		Email: email,
@@ -28,7 +43,7 @@ func NewUser(email, password string) *User {
 		Salt:  base64.StdEncoding.EncodeToString(salt),
 	}
 
-	return user
+	return user, nil
 }
 
 // Auth is HTTP middleware to ensure the request has proper token credentials
@@ -63,42 +78,68 @@ func IsUser(usr *User, password string) bool {
 		return false
 	}
 
-	err = comparePassword([]byte(usr.Hash), []byte(password), salt)
+	err = checkPassword([]byte(usr.Hash), []byte(password), salt)
 	if err != nil {
+		log.Println("Error checking password:", err)
 		return false
 	}
 
 	return true
 }
 
-// The following functions are from github.com/sluu99/um -----------------------
+// randSalt generates 16 * 8 bits of data for a random salt
+func randSalt() ([]byte, error) {
+	buf := make([]byte, 16)
+	count := len(buf)
+	n, err := crand.Read(buf)
+	if err != nil {
+		return nil, err
+	}
 
-// salt128 generates 128 bits of random data.
-func salt128() []byte {
-	x := make([]byte, 16)
-	rand.Read(x)
-	return x
+	if n != count || err != nil {
+		for count > 0 {
+			count--
+			buf[count] = byte(r.Int31n(256))
+		}
+	}
+
+	return buf, nil
 }
 
-// makePassword makes the actual password from the plain password and salt
-func makePassword(plainPw, salt []byte) []byte {
-	password := make([]byte, 0, len(plainPw)+len(salt))
-	password = append(password, salt...)
-	password = append(password, plainPw...)
-	return password
+// saltPassword combines the salt and password provided
+func saltPassword(password, salt []byte) ([]byte, error) {
+	salted := &bytes.Buffer{}
+	_, err := salted.Write(append(salt, password...))
+	if err != nil {
+		return nil, err
+	}
+
+	return salted.Bytes(), nil
 }
 
-// encryptPassword uses bcrypt to encrypt a password and salt combination.
-// It returns the encrypted password in hex form.
-func encryptPassword(plainPw, salt []byte) []byte {
-	hash, _ := bcrypt.GenerateFromPassword(makePassword(plainPw, salt), 10)
-	return hash
+// hashPassword encrypts the salted password using bcrypt
+func hashPassword(password, salt []byte) ([]byte, error) {
+	salted, err := saltPassword(password, salt)
+	if err != nil {
+		return nil, err
+	}
+
+	hash, err := bcrypt.GenerateFromPassword(salted, 10)
+	if err != nil {
+		return nil, err
+	}
+
+	return hash, nil
 }
 
-// comparePassword compares a hash with the plain password and the salt.
-// The function returns nil on success or an error on failure.
-func comparePassword(hash, plainPw, salt []byte) error {
-	return bcrypt.CompareHashAndPassword(hash, makePassword(plainPw, salt))
-}
+// checkPassword compares the hash with the salted password. A nil return means
+// the password is correct, but an error could mean either the password is not
+// correct, or the salt process failed - indicated in logs
+func checkPassword(hash, password, salt []byte) error {
+	salted, err := saltPassword(password, salt)
+	if err != nil {
+		return err
+	}
 
-// End code from github.com/sluu99/um ------------------------------------------
+	return bcrypt.CompareHashAndPassword(hash, salted)
+}
