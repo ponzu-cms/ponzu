@@ -210,10 +210,10 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 - [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
 - [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
-- [Materialnote Editor](http://www.web-forge.info/projects/materialNote)
-- [Materialize.css](http://materialize.css)
-- [jQuery](https://jquery.com/)
-- [Chart.js](http://www.chartjs.org/)
+- [Materialnote Editor](https://github.com/Cerealkillerway/materialNote)
+- [Materialize.css](https://github.com/Dogfalo/materialize)
+- [jQuery](https://github.com/jquery/jquery)
+- [Chart.js](https://github.com/chartjs/Chart.js)
 
 
 ### Logo
