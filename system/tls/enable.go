@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/db"
-
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -71,7 +70,7 @@ func Enable() {
 	setup()
 
 	server := &http.Server{
-		Addr:      ":443",
+		Addr:      fmt.Sprintf(":%s", db.ConfigCache("https_port")),
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 

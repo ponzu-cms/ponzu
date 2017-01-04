@@ -20,10 +20,11 @@ import (
 )
 
 var (
-	usage    = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
-	port     int
-	https    bool
-	devhttps bool
+	usage     = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
+	port      int
+	httpsport int
+	https     bool
+	devhttps  bool
 
 	// for ponzu internal / core development
 	dev   bool
@@ -36,7 +37,8 @@ func main() {
 		fmt.Println(usage)
 	}
 
-	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its listener")
+	flag.IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
+	flag.IntVar(&httpsport, "httpsport", 443, "port for ponzu to bind its HTTPS listener")
 	flag.BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&devhttps, "devhttps", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
@@ -128,7 +130,7 @@ func main() {
 		}
 
 		serve := exec.Command("./ponzu-server",
-			fmt.Sprintf("--port=%d", port),
+			fmt.Sprintf("--port=%d --httpsport=%d", port, httpsport),
 			addTLS,
 			"serve",
 			services,
@@ -171,12 +173,18 @@ func main() {
 			}
 		}
 
+		// save the https port the system is listening on
+		err := db.PutConfig("https_port", fmt.Sprintf("%d", httpsport))
+		if err != nil {
+			log.Fatalln("System failed to save config. Please try to run again.")
+		}
+
 		// cannot run production HTTPS and development HTTPS together
 		if devhttps {
 			fmt.Println("Enabling self-signed HTTPS... [DEV]")
 
 			go tls.EnableDev()
-			fmt.Println("Server listening on https://localhost:10443 for requests... [DEV]")
+			fmt.Printf("Server listening on https://localhost:%s for requests... [DEV]\n", db.ConfigCache("https_port"))
 			fmt.Println("----")
 			fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
 			fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
@@ -185,12 +193,12 @@ func main() {
 			fmt.Println("Enabling HTTPS...")
 
 			go tls.Enable()
-			fmt.Println("Server listening on :443 for HTTPS requests...")
+			fmt.Printf("Server listening on :%s for HTTPS requests...\n", db.ConfigCache("https_port"))
 		}
 
-		// save the port the system is listening on so internal system can make
+		// save the https port the system is listening on so internal system can make
 		// HTTP api calls while in dev or production w/o adding more cli flags
-		err := db.PutConfig("http_port", fmt.Sprintf("%d", port))
+		err = db.PutConfig("http_port", fmt.Sprintf("%d", port))
 		if err != nil {
 			log.Fatalln("System failed to save config. Please try to run again.")
 		}

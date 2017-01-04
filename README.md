@@ -28,12 +28,12 @@ rapid development, but need a fast JSON response in a high-concurrency environme
  - Development: self-signed certificates auto-generated
  - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org) 
 
-Because you want to turn this:
+**Because you want to turn this:**  
 ```bash
 $ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
 ```
 
-Into this:
+**Into this:**  
 ![song go-rt](https://cloud.githubusercontent.com/assets/7517515/20726600/2ecd96a8-b62b-11e6-8589-c00c630ea6cc.png)
 
 
@@ -147,7 +147,8 @@ if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 Optional flags:
-- `--port` sets the port on which the server listens for requests [defaults to 8080]
+- `--port` sets the port on which the server listens for HTTP requests [defaults to 8080]
+- `--httpsport` sets the port on which the server listens for HTTPS requests [defaults to 443]
 - `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
 - `--devhttps` generates self-signed SSL certificates for development-only (port is 10443)
 

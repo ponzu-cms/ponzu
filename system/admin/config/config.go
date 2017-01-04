@@ -13,6 +13,7 @@ type Config struct {
 	Name            string   `json:"name"`
 	Domain          string   `json:"domain"`
 	HTTPPort        string   `json:"http_port"`
+	HTTPSPort       string   `json:"https_port"`
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
@@ -42,6 +43,11 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("HTTPPort", c, map[string]string{
+				"type": "hidden",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("HTTPSPort", c, map[string]string{
 				"type": "hidden",
 			}),
 		},
