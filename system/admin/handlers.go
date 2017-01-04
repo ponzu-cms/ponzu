@@ -858,8 +858,9 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		specifier = "__pending"
 	}
 
-	total, posts := db.Query(t+specifier, opts)
 	b := &bytes.Buffer{}
+	var total int
+	var posts [][]byte
 
 	html := `<div class="col s9 card">		
 					<div class="card-content">
@@ -922,6 +923,9 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 
 		switch status {
 		case "public", "":
+			// get __sorted posts of type t from the db
+			total, posts = db.Query(t+specifier, opts)
+
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
 					<span class="active">Public</span>
@@ -945,7 +949,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 
 		case "pending":
 			// get __pending posts of type t from the db
-			_, posts = db.Query(t+"__pending", opts)
+			total, posts = db.Query(t+"__pending", opts)
 
 			html += `<div class="row externalable">
 					<span class="description">Status:</span> 
@@ -970,6 +974,8 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 	} else {
+		total, posts = db.Query(t+specifier, opts)
+
 		for i := range posts {
 			err := json.Unmarshal(posts[i], &p)
 			if err != nil {
