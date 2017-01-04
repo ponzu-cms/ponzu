@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/ponzu-cms/ponzu/system/db"
 )
 
 // EnableDev generates self-signed SSL certificates to use HTTPS & HTTP/2 while
@@ -27,6 +25,5 @@ func EnableDev() {
 	cert := filepath.Join(vendorPath, "devcerts", "cert.pem")
 	key := filepath.Join(vendorPath, "devcerts", "key.pem")
 
-	port := db.ConfigCache("https_port")
-	log.Fatalln(http.ListenAndServeTLS(":"+port, cert, key, nil))
+	log.Fatalln(http.ListenAndServeTLS(":10443", cert, key, nil))
 }

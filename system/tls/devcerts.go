@@ -126,7 +126,7 @@ func setupDev() {
 		log.Fatalln("Failed to remove old files from dev certificate directory:", err)
 	}
 
-	err = os.Mkdir(devcertsPath, os.ModePerm|os.ModePerm)
+	err = os.Mkdir(devcertsPath, os.ModeDir|os.ModePerm)
 	if err != nil {
 		log.Fatalln("Failed to create directory to locate or save dev certificates:", err)
 	}

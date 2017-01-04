@@ -185,7 +185,7 @@ func main() {
 			fmt.Println("Enabling self-signed HTTPS... [DEV]")
 
 			go tls.EnableDev()
-			fmt.Printf("Server listening on https://localhost:%s for requests... [DEV]\n", db.ConfigCache("https_port"))
+			fmt.Println("Server listening on https://localhost:10443 for requests... [DEV]")
 			fmt.Println("----")
 			fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
 			fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
