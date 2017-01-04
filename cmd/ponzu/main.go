@@ -130,7 +130,8 @@ func main() {
 		}
 
 		serve := exec.Command("./ponzu-server",
-			fmt.Sprintf("--port=%d --httpsport=%d", port, httpsport),
+			fmt.Sprintf("--port=%d", port),
+			fmt.Sprintf("--httpsport=%d", httpsport),
 			addTLS,
 			"serve",
 			services,
