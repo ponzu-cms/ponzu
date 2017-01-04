@@ -923,6 +923,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 
 		switch status {
 		case "public", "":
+			fmt.Println(opts "\n\npublic")
 			// get __sorted posts of type t from the db
 			total, posts = db.Query(t+specifier, opts)
 
@@ -948,6 +949,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 		case "pending":
+			fmt.Println(opts "\n\npending")		
 			// get __pending posts of type t from the db
 			total, posts = db.Query(t+"__pending", opts)
 
