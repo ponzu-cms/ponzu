@@ -12,7 +12,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/db"
 )
 
-// QueryOptions is a miror of the same struct in db package and are re-declared
+// QueryOptions is a mirror of the same struct in db package and are re-declared
 // here only to make the API simpler for the caller
 type QueryOptions db.QueryOptions
 

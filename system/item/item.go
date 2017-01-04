@@ -12,10 +12,10 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-// Sluggable makes a struct locatable by URL with it's own path
+// Sluggable makes a struct locatable by URL with it's own path.
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
-// make your content struct (or one which imbeds Item) implement Sluggable
-// and it will override the slug created by Item's SetSlug with your struct's
+// make your content struct (or one which embeds Item) implement Sluggable
+// and it will override the slug created by Item's SetSlug with your own
 type Sluggable interface {
 	SetSlug(string)
 	ItemSlug() string
@@ -62,7 +62,7 @@ type Hideable interface {
 
 // Pushable lets a user define which values of certain struct fields are
 // 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
-// should be the json tag names of the struct fields to which they coorespond
+// should be the json tag names of the struct fields to which they coorespond.
 type Pushable interface {
 	// the values contained by fields returned by Push must strictly be URL paths
 	Push() []string

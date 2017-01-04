@@ -10,13 +10,16 @@ modern applications.
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
 (c) 2016 Boss Sauce Creative, LLC
 
+## Wiki
+For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
+
 ## Installation
 
 ```
 $ go get github.com/ponzu-cms/ponzu/...
 ```
 
-### Requirements
+## Requirements
 Go 1.8+
 
 Since HTTP/2 Server Push is used, Go 1.8+ is required. However, it is not 
