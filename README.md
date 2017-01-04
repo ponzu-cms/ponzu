@@ -8,7 +8,34 @@ scaffolding to generate content editors, and a fast HTTP API on which to build
 modern applications.
 
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
-(c) 2016 Boss Sauce Creative, LLC
+(c) [Boss Sauce Creative, LLC](https://bosssauce.it)
+
+## Why?
+With the rise in popularity of web/mobile apps connected to JSON HTTP APIs, better 
+tools to support the development of content servers and management systems are necessary. 
+Ponzu fills the void where you want to reach for Wordpress to get a great CMS, or Rails for
+rapid development, but need a fast JSON response in a high-concurrency environment. 
+
+**What's inside**  
+:ballot_box_with_check: Automatic & Free SSL/TLS*  
+:ballot_box_with_check: HTTP/2 and Server Push  
+:ballot_box_with_check: Rapid development with CLI-controlled code generators  
+:ballot_box_with_check: User-friendly, extensible CMS and administration dashboard  
+:ballot_box_with_check: Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
+:ballot_box_with_check: Fast, helpful framework while maintaining control  
+
+*TLS:
+ - Development: self-signed certificates auto-generated
+ - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org) 
+
+Because you want to turn this:
+```bash
+$ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
+```
+
+Into this:
+![song go-rt](https://cloud.githubusercontent.com/assets/7517515/20726600/2ecd96a8-b62b-11e6-8589-c00c630ea6cc.png)
+
 
 ## Wiki
 For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
