@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bosssauce/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/db"
 )
 
 // EnableDev generates self-signed SSL certificates to use HTTPS & HTTP/2 while
