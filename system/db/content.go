@@ -485,7 +485,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// find the content type and decode values into it
 	t, ok := item.Types[ns]
 	if !ok {
-		return nil, fmt.Errorf(item.ErrTypeNotRegistered, ns)
+		return nil, fmt.Errorf(item.ErrTypeNotRegistered.Error(), ns)
 	}
 	post := t()
 

@@ -1306,7 +1306,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		contentType, ok := item.Types[t]
 		if !ok {
-			fmt.Fprintf(res, item.ErrTypeNotRegistered, t)
+			fmt.Fprintf(res, item.ErrTypeNotRegistered.Error(), t)
 			return
 		}
 		post := contentType()
