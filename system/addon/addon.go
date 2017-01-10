@@ -38,21 +38,40 @@ type Addon struct {
 	Meta
 }
 
-// Register sets up the system to use the Addon by:
-// 1. Adding Meta to the Addon struct
-// 2. Saving it to the __addons bucket in DB with id/key = addon_reverse_dns
-// 3. Checking that the Addon parent type was added to Types (likely via its init())
-func Register(meta Meta, addon Addon) error {
-	a := Addon{Meta: meta}
-
+// New constructs a new addon to be registered. Meta is a addon.Meta and fn is a
+// closure returning a pointer to your own addon type
+func New(m Meta, fn func() interface{}) (Addon, error) {
 	// get or create the reverse DNS identifier
-	if a.PonzuAddonReverseDNS == "" {
-		revDNS, err := reverseDNS(meta)
+	if m.PonzuAddonReverseDNS == "" {
+		revDNS, err := reverseDNS(m)
 		if err != nil {
-			return err
+			return Addon{}, err
 		}
 
-		a.PonzuAddonReverseDNS = revDNS
+		m.PonzuAddonReverseDNS = revDNS
+	}
+
+	Types[m.PonzuAddonReverseDNS] = fn
+
+	return Addon{Meta: m}, nil
+}
+
+// Register sets up the system to use the Addon by:
+// 1. Validating the Addon struct
+// 2. Checking that the Addon parent type was added to Types (via its New())
+// 3. Saving it to the __addons bucket in DB with id/key = addon_reverse_dns
+func Register(a Addon) error {
+	if a.PonzuAddonName == "" {
+		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonName" field.`)
+	}
+	if a.PonzuAddonAuthor == "" {
+		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonAuthor" field.`)
+	}
+	if a.PonzuAddonAuthorURL == "" {
+		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonAuthorURL" field.`)
+	}
+	if a.PonzuAddonVersion == "" {
+		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonVersion" field.`)
 	}
 
 	if _, ok := Types[a.PonzuAddonReverseDNS]; !ok {
