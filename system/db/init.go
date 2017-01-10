@@ -26,6 +26,11 @@ func Close() {
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
 	fmt.Println("db.Init inside db package")
+	if store != nil {
+		fmt.Println("db.Init already intialized store")
+		return
+	}
+
 	var err error
 	store, err = bolt.Open("system.db", 0666, nil)
 	if err != nil {
