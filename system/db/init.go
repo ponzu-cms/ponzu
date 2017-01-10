@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/ponzu-cms/ponzu/system/admin/config"
@@ -24,6 +25,7 @@ func Close() {
 
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
+	fmt.Println("db.Init inside db package")
 	var err error
 	store, err = bolt.Open("system.db", 0666, nil)
 	if err != nil {
@@ -79,18 +81,22 @@ func Init() {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
 	}
 
+	fmt.Println("db initialization completed")
+
 	// invalidate cache on system start
 	err = InvalidateCache()
 	if err != nil {
 		log.Fatalln("Failed to invalidate cache.", err)
 	}
+	fmt.Println("Cache invalidated")
 
 	go func() {
 		for t := range item.Types {
 			SortContent(t)
 		}
-	}()
 
+		fmt.Println("content sorted (from goroutine)")
+	}()
 }
 
 // SystemInitComplete checks if there is at least 1 admin user in the db which
