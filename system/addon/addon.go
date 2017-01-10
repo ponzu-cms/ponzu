@@ -187,7 +187,7 @@ func reverseDNS(meta Meta) (string, error) {
 
 	// reverse the host name parts, split on '.', ex. bosssauce.it => it.bosssauce
 	parts := strings.Split(u.Host, ".")
-	strap := make([]string, len(parts), len(parts))
+	strap := make([]string, 0, len(parts))
 	for i := len(parts) - 1; i >= 0; i-- {
 		strap = append(strap, parts[i])
 	}
