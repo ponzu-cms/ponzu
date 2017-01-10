@@ -15,12 +15,6 @@ var (
 	ErrNoAddonExists = errors.New("No addon exists.")
 )
 
-func init() {
-	if store == nil {
-		Init()
-	}
-}
-
 // Addon looks for an addon by its addon_reverse_dns as the key and returns
 // the url.Values representation of an addon
 func Addon(key string) (url.Values, error) {
@@ -143,6 +137,11 @@ func DeleteAddon(key string) error {
 // value at addon_reverse_dns
 func AddonExists(key string) bool {
 	var exists bool
+
+	if store == nil {
+		Init()
+	}
+
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__addons"))
 		if err != nil {
