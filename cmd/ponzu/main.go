@@ -154,11 +154,9 @@ func main() {
 	case "serve", "s":
 		db.Init()
 		defer db.Close()
-		fmt.Println("Ran db.Init")
 
 		analytics.Init()
 		defer analytics.Close()
-		fmt.Println("Ran analytics.Init")
 
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
@@ -166,10 +164,8 @@ func main() {
 			for i := range services {
 				if services[i] == "api" {
 					api.Run()
-					fmt.Println("api.Run()")
 				} else if services[i] == "admin" {
 					admin.Run()
-					fmt.Println("admin.Run()")
 				} else {
 					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
 					fmt.Println("$ ponzu --help")

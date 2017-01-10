@@ -2111,6 +2111,8 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		http.Redirect(res, req, req.URL.String(), http.StatusFound)
+
 	default:
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error400()

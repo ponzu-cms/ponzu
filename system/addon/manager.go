@@ -41,7 +41,7 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 	dec := schema.NewDecoder()
 	dec.IgnoreUnknownKeys(true)
 	dec.SetAliasTag("json")
-	err := dec.Decode(&at, data)
+	err := dec.Decode(at, data)
 	if err != nil {
 		return nil, err
 	}
