@@ -2142,7 +2142,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		at, ok := addon.Types[id]
+		_, ok := addon.Types[id]
 		if !ok {
 			log.Println("Addon: ", id, "is not found in addon.Types map")
 			res.WriteHeader(http.StatusNotFound)
