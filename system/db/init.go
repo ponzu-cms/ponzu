@@ -13,14 +13,6 @@ import (
 
 var store *bolt.DB
 
-func init() {
-	var err error
-	store, err = bolt.Open("system.db", 0666, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
 // Close exports the abillity to close our db file. Should be called with defer
 // after call to Init() from the same place.
 func Close() {
@@ -32,7 +24,13 @@ func Close() {
 
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
-	err := store.Update(func(tx *bolt.Tx) error {
+	var err error
+	store, err = bolt.Open("system.db", 0666, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = store.Update(func(tx *bolt.Tx) error {
 		// initialize db with all content type buckets & sorted bucket for type
 		for t := range item.Types {
 			_, err := tx.CreateBucketIfNotExists([]byte(t))

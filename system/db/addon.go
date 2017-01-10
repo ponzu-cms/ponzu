@@ -15,6 +15,12 @@ var (
 	ErrNoAddonExists = errors.New("No addon exists.")
 )
 
+func init() {
+	if store == nil {
+		Init()
+	}
+}
+
 // Addon looks for an addon by its addon_reverse_dns as the key and returns
 // the url.Values representation of an addon
 func Addon(key string) (url.Values, error) {
