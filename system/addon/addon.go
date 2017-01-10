@@ -40,12 +40,12 @@ type Addon struct {
 
 // New constructs a new addon to be registered. Meta is a addon.Meta and fn is a
 // closure returning a pointer to your own addon type
-func New(m Meta, fn func() interface{}) (Addon, error) {
+func New(m Meta, fn func() interface{}) Addon {
 	// get or create the reverse DNS identifier
 	if m.PonzuAddonReverseDNS == "" {
 		revDNS, err := reverseDNS(m)
 		if err != nil {
-			return Addon{}, err
+			panic(err)
 		}
 
 		m.PonzuAddonReverseDNS = revDNS
@@ -53,29 +53,36 @@ func New(m Meta, fn func() interface{}) (Addon, error) {
 
 	Types[m.PonzuAddonReverseDNS] = fn
 
-	return Addon{Meta: m}, nil
+	a := Addon{Meta: m}
+
+	err := register(a)
+	if err != nil {
+		panic(err)
+	}
+
+	return a
 }
 
-// Register sets up the system to use the Addon by:
+// register sets up the system to use the Addon by:
 // 1. Validating the Addon struct
 // 2. Checking that the Addon parent type was added to Types (via its New())
 // 3. Saving it to the __addons bucket in DB with id/key = addon_reverse_dns
-func Register(a Addon) error {
+func register(a Addon) error {
 	if a.PonzuAddonName == "" {
-		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonName" field.`)
+		return fmt.Errorf(`Addon must have valid Meta struct embedded: missing %s field.`, "PonzuAddonName")
 	}
 	if a.PonzuAddonAuthor == "" {
-		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonAuthor" field.`)
+		return fmt.Errorf(`Addon must have valid Meta struct embedded: missing %s field.`, "PonzuAddonAuthor")
 	}
 	if a.PonzuAddonAuthorURL == "" {
-		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonAuthorURL" field.`)
+		return fmt.Errorf(`Addon must have valid Meta struct embedded: missing %s field.`, "PonzuAddonAuthorURL")
 	}
 	if a.PonzuAddonVersion == "" {
-		panic(`Addon must have valid Meta struct embedded: missing "PonzuAddonVersion" field.`)
+		return fmt.Errorf(`Addon must have valid Meta struct embedded: missing %s field.`, "PonzuAddonVersion")
 	}
 
 	if _, ok := Types[a.PonzuAddonReverseDNS]; !ok {
-		panic(`Addon "` + a.PonzuAddonName + `" has no record in the addons.Types map`)
+		return fmt.Errorf(`Addon "%s" has no record in the addons.Types map`, a.PonzuAddonName)
 	}
 
 	// check if addon is already registered in db as addon_reverse_dns
