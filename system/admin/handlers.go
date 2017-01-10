@@ -1946,6 +1946,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 				}
 
 				res.Write(errView)
+				return
 			}
 		}
 
@@ -1968,6 +1969,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			res.Write(errView)
+			return
 		}
 
 		_, err = html.Write(list.Bytes())
@@ -1981,6 +1983,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			res.Write(errView)
+			return
 		}
 
 		_, err = html.WriteString(`</ul></div></div>`)
@@ -1994,6 +1997,23 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			res.Write(errView)
+			return
+		}
+
+		if html.Len() == 0 {
+			_, err := html.WriteString(`<p>No addons available.</p>`)
+			if err != nil {
+				log.Println("Error writing default addon html to admin view:", err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
 		}
 
 		view, err := Admin(html.Bytes())
@@ -2007,6 +2027,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			res.Write(errView)
+			return
 		}
 
 		res.Write(view)
@@ -2099,6 +2120,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		res.Write(errView)
+		return
 	}
 }
 
@@ -2120,7 +2142,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		_, ok := addon.Types[id]
+		at, ok := addon.Types[id]
 		if !ok {
 			log.Println("Addon: ", id, "is not found in addon.Types map")
 			res.WriteHeader(http.StatusNotFound)
@@ -2166,6 +2188,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		res.Write(errView)
+		return
 	}
 }
 

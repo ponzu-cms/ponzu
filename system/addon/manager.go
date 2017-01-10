@@ -6,8 +6,7 @@ import (
 	"html/template"
 	"net/url"
 
-	"encoding/json"
-
+	"github.com/gorilla/schema"
 	"github.com/ponzu-cms/ponzu/management/editor"
 )
 
@@ -18,6 +17,7 @@ const managerHTML = `
     <form method="post" action="/admin/addon" enctype="multipart/form-data">
 		{{ .DefaultInputs }}
 		{{ .Editor }}
+		<button type="submit" class="btn green waves-effect waves-light">Save</button>
 	</form>
 </div>
 `
@@ -36,13 +36,10 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 
 	at := a()
 
-	// convert data => json => at{}
-	j, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(j, &at)
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err := dec.Decode(&at, data)
 	if err != nil {
 		return nil, err
 	}
