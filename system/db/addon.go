@@ -137,7 +137,7 @@ func DeleteAddon(key string) error {
 // value at addon_reverse_dns
 func AddonExists(key string) bool {
 	var exists bool
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__addons"))
 		if err != nil {
 			return err
