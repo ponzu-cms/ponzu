@@ -178,7 +178,7 @@ func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
 	// check if should be hidden
 	if h, ok := it.(item.Hideable); ok {
 		err := h.Hide(req)
-		if err != nil && err == item.ErrAllowHiddenItem {
+		if err == item.ErrAllowHiddenItem {
 			return false
 		}
 

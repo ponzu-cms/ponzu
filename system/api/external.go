@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -136,12 +137,16 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		spec = "__pending"
 	}
 
-	_, err = db.SetContent(t+spec+":-1", req.PostForm)
+	id, err := db.SetContent(t+spec+":-1", req.PostForm)
 	if err != nil {
 		log.Println("[External] error:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// set the target in the context so user can get saved value from db in hook
+	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
+	req = req.WithContext(ctx)
 
 	err = hook.AfterSave(req)
 	if err != nil {

@@ -2,17 +2,20 @@ package admin
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/management/manager"
+	"github.com/ponzu-cms/ponzu/system/addon"
 	"github.com/ponzu-cms/ponzu/system/admin/config"
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
@@ -263,6 +266,17 @@ func configUsersEditHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
 
 		// check if user to be edited is current user
 		j, err := db.CurrentUser(req)
@@ -385,6 +399,17 @@ func configUsersDeleteHandler(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
 
 		// do not allow current user to delete themselves
 		j, err := db.CurrentUser(req)
@@ -567,8 +592,9 @@ func forgotPasswordHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
 			if err != nil {
 				return
 			}
@@ -939,12 +965,37 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 					log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
+					_, err := b.Write([]byte(post))
+					if err != nil {
+						log.Println(err)
+
+						res.WriteHeader(http.StatusInternalServerError)
+						errView, err := Error500()
+						if err != nil {
+							log.Println(err)
+						}
+
+						res.Write(errView)
+						return
+					}
+
 					continue
 				}
 
 				post := adminPostListItem(p, t, status)
-				b.Write(post)
+				_, err = b.Write(post)
+				if err != nil {
+					log.Println(err)
+
+					res.WriteHeader(http.StatusInternalServerError)
+					errView, err := Error500()
+					if err != nil {
+						log.Println(err)
+					}
+
+					res.Write(errView)
+					return
+				}
 			}
 
 		case "pending":
@@ -964,12 +1015,36 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 					log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 					post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-					b.Write([]byte(post))
+					_, err := b.Write([]byte(post))
+					if err != nil {
+						log.Println(err)
+
+						res.WriteHeader(http.StatusInternalServerError)
+						errView, err := Error500()
+						if err != nil {
+							log.Println(err)
+						}
+
+						res.Write(errView)
+						return
+					}
 					continue
 				}
 
 				post := adminPostListItem(p, t, status)
-				b.Write(post)
+				_, err = b.Write(post)
+				if err != nil {
+					log.Println(err)
+
+					res.WriteHeader(http.StatusInternalServerError)
+					errView, err := Error500()
+					if err != nil {
+						log.Println(err)
+					}
+
+					res.Write(errView)
+					return
+				}
 			}
 		}
 
@@ -982,18 +1057,54 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 				log.Println("Error unmarshal json into", t, err, string(posts[i]))
 
 				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-				b.Write([]byte(post))
+				_, err := b.Write([]byte(post))
+				if err != nil {
+					log.Println(err)
+
+					res.WriteHeader(http.StatusInternalServerError)
+					errView, err := Error500()
+					if err != nil {
+						log.Println(err)
+					}
+
+					res.Write(errView)
+					return
+				}
 				continue
 			}
 
 			post := adminPostListItem(p, t, status)
-			b.Write(post)
+			_, err = b.Write(post)
+			if err != nil {
+				log.Println(err)
+
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+				}
+
+				res.Write(errView)
+				return
+			}
 		}
 	}
 
 	html += `<ul class="posts row">`
 
-	b.Write([]byte(`</ul>`))
+	_, err = b.Write([]byte(`</ul>`))
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
 
 	statusDisabled := "disabled"
 	prevStatus := ""
@@ -1042,7 +1153,19 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		`
 	}
 
-	b.Write([]byte(pagination + `</div></div>`))
+	_, err = b.Write([]byte(pagination + `</div></div>`))
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
 
 	script := `
 	<script>
@@ -1269,6 +1392,10 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// set the target in the context so user can get saved value from db in hook
+	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
+	req = req.WithContext(ctx)
+
 	err = hook.AfterSave(req)
 	if err != nil {
 		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
@@ -1358,6 +1485,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				log.Println("Content type", t, "doesn't implement item.Identifiable")
 				return
 			}
+
 			item.SetItemID(-1)
 		}
 
@@ -1388,8 +1516,8 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
 			log.Println(err)
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error405()
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
 			if err != nil {
 				return
 			}
@@ -1509,6 +1637,10 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		// set the target in the context so user can get saved value from db in hook
+		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
+		req = req.WithContext(ctx)
+
 		err = hook.AfterSave(req)
 		if err != nil {
 			log.Println(err)
@@ -1549,6 +1681,12 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
 		return
 	}
 
@@ -1729,15 +1867,51 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			log.Println("Error unmarshal search result json into", t, err, posts[i])
 
 			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
-			b.Write([]byte(post))
+			_, err = b.Write([]byte(post))
+			if err != nil {
+				log.Println(err)
+
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+				}
+
+				res.Write(errView)
+				return
+			}
 			continue
 		}
 
 		post := adminPostListItem(p, t, status)
-		b.Write([]byte(post))
+		_, err = b.Write([]byte(post))
+		if err != nil {
+			log.Println(err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+			}
+
+			res.Write(errView)
+			return
+		}
 	}
 
-	b.Write([]byte(`</ul></div></div>`))
+	_, err := b.WriteString(`</ul></div></div>`)
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
 
 	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
 	html = html + b.String() + btn
@@ -1751,4 +1925,274 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/html")
 	res.Write(adminView)
+}
+
+func addonsHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		all := db.AddonAll()
+		list := &bytes.Buffer{}
+
+		for i := range all {
+			v := adminAddonListItem(all[i])
+			_, err := list.Write(v)
+			if err != nil {
+				log.Println("Error writing bytes to addon list view:", err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				res.Write(errView)
+			}
+		}
+
+		html := &bytes.Buffer{}
+		open := `<div class="col s9 card">		
+				<div class="card-content">
+				<div class="row">
+				<div class="card-title col s7">Addons</div>	
+				</div>
+				<ul class="posts row">`
+
+		_, err := html.WriteString(open)
+		if err != nil {
+			log.Println("Error writing open html to addon html view:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			res.Write(errView)
+		}
+
+		_, err = html.Write(list.Bytes())
+		if err != nil {
+			log.Println("Error writing list bytes to addon html view:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			res.Write(errView)
+		}
+
+		_, err = html.WriteString(`</ul></div></div>`)
+		if err != nil {
+			log.Println("Error writing close html to addon html view:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			res.Write(errView)
+		}
+
+		view, err := Admin(html.Bytes())
+		if err != nil {
+			log.Println("Error writing addon html to admin view:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			res.Write(errView)
+		}
+
+		res.Write(view)
+
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		id := req.PostFormValue("id")
+		action := req.PostFormValue("action")
+
+		_, err = db.Addon(id)
+		if err == db.ErrNoAddonExists {
+			log.Println(err)
+			res.WriteHeader(http.StatusNotFound)
+			errView, err := Error404()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		switch action {
+		case "enable":
+			err := addon.Enable(id)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		case "disable":
+			err := addon.Disable(id)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		default:
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error405()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+	default:
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error405()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		res.Write(errView)
+	}
+}
+
+func addonHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		id := req.FormValue("id")
+
+		data, err := db.Addon(id)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		_, ok := addon.Types[id]
+		if !ok {
+			log.Println("Addon: ", id, "is not found in addon.Types map")
+			res.WriteHeader(http.StatusNotFound)
+			errView, err := Error404()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		m, err := addon.Manage(data, id)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		addonView, err := Admin(m)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(addonView)
+
+	case http.MethodPost:
+	default:
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error405()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		res.Write(errView)
+	}
+}
+
+func adminAddonListItem(data url.Values) []byte {
+	var action string
+	var buttonClass string
+	status := data.Get("addon_status")
+	if status != addon.StatusEnabled {
+		action = "Enable"
+		buttonClass = "green"
+	} else {
+		action = "Disable"
+		buttonClass = "red"
+	}
+
+	id := data.Get("addon_reverse_dns")
+	name := data.Get("addon_name")
+	a := `
+			<li class="col s12">
+				<a href="/admin/addon?id=` + id + `" alt="Configure '` + name + `'">` + name + `</a>
+
+				<form enctype="multipart/form-data" class="quick-` + strings.ToLower(action) + `-addon __ponzu right" action="/admin/addons" method="post">
+					<button class="btn waves-effect waves-effect-light ` + buttonClass + `">` + action + `</button>
+					<input type="hidden" name="id" value="` + id + `" />
+					<input type="hidden" name="action" value="` + action + `" />
+				</form>
+			</li>`
+
+	return []byte(a)
 }
