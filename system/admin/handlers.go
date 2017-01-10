@@ -2026,7 +2026,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		id := req.PostFormValue("id")
-		action := req.PostFormValue("action")
+		action := strings.ToLower(req.PostFormValue("action"))
 
 		_, err = db.Addon(id)
 		if err == db.ErrNoAddonExists {
@@ -2081,7 +2081,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		default:
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error405()
+			errView, err := Error400()
 			if err != nil {
 				return
 			}
@@ -2092,7 +2092,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 
 	default:
 		res.WriteHeader(http.StatusBadRequest)
-		errView, err := Error405()
+		errView, err := Error400()
 		if err != nil {
 			log.Println(err)
 			return
