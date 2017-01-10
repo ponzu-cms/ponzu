@@ -138,7 +138,10 @@ func DeleteAddon(key string) error {
 func AddonExists(key string) bool {
 	var exists bool
 	err := store.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("__addons"))
+		b, err := tx.CreateBucketIfNotExists([]byte("__addons"))
+		if err != nil {
+			return err
+		}
 		if b.Get([]byte(key)) == nil {
 			return nil
 		}
