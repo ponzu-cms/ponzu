@@ -106,7 +106,7 @@ func register(a Addon) error {
 	// save new addon to db
 	vals := make(url.Values)
 	for k, v := range kv {
-		vals.Set(k, v.(string))
+		vals.Set(k, fmt.Sprintf("%v", v))
 	}
 
 	vals.Set("addon_name", a.PonzuAddonName)
