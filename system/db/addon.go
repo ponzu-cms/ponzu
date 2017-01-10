@@ -80,7 +80,7 @@ func SetAddon(data url.Values) error {
 	return nil
 }
 
-// AddonAll returns all registered addons as a [][]byte
+// AddonAll returns all registered addons as a []url.Values
 func AddonAll() []url.Values {
 	var all []url.Values
 	buf := &bytes.Buffer{}

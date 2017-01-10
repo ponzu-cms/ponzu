@@ -17,7 +17,9 @@ const managerHTML = `
     <form method="post" action="/admin/addon" enctype="multipart/form-data">
 		{{ .DefaultInputs }}
 		{{ .Editor }}
-		<button type="submit" class="btn green waves-effect waves-light">Save</button>
+		<div class="row">
+			<button type="submit" class="btn green waves-effect waves-light right">Save</button>
+		</div>
 	</form>
 </div>
 `
