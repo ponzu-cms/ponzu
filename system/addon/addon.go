@@ -38,9 +38,9 @@ type Addon struct {
 	Meta
 }
 
-// New constructs a new addon to be registered. Meta is a addon.Meta and fn is a
-// closure returning a pointer to your own addon type
-func New(m Meta, fn func() interface{}) Addon {
+// Register constructs a new addon and registers it with the system. Meta is a
+// addon.Meta and fn is a closure returning a pointer to your own addon type
+func Register(m Meta, fn func() interface{}) Addon {
 	// get or create the reverse DNS identifier
 	if m.PonzuAddonReverseDNS == "" {
 		revDNS, err := reverseDNS(m)

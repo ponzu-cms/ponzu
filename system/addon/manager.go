@@ -15,11 +15,11 @@ const defaultInput = `<input type="hidden" name="%s" value="%s"/>`
 const managerHTML = `
 <div class="card editor">
     <form method="post" action="/admin/addon" enctype="multipart/form-data">
+		<div class="card-content">
+			<div class="card-title">{{ .AddonName }}</div>
+		</div>
 		{{ .DefaultInputs }}
 		{{ .Editor }}
-		<div class="row">
-			<button type="submit" class="btn green waves-effect waves-light right">Save</button>
-		</div>
 	</form>
 </div>
 `
@@ -27,6 +27,7 @@ const managerHTML = `
 type manager struct {
 	DefaultInputs template.HTML
 	Editor        template.HTML
+	AddonName     string
 }
 
 // Manage ...
@@ -77,6 +78,7 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 	m := manager{
 		DefaultInputs: template.HTML(inputs.Bytes()),
 		Editor:        template.HTML(v),
+		AddonName:     data.Get("addon_name"),
 	}
 
 	// execute html template into buffer for func return val
