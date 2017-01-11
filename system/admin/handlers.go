@@ -2228,7 +2228,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
-		err := db.SetAddon(req.Form)
+		err = db.SetAddon(req.Form)
 		if err != nil {
 			log.Println("Error saving addon:", name, err)
 			res.WriteHeader(http.StatusInternalServerError)
