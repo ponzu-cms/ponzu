@@ -157,7 +157,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
-			if (hiddenInput.parent().hasClass('input-field'))
+			if (hiddenInput.parent().hasClass('input-field')) {
 				hiddenInput.parent().hide();
 			}
 		}
@@ -171,7 +171,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (form.attr('action') === '/admin/addon') {
 			timestamp.hide();
 			slug.hide();
-			if (hiddenInput.parent().hasClass('input-field'))
+			if (hiddenInput.parent().hasClass('input-field')) {
 				hiddenInput.parent().hide();
 			}
 		}
