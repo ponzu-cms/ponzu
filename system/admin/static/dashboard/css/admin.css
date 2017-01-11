@@ -191,6 +191,10 @@ li:hover .quick-delete-post, li:hover .delete-user {
     top: -10px;
 }
 
+tr.default-fields, tr.editor-fields {
+    margin-top: 20px;
+}
+
 /* OVERRIDE Bootstrap + Materialize conflicts */
 .iso-texteditor.input-field label {
     color: #9e9e9e;

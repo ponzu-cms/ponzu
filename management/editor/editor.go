@@ -38,7 +38,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor := &Editor{}
 
 	editor.ViewBuf = &bytes.Buffer{}
-	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8"><td>`)
+	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8 editor-fields"><td class="col s12">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
@@ -55,7 +55,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	}
 
 	// content items with Item embedded have some default fields we need to render
-	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td>`)
+	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td class="col s12">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
