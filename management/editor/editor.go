@@ -157,7 +157,9 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
-			hiddenInput.parent().hide();
+			if (hiddenInput.parent().hasClass('input-field'))
+				hiddenInput.parent().hide();
+			}
 		}
 
 		// hide approval if not on a pending content item
@@ -169,7 +171,9 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (form.attr('action') === '/admin/addon') {
 			timestamp.hide();
 			slug.hide();
-			hiddenInput.parent().hide();
+			if (hiddenInput.parent().hasClass('input-field'))
+				hiddenInput.parent().hide();
+			}
 		}
 
 		save.on('click', function(e) {
