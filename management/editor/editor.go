@@ -157,9 +157,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
-			if (hiddenInput.parent().hasClass('input-field')) {
-				hiddenInput.parent().hide();
-			}
+			hiddenInput.parent().filter('.input-field').hide()			
 		}
 
 		// hide approval if not on a pending content item
@@ -170,10 +168,8 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		// no timestamp, slug or hidden input parents visible on addons
 		if (form.attr('action') === '/admin/addon') {
 			timestamp.hide();
-			slug.hide();
-			if (hiddenInput.parent().hasClass('input-field')) {
-				hiddenInput.parent().hide();
-			}
+			slug.parent().hide();
+			hiddenInput.parent().filter('.input-field').hide()
 		}
 
 		save.on('click', function(e) {
