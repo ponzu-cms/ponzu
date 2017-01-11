@@ -149,12 +149,15 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			del = form.find('button.delete-post'),
 			external = form.find('.post-controls.external'),
 			id = form.find('input[name=id]'),
-			timestamp = $('.__ponzu.content-only'); 
+			timestamp = $('.__ponzu.content-only'),
+			slug = $('input[name=slug]'),
+			hiddenInput = $('input[type=hidden]');
 		
 		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
+			hiddenInput.parent().hide();
 		}
 
 		// hide approval if not on a pending content item
@@ -162,9 +165,11 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			external.hide();
 		} 
 
-		// no timestamp on addons
+		// no timestamp, slug or hidden input parents visible on addons
 		if (form.attr('action') === '/admin/addon') {
 			timestamp.hide();
+			slug.hide();
+			hiddenInput.parent().hide();
 		}
 
 		save.on('click', function(e) {

@@ -2181,6 +2181,68 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		res.Write(addonView)
 
 	case http.MethodPost:
+		// save req.Form
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		name := req.FormValue("addon_name")
+		id := req.FormValue("addon_reverse_dns")
+
+		at, ok := addon.Types[id]
+		if !ok {
+			log.Println("Error: addon", name, "has no record in addon.Types map at", id)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// if Hookable, call BeforeSave prior to saving
+		h, ok := at().(item.Hookable)
+		if ok {
+			err := h.BeforeSave(req)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		}
+
+		err := db.SetAddon(req.Form)
+		if err != nil {
+			log.Println("Error saving addon:", name, err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		http.Redirect(res, req, "/admin/addon?id="+id, http.StatusFound)
+
 	default:
 		res.WriteHeader(http.StatusBadRequest)
 		errView, err := Error405()
