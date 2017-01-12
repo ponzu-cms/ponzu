@@ -3,6 +3,9 @@ package config
 import (
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/system/item"
+
+	// content package must be initialized so our db is pre-configured
+	_ "github.com/ponzu-cms/ponzu/content"
 )
 
 // Config represents the confirgurable options of the system
