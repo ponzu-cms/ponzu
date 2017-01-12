@@ -28,5 +28,9 @@ var (
 
 	// Types is a map used to reference a type name to its actual Editable type
 	// mainly for lookups in /admin route based utilities
-	Types = make(map[string]func() interface{})
+	Types map[string]func() interface{}
 )
+
+func init() {
+	Types = make(map[string]func() interface{})
+}

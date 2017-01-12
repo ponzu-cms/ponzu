@@ -2,12 +2,11 @@ package db
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/url"
-
-	"encoding/json"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
