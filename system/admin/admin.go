@@ -12,6 +12,9 @@ import (
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+
+	// content package must be initialized so our db is pre-configured
+	_ "github.com/ponzu-cms/ponzu/content"
 )
 
 var startAdminHTML = `<!doctype html>
