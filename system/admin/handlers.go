@@ -2260,6 +2260,9 @@ func adminAddonListItem(data []byte) []byte {
 	id := gjson.GetBytes(data, "addon_reverse_dns").String()
 	status := gjson.GetBytes(data, "addon_status").String()
 	name := gjson.GetBytes(data, "addon_name").String()
+	author := gjson.GetBytes(data, "addon_author").String()
+	authorURL := gjson.GetBytes(data, "addon_author_url").String()
+	version := gjson.GetBytes(data, "addon_version").String()
 
 	var action string
 	var buttonClass string
@@ -2273,13 +2276,21 @@ func adminAddonListItem(data []byte) []byte {
 
 	a := `
 			<li class="col s12">
-				<a href="/admin/addon?id=` + id + `" alt="Configure '` + name + `'">` + name + `</a>
+				<div class="row">
+					<div class="col s9">
+						<a class="addon-name" href="/admin/addon?id=` + id + `" alt="Configure '` + name + `'">` + name + `</a>
+						<span class="addon-meta addon-author">by: <a href="` + authorURL + `">` + author + `</a></span>
+						<span class="addon-meta addon-version">version: ` + version + `</span>
+					</div>
 
-				<form enctype="multipart/form-data" class="quick-` + strings.ToLower(action) + `-addon __ponzu right" action="/admin/addons" method="post">
-					<button class="btn waves-effect waves-effect-light ` + buttonClass + `">` + action + `</button>
-					<input type="hidden" name="id" value="` + id + `" />
-					<input type="hidden" name="action" value="` + action + `" />
-				</form>
+					<div class="col s3">					
+						<form enctype="multipart/form-data" class="quick-` + strings.ToLower(action) + `-addon __ponzu right" action="/admin/addons" method="post">
+							<button class="btn waves-effect waves-effect-light ` + buttonClass + `">` + action + `</button>
+							<input type="hidden" name="id" value="` + id + `" />
+							<input type="hidden" name="action" value="` + action + `" />
+						</form>
+					</div>
+				</div>
 			</li>`
 
 	return []byte(a)
