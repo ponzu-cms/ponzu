@@ -180,7 +180,7 @@ func setStatus(key, status string) error {
 
 	// convert json => map[string]interface{} => url.Values
 	var kv map[string]interface{}
-	err = json.Unmarshal(a, kv)
+	err = json.Unmarshal(a, &kv)
 	if err != nil {
 		return err
 	}

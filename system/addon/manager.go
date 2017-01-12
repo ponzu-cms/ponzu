@@ -41,7 +41,7 @@ func Manage(data []byte, reverseDNS string) ([]byte, error) {
 
 	// convert json => map[string]interface{} => url.Values
 	var kv map[string]interface{}
-	err := json.Unmarshal(data, kv)
+	err := json.Unmarshal(data, &kv)
 	if err != nil {
 		return nil, err
 	}
