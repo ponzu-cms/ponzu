@@ -8,6 +8,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/tidwall/sjson"
 )
 
 var (
@@ -65,8 +66,7 @@ func Register(m Meta, fn func() interface{}) Addon {
 
 // register sets up the system to use the Addon by:
 // 1. Validating the Addon struct
-// 2. Checking that the Addon parent type was added to Types (via its New())
-// 3. Saving it to the __addons bucket in DB with id/key = addon_reverse_dns
+// 2. Saving it to the __addons bucket in DB with id/key = addon_reverse_dns
 func register(a Addon) error {
 	if a.PonzuAddonName == "" {
 		return fmt.Errorf(`Addon must have valid Meta struct embedded: missing %s field.`, "PonzuAddonName")
@@ -118,7 +118,12 @@ func register(a Addon) error {
 
 	// db.SetAddon is like SetContent, but rather than the key being an int64 ID,
 	// we need it to be a string based on the addon_reverse_dns
-	err = db.SetAddon(vals)
+	kind, ok := Types[a.PonzuAddonReverseDNS]
+	if !ok {
+		return fmt.Errorf("Error: no addon to set with id: %s", a.PonzuAddonReverseDNS)
+	}
+
+	err = db.SetAddon(vals, kind())
 	if err != nil {
 		return err
 	}
@@ -163,9 +168,41 @@ func setStatus(key, status string) error {
 		return err
 	}
 
-	a.Set("addon_status", status)
+	a, err = sjson.SetBytes(a, "addon_status", status)
+	if err != nil {
+		return err
+	}
 
-	err = db.SetAddon(a)
+	kind, ok := Types[key]
+	if !ok {
+		return fmt.Errorf("Error: no addon to set with id: %s", key)
+	}
+
+	// convert json => map[string]interface{} => url.Values
+	var kv map[string]interface{}
+	err = json.Unmarshal(a, kv)
+	if err != nil {
+		return err
+	}
+
+	var vals url.Values
+	for k, v := range kv {
+		switch v.(type) {
+		case []string:
+			s := v.([]string)
+			for i := range s {
+				if i == 0 {
+					vals.Set(k, s[i])
+				}
+
+				vals.Add(k, s[i])
+			}
+		default:
+			vals.Set(k, fmt.Sprintf("%v", v))
+		}
+	}
+
+	err = db.SetAddon(vals, kind())
 	if err != nil {
 		return err
 	}

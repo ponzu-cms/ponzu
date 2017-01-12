@@ -2,12 +2,14 @@ package addon
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/url"
 
 	"github.com/gorilla/schema"
 	"github.com/ponzu-cms/ponzu/management/editor"
+	"github.com/tidwall/gjson"
 )
 
 const defaultInput = `<input type="hidden" name="%s" value="%s"/>`
@@ -31,10 +33,34 @@ type manager struct {
 }
 
 // Manage ...
-func Manage(data url.Values, reverseDNS string) ([]byte, error) {
+func Manage(data []byte, reverseDNS string) ([]byte, error) {
 	a, ok := Types[reverseDNS]
 	if !ok {
 		return nil, fmt.Errorf("Addon has not been added to addon.Types map")
+	}
+
+	// convert json => map[string]interface{} => url.Values
+	var kv map[string]interface{}
+	err := json.Unmarshal(data, kv)
+	if err != nil {
+		return nil, err
+	}
+
+	var vals url.Values
+	for k, v := range kv {
+		switch v.(type) {
+		case []string:
+			s := v.([]string)
+			for i := range s {
+				if i == 0 {
+					vals.Set(k, s[i])
+				}
+
+				vals.Add(k, s[i])
+			}
+		default:
+			vals.Set(k, fmt.Sprintf("%v", v))
+		}
 	}
 
 	at := a()
@@ -42,7 +68,7 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 	dec := schema.NewDecoder()
 	dec.IgnoreUnknownKeys(true)
 	dec.SetAliasTag("json")
-	err := dec.Decode(at, data)
+	err = dec.Decode(at, vals)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +94,7 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 	}
 
 	for _, f := range fields {
-		input := fmt.Sprintf(defaultInput, f, data.Get(f))
+		input := fmt.Sprintf(defaultInput, f, gjson.GetBytes(data, f).String())
 		_, err := inputs.WriteString(input)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to write input for addon view: %s", f)
@@ -78,7 +104,7 @@ func Manage(data url.Values, reverseDNS string) ([]byte, error) {
 	m := manager{
 		DefaultInputs: template.HTML(inputs.Bytes()),
 		Editor:        template.HTML(v),
-		AddonName:     data.Get("addon_name"),
+		AddonName:     gjson.GetBytes(data, "addon_name").String(),
 	}
 
 	// execute html template into buffer for func return val

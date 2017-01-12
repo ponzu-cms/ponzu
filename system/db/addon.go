@@ -7,7 +7,10 @@ import (
 	"log"
 	"net/url"
 
+	"encoding/json"
+
 	"github.com/boltdb/bolt"
+	"github.com/gorilla/schema"
 )
 
 var (
@@ -16,8 +19,8 @@ var (
 )
 
 // Addon looks for an addon by its addon_reverse_dns as the key and returns
-// the url.Values representation of an addon
-func Addon(key string) (url.Values, error) {
+// the []byte as json representation of an addon
+func Addon(key string) ([]byte, error) {
 	buf := &bytes.Buffer{}
 
 	err := store.View(func(tx *bolt.Tx) error {
@@ -40,25 +43,21 @@ func Addon(key string) (url.Values, error) {
 		return nil, err
 	}
 
-	data, err := url.ParseQuery(buf.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return buf.Bytes(), nil
 }
 
 // SetAddon stores the values of an addon into the __addons bucket with a the
-// addon_reverse_dns field used as the key
-func SetAddon(data url.Values) error {
-	// we don't know the structure of the addon type from a addon developer, so
-	// encoding to json before it's stored in the db is difficult. Instead, we
-	// can just encode the url.Values to a query string using the Encode() method.
-	// The downside is that we will have to parse the values out of the query
-	// string when loading it from the db
-	v := data.Encode()
+// `addon_reverse_dns` field used as the key. `kind` is the interface{} type for
+// the provided addon (as in the result of calling addon.Types[id])
+func SetAddon(data url.Values, kind interface{}) error {
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err := dec.Decode(kind, data)
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	v, err := json.Marshal(kind)
+
+	err = store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		k := data.Get("addon_reverse_dns")
 		if k == "" {
@@ -66,7 +65,7 @@ func SetAddon(data url.Values) error {
 			return fmt.Errorf(`Addon "%s" has no identifier to use as key.`, name)
 		}
 
-		err := b.Put([]byte(k), []byte(v))
+		err := b.Put([]byte(k), v)
 		if err != nil {
 			return err
 		}
@@ -80,25 +79,15 @@ func SetAddon(data url.Values) error {
 	return nil
 }
 
-// AddonAll returns all registered addons as a []url.Values
-func AddonAll() []url.Values {
-	var all []url.Values
-	buf := &bytes.Buffer{}
+// AddonAll returns all registered addons as a [][]byte
+func AddonAll() [][]byte {
+	var all [][]byte
 
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		err := b.ForEach(func(k, v []byte) error {
-			_, err := buf.Write(v)
-			if err != nil {
-				return err
-			}
+			all = append(all, v)
 
-			data, err := url.ParseQuery(buf.String())
-			if err != nil {
-				return err
-			}
-
-			all = append(all, data)
 			return nil
 		})
 		if err != nil {

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +25,7 @@ import (
 	"github.com/gorilla/schema"
 	emailer "github.com/nilslice/email"
 	"github.com/nilslice/jwt"
+	"github.com/tidwall/gjson"
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
@@ -2228,7 +2228,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
-		err = db.SetAddon(req.Form)
+		err = db.SetAddon(req.Form, at())
 		if err != nil {
 			log.Println("Error saving addon:", name, err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -2256,10 +2256,13 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func adminAddonListItem(data url.Values) []byte {
+func adminAddonListItem(data []byte) []byte {
+	id := gjson.GetBytes(data, "addon_reverse_dns").String()
+	status := gjson.GetBytes(data, "addon_status").String()
+	name := gjson.GetBytes(data, "addon_name").String()
+
 	var action string
 	var buttonClass string
-	status := data.Get("addon_status")
 	if status != addon.StatusEnabled {
 		action = "Enable"
 		buttonClass = "green"
@@ -2268,8 +2271,6 @@ func adminAddonListItem(data url.Values) []byte {
 		buttonClass = "red"
 	}
 
-	id := data.Get("addon_reverse_dns")
-	name := data.Get("addon_name")
 	a := `
 			<li class="col s12">
 				<a href="/admin/addon?id=` + id + `" alt="Configure '` + name + `'">` + name + `</a>
