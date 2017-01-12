@@ -432,29 +432,40 @@ func SortContent(namespace string) {
 	// sort posts
 	sort.Sort(posts)
 
+	// marshal posts to json
+	var bb [][]byte
+	for i := range posts {
+		j, err := json.Marshal(posts[i])
+		if err != nil {
+			// log error and kill sort so __sorted is not in invalid state
+			log.Println("Error marshal post to json in SortContent:", err)
+			return
+		}
+
+		bb = append(bb, j)
+	}
+
 	// store in <namespace>_sorted bucket, first delete existing
 	err := store.Update(func(tx *bolt.Tx) error {
 		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
 		if err != nil || err != bolt.ErrBucketNotFound {
+			fmt.Println("Error in DeleteBucket")
 			return err
 		}
 
 		b, err := tx.CreateBucketIfNotExists(bname)
 		if err != nil {
+			fmt.Println("Error in CreateBucketIfNotExists")
 			return err
 		}
 
 		// encode to json and store as 'i:post.Time()':post
-		for i := range posts {
-			j, err := json.Marshal(posts[i])
-			if err != nil {
-				return err
-			}
-
+		for i := range bb {
 			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
-			err = b.Put([]byte(cid), j)
+			err = b.Put([]byte(cid), bb[i])
 			if err != nil {
+				fmt.Println("Error in Put")
 				return err
 			}
 		}
