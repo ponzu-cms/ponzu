@@ -1580,11 +1580,12 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Del(discardKey)
 		}
 
+		pt := t
 		if strings.Contains(t, "__") {
-			t = strings.Split(t, "__")[0]
+			pt = strings.Split(t, "__")[0]
 		}
 
-		p, ok := item.Types[t]
+		p, ok := item.Types[pt]
 		if !ok {
 			log.Println("Type", t, "is not a content type. Cannot edit or save.")
 			res.WriteHeader(http.StatusBadRequest)
@@ -1600,7 +1601,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		post := p()
 		hook, ok := post.(item.Hookable)
 		if !ok {
-			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
+			log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
 			errView, err := Error400()
 			if err != nil {
@@ -1658,7 +1659,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		host := req.URL.Host
 		path := req.URL.Path
 		sid := fmt.Sprintf("%d", id)
-		redir := scheme + host + path + "?type=" + t + "&id=" + sid
+		redir := scheme + host + path + "?type=" + pt + "&id=" + sid
 
 		if req.URL.Query().Get("status") == "pending" {
 			redir += "&status=pending"
