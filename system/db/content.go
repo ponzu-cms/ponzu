@@ -449,7 +449,7 @@ func SortContent(namespace string) {
 	err := store.Update(func(tx *bolt.Tx) error {
 		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
-		if err != nil || err != bolt.ErrBucketNotFound {
+		if err != nil && err != bolt.ErrBucketNotFound {
 			fmt.Println("Error in DeleteBucket")
 			return err
 		}
