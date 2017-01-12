@@ -9,6 +9,9 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
+
+	// initialize the system with db configuration
+	_ "github.com/ponzu-cms/ponzu/system/init"
 )
 
 var store *bolt.DB
