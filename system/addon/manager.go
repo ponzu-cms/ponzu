@@ -46,7 +46,7 @@ func Manage(data []byte, reverseDNS string) ([]byte, error) {
 		return nil, err
 	}
 
-	var vals url.Values
+	vals := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
 		case []string:

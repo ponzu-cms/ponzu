@@ -185,7 +185,7 @@ func setStatus(key, status string) error {
 		return err
 	}
 
-	var vals url.Values
+	vals := make(url.Values)
 	for k, v := range kv {
 		switch v.(type) {
 		case []string:
