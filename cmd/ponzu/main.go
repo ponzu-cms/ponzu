@@ -14,9 +14,6 @@ import (
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/tls"
-
-	// import registers content types
-	_ "github.com/ponzu-cms/ponzu/content"
 )
 
 var (
