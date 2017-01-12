@@ -23,9 +23,6 @@ func Run() {
 	http.HandleFunc("/admin/recover", forgotPasswordHandler)
 	http.HandleFunc("/admin/recover/key", recoveryKeyHandler)
 
-	http.HandleFunc("/admin/addons", user.Auth(addonsHandler))
-	http.HandleFunc("/admin/addon", user.Auth(addonHandler))
-
 	http.HandleFunc("/admin/configure", user.Auth(configHandler))
 	http.HandleFunc("/admin/configure/users", user.Auth(configUsersHandler))
 	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))
