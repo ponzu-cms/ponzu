@@ -14,6 +14,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/management/manager"
+	"github.com/ponzu-cms/ponzu/system/addon"
 	"github.com/ponzu-cms/ponzu/system/admin/config"
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
@@ -2074,7 +2075,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 
 		switch action {
 		case "enable":
-			err := Enable(id)
+			err := addon.Enable(id)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2087,7 +2088,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		case "disable":
-			err := Disable(id)
+			err := addon.Disable(id)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2143,7 +2144,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		_, ok := Types[id]
+		_, ok := addon.Types[id]
 		if !ok {
 			log.Println("Addon: ", id, "is not found in addon.Types map")
 			res.WriteHeader(http.StatusNotFound)
@@ -2156,7 +2157,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		m, err := Manage(data, id)
+		m, err := addon.Manage(data, id)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -2197,7 +2198,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		name := req.FormValue("addon_name")
 		id := req.FormValue("addon_reverse_dns")
 
-		at, ok := Types[id]
+		at, ok := addon.Types[id]
 		if !ok {
 			log.Println("Error: addon", name, "has no record in addon.Types map at", id)
 			res.WriteHeader(http.StatusBadRequest)
@@ -2262,7 +2263,7 @@ func adminAddonListItem(data []byte) []byte {
 
 	var action string
 	var buttonClass string
-	if status != StatusEnabled {
+	if status != addon.StatusEnabled {
 		action = "Enable"
 		buttonClass = "green"
 	} else {
