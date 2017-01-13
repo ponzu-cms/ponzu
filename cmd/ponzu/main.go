@@ -193,7 +193,7 @@ func main() {
 			fmt.Println("Enabling HTTPS...")
 
 			go tls.Enable()
-			fmt.Printf("Server listening on :%s for HTTPS requests...\n", db.ConfigCache("https_port"))
+			fmt.Printf("Server listening on :%s for HTTPS requests...\n", db.ConfigCache("https_port").(string))
 		}
 
 		// save the https port the system is listening on so internal system can make

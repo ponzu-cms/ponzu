@@ -4,11 +4,11 @@ import "net/http"
 
 // Run adds Handlers to default http listener for API
 func Run() {
-	http.HandleFunc("/api/types", CORS(Record(typesHandler)))
+	http.HandleFunc("/api/types", Record(CORS(typesHandler)))
 
-	http.HandleFunc("/api/contents", CORS(Record(contentsHandler)))
+	http.HandleFunc("/api/contents", Record(CORS(contentsHandler)))
 
-	http.HandleFunc("/api/content", CORS(Record(contentHandler)))
+	http.HandleFunc("/api/content", Record(CORS(contentHandler)))
 
-	http.HandleFunc("/api/content/external", CORS(Record(externalContentHandler)))
+	http.HandleFunc("/api/content/external", Record(CORS(externalContentHandler)))
 }

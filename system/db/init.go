@@ -71,7 +71,7 @@ func Init() {
 			}
 		}
 
-		clientSecret := ConfigCache("client_secret")
+		clientSecret := ConfigCache("client_secret").(string)
 
 		if clientSecret != "" {
 			jwt.Secret([]byte(clientSecret))

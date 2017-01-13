@@ -89,7 +89,7 @@ func setupDev() {
 	}
 
 	hosts := []string{"localhost", "0.0.0.0"}
-	domain := db.ConfigCache("domain")
+	domain := db.ConfigCache("domain").(string)
 	if domain != "" {
 		hosts = append(hosts, domain)
 	}

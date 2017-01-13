@@ -166,6 +166,6 @@ func PutConfig(key string, value interface{}) error {
 
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
 // 'key' is the JSON tag associated with the config field
-func ConfigCache(key string) string {
+func ConfigCache(key string) interface{} {
 	return configCache.Get(key)
 }

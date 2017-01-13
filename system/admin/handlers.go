@@ -92,7 +92,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// set HTTP port which should be previously added to config cache
-		port := db.ConfigCache("http_port")
+		port := db.ConfigCache("http_port").(string)
 		req.Form.Set("http_port", port)
 
 		// set initial user email as admin_email and make config

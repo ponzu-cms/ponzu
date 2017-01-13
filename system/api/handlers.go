@@ -254,6 +254,12 @@ func sendPreflight(res http.ResponseWriter) {
 
 // CORS wraps a HandleFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
+	if db.ConfigCache("cors_disabled").([]string)[0] == "true" {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			res.WriteHeader(http.StatusForbidden)
+		})
+	}
+
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {
 			sendPreflight(res)
