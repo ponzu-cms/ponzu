@@ -15,10 +15,6 @@ tools to support the development of content servers and management systems are n
 Ponzu fills the void where you want to reach for Wordpress to get a great CMS, or Rails for
 rapid development, but need a fast JSON response in a high-concurrency environment. 
 
-*TLS:
- - Development: self-signed certificates auto-generated
- - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org) 
-
 **Because you want to turn this:**  
 ```bash
 $ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
@@ -34,7 +30,11 @@ $ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"strin
 :ballot_box_with_check: Rapid development with CLI-controlled code generators  
 :ballot_box_with_check: User-friendly, extensible CMS and administration dashboard  
 :ballot_box_with_check: Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
-:ballot_box_with_check: Fast, helpful framework while maintaining control  
+:ballot_box_with_check: Fast, helpful framework while maintaining control 
+
+*TLS:
+ - Development: self-signed certificates auto-generated
+ - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)  
 
 ## Wiki
 For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
