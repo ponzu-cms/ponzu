@@ -13,14 +13,15 @@ import (
 	"github.com/gorilla/schema"
 )
 
-var configCache url.Values
+var configCache map[string]interface{}
 
 func init() {
-	configCache = make(url.Values)
+	configCache = make(map[string]interface{})
 }
 
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
+	var j []byte
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 
@@ -61,7 +62,7 @@ func SetConfig(data url.Values) error {
 			cfg.CacheInvalidate = []string{}
 		}
 
-		j, err := json.Marshal(cfg)
+		j, err = json.Marshal(cfg)
 		if err != nil {
 			return err
 		}
@@ -77,7 +78,14 @@ func SetConfig(data url.Values) error {
 		return err
 	}
 
-	configCache = data
+	// convert json => map[string]interface{}
+	var kv map[string]interface{}
+	err = json.Unmarshal(j, &kv)
+	if err != nil {
+		return err
+	}
+
+	configCache = kv
 
 	return nil
 }
@@ -177,7 +185,7 @@ func PutConfig(key string, value interface{}) error {
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
 // 'key' is the JSON tag associated with the config field
 func ConfigCache(key string) interface{} {
-	return configCache.Get(key)
+	return configCache[key]
 }
 
 // LoadCacheConfig loads the config into a cache to be accessed by ConfigCache()
@@ -194,31 +202,14 @@ func LoadCacheConfig() error {
 		}
 	}
 
-	// convert json => map[string]interface{} => url.Values
+	// convert json => map[string]interface{}
 	var kv map[string]interface{}
 	err = json.Unmarshal(c, &kv)
 	if err != nil {
 		return err
 	}
 
-	data := make(url.Values)
-	for k, v := range kv {
-		switch v.(type) {
-		case []string:
-			s := v.([]string)
-			for i := range s {
-				if i == 0 {
-					data.Set(k, s[i])
-				}
-
-				data.Add(k, s[i])
-			}
-		default:
-			data.Set(k, fmt.Sprintf("%v", v))
-		}
-	}
-
-	configCache = data
+	configCache = kv
 
 	return nil
 }

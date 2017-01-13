@@ -16,7 +16,7 @@ type Config struct {
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
-	DisableCORS     []string `json:"cors_disabled"`
+	DisableCORS     []bool   `json:"cors_disabled"`
 	CacheInvalidate []string `json:"cache"`
 }
 
