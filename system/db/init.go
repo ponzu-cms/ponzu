@@ -55,21 +55,21 @@ func Init() {
 			}
 		}
 
-		err := LoadCacheConfig()
-		if err != nil {
-			return err
-		}
-
-		clientSecret := ConfigCache("client_secret").(string)
-
-		if clientSecret != "" {
-			jwt.Secret([]byte(clientSecret))
-		}
-
 		return nil
 	})
 	if err != nil {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
+	}
+
+	err = LoadCacheConfig()
+	if err != nil {
+		log.Fatalln("Failed to load config cache.", err)
+	}
+
+	clientSecret := ConfigCache("client_secret").(string)
+
+	if clientSecret != "" {
+		jwt.Secret([]byte(clientSecret))
 	}
 
 	// invalidate cache on system start
