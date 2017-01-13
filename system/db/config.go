@@ -108,6 +108,9 @@ func ConfigAll() ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
+		if b == nil {
+			return fmt.Errorf("Error finding bucket: %s", "__config")
+		}
 		_, err := val.Write(b.Get([]byte("settings")))
 		if err != nil {
 			return err
