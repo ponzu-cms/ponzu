@@ -1,6 +1,9 @@
 package api
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 // Run adds Handlers to default http listener for API
 func Run() {
@@ -11,4 +14,6 @@ func Run() {
 	http.HandleFunc("/api/content", Record(CORS(contentHandler)))
 
 	http.HandleFunc("/api/content/external", Record(CORS(externalContentHandler)))
+
+	fmt.Println("API routes registered.")
 }

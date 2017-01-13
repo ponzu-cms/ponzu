@@ -79,7 +79,7 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Checkbox("DisableCORS", c, map[string]string{
 				"label": "Disable CORS (so only " + c.Domain + " can fetch your data)",
 			}, map[string]string{
-				"on": "Disable",
+				"true": "Disable",
 			}),
 		},
 		editor.Field{

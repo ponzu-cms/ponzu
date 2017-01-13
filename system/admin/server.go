@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -54,4 +55,6 @@ func Run() {
 	http.Handle("/api/uploads/", api.Record(api.CORS(db.CacheControl(
 		http.StripPrefix("/api/uploads/", http.FileServer(
 			restrict(http.Dir(uploadsDir))))))))
+
+	fmt.Println("Admin routes registered.")
 }
