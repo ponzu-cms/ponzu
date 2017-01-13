@@ -153,21 +153,30 @@ func main() {
 			os.Exit(1)
 		}
 
+		fmt.Println("serve command executed.")
+
 	case "serve", "s":
 		db.Init()
 		defer db.Close()
+		fmt.Println("called db.Init()")
 
 		analytics.Init()
 		defer analytics.Close()
+		fmt.Println("called analytics.Init()")
 
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
+			fmt.Println("configured to start services:", services)
 
 			for i := range services {
 				if services[i] == "api" {
 					api.Run()
+					fmt.Println("called api.Run()")
+
 				} else if services[i] == "admin" {
 					admin.Run()
+					fmt.Println("called admin.Run()")
+
 				} else {
 					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
 					fmt.Println("$ ponzu --help")
@@ -179,8 +188,9 @@ func main() {
 		// save the https port the system is listening on
 		err := db.PutConfig("https_port", fmt.Sprintf("%d", httpsport))
 		if err != nil {
-			log.Fatalln("System failed to save config. Please try to run again.")
+			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
+		fmt.Println("called db.PutConfig('https_port')")
 
 		// cannot run production HTTPS and development HTTPS together
 		if devhttps {
@@ -203,10 +213,12 @@ func main() {
 		// HTTP api calls while in dev or production w/o adding more cli flags
 		err = db.PutConfig("http_port", fmt.Sprintf("%d", port))
 		if err != nil {
-			log.Fatalln("System failed to save config. Please try to run again.")
+			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
+		fmt.Println("called db.PutConfig('http_port')")
 
 		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+		fmt.Println("called http.ListenAndServe()")
 
 	case "":
 		fmt.Println(usage)
