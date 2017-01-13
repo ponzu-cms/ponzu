@@ -180,7 +180,10 @@ func LoadCacheConfig() error {
 		return err
 	}
 
-	fmt.Println(string(c))
+	if c == nil {
+		configCache = make(url.Values)
+		return nil
+	}
 
 	// convert json => map[string]interface{} => url.Values
 	var kv map[string]interface{}
