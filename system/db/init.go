@@ -1,10 +1,8 @@
 package db
 
 import (
-	"encoding/json"
 	"log"
 
-	"github.com/ponzu-cms/ponzu/system/admin/config"
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
@@ -57,18 +55,9 @@ func Init() {
 			}
 		}
 
-		// seed db with configs structure if not present
-		b := tx.Bucket([]byte("__config"))
-		if b.Get([]byte("settings")) == nil {
-			j, err := json.Marshal(&config.Config{})
-			if err != nil {
-				return err
-			}
-
-			err = b.Put([]byte("settings"), j)
-			if err != nil {
-				return err
-			}
+		err := LoadCacheConfig()
+		if err != nil {
+			return err
 		}
 
 		clientSecret := ConfigCache("client_secret").(string)

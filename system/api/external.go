@@ -61,7 +61,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
+	ts := fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond))
 	req.PostForm.Set("timestamp", ts)
 	req.PostForm.Set("updated", ts)
 

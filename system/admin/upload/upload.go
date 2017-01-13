@@ -20,7 +20,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	ts := req.FormValue("timestamp") // timestamp in milliseconds since unix epoch
 
 	if ts == "" {
-		ts = fmt.Sprintf("%d", time.Now().Unix()*1000) // Unix() returns seconds since unix epoch
+		ts = fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond)) // Unix() returns seconds since unix epoch
 	}
 
 	req.Form.Set("timestamp", ts)

@@ -1533,7 +1533,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		// create a timestamp if one was not set
 		if ts == "" {
-			ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
+			ts := fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond))
 			req.PostForm.Set("timestamp", ts)
 		}
 

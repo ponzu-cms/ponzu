@@ -169,3 +169,39 @@ func PutConfig(key string, value interface{}) error {
 func ConfigCache(key string) interface{} {
 	return configCache.Get(key)
 }
+
+// LoadCacheConfig loads the config into a cache to be accessed by ConfigCache()
+func LoadCacheConfig() error {
+	c, err := ConfigAll()
+	if err != nil {
+		return err
+	}
+
+	// convert json => map[string]interface{} => url.Values
+	var kv map[string]interface{}
+	err = json.Unmarshal(c, &kv)
+	if err != nil {
+		return err
+	}
+
+	data := make(url.Values)
+	for k, v := range kv {
+		switch v.(type) {
+		case []string:
+			s := v.([]string)
+			for i := range s {
+				if i == 0 {
+					data.Set(k, s[i])
+				}
+
+				data.Add(k, s[i])
+			}
+		default:
+			data.Set(k, fmt.Sprintf("%v", v))
+		}
+	}
+
+	configCache = data
+
+	return nil
+}
