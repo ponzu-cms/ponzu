@@ -180,6 +180,8 @@ func LoadCacheConfig() error {
 		return err
 	}
 
+	fmt.Println(string(c))
+
 	// convert json => map[string]interface{} => url.Values
 	var kv map[string]interface{}
 	err = json.Unmarshal(c, &kv)
