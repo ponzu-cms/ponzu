@@ -110,6 +110,7 @@ func main() {
 		}
 
 	case "run":
+		fmt.Println("Running..")
 		var addTLS string
 		if https {
 			addTLS = "--https"
@@ -127,6 +128,8 @@ func main() {
 		} else {
 			services = "admin,api"
 		}
+
+		fmt.Println("services:", services)
 
 		serve := exec.Command("./ponzu-server",
 			fmt.Sprintf("--port=%d", port),
