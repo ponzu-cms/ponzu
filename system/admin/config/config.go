@@ -8,7 +8,6 @@ import (
 // Config represents the confirgurable options of the system
 type Config struct {
 	item.Item
-	editor editor.Editor
 
 	Name            string   `json:"name"`
 	Domain          string   `json:"domain"`
@@ -22,9 +21,6 @@ type Config struct {
 
 // String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
-
-// Editor partially implements editor.Editable
-func (c *Config) Editor() *editor.Editor { return &c.editor }
 
 // MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor() ([]byte, error) {
@@ -90,7 +86,13 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		return nil, err
 	}
 
-	open := []byte(`<div class="card"><form action="/admin/configure" method="post">`)
+	open := []byte(`
+	<div class="card">
+		<div class="card-content">
+			<div class="card-title">System Configuration</div>
+		</div>
+		<form action="/admin/configure" method="post">
+	`)
 	close := []byte(`</form></div>`)
 	script := []byte(`
 	<script>

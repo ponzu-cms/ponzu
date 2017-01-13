@@ -24,6 +24,10 @@ func Close() {
 
 // Init creates a db connection, initializes db with required info, sets secrets
 func Init() {
+	if store != nil {
+		return
+	}
+
 	var err error
 	store, err = bolt.Open("system.db", 0666, nil)
 	if err != nil {
@@ -45,7 +49,7 @@ func Init() {
 		}
 
 		// init db with other buckets as needed
-		buckets := []string{"__config", "__users", "__contentIndex"}
+		buckets := []string{"__config", "__users", "__contentIndex", "__addons"}
 		for _, name := range buckets {
 			_, err := tx.CreateBucketIfNotExists([]byte(name))
 			if err != nil {
@@ -90,7 +94,6 @@ func Init() {
 			SortContent(t)
 		}
 	}()
-
 }
 
 // SystemInitComplete checks if there is at least 1 admin user in the db which

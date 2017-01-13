@@ -9,14 +9,13 @@ import (
 
 type {{ .Name }} struct {
     item.Item
-    editor editor.Editor
 
     {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
     {{ end }}	
 }
 
-// MarshalEditor writes a buffer of html to edit a {{ .Name }}
-// partially implements editor.Editable
+// MarshalEditor writes a buffer of html to edit a {{ .Name }} within the CMS
+// and implements editor.Editable
 func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form({{ .Initial }},
         // Take note that the first argument to these Input-like functions 
@@ -42,8 +41,3 @@ func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 func init() {
 	item.Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
 }
-
-// Editor is a buffer of bytes for the Form function to write input views
-// partially implements editor.Editable
-func ({{ .Initial }} *{{ .Name }}) Editor() *editor.Editor { return &{{ .Initial }}.editor }
-

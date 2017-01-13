@@ -10,7 +10,6 @@ import (
 
 // Editable ensures data is editable
 type Editable interface {
-	Editor() *Editor
 	MarshalEditor() ([]byte, error)
 }
 
@@ -36,10 +35,10 @@ type Field struct {
 // Form takes editable content and any number of Field funcs to describe the edit
 // page for any content struct added by a user
 func Form(post Editable, fields ...Field) ([]byte, error) {
-	editor := post.Editor()
+	editor := &Editor{}
 
 	editor.ViewBuf = &bytes.Buffer{}
-	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8"><td>`)
+	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8 editor-fields"><td class="col s12">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
@@ -56,7 +55,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	}
 
 	// content items with Item embedded have some default fields we need to render
-	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td>`)
+	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td class="col s12">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
@@ -149,18 +148,29 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			save = form.find('button.save-post'),
 			del = form.find('button.delete-post'),
 			external = form.find('.post-controls.external'),
-			id = form.find('input[name=id]');
+			id = form.find('input[name=id]'),
+			timestamp = $('.__ponzu.content-only'),
+			slug = $('input[name=slug]'),
+			hiddenInput = $('input[type=hidden]');
 		
 		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
+			hiddenInput.parent().filter('.input-field').hide()			
 		}
 
 		// hide approval if not on a pending content item
 		if (getParam('status') !== 'pending') {
 			external.hide();
 		} 
+
+		// no timestamp, slug or hidden input parents visible on addons
+		if (form.attr('action') === '/admin/addon') {
+			timestamp.hide();
+			slug.parent().hide();
+			hiddenInput.parent().filter('.input-field').hide()
+		}
 
 		save.on('click', function(e) {
 			e.preventDefault();
