@@ -1,11 +1,10 @@
 ![My friend, "Gotoro"](ponzu-banner.png)
 
 # Ponzu
-Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
-framework and CMS. It provides automatic, free, and secure HTTP/2 over TLS (certificates 
-obtained via Let's Encrypt - https://letsencrypt.org), a useful CMS and 
-scaffolding to generate content editors, and a fast HTTP API on which to build 
-modern applications.
+Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
+provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via 
+[Let's Encrypt](https://letsencrypt.org), a useful CMS and scaffolding to 
+generate content editors, and a fast HTTP API on which to build modern applications.
 
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
 (c) [Boss Sauce Creative, LLC](https://bosssauce.it)
@@ -16,14 +15,6 @@ tools to support the development of content servers and management systems are n
 Ponzu fills the void where you want to reach for Wordpress to get a great CMS, or Rails for
 rapid development, but need a fast JSON response in a high-concurrency environment. 
 
-**What's inside**  
-:ballot_box_with_check: Automatic & Free SSL/TLS*  
-:ballot_box_with_check: HTTP/2 and Server Push  
-:ballot_box_with_check: Rapid development with CLI-controlled code generators  
-:ballot_box_with_check: User-friendly, extensible CMS and administration dashboard  
-:ballot_box_with_check: Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
-:ballot_box_with_check: Fast, helpful framework while maintaining control  
-
 *TLS:
  - Development: self-signed certificates auto-generated
  - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org) 
@@ -33,9 +24,17 @@ rapid development, but need a fast JSON response in a high-concurrency environme
 $ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
 ```
 
-**Into this:**  
+**Into this:** 
+
 ![song go-rt](https://cloud.githubusercontent.com/assets/7517515/20726600/2ecd96a8-b62b-11e6-8589-c00c630ea6cc.png)
 
+**What's inside**  
+:ballot_box_with_check: Automatic & Free SSL/TLS*  
+:ballot_box_with_check: HTTP/2 and Server Push  
+:ballot_box_with_check: Rapid development with CLI-controlled code generators  
+:ballot_box_with_check: User-friendly, extensible CMS and administration dashboard  
+:ballot_box_with_check: Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
+:ballot_box_with_check: Fast, helpful framework while maintaining control  
 
 ## Wiki
 For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
@@ -50,7 +49,7 @@ $ go get github.com/ponzu-cms/ponzu/...
 Go 1.8+
 
 Since HTTP/2 Server Push is used, Go 1.8+ is required. However, it is not 
-required of clients conntecing to a Ponzu server to make requests over HTTP/2. 
+required of clients conntecing to a Ponzu server to make HTTP/2 requests. 
 
 ## Usage
 
@@ -237,6 +236,7 @@ $ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
 - [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
 - [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
+- [github.com/tidwall/sjson](https://github.com/tidwall/sjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [Materialnote Editor](https://github.com/Cerealkillerway/materialNote)
 - [Materialize.css](https://github.com/Dogfalo/materialize)
