@@ -134,6 +134,10 @@ func PutConfig(key string, value interface{}) error {
 		return err
 	}
 
+	if c == nil {
+		return nil
+	}
+
 	err = json.Unmarshal(c, &kv)
 	if err != nil {
 		return err
