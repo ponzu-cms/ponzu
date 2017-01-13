@@ -135,7 +135,10 @@ func PutConfig(key string, value interface{}) error {
 	}
 
 	if c == nil {
-		return nil
+		c, err = emptyConfig()
+		if err != nil {
+			return err
+		}
 	}
 
 	err = json.Unmarshal(c, &kv)
@@ -185,8 +188,10 @@ func LoadCacheConfig() error {
 	}
 
 	if c == nil {
-		configCache = make(url.Values)
-		return nil
+		c, err = emptyConfig()
+		if err != nil {
+			return err
+		}
 	}
 
 	// convert json => map[string]interface{} => url.Values
@@ -216,4 +221,15 @@ func LoadCacheConfig() error {
 	configCache = data
 
 	return nil
+}
+
+func emptyConfig() ([]byte, error) {
+	cfg := &config.Config{}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
