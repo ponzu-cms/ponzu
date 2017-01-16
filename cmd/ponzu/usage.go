@@ -10,11 +10,10 @@ var year = fmt.Sprintf("%d", time.Now().Year())
 var usageHeader = `
 $ ponzu [flags] command <params>
 
-Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
-framework and CMS. It provides automatic, free, and secure HTTP/2 over TLS 
-(certificates obtained via Let's Encrypt - https://letsencrypt.org), a useful 
-CMS and  scaffolding to generate content editors, and a fast HTTP API on which 
-to build modern applications.
+Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
+provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via 
+[Let's Encrypt](https://letsencrypt.org)), a useful CMS and scaffolding to 
+generate content editors, and a fast HTTP API on which to build modern applications.
 
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
 (c) ` + year + ` Boss Sauce Creative, LLC
