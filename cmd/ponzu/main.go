@@ -97,14 +97,16 @@ func main() {
 		}
 
 		// check what we are asked to generate
-		switch args[2] {
+		switch args[1] {
 		case "content", "c":
-			fmt.Println(args, "|", args[2])
 			err := generateContentType(args[2:])
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
+		default:
+			msg := fmt.Sprintf("Generator '%s' is not implemented.", args[1])
+			fmt.Println(msg)
 		}
 
 	case "build":
