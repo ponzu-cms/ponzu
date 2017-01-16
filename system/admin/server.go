@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -53,6 +52,4 @@ func Run() {
 	// through the editor will not load within the admin system.
 	uploadsDir := filepath.Join(pwd, "uploads")
 	http.Handle("/api/uploads/", api.Record(api.CORS(db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))))
-
-	fmt.Println("Admin routes registered.")
 }

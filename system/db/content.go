@@ -450,13 +450,11 @@ func SortContent(namespace string) {
 		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
 		if err != nil && err != bolt.ErrBucketNotFound {
-			fmt.Println("Error in DeleteBucket")
 			return err
 		}
 
 		b, err := tx.CreateBucketIfNotExists(bname)
 		if err != nil {
-			fmt.Println("Error in CreateBucketIfNotExists")
 			return err
 		}
 
@@ -465,7 +463,6 @@ func SortContent(namespace string) {
 			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
 			err = b.Put([]byte(cid), bb[i])
 			if err != nil {
-				fmt.Println("Error in Put")
 				return err
 			}
 		}

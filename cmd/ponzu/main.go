@@ -117,7 +117,6 @@ func main() {
 		}
 
 	case "run":
-		fmt.Println("Running..")
 		var addTLS string
 		if https {
 			addTLS = "--https"
@@ -135,8 +134,6 @@ func main() {
 		} else {
 			services = "admin,api"
 		}
-
-		fmt.Println("services:", services)
 
 		serve := exec.Command("./ponzu-server",
 			fmt.Sprintf("--port=%d", port),
@@ -160,29 +157,22 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Println("serve command executed.")
-
 	case "serve", "s":
 		db.Init()
 		defer db.Close()
-		fmt.Println("called db.Init()")
 
 		analytics.Init()
 		defer analytics.Close()
-		fmt.Println("called analytics.Init()")
 
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
-			fmt.Println("configured to start services:", services)
 
 			for i := range services {
 				if services[i] == "api" {
 					api.Run()
-					fmt.Println("called api.Run()")
 
 				} else if services[i] == "admin" {
 					admin.Run()
-					fmt.Println("called admin.Run()")
 
 				} else {
 					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
@@ -197,7 +187,6 @@ func main() {
 		if err != nil {
 			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
-		fmt.Println("called db.PutConfig('https_port')")
 
 		// cannot run production HTTPS and development HTTPS together
 		if devhttps {
@@ -222,10 +211,10 @@ func main() {
 		if err != nil {
 			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
-		fmt.Println("called db.PutConfig('http_port')")
 
+		fmt.Printf("Server listening on :%d for HTTP requests...\n", port)
+		fmt.Println("\nvisit `/admin` to get started.")
 		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
-		fmt.Println("called http.ListenAndServe()")
 
 	case "":
 		fmt.Println(usage)

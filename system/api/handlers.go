@@ -231,7 +231,7 @@ func toJSON(data []string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// sendData() should be used any time you want to communicate
+// sendData should be used any time you want to communicate
 // data back to a foreign client
 func sendData(res http.ResponseWriter, data []byte, code int) {
 	res, cors := responseWithCORS(res)
