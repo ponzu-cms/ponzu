@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -262,11 +264,19 @@ func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.Response
 	if db.ConfigCache("cors_disabled").(bool) == true {
 		// check origin matches config domain and Allow
 		domain := db.ConfigCache("domain").(string)
+		origin := req.Header.Get("Origin")
+		u, err := url.Parse(origin)
+		if err != nil {
+			log.Println("Error parsing URL from request Origin header:", origin)
+			return res, false
+		}
+
+		origin = u.Host
 
 		// currently, this will check for exact match. will need feedback to
 		// determine if subdomains should be allowed or allow multiple domains
 		// in config
-		if req.Origin == domain {
+		if origin == domain {
 			// apply limited CORS headers and return
 			res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
 			res.Header().Set("Access-Control-Allow-Origin", domain)
@@ -312,10 +322,9 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 		// check if req header content-encoding supports gzip
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
-			gzres, err := gzip.NewWriter(res)
-			if err != nil {
-				log.Println("Error creating gzip writer in Gzip middleware.")
-				next.ServeHTTP(res, req)
+			gzres := gzipResponseWriter{
+				rw: res,
+				gw: gzip.NewWriter(res),
 			}
 
 			next.ServeHTTP(gzres, req)
@@ -323,4 +332,21 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 
 		next.ServeHTTP(res, req)
 	})
+}
+
+type gzipResponseWriter struct {
+	rw http.ResponseWriter
+	gw io.Writer
+}
+
+func (gzw gzipResponseWriter) Header() http.Header {
+	return gzw.rw.Header()
+}
+
+func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
+	return gzw.gw.Write(p)
+}
+
+func (gzw gzipResponseWriter) WriteHeader(code int) {
+	gzw.rw.WriteHeader(code)
 }

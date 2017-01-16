@@ -119,7 +119,7 @@ func DeleteAddon(key string) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		if b == nil {
-			bolt.ErrBucketNotFound
+			return bolt.ErrBucketNotFound
 		}
 
 		if err := b.Delete([]byte(key)); err != nil {
