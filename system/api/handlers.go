@@ -323,6 +323,11 @@ func Record(next http.HandlerFunc) http.HandlerFunc {
 // Gzip wraps a HandlerFunc to compress responses when possible
 func Gzip(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if db.ConfigCache("gzip_disabled").(bool) == true {
+			next.ServeHTTP(res, req)
+			return
+		}
+
 		// check if req header content-encoding supports gzip
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
@@ -330,7 +335,6 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 			gzres := gzipResponseWriter{res, gzip.NewWriter(res)}
 
 			next.ServeHTTP(gzres, req)
-
 			return
 		}
 

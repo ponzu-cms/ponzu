@@ -17,6 +17,7 @@ type Config struct {
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
 	DisableCORS     bool     `json:"cors_disabled"`
+	DisableGZIP     bool     `json:"gzip_disabled"`
 	CacheInvalidate []string `json:"cache"`
 }
 
@@ -78,6 +79,13 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		editor.Field{
 			View: editor.Checkbox("DisableCORS", c, map[string]string{
 				"label": "Disable CORS (so only " + c.Domain + " can fetch your data)",
+			}, map[string]string{
+				"true": "Disable",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("DisableGZIP", c, map[string]string{
+				"label": "Disable GZIP (will increase server speed, but also bandwidth)",
 			}, map[string]string{
 				"true": "Disable",
 			}),
