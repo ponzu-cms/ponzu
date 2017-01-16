@@ -80,7 +80,7 @@ func main() {
 
 	case "new":
 		if len(args) < 2 {
-			fmt.Println(usage)
+			fmt.Println(usageNew)
 			os.Exit(0)
 		}
 
@@ -91,15 +91,19 @@ func main() {
 		}
 
 	case "generate", "gen", "g":
-		if len(args) < 2 {
-			flag.PrintDefaults()
+		if len(args) < 3 {
+			fmt.Println(usageGenerate)
 			os.Exit(0)
 		}
 
-		err := generateContentType(args[1:])
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		// check what we are asked to generate
+		switch args[2] {
+		case "content", "c":
+			err := generateContentType(args[2:])
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 
 	case "build":
