@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -31,7 +30,7 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, req, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
@@ -95,7 +94,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, req, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentHandler(res http.ResponseWriter, req *http.Request) {
@@ -138,7 +137,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, req, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
@@ -175,7 +174,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, req, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
@@ -237,14 +236,9 @@ func toJSON(data []string) ([]byte, error) {
 
 // sendData should be used any time you want to communicate
 // data back to a foreign client
-func sendData(res http.ResponseWriter, req *http.Request, data []byte, code int) {
-	res, cors := responseWithCORS(res, req)
-	if !cors {
-		return
-	}
-
+func sendData(res http.ResponseWriter, req *http.Request, data []byte) {
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(code)
+	res.Header().Set("Vary", "Accept-Encoding")
 
 	_, err := res.Write(data)
 	if err != nil {
@@ -262,7 +256,7 @@ func sendPreflight(res http.ResponseWriter) {
 
 func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.ResponseWriter, bool) {
 	if db.ConfigCache("cors_disabled").(bool) == true {
-		// check origin matches config domain and Allow
+		// check origin matches config domain
 		domain := db.ConfigCache("domain").(string)
 		origin := req.Header.Get("Origin")
 		u, err := url.Parse(origin)
@@ -271,6 +265,11 @@ func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.Response
 			return res, false
 		}
 
+		// hack to get dev environments to bypass cors since u.Host (below) will
+		// be empty, based on Go's url.Parse function
+		if domain == "localhost" {
+			domain = ""
+		}
 		origin = u.Host
 
 		// currently, this will check for exact match. will need feedback to
@@ -298,6 +297,11 @@ func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.Response
 // CORS wraps a HandlerFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		res, cors := responseWithCORS(res, req)
+		if !cors {
+			return
+		}
+
 		if req.Method == http.MethodOptions {
 			sendPreflight(res)
 			return
@@ -322,12 +326,12 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 		// check if req header content-encoding supports gzip
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
-			gzres := gzipResponseWriter{
-				rw: res,
-				gw: gzip.NewWriter(res),
-			}
+			res.Header().Set("Content-Encoding", "gzip")
+			gzres := gzipResponseWriter{res, gzip.NewWriter(res)}
 
 			next.ServeHTTP(gzres, req)
+
+			return
 		}
 
 		next.ServeHTTP(res, req)
@@ -335,18 +339,11 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 }
 
 type gzipResponseWriter struct {
-	rw http.ResponseWriter
-	gw io.Writer
-}
-
-func (gzw gzipResponseWriter) Header() http.Header {
-	return gzw.rw.Header()
+	http.ResponseWriter
+	gw *gzip.Writer
 }
 
 func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
+	defer gzw.gw.Close()
 	return gzw.gw.Write(p)
-}
-
-func (gzw gzipResponseWriter) WriteHeader(code int) {
-	gzw.rw.WriteHeader(code)
 }
