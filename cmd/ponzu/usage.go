@@ -54,17 +54,12 @@ new <directory>:
 `
 
 var usageGenerate = `
-generate, gen, g <type (,...fields)>:
+generate, gen, g <generator type (,...fields)>:
 
-	Generate a content type file with boilerplate code to implement
-	the editor.Editable interface. Must be given one (1) parameter of
-	the name of the type for the new content. The fields following a 
-	type determine the field names and types of the content struct to 
-	be generated. These must be in the following format:
-	fieldName:"T"
+	Generate boilerplate code for various Ponzu components, such as 'content'.
 
 	Example:
-	$ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
+	$ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]string"
 
 	The command above will generate a file 'content/review.go' with boilerplate
 	methods, as well as struct definition, and cooresponding field tags like:

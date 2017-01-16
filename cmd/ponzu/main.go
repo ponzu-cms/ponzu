@@ -99,6 +99,7 @@ func main() {
 		// check what we are asked to generate
 		switch args[2] {
 		case "content", "c":
+			fmt.Println(args, "|", args[2])
 			err := generateContentType(args[2:])
 			if err != nil {
 				fmt.Println(err)

@@ -80,22 +80,17 @@ Errors will be reported, but successful commands return nothing.
 
 ### generate, gen, g
 
-Generate a content type file with boilerplate code to implement
-the editor.Editable interface. Must be given one (1) parameter of
-the name of the type for the new content. The fields following a 
-type determine the field names and types of the content struct to 
-be generated. These must be in the following format:
-fieldName:"T"
+Generate boilerplate code for various Ponzu components, such as `content`.
 
 Example:
 ```bash
-                   struct fields and built-in types...
-                   |
-                   v    
-$ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
-            ^
-            |
-            struct type
+            generator      struct fields and built-in types...
+             |              |
+             v              v    
+$ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]string"
+                     ^
+                     |
+                    struct type
 ```
 
 The command above will generate the file `content/review.go` with boilerplate
