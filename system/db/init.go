@@ -92,6 +92,9 @@ func SystemInitComplete() bool {
 
 	err := store.View(func(tx *bolt.Tx) error {
 		users := tx.Bucket([]byte("__users"))
+		if users == nil {
+			return bolt.ErrBucketNotFound
+		}
 
 		err := users.ForEach(func(k, v []byte) error {
 			complete = true

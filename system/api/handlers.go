@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
+// deprecating from API, but going to provide code here in case someone wants it
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
 	for t, fn := range item.Types {
@@ -27,7 +29,7 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j, http.StatusOK)
 }
 
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
@@ -91,7 +93,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j, http.StatusOK)
 }
 
 func contentHandler(res http.ResponseWriter, req *http.Request) {
@@ -134,7 +136,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j, http.StatusOK)
 }
 
 func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
@@ -171,7 +173,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j, http.StatusOK)
 }
 
 func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
@@ -233,8 +235,8 @@ func toJSON(data []string) ([]byte, error) {
 
 // sendData should be used any time you want to communicate
 // data back to a foreign client
-func sendData(res http.ResponseWriter, data []byte, code int) {
-	res, cors := responseWithCORS(res)
+func sendData(res http.ResponseWriter, req *http.Request, data []byte, code int) {
+	res, cors := responseWithCORS(res, req)
 	if !cors {
 		return
 	}
@@ -256,21 +258,34 @@ func sendPreflight(res http.ResponseWriter) {
 	return
 }
 
-func responseWithCORS(res http.ResponseWriter) (http.ResponseWriter, bool) {
+func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.ResponseWriter, bool) {
 	if db.ConfigCache("cors_disabled").(bool) == true {
+		// check origin matches config domain and Allow
+		domain := db.ConfigCache("domain").(string)
+
+		// currently, this will check for exact match. will need feedback to
+		// determine if subdomains should be allowed or allow multiple domains
+		// in config
+		if req.Origin == domain {
+			// apply limited CORS headers and return
+			res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+			res.Header().Set("Access-Control-Allow-Origin", domain)
+			return res, true
+		}
+
 		// disallow request
 		res.WriteHeader(http.StatusForbidden)
 		return res, false
 	}
 
-	// apply CORS headers and return
+	// apply full CORS headers and return
 	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 
 	return res, true
 }
 
-// CORS wraps a HandleFunc to respond to OPTIONS requests properly
+// CORS wraps a HandlerFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodOptions {
@@ -282,10 +297,29 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 	}))
 }
 
-// Record wraps a HandleFunc to record API requests for analytical purposes
+// Record wraps a HandlerFunc to record API requests for analytical purposes
 func Record(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		go analytics.Record(req)
+
+		next.ServeHTTP(res, req)
+	})
+}
+
+// Gzip wraps a HandlerFunc to compress responses when possible
+func Gzip(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		// check if req header content-encoding supports gzip
+		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
+			// gzip response data
+			gzres, err := gzip.NewWriter(res)
+			if err != nil {
+				log.Println("Error creating gzip writer in Gzip middleware.")
+				next.ServeHTTP(res, req)
+			}
+
+			next.ServeHTTP(gzres, req)
+		}
 
 		next.ServeHTTP(res, req)
 	})

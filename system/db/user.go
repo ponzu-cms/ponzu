@@ -26,6 +26,9 @@ func SetUser(usr *user.User) (int, error) {
 	err := store.Update(func(tx *bolt.Tx) error {
 		email := []byte(usr.Email)
 		users := tx.Bucket([]byte("__users"))
+		if users == nil {
+			return bolt.ErrBucketNotFound
+		}
 
 		// check if user is found by email, fail if nil
 		exists := users.Get(email)
@@ -69,6 +72,9 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 
 	err := store.Update(func(tx *bolt.Tx) error {
 		users := tx.Bucket([]byte("__users"))
+		if users == nil {
+			return bolt.ErrBucketNotFound
+		}
 
 		// check if user is found by email, fail if nil
 		exists := users.Get([]byte(usr.Email))
@@ -110,6 +116,10 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 func DeleteUser(email string) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
 		err := b.Delete([]byte(email))
 		if err != nil {
 			return err
@@ -129,6 +139,10 @@ func User(email string) ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
 		usr := b.Get([]byte(email))
 
 		_, err := val.Write(usr)
@@ -154,6 +168,10 @@ func UserAll() ([][]byte, error) {
 	var users [][]byte
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
 		err := b.ForEach(func(k, v []byte) error {
 			users = append(users, v)
 			return nil
@@ -230,7 +248,7 @@ func RecoveryKey(email string) (string, error) {
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__recoveryKeys"))
 		if b == nil {
-			return errors.New("No database found for checking keys.")
+			return bolt.ErrBucketNotFound
 		}
 
 		_, err := key.Write(b.Get([]byte(email)))

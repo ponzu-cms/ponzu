@@ -24,6 +24,9 @@ func Addon(key string) ([]byte, error) {
 
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
 
 		val := b.Get([]byte(key))
 
@@ -56,12 +59,16 @@ func SetAddon(data url.Values, kind interface{}) error {
 
 	v, err := json.Marshal(kind)
 
+	k := data.Get("addon_reverse_dns")
+	if k == "" {
+		name := data.Get("addon_name")
+		return fmt.Errorf(`Addon "%s" has no identifier to use as key.`, name)
+	}
+
 	err = store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
-		k := data.Get("addon_reverse_dns")
-		if k == "" {
-			name := data.Get("addon_name")
-			return fmt.Errorf(`Addon "%s" has no identifier to use as key.`, name)
+		if b == nil {
+			return bolt.ErrBucketNotFound
 		}
 
 		err := b.Put([]byte(k), v)
@@ -84,6 +91,10 @@ func AddonAll() [][]byte {
 
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
 		err := b.ForEach(func(k, v []byte) error {
 			all = append(all, v)
 
@@ -107,6 +118,9 @@ func AddonAll() [][]byte {
 func DeleteAddon(key string) error {
 	err := store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
+		if b == nil {
+			bolt.ErrBucketNotFound
+		}
 
 		if err := b.Delete([]byte(key)); err != nil {
 			return err
