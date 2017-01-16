@@ -80,14 +80,14 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Checkbox("DisableCORS", c, map[string]string{
 				"label": "Disable CORS (so only " + c.Domain + " can fetch your data)",
 			}, map[string]string{
-				"true": "Disable",
+				"true": "Disable CORS",
 			}),
 		},
 		editor.Field{
 			View: editor.Checkbox("DisableGZIP", c, map[string]string{
 				"label": "Disable GZIP (will increase server speed, but also bandwidth)",
 			}, map[string]string{
-				"true": "Disable",
+				"true": "Disable GZIP",
 			}),
 		},
 		editor.Field{
