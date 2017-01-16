@@ -234,10 +234,14 @@ func toJSON(data []string) ([]byte, error) {
 // sendData() should be used any time you want to communicate
 // data back to a foreign client
 func sendData(res http.ResponseWriter, data []byte, code int) {
-	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res, cors := responseWithCORS(res)
+	if !cors {
+		return
+	}
+
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(code)
+
 	_, err := res.Write(data)
 	if err != nil {
 		log.Println("Error writing to response in sendData")
@@ -252,14 +256,23 @@ func sendPreflight(res http.ResponseWriter) {
 	return
 }
 
+func responseWithCORS(res http.ResponseWriter) (http.ResponseWriter, bool) {
+	if db.ConfigCache("cors_disabled").(bool) == true {
+		// disallow request
+		res.WriteHeader(http.StatusForbidden)
+		return res, false
+	}
+
+	// apply CORS headers and return
+	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+	res.Header().Set("Access-Control-Allow-Origin", "*")
+
+	return res, true
+}
+
 // CORS wraps a HandleFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		if db.ConfigCache("cors_disabled").(bool) == true {
-			res.WriteHeader(http.StatusForbidden)
-			return
-		}
-
 		if req.Method == http.MethodOptions {
 			sendPreflight(res)
 			return
