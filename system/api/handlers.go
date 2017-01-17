@@ -2,9 +2,11 @@ package api
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
+// deprecating from API, but going to provide code here in case someone wants it
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
 	for t, fn := range item.Types {
@@ -27,7 +30,7 @@ func typesHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
@@ -91,7 +94,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentHandler(res http.ResponseWriter, req *http.Request) {
@@ -134,7 +137,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
@@ -171,7 +174,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sendData(res, j, http.StatusOK)
+	sendData(res, req, j)
 }
 
 func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
@@ -231,13 +234,12 @@ func toJSON(data []string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// sendData() should be used any time you want to communicate
+// sendData should be used any time you want to communicate
 // data back to a foreign client
-func sendData(res http.ResponseWriter, data []byte, code int) {
-	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
+func sendData(res http.ResponseWriter, req *http.Request, data []byte) {
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(code)
+	res.Header().Set("Vary", "Accept-Encoding")
+
 	_, err := res.Write(data)
 	if err != nil {
 		log.Println("Error writing to response in sendData")
@@ -252,9 +254,54 @@ func sendPreflight(res http.ResponseWriter) {
 	return
 }
 
-// CORS wraps a HandleFunc to respond to OPTIONS requests properly
+func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.ResponseWriter, bool) {
+	if db.ConfigCache("cors_disabled").(bool) == true {
+		// check origin matches config domain
+		domain := db.ConfigCache("domain").(string)
+		origin := req.Header.Get("Origin")
+		u, err := url.Parse(origin)
+		if err != nil {
+			log.Println("Error parsing URL from request Origin header:", origin)
+			return res, false
+		}
+
+		// hack to get dev environments to bypass cors since u.Host (below) will
+		// be empty, based on Go's url.Parse function
+		if domain == "localhost" {
+			domain = ""
+		}
+		origin = u.Host
+
+		// currently, this will check for exact match. will need feedback to
+		// determine if subdomains should be allowed or allow multiple domains
+		// in config
+		if origin == domain {
+			// apply limited CORS headers and return
+			res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+			res.Header().Set("Access-Control-Allow-Origin", domain)
+			return res, true
+		}
+
+		// disallow request
+		res.WriteHeader(http.StatusForbidden)
+		return res, false
+	}
+
+	// apply full CORS headers and return
+	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+	res.Header().Set("Access-Control-Allow-Origin", "*")
+
+	return res, true
+}
+
+// CORS wraps a HandlerFunc to respond to OPTIONS requests properly
 func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		res, cors := responseWithCORS(res, req)
+		if !cors {
+			return
+		}
+
 		if req.Method == http.MethodOptions {
 			sendPreflight(res)
 			return
@@ -264,11 +311,43 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 	}))
 }
 
-// Record wraps a HandleFunc to record API requests for analytical purposes
+// Record wraps a HandlerFunc to record API requests for analytical purposes
 func Record(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		go analytics.Record(req)
 
 		next.ServeHTTP(res, req)
 	})
+}
+
+// Gzip wraps a HandlerFunc to compress responses when possible
+func Gzip(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if db.ConfigCache("gzip_disabled").(bool) == true {
+			next.ServeHTTP(res, req)
+			return
+		}
+
+		// check if req header content-encoding supports gzip
+		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
+			// gzip response data
+			res.Header().Set("Content-Encoding", "gzip")
+			gzres := gzipResponseWriter{res, gzip.NewWriter(res)}
+
+			next.ServeHTTP(gzres, req)
+			return
+		}
+
+		next.ServeHTTP(res, req)
+	})
+}
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	gw *gzip.Writer
+}
+
+func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
+	defer gzw.gw.Close()
+	return gzw.gw.Write(p)
 }

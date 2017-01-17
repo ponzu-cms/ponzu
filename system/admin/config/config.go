@@ -16,6 +16,8 @@ type Config struct {
 	AdminEmail      string   `json:"admin_email"`
 	ClientSecret    string   `json:"client_secret"`
 	Etag            string   `json:"etag"`
+	DisableCORS     bool     `json:"cors_disabled"`
+	DisableGZIP     bool     `json:"gzip_disabled"`
 	CacheInvalidate []string `json:"cache"`
 }
 
@@ -49,7 +51,7 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("AdminEmail", c, map[string]string{
-				"label": "Adminstrator Email (will be notified of internal system information)",
+				"label": "Adminstrator Email (notified of internal system information)",
 			}),
 		},
 		editor.Field{
@@ -65,13 +67,27 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("Etag", c, map[string]string{
-				"label":    "Etag Header (used for static asset cache)",
+				"label":    "Etag Header (used to cache resources)",
 				"disabled": "true",
 			}),
 		},
 		editor.Field{
 			View: editor.Input("Etag", c, map[string]string{
 				"type": "hidden",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("DisableCORS", c, map[string]string{
+				"label": "Disable CORS (so only " + c.Domain + " can fetch your data)",
+			}, map[string]string{
+				"true": "Disable CORS",
+			}),
+		},
+		editor.Field{
+			View: editor.Checkbox("DisableGZIP", c, map[string]string{
+				"label": "Disable GZIP (will increase server speed, but also bandwidth)",
+			}, map[string]string{
+				"true": "Disable GZIP",
 			}),
 		},
 		editor.Field{

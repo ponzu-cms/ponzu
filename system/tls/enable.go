@@ -70,7 +70,7 @@ func Enable() {
 	setup()
 
 	server := &http.Server{
-		Addr:      fmt.Sprintf(":%s", db.ConfigCache("https_port")),
+		Addr:      fmt.Sprintf(":%s", db.ConfigCache("https_port").(string)),
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 

@@ -80,7 +80,7 @@ func main() {
 
 	case "new":
 		if len(args) < 2 {
-			fmt.Println(usage)
+			fmt.Println(usageNew)
 			os.Exit(0)
 		}
 
@@ -91,15 +91,22 @@ func main() {
 		}
 
 	case "generate", "gen", "g":
-		if len(args) < 2 {
-			flag.PrintDefaults()
+		if len(args) < 3 {
+			fmt.Println(usageGenerate)
 			os.Exit(0)
 		}
 
-		err := generateContentType(args[1:])
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		// check what we are asked to generate
+		switch args[1] {
+		case "content", "c":
+			err := generateContentType(args[2:])
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		default:
+			msg := fmt.Sprintf("Generator '%s' is not implemented.", args[1])
+			fmt.Println(msg)
 		}
 
 	case "build":
@@ -163,8 +170,10 @@ func main() {
 			for i := range services {
 				if services[i] == "api" {
 					api.Run()
+
 				} else if services[i] == "admin" {
 					admin.Run()
+
 				} else {
 					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
 					fmt.Println("$ ponzu --help")
@@ -176,7 +185,7 @@ func main() {
 		// save the https port the system is listening on
 		err := db.PutConfig("https_port", fmt.Sprintf("%d", httpsport))
 		if err != nil {
-			log.Fatalln("System failed to save config. Please try to run again.")
+			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
 
 		// cannot run production HTTPS and development HTTPS together
@@ -193,16 +202,18 @@ func main() {
 			fmt.Println("Enabling HTTPS...")
 
 			go tls.Enable()
-			fmt.Printf("Server listening on :%s for HTTPS requests...\n", db.ConfigCache("https_port"))
+			fmt.Printf("Server listening on :%s for HTTPS requests...\n", db.ConfigCache("https_port").(string))
 		}
 
 		// save the https port the system is listening on so internal system can make
 		// HTTP api calls while in dev or production w/o adding more cli flags
 		err = db.PutConfig("http_port", fmt.Sprintf("%d", port))
 		if err != nil {
-			log.Fatalln("System failed to save config. Please try to run again.")
+			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
 
+		fmt.Printf("Server listening on :%d for HTTP requests...\n", port)
+		fmt.Println("\nvisit `/admin` to get started.")
 		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 
 	case "":

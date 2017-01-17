@@ -18,8 +18,8 @@ type QueryOptions db.QueryOptions
 
 // ContentAll retrives all items from the HTTP API within the provided namespace
 func ContentAll(namespace string) []byte {
-	host := db.ConfigCache("domain")
-	port := db.ConfigCache("http_port")
+	host := db.ConfigCache("domain").(string)
+	port := db.ConfigCache("http_port").(string)
 	endpoint := "http://%s:%s/api/contents?type=%s&count=-1"
 	URL := fmt.Sprintf(endpoint, host, port, namespace)
 
@@ -35,8 +35,8 @@ func ContentAll(namespace string) []byte {
 // Query retrieves a set of content from the HTTP API  based on options
 // and returns the total number of content in the namespace and the content
 func Query(namespace string, opts QueryOptions) []byte {
-	host := db.ConfigCache("domain")
-	port := db.ConfigCache("http_port")
+	host := db.ConfigCache("domain").(string)
+	port := db.ConfigCache("http_port").(string)
 	endpoint := "http://%s:%s/api/contents?type=%s&count=%d&offset=%d&order=%s"
 	URL := fmt.Sprintf(endpoint, host, port, namespace, opts.Count, opts.Offset, opts.Order)
 

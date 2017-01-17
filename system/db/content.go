@@ -49,13 +49,13 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, err
 	}
 
+	j, err := postToJSON(ns, data)
+	if err != nil {
+		return 0, err
+	}
+
 	err = store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
-		if err != nil {
-			return err
-		}
-
-		j, err := postToJSON(ns, data)
 		if err != nil {
 			return err
 		}
@@ -134,6 +134,10 @@ func insert(ns string, data url.Values) (int, error) {
 		// store the slug,type:id in contentIndex if public content
 		if specifier == "" {
 			ci := tx.Bucket([]byte("__contentIndex"))
+			if ci == nil {
+				return bolt.ErrBucketNotFound
+			}
+
 			k := []byte(data.Get("slug"))
 			v := []byte(fmt.Sprintf("%s:%d", ns, effectedID))
 			err := ci.Put(k, v)
@@ -168,7 +172,12 @@ func DeleteContent(target string, data url.Values) error {
 	ns, id := t[0], t[1]
 
 	err := store.Update(func(tx *bolt.Tx) error {
-		err := tx.Bucket([]byte(ns)).Delete([]byte(id))
+		b := tx.Bucket([]byte(ns))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
+		err := b.Delete([]byte(id))
 		if err != nil {
 			return err
 		}
@@ -176,7 +185,12 @@ func DeleteContent(target string, data url.Values) error {
 		// if content has a slug, also delete it from __contentIndex
 		slug := data.Get("slug")
 		if slug != "" {
-			err := tx.Bucket([]byte("__contentIndex")).Delete([]byte(slug))
+			ci := tx.Bucket([]byte("__contentIndex"))
+			if ci == nil {
+				return bolt.ErrBucketNotFound
+			}
+
+			err := ci.Delete([]byte(slug))
 			if err != nil {
 				return err
 			}
@@ -212,6 +226,10 @@ func Content(target string) ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ns))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
 		_, err := val.Write(b.Get([]byte(id)))
 		if err != nil {
 			log.Println(err)
@@ -235,6 +253,9 @@ func ContentBySlug(slug string) (string, []byte, error) {
 	var t, id string
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
 		idx := b.Get([]byte(slug))
 
 		if idx != nil {
@@ -248,6 +269,9 @@ func ContentBySlug(slug string) (string, []byte, error) {
 		}
 
 		c := tx.Bucket([]byte(t))
+		if c == nil {
+			return bolt.ErrBucketNotFound
+		}
 		_, err := val.Write(c.Get([]byte(id)))
 		if err != nil {
 			return err
@@ -267,9 +291,8 @@ func ContentAll(namespace string) [][]byte {
 	var posts [][]byte
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
-
 		if b == nil {
-			return nil
+			return bolt.ErrBucketNotFound
 		}
 
 		numKeys := b.Stats().KeyN
@@ -313,7 +336,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 	store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		if b == nil {
-			return nil
+			return bolt.ErrBucketNotFound
 		}
 
 		c := b.Cursor()
@@ -450,13 +473,11 @@ func SortContent(namespace string) {
 		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
 		if err != nil && err != bolt.ErrBucketNotFound {
-			fmt.Println("Error in DeleteBucket")
 			return err
 		}
 
 		b, err := tx.CreateBucketIfNotExists(bname)
 		if err != nil {
-			fmt.Println("Error in CreateBucketIfNotExists")
 			return err
 		}
 
@@ -465,7 +486,6 @@ func SortContent(namespace string) {
 			cid := fmt.Sprintf("%d:%d", i, posts[i].Time())
 			err = b.Put([]byte(cid), bb[i])
 			if err != nil {
-				fmt.Println("Error in Put")
 				return err
 			}
 		}
@@ -538,6 +558,9 @@ func checkSlugForDuplicate(slug string) (string, error) {
 	// check for existing slug in __contentIndex
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
 		original := slug
 		exists := true
 		i := 0

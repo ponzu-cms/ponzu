@@ -1,10 +1,8 @@
 package db
 
 import (
-	"encoding/json"
 	"log"
 
-	"github.com/ponzu-cms/ponzu/system/admin/config"
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
@@ -57,30 +55,21 @@ func Init() {
 			}
 		}
 
-		// seed db with configs structure if not present
-		b := tx.Bucket([]byte("__config"))
-		if b.Get([]byte("settings")) == nil {
-			j, err := json.Marshal(&config.Config{})
-			if err != nil {
-				return err
-			}
-
-			err = b.Put([]byte("settings"), j)
-			if err != nil {
-				return err
-			}
-		}
-
-		clientSecret := ConfigCache("client_secret")
-
-		if clientSecret != "" {
-			jwt.Secret([]byte(clientSecret))
-		}
-
 		return nil
 	})
 	if err != nil {
 		log.Fatalln("Coudn't initialize db with buckets.", err)
+	}
+
+	err = LoadCacheConfig()
+	if err != nil {
+		log.Fatalln("Failed to load config cache.", err)
+	}
+
+	clientSecret := ConfigCache("client_secret").(string)
+
+	if clientSecret != "" {
+		jwt.Secret([]byte(clientSecret))
 	}
 
 	// invalidate cache on system start
@@ -103,6 +92,9 @@ func SystemInitComplete() bool {
 
 	err := store.View(func(tx *bolt.Tx) error {
 		users := tx.Bucket([]byte("__users"))
+		if users == nil {
+			return bolt.ErrBucketNotFound
+		}
 
 		err := users.ForEach(func(k, v []byte) error {
 			complete = true

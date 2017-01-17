@@ -10,11 +10,10 @@ var year = fmt.Sprintf("%d", time.Now().Year())
 var usageHeader = `
 $ ponzu [flags] command <params>
 
-Ponzu is a powerful and efficient open-source "Content-as-a-Service" system 
-framework and CMS. It provides automatic, free, and secure HTTP/2 over TLS 
-(certificates obtained via Let's Encrypt - https://letsencrypt.org), a useful 
-CMS and  scaffolding to generate content editors, and a fast HTTP API on which 
-to build modern applications.
+Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
+provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via 
+[Let's Encrypt](https://letsencrypt.org)), a useful CMS and scaffolding to 
+generate content editors, and a fast HTTP API on which to build modern applications.
 
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
 (c) ` + year + ` Boss Sauce Creative, LLC
@@ -55,17 +54,12 @@ new <directory>:
 `
 
 var usageGenerate = `
-generate, gen, g <type (,...fields)>:
+generate, gen, g <generator type (,...fields)>:
 
-	Generate a content type file with boilerplate code to implement
-	the editor.Editable interface. Must be given one (1) parameter of
-	the name of the type for the new content. The fields following a 
-	type determine the field names and types of the content struct to 
-	be generated. These must be in the following format:
-	fieldName:"T"
+	Generate boilerplate code for various Ponzu components, such as 'content'.
 
 	Example:
-	$ ponzu gen review title:"string" body:"string" rating:"int" tags:"[]string"
+	$ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]string"
 
 	The command above will generate a file 'content/review.go' with boilerplate
 	methods, as well as struct definition, and cooresponding field tags like:

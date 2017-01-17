@@ -13,57 +13,62 @@ import (
 	"github.com/gorilla/schema"
 )
 
-var configCache url.Values
+var configCache map[string]interface{}
 
 func init() {
-	configCache = make(url.Values)
+	configCache = make(map[string]interface{})
 }
 
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
-	err := store.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("__config"))
+	var j []byte
 
-		// check for any multi-value fields (ex. checkbox fields)
-		// and correctly format for db storage. Essentially, we need
-		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
-		var discardKeys []string
-		for k, v := range data {
-			if strings.Contains(k, ".") {
-				key := strings.Split(k, ".")[0]
+	// check for any multi-value fields (ex. checkbox fields)
+	// and correctly format for db storage. Essentially, we need
+	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+	var discardKeys []string
+	for k, v := range data {
+		if strings.Contains(k, ".") {
+			key := strings.Split(k, ".")[0]
 
-				if data.Get(key) == "" {
-					data.Set(key, v[0])
-				} else {
-					data.Add(key, v[0])
-				}
-
-				discardKeys = append(discardKeys, k)
+			if data.Get(key) == "" {
+				data.Set(key, v[0])
+			} else {
+				data.Add(key, v[0])
 			}
-		}
 
-		for _, discardKey := range discardKeys {
-			data.Del(discardKey)
+			discardKeys = append(discardKeys, k)
 		}
+	}
 
-		cfg := &config.Config{}
-		dec := schema.NewDecoder()
-		dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
-		dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
-		err := dec.Decode(cfg, data)
-		if err != nil {
-			return err
-		}
+	for _, discardKey := range discardKeys {
+		data.Del(discardKey)
+	}
 
-		// check for "invalidate" value to reset the Etag
-		if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
-			cfg.Etag = NewEtag()
-			cfg.CacheInvalidate = []string{}
-		}
+	cfg := &config.Config{}
+	dec := schema.NewDecoder()
+	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+	err := dec.Decode(cfg, data)
+	if err != nil {
+		return err
+	}
 
-		j, err := json.Marshal(cfg)
-		if err != nil {
-			return err
+	// check for "invalidate" value to reset the Etag
+	if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
+		cfg.Etag = NewEtag()
+		cfg.CacheInvalidate = []string{}
+	}
+
+	j, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	err = store.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("__config"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
 		}
 
 		err = b.Put([]byte("settings"), j)
@@ -77,7 +82,14 @@ func SetConfig(data url.Values) error {
 		return err
 	}
 
-	configCache = data
+	// convert json => map[string]interface{}
+	var kv map[string]interface{}
+	err = json.Unmarshal(j, &kv)
+	if err != nil {
+		return err
+	}
+
+	configCache = kv
 
 	return nil
 }
@@ -108,6 +120,9 @@ func ConfigAll() ([]byte, error) {
 	val := &bytes.Buffer{}
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
 		_, err := val.Write(b.Get([]byte("settings")))
 		if err != nil {
 			return err
@@ -129,6 +144,13 @@ func PutConfig(key string, value interface{}) error {
 	c, err := ConfigAll()
 	if err != nil {
 		return err
+	}
+
+	if c == nil {
+		c, err = emptyConfig()
+		if err != nil {
+			return err
+		}
 	}
 
 	err = json.Unmarshal(c, &kv)
@@ -166,6 +188,43 @@ func PutConfig(key string, value interface{}) error {
 
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
 // 'key' is the JSON tag associated with the config field
-func ConfigCache(key string) string {
-	return configCache.Get(key)
+func ConfigCache(key string) interface{} {
+	return configCache[key]
+}
+
+// LoadCacheConfig loads the config into a cache to be accessed by ConfigCache()
+func LoadCacheConfig() error {
+	c, err := ConfigAll()
+	if err != nil {
+		return err
+	}
+
+	if c == nil {
+		c, err = emptyConfig()
+		if err != nil {
+			return err
+		}
+	}
+
+	// convert json => map[string]interface{}
+	var kv map[string]interface{}
+	err = json.Unmarshal(c, &kv)
+	if err != nil {
+		return err
+	}
+
+	configCache = kv
+
+	return nil
+}
+
+func emptyConfig() ([]byte, error) {
+	cfg := &config.Config{}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

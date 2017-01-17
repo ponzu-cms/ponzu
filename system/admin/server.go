@@ -51,5 +51,5 @@ func Run() {
 	// even if the API server is not running. Otherwise, images/files uploaded
 	// through the editor will not load within the admin system.
 	uploadsDir := filepath.Join(pwd, "uploads")
-	http.Handle("/api/uploads/", api.Record(db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir)))))))
+	http.Handle("/api/uploads/", api.Record(api.CORS(db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))))
 }
