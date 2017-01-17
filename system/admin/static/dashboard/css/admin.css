@@ -242,6 +242,7 @@ tr.default-fields, tr.editor-fields {
 
 select {
     border: 1px solid #e2e2e2;
+    height: 2.5rem;
 }
 
 .note-editor * {
