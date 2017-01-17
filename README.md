@@ -17,7 +17,7 @@ rapid development, but need a fast JSON response in a high-concurrency environme
 
 **Because you want to turn this:**  
 ```bash
-$ ponzu generate song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
+$ ponzu generate content song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
 ```
 
 **Into this:** 
