@@ -216,6 +216,49 @@ func main() {
 		fmt.Println("\nvisit `/admin` to get started.")
 		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 
+	case "version", "v":
+		// read ponzu.json value to Stdout
+
+		p, err := ponzu()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Fprintf(os.Stdout, "Ponzu v%s\n", p["version"])
+
+	case "upgrade":
+		// confirm since upgrade will replace Ponzu core files
+		path, err := os.Getwd()
+		if err != nil {
+			fmt.Println("Failed to find current directory.", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Only files you added to this directory, 'addons' and 'content' will be preserved.")
+		fmt.Println("Upgrade this project? (y/N):")
+
+		answer, err := getAnswer()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		switch answer {
+		case "n", "no", "\r\n", "\n", "":
+			fmt.Println("")
+
+		case "y", "yes":
+			err := upgradePonzuProjectDir(path)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+		default:
+			fmt.Println("Input not recognized. No upgrade made. Answer as 'y' or 'n' only.")
+		}
+
 	case "":
 		fmt.Println(usage)
 		fmt.Println(usageHelp)

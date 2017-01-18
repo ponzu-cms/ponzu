@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"time"
 )
 
@@ -121,3 +124,19 @@ var usageRun = `
 
 
 `
+
+func ponzu() (map[string]interface{}, error) {
+	kv := make(map[string]interface{})
+
+	b, err := ioutil.ReadFile(filepath.Join("cmd", "ponzu", "ponzu.json"))
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &kv)
+	if err != nil {
+		return nil, err
+	}
+
+	return kv, nil
+}
