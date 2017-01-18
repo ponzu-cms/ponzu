@@ -189,7 +189,7 @@ Prints the version of the Ponzu CLI you have installed.
 Example:
 ```bash
 $ ponzu version
-> Ponzu v0.7.0
+> Ponzu v0.7.1
 ```
 
 ---
