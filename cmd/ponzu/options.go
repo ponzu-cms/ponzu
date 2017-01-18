@@ -435,22 +435,6 @@ func upgradePonzuProjectDir(path string) error {
 		}
 	}
 
-	err = os.Chdir(temp)
-	if err != nil {
-		fmt.Println("Coudln't change directory to:", temp)
-	}
-
-	// re-create the project dir
-	err = os.MkdirAll(path, os.ModeDir|os.ModePerm)
-	if err != nil {
-		return err
-	}
-
-	err = os.Chdir(path)
-	if err != nil {
-		return err
-	}
-
 	err = createProjectInDir(path)
 	if err != nil {
 		fmt.Println("")
@@ -481,16 +465,6 @@ func upgradePonzuProjectDir(path string) error {
 		}
 
 		fmt.Println(" [+]", r.Name())
-	}
-
-	// refresh dir to show files after restoring
-	err = os.Chdir(temp)
-	if err != nil {
-		return err
-	}
-	err = os.Chdir(path)
-	if err != nil {
-		return err
 	}
 
 	// clean-up

@@ -119,13 +119,13 @@ the necessary files from your workspace into the vendored directory, and
 will build/compile the project to then be run. 
 
 Optional flags:
-- `--gocmd` sets the binary used when executing `go build` within `ponzu` build step
+- `-gocmd` sets the binary used when executing `go build` within `ponzu` build step
 
 Example:
 ```bash
 $ ponzu build
 (or)
-$ ponzu --gocmd=go1.8beta2 build # useful for testing
+$ ponzu -gocmd=go1.8rc1 build # useful for testing
 ```
 
 Errors will be reported, but successful build commands return nothing.
@@ -141,8 +141,8 @@ if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 Optional flags:
-- `--port` sets the port on which the server listens for HTTP requests [defaults to 8080]
-- `--httpsport` sets the port on which the server listens for HTTPS requests [defaults to 443]
+- `-port` sets the port on which the server listens for HTTP requests [defaults to 8080]
+- `-httpsport` sets the port on which the server listens for HTTPS requests [defaults to 443]
 - `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
 - `--devhttps` generates self-signed SSL certificates for development-only (port is 10443)
 
@@ -150,15 +150,15 @@ Example:
 ```bash
 $ ponzu run
 (or)
-$ ponzu --port=8080 --https run admin,api
+$ ponzu -port=8080 --https run admin,api
 (or) 
 $ ponzu run admin
 (or)
-$ ponzu --port=8888 run api
+$ ponzu -port=8888 run api
 (or)
 $ ponzu --devhttps run
 ```
-Defaults to `$ ponzu --port=8080 run admin,api` (running Admin & API on port 8080, without TLS)
+Defaults to `$ ponzu -port=8080 run admin,api` (running Admin & API on port 8080, without TLS)
 
 *Note:* 
 Admin and API cannot run on separate processes unless you use a copy of the
@@ -189,7 +189,7 @@ Prints the version of the Ponzu CLI you have installed.
 Example:
 ```bash
 $ ponzu version
-> Ponzu v0.70
+> Ponzu v0.7.0
 ```
 
 ---
@@ -236,14 +236,14 @@ $ git push origin ponzu-dev
 ```
 
 **Note:** if you intend to work on your own fork and contribute from it, you will
-need to also pass `--fork=path/to/your/fork` (using OS-standard filepath structure),
+need to also pass `-fork=path/to/your/fork` (using OS-standard filepath structure),
 where `path/to/your/fork` _must_ be within `$GOPATH/src`, and you are working from a branch
 called `ponzu-dev`. 
 
 For example: 
 ```bash
 # ($GOPATH/src is implied in the fork path, do not add it yourself)
-$ ponzu --dev --fork=github.com/nilslice/ponzu new /path/to/new/project
+$ ponzu --dev -fork=github.com/nilslice/ponzu new /path/to/new/project
 ```
 
 

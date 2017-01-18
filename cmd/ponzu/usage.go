@@ -16,17 +16,17 @@ $ ponzu [flags] command <params>
 Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
 provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via 
 [Let's Encrypt](https://letsencrypt.org)), a useful CMS and scaffolding to 
-generate content editors, and a fast HTTP API on which to build modern applications.
+generate set-up code, and a fast HTTP API on which to build modern applications.
 
 Ponzu is released under the BSD-3-Clause license (see LICENSE).
-(c) ` + year + ` Boss Sauce Creative, LLC
+(c) 2016 - ` + year + ` Boss Sauce Creative, LLC
 
-COMMANDS
+COMMANDS:
 
 `
 
 var usageHelp = `
-help, h (command):
+help, h (command)
 
 	Help command will print the usage for Ponzu, or if a command is entered, it
 	will show only the usage for that specific command.
@@ -38,7 +38,7 @@ help, h (command):
 `
 
 var usageNew = `
-new <directory>:
+new <directory>
 
 	Creates a 'ponzu' directory, or one by the name supplied as a parameter 
 	immediately following the 'new' option in the $GOPATH/src directory. Note: 
@@ -57,7 +57,7 @@ new <directory>:
 `
 
 var usageGenerate = `
-generate, gen, g <generator type (,...fields)>:
+generate, gen, g <generator type (,...fields)>
 
 	Generate boilerplate code for various Ponzu components, such as 'content'.
 
@@ -83,7 +83,7 @@ generate, gen, g <generator type (,...fields)>:
 `
 
 var usageBuild = `
-build
+[-gocmd=go] build
 
 	From within your Ponzu project directory, running build will copy and move 
 	the necessary files from your workspace into the vendored directory, and 
@@ -91,13 +91,19 @@ build
 	
 	Example:
 	$ ponzu build
+	(or)
+	$ ponzu -gocmd=go1.8rc1 build
+
+	By providing the 'gocmd' flag, you can specify which Go command to build the
+	project, if testing a different release of Go.
 
 	Errors will be reported, but successful build commands return nothing.
+
 
 `
 
 var usageRun = `
-[[--port=8080] [--https]] run <service(,service)>:
+[[-port=8080] [--https|--devhttps]] run <service(,service)>
 
 	Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 	The segments, separated by a comma, describe which services to start, either 
@@ -108,13 +114,13 @@ var usageRun = `
 	Example: 
 	$ ponzu run
 	(or)
-	$ ponzu --port=8080 --https run admin,api
+	$ ponzu -port=8080 --https run admin,api
 	(or) 
 	$ ponzu run admin
 	(or)
-	$ ponzu --port=8888 run api
+	$ ponzu -port=8888 run api
 
-	Defaults to '--port=8080 run admin,api' (running Admin & API on port 8080, without TLS)
+	Defaults to '-port=8080 run admin,api' (running Admin & API on port 8080, without TLS)
 
 	Note: 
 	Admin and API cannot run on separate processes unless you use a copy of the
