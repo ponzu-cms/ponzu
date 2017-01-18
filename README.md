@@ -168,6 +168,31 @@ to run the Admin and API on separate processes, you must call them with the
 
 ---
 
+### upgrade
+
+Will backup your own custom project code (like content, addons, uploads, etc) so
+we can safely re-clone Ponzu from the latest version you have or from the network 
+if necessary. Before running `$ ponzu upgrade`, you should update the `ponzu`
+package by running `$ go get -u github.com/ponzu-cms/ponzu/...` 
+
+Example:
+```bash
+$ ponzu upgrade
+```
+
+---
+
+### version, v
+
+Prints the version of the Ponzu CLI you have installed.
+
+Example:
+```bash
+$ ponzu version
+> Ponzu v0.70
+```
+
+---
 
 ## Contributing
 
