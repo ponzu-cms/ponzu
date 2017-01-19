@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"time"
 )
@@ -131,10 +132,47 @@ var usageRun = `
 
 `
 
-func ponzu() (map[string]interface{}, error) {
+var usageUpgrade = `
+upgrade
+
+	Will backup your own custom project code (like content, addons, uploads, etc) so
+	we can safely re-clone Ponzu from the latest version you have or from the network 
+	if necessary. Before running '$ ponzu upgrade', you should update the 'ponzu'
+	package by running '$ go get -u github.com/ponzu-cms/ponzu/...' 
+
+	Example:
+	$ ponzu upgrade
+
+
+`
+
+var usageVersion = `
+[--cli] version, v
+
+	Prints the version of Ponzu your project is using. Must be called from 
+	within a Ponzu project directory.
+
+	Example:
+	$ ponzu version
+	> Ponzu v0.7.1
+	(or)
+	$ ponzu --cli version
+	> Ponzu v0.7.2
+
+
+`
+
+func ponzu(isCLI bool) (map[string]interface{}, error) {
 	kv := make(map[string]interface{})
 
-	b, err := ioutil.ReadFile(filepath.Join("cmd", "ponzu", "ponzu.json"))
+	info := filepath.Join("cmd", "ponzu", "ponzu.json")
+	if isCLI {
+		gopath := os.Getenv("GOPATH")
+		repo := filepath.Join(gopath, "src", "github.com", "ponzu-cms", "ponzu")
+		info = filepath.Join(repo, "cmd", "ponzu", "ponzu.json")
+	}
+
+	b, err := ioutil.ReadFile(info)
 	if err != nil {
 		return nil, err
 	}

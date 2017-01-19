@@ -19,11 +19,13 @@ import (
 )
 
 var (
-	usage     = usageHeader + usageNew + usageGenerate + usageBuild + usageRun
+	usage = usageHeader + usageNew + usageGenerate +
+		usageBuild + usageRun + usageUpgrade + usageVersion
 	port      int
 	httpsport int
 	https     bool
 	devhttps  bool
+	cli       bool
 
 	// for ponzu internal / core development
 	dev   bool
@@ -41,6 +43,7 @@ func main() {
 	flag.BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&devhttps, "devhttps", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	flag.BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
+	flag.BoolVar(&cli, "cli", false, "specify that information should be returned about the CLI, not project")
 	flag.StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
 	flag.StringVar(&gocmd, "gocmd", "go", "custom go command if using beta or new release of Go")
 	flag.Parse()
@@ -75,6 +78,14 @@ func main() {
 
 		case "run":
 			fmt.Println(usageRun)
+			os.Exit(0)
+
+		case "upgrade":
+			fmt.Println(usageUpgrade)
+			os.Exit(0)
+
+		case "version", "v":
+			fmt.Println(usageVersion)
 			os.Exit(0)
 		}
 
@@ -219,7 +230,7 @@ func main() {
 	case "version", "v":
 		// read ponzu.json value to Stdout
 
-		p, err := ponzu()
+		p, err := ponzu(cli)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

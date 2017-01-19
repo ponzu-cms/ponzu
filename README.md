@@ -184,12 +184,17 @@ $ ponzu upgrade
 
 ### version, v
 
-Prints the version of the Ponzu CLI you have installed.
+Prints the version of Ponzu your project is using. Must be called from within a 
+Ponzu project directory. By passing the `--cli` flag, the `version` command will 
+print the version of the Ponzu CLI you have installed.
 
 Example:
 ```bash
 $ ponzu version
 > Ponzu v0.7.1
+(or)
+$ ponzu --cli version
+> Ponzu v0.7.2
 ```
 
 ---
