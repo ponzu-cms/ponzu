@@ -8,5 +8,5 @@ func Run() {
 
 	http.HandleFunc("/api/content", Record(CORS(Gzip(contentHandler))))
 
-	http.HandleFunc("/api/content/external", Record(externalContentHandler))
+	http.HandleFunc("/api/content/external", Record(CORS(externalContentHandler)))
 }
