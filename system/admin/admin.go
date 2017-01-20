@@ -530,7 +530,7 @@ var analyticsHTML = `
 
 // Dashboard returns the admin view with analytics dashboard
 func Dashboard() ([]byte, error) {
-	buf := new(bytes.Buffer)
+	buf := &bytes.Buffer{}
 	data, err := analytics.ChartData()
 	if err != nil {
 		return nil, err
