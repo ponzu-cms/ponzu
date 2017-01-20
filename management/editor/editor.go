@@ -234,7 +234,7 @@ func addFieldToEditorView(e *Editor, f Field) error {
 
 func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 	defaults := []Field{
-		Field{
+		{
 			View: Input("Slug", p, map[string]string{
 				"label":       "URL Slug",
 				"type":        "text",
@@ -242,13 +242,13 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 				"placeholder": "Will be set automatically",
 			}),
 		},
-		Field{
+		{
 			View: Timestamp("Timestamp", p, map[string]string{
 				"type":  "hidden",
 				"class": "timestamp __ponzu",
 			}),
 		},
-		Field{
+		{
 			View: Timestamp("Updated", p, map[string]string{
 				"type":  "hidden",
 				"class": "updated __ponzu",

@@ -93,10 +93,10 @@ type admin struct {
 }
 
 // Admin ...
-func Admin(view []byte) ([]byte, error) {
+func Admin(view []byte) (_ []byte, err error) {
 	cfg, err := db.Config("name")
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	if cfg == nil {
@@ -114,7 +114,7 @@ func Admin(view []byte) ([]byte, error) {
 	tmpl := template.Must(template.New("admin").Parse(html))
 	err = tmpl.Execute(buf, a)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	return buf.Bytes(), nil
@@ -476,12 +476,7 @@ func UsersList(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	view, err := Admin(buf.Bytes())
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(buf.Bytes())
 }
 
 var analyticsHTML = `
@@ -536,7 +531,6 @@ var analyticsHTML = `
 // Dashboard returns the admin view with analytics dashboard
 func Dashboard() ([]byte, error) {
 	buf := &bytes.Buffer{}
-
 	data, err := analytics.ChartData()
 	if err != nil {
 		return nil, err
@@ -547,16 +541,10 @@ func Dashboard() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	view, err := Admin(buf.Bytes())
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(buf.Bytes())
 }
 
-var err400HTML = `
+var err400HTML = []byte(`
 <div class="error-page e400 col s6">
 <div class="card">
 <div class="card-content">
@@ -565,19 +553,14 @@ var err400HTML = `
 </div>
 </div>
 </div>
-`
+`)
 
 // Error400 creates a subview for a 400 error page
 func Error400() ([]byte, error) {
-	view, err := Admin([]byte(err400HTML))
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(err400HTML)
 }
 
-var err404HTML = `
+var err404HTML = []byte(`
 <div class="error-page e404 col s6">
 <div class="card">
 <div class="card-content">
@@ -586,19 +569,14 @@ var err404HTML = `
 </div>
 </div>
 </div>
-`
+`)
 
 // Error404 creates a subview for a 404 error page
 func Error404() ([]byte, error) {
-	view, err := Admin([]byte(err404HTML))
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(err404HTML)
 }
 
-var err405HTML = `
+var err405HTML = []byte(`
 <div class="error-page e405 col s6">
 <div class="card">
 <div class="card-content">
@@ -607,19 +585,14 @@ var err405HTML = `
 </div>
 </div>
 </div>
-`
+`)
 
 // Error405 creates a subview for a 405 error page
 func Error405() ([]byte, error) {
-	view, err := Admin([]byte(err405HTML))
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(err405HTML)
 }
 
-var err500HTML = `
+var err500HTML = []byte(`
 <div class="error-page e500 col s6">
 <div class="card">
 <div class="card-content">
@@ -628,14 +601,9 @@ var err500HTML = `
 </div>
 </div>
 </div>
-`
+`)
 
 // Error500 creates a subview for a 500 error page
 func Error500() ([]byte, error) {
-	view, err := Admin([]byte(err500HTML))
-	if err != nil {
-		return nil, err
-	}
-
-	return view, nil
+	return Admin(err500HTML)
 }

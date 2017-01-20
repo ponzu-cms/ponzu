@@ -99,13 +99,15 @@ const managerHTML = `
 				updated.val((new Date()).getTime());
 
 				timeUpdated = true;
-				$('form').submit();				
+				$('form').submit();
 			});
 		});
-		
+
 	</script>
 </div>
 `
+
+var managerTmpl = template.Must(template.New("manager").Parse(managerHTML))
 
 type manager struct {
 	ID     int
@@ -142,8 +144,8 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 
 	// execute html template into buffer for func return val
 	buf := &bytes.Buffer{}
-	tmpl := template.Must(template.New("manager").Parse(managerHTML))
-	tmpl.Execute(buf, m)
-
+	if err := managerTmpl.Execute(buf, m); err != nil {
+		return nil, err
+	}
 	return buf.Bytes(), nil
 }

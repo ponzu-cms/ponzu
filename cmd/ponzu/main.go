@@ -156,13 +156,7 @@ func main() {
 		serve.Stderr = os.Stderr
 		serve.Stdout = os.Stdout
 
-		err := serve.Start()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		err = serve.Wait()
+		err := serve.Run()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -178,13 +172,11 @@ func main() {
 		if len(args) > 1 {
 			services := strings.Split(args[1], ",")
 
-			for i := range services {
-				if services[i] == "api" {
+			for _, service := range services {
+				if service == "api" {
 					api.Run()
-
-				} else if services[i] == "admin" {
+				} else if service == "admin" {
 					admin.Run()
-
 				} else {
 					fmt.Println("To execute 'ponzu serve', you must specify which service to run.")
 					fmt.Println("$ ponzu --help")
