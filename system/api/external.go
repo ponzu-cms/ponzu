@@ -79,23 +79,48 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	// check for any multi-value fields (ex. checkbox fields)
 	// and correctly format for db storage. Essentially, we need
 	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
-	var discardKeys []string
+	fieldOrderValue := make(map[string]map[string][]string)
+	ordVal := make(map[string][]string)
 	for k, v := range req.PostForm {
 		if strings.Contains(k, ".") {
-			key := strings.Split(k, ".")[0]
+			fo := strings.Split(k, ".")
 
-			if req.PostForm.Get(key) == "" {
-				req.PostForm.Set(key, v[0])
-			} else {
-				req.PostForm.Add(key, v[0])
-			}
+			// put the order and the field value into map
+			field := string(fo[0])
+			order := string(fo[1])
+			fieldOrderValue[field] = ordVal
 
-			discardKeys = append(discardKeys, k)
+			// orderValue is 0:[?type=Thing&id=1]
+			orderValue := fieldOrderValue[field]
+			orderValue[order] = v
+			fieldOrderValue[field] = orderValue
+
+			// discard the post form value with name.N
+			req.PostForm.Del(k)
 		}
+
 	}
 
-	for _, discardKey := range discardKeys {
-		req.PostForm.Del(discardKey)
+	// add/set the key & value to the post form in order
+	for f, ov := range fieldOrderValue {
+		for i := 0; i < len(ov); i++ {
+			position := fmt.Sprintf("%d", i)
+			fieldValue := ov[position]
+
+			if req.PostForm.Get(f) == "" {
+				for i, fv := range fieldValue {
+					if i == 0 {
+						req.PostForm.Set(f, fv)
+					} else {
+						req.PostForm.Add(f, fv)
+					}
+				}
+			} else {
+				for _, fv := range fieldValue {
+					req.PostForm.Add(f, fv)
+				}
+			}
+		}
 	}
 
 	// call Accept with the request, enabling developer to add or chack data

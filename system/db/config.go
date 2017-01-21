@@ -22,53 +22,74 @@ func init() {
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
 	var j []byte
+	err := store.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("__config"))
 
-	// check for any multi-value fields (ex. checkbox fields)
-	// and correctly format for db storage. Essentially, we need
-	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
-	var discardKeys []string
-	for k, v := range data {
-		if strings.Contains(k, ".") {
-			key := strings.Split(k, ".")[0]
+		// check for any multi-value fields (ex. checkbox fields)
+		// and correctly format for db storage. Essentially, we need
+		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+		fieldOrderValue := make(map[string]map[string][]string)
+		ordVal := make(map[string][]string)
+		for k, v := range data {
+			if strings.Contains(k, ".") {
+				fo := strings.Split(k, ".")
 
-			if data.Get(key) == "" {
-				data.Set(key, v[0])
-			} else {
-				data.Add(key, v[0])
+				// put the order and the field value into map
+				field := string(fo[0])
+				order := string(fo[1])
+				fieldOrderValue[field] = ordVal
+
+				// orderValue is 0:[?type=Thing&id=1]
+				orderValue := fieldOrderValue[field]
+				orderValue[order] = v
+				fieldOrderValue[field] = orderValue
+
+				// discard the post form value with name.N
+				data.Del(k)
 			}
 
-			discardKeys = append(discardKeys, k)
 		}
-	}
 
-	for _, discardKey := range discardKeys {
-		data.Del(discardKey)
-	}
+		// add/set the key & value to the post form in order
+		for f, ov := range fieldOrderValue {
+			for i := 0; i < len(ov); i++ {
+				position := fmt.Sprintf("%d", i)
+				fieldValue := ov[position]
 
-	cfg := &config.Config{}
-	dec := schema.NewDecoder()
-	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
-	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
-	err := dec.Decode(cfg, data)
-	if err != nil {
-		return err
-	}
+				if data.Get(f) == "" {
+					for i, fv := range fieldValue {
+						if i == 0 {
+							data.Set(f, fv)
+						} else {
+							data.Add(f, fv)
+						}
+					}
+				} else {
+					for _, fv := range fieldValue {
+						data.Add(f, fv)
+					}
+				}
+			}
+		}
 
-	// check for "invalidate" value to reset the Etag
-	if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
-		cfg.Etag = NewEtag()
-		cfg.CacheInvalidate = []string{}
-	}
+		cfg := &config.Config{}
+		dec := schema.NewDecoder()
+		dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+		dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+		err := dec.Decode(cfg, data)
+		if err != nil {
+			return err
+		}
 
-	j, err = json.Marshal(cfg)
-	if err != nil {
-		return err
-	}
+		// check for "invalidate" value to reset the Etag
+		if len(cfg.CacheInvalidate) > 0 && cfg.CacheInvalidate[0] == "invalidate" {
+			cfg.Etag = NewEtag()
+			cfg.CacheInvalidate = []string{}
+		}
 
-	err = store.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("__config"))
-		if b == nil {
-			return bolt.ErrBucketNotFound
+		j, err = json.Marshal(cfg)
+		if err != nil {
+			return err
 		}
 
 		err = b.Put([]byte("settings"), j)
@@ -121,7 +142,7 @@ func ConfigAll() ([]byte, error) {
 	err := store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return fmt.Errorf("Error finding bucket: %s", "__config")
 		}
 		_, err := val.Write(b.Get([]byte("settings")))
 		if err != nil {
