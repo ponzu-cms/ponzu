@@ -55,7 +55,6 @@ func SetConfig(data url.Values) error {
 			for i := 0; i < len(ov); i++ {
 				position := fmt.Sprintf("%d", i)
 				fieldValue := ov[position]
-				fmt.Println(position, fieldValue)
 
 				if data.Get(f) == "" {
 					for i, fv := range fieldValue {

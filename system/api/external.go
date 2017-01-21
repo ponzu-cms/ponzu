@@ -106,7 +106,6 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		for i := 0; i < len(ov); i++ {
 			position := fmt.Sprintf("%d", i)
 			fieldValue := ov[position]
-			fmt.Println(position, fieldValue)
 
 			if req.PostForm.Get(f) == "" {
 				for i, fv := range fieldValue {
