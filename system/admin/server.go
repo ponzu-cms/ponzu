@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ponzu-cms/ponzu/system"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 	"github.com/ponzu-cms/ponzu/system/api"
 	"github.com/ponzu-cms/ponzu/system/db"
@@ -52,4 +53,7 @@ func Run() {
 	// through the editor will not load within the admin system.
 	uploadsDir := filepath.Join(pwd, "uploads")
 	http.Handle("/api/uploads/", api.Record(api.CORS(db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))))
+
+	// Database & uploads backup via HTTP route registered with Basic Auth middleware.
+	http.HandleFunc("/admin/backup", system.BasicAuth(backupHandler))
 }

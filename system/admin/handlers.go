@@ -19,6 +19,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 	"github.com/ponzu-cms/ponzu/system/api"
+	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
 
@@ -186,6 +187,37 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
+}
+
+func backupHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.URL.Query().Get("source") {
+	case "system":
+		err := db.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on system:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	case "analytics":
+		err := analytics.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on analytics:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	case "uploads":
+		err := upload.Backup(res)
+		if err != nil {
+			log.Println("Failed to run backup on uploads:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		res.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func configUsersHandler(res http.ResponseWriter, req *http.Request) {
