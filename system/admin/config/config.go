@@ -9,17 +9,26 @@ import (
 type Config struct {
 	item.Item
 
-	Name            string   `json:"name"`
-	Domain          string   `json:"domain"`
-	HTTPPort        string   `json:"http_port"`
-	HTTPSPort       string   `json:"https_port"`
-	AdminEmail      string   `json:"admin_email"`
-	ClientSecret    string   `json:"client_secret"`
-	Etag            string   `json:"etag"`
-	DisableCORS     bool     `json:"cors_disabled"`
-	DisableGZIP     bool     `json:"gzip_disabled"`
-	CacheInvalidate []string `json:"cache"`
+	Name                    string   `json:"name"`
+	Domain                  string   `json:"domain"`
+	HTTPPort                string   `json:"http_port"`
+	HTTPSPort               string   `json:"https_port"`
+	AdminEmail              string   `json:"admin_email"`
+	ClientSecret            string   `json:"client_secret"`
+	Etag                    string   `json:"etag"`
+	DisableCORS             bool     `json:"cors_disabled"`
+	DisableGZIP             bool     `json:"gzip_disabled"`
+	CacheInvalidate         []string `json:"cache"`
+	BackupBasicAuthUser     string   `json:"backup_basic_auth_user"`
+	BackupBasicAuthPassword string   `json:"backup_basic_auth_password"`
 }
+
+const (
+	dbBackupInfo = `
+		<p class="flow-text">Database Backup Credentials:</p>
+		<p>Add a user name and password to download a backup of your data via HTTP.</p>
+	`
+)
 
 // String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
@@ -95,6 +104,23 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 				"label": "Invalidate cache on save",
 			}, map[string]string{
 				"invalidate": "Invalidate Cache",
+			}),
+		},
+		editor.Field{
+			View: []byte(dbBackupInfo),
+		},
+		editor.Field{
+			View: editor.Input("BackupBasicAuthUser", c, map[string]string{
+				"label":       "HTTP Basic Auth User",
+				"placeholder": "Enter a user name for Basic Auth access",
+				"type":        "text",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("BackupBasicAuthPassword", c, map[string]string{
+				"label":       "HTTP Basic Auth Password",
+				"placeholder": "Enter a password for Basic Auth access",
+				"type":        "password",
 			}),
 		},
 	)
