@@ -43,13 +43,15 @@ const RANGE = 14
 func Record(req *http.Request) {
 	external := strings.Contains(req.URL.Path, "/external/")
 
+	ts := int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
+
 	r := apiRequest{
 		URL:        req.URL.String(),
 		Method:     req.Method,
 		Origin:     req.Header.Get("Origin"),
 		Proto:      req.Proto,
 		RemoteAddr: req.RemoteAddr,
-		Timestamp:  time.Now().Unix() * 1000,
+		Timestamp:  ts,
 		External:   external,
 	}
 
