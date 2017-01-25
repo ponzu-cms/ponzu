@@ -332,7 +332,7 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
 			res.Header().Set("Content-Encoding", "gzip")
-			gzres := gzipResponseWriter{res, gzip.NewWriter(res)}
+			gzres := gzipResponseWriter{res, res.(http.Pusher), gzip.NewWriter(res)}
 
 			next.ServeHTTP(gzres, req)
 			return
@@ -344,6 +344,8 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 
 type gzipResponseWriter struct {
 	http.ResponseWriter
+	http.Pusher
+
 	gw *gzip.Writer
 }
 
