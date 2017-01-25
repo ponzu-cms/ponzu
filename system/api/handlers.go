@@ -129,7 +129,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	defer push(res, req, pt, post)
+	push(res, req, pt, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -166,7 +166,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	defer push(res, req, it, post)
+	push(res, req, it, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -332,7 +332,12 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
 			res.Header().Set("Content-Encoding", "gzip")
-			gzres := gzipResponseWriter{res, res.(http.Pusher), gzip.NewWriter(res)}
+			var gzres gzipResponseWriter
+			if pusher, ok := res.(http.Pusher); ok {
+				gzres = gzipResponseWriter{res, pusher, gzip.NewWriter(res)}
+			} else {
+				gzres = gzipResponseWriter{res, nil, gzip.NewWriter(res)}
+			}
 
 			next.ServeHTTP(gzres, req)
 			return
@@ -344,7 +349,7 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 
 type gzipResponseWriter struct {
 	http.ResponseWriter
-	http.Pusher
+	pusher http.Pusher
 
 	gw *gzip.Writer
 }
@@ -352,4 +357,16 @@ type gzipResponseWriter struct {
 func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
 	defer gzw.gw.Close()
 	return gzw.gw.Write(p)
+}
+
+func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error {
+	if opts == nil {
+		opts = &http.PushOptions{
+			Header: make(http.Header),
+		}
+	}
+
+	opts.Header.Set("Accept-Encoding", "gzip")
+
+	return gzw.pusher.Push(target, opts)
 }
