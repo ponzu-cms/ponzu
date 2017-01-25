@@ -609,7 +609,7 @@ func Error500() ([]byte, error) {
 	return Admin(err500HTML)
 }
 
-var errMessageHTML = []byte(`
+var errMessageHTML = `
 <div class="error-page eMsg col s6">
 <div class="card">
 <div class="card-content">
@@ -618,12 +618,12 @@ var errMessageHTML = []byte(`
 </div>
 </div>
 </div>
-`)
+`
 
 // ErrorMessage is a generic error message container, similar to Error500() and
 // others in this package, ecxept it expects the caller to provide a title and
 // message to describe to a view why the error is being shown
 func ErrorMessage(title, message string) ([]byte, error) {
-	eHTML = fmt.Sprintf(errMessageHTML, title, message)
-	return Admin(eHTML)
+	eHTML := fmt.Sprintf(errMessageHTML, title, message)
+	return Admin([]byte(eHTML))
 }
