@@ -1357,7 +1357,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeApprove(req)
+	err = hook.BeforeApprove(res, req)
 	if err != nil {
 		log.Println("Error running BeforeApprove hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1371,7 +1371,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// call its Approve method
-	err = m.Approve(req)
+	err = m.Approve(res, req)
 	if err != nil {
 		log.Println("Error running Approve method in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1384,7 +1384,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterApprove(req)
+	err = hook.AfterApprove(res, req)
 	if err != nil {
 		log.Println("Error running AfterApprove hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1397,7 +1397,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeSave(req)
+	err = hook.BeforeSave(res, req)
 	if err != nil {
 		log.Println("Error running BeforeSave hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1428,7 +1428,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
 	req = req.WithContext(ctx)
 
-	err = hook.AfterSave(req)
+	err = hook.AfterSave(res, req)
 	if err != nil {
 		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1669,7 +1669,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = hook.BeforeSave(req)
+		err = hook.BeforeSave(res, req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -1699,7 +1699,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
 		req = req.WithContext(ctx)
 
-		err = hook.AfterSave(req)
+		err = hook.AfterSave(res, req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -1792,7 +1792,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	reject := req.URL.Query().Get("reject")
 	if reject == "true" {
-		err = hook.BeforeReject(req)
+		err = hook.BeforeReject(res, req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -1806,7 +1806,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	err = hook.BeforeDelete(req)
+	err = hook.BeforeDelete(res, req)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1826,7 +1826,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterDelete(req)
+	err = hook.AfterDelete(res, req)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -1840,7 +1840,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if reject == "true" {
-		err = hook.AfterReject(req)
+		err = hook.AfterReject(res, req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -2272,7 +2272,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		// if Hookable, call BeforeSave prior to saving
 		h, ok := at().(item.Hookable)
 		if ok {
-			err := h.BeforeSave(req)
+			err := h.BeforeSave(res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
