@@ -613,7 +613,7 @@ var errMessageHTML = `
 <div class="error-page eMsg col s6">
 <div class="card">
 <div class="card-content">
-    <div class="card-title"><b>Error:</b>%s</div>
+    <div class="card-title"><b>Error:&nbsp;</b>%s</div>
     <blockquote>%s</blockquote>
 </div>
 </div>
