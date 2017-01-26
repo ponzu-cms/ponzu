@@ -42,22 +42,22 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
-	BeforeSave(req *http.Request) error
-	AfterSave(req *http.Request) error
+	BeforeSave(http.ResponseWriter, *http.Request) error
+	AfterSave(http.ResponseWriter, *http.Request) error
 
-	BeforeDelete(req *http.Request) error
-	AfterDelete(req *http.Request) error
+	BeforeDelete(http.ResponseWriter, *http.Request) error
+	AfterDelete(http.ResponseWriter, *http.Request) error
 
-	BeforeApprove(req *http.Request) error
-	AfterApprove(req *http.Request) error
+	BeforeApprove(http.ResponseWriter, *http.Request) error
+	AfterApprove(http.ResponseWriter, *http.Request) error
 
-	BeforeReject(req *http.Request) error
-	AfterReject(req *http.Request) error
+	BeforeReject(http.ResponseWriter, *http.Request) error
+	AfterReject(http.ResponseWriter, *http.Request) error
 }
 
 // Hideable lets a user keep items hidden
 type Hideable interface {
-	Hide(*http.Request) error
+	Hide(http.ResponseWriter, *http.Request) error
 }
 
 // Pushable lets a user define which values of certain struct fields are
@@ -122,42 +122,42 @@ func (i Item) String() string {
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeSave(req *http.Request) error {
+func (i Item) BeforeSave(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterSave is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterSave(req *http.Request) error {
+func (i Item) AfterSave(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeDelete(req *http.Request) error {
+func (i Item) BeforeDelete(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterDelete(req *http.Request) error {
+func (i Item) AfterDelete(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeApprove(req *http.Request) error {
+func (i Item) BeforeApprove(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterApprove(req *http.Request) error {
+func (i Item) AfterApprove(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeReject is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeReject(req *http.Request) error {
+func (i Item) BeforeReject(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterReject(req *http.Request) error {
+func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 

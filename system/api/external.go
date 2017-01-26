@@ -17,13 +17,13 @@ import (
 // /external/content?type=Review
 type Externalable interface {
 	// Accept allows external content submissions of a specific type
-	Accept(req *http.Request) error
+	Accept(http.ResponseWriter, *http.Request) error
 }
 
 // Trustable allows external content to be auto-approved, meaning content sent
 // as an Externalable will be stored in the public content bucket
 type Trustable interface {
-	AutoApprove(req *http.Request) error
+	AutoApprove(http.ResponseWriter, *http.Request) error
 }
 
 func externalContentHandler(res http.ResponseWriter, req *http.Request) {
@@ -125,10 +125,9 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	// call Accept with the request, enabling developer to add or chack data
 	// before saving to DB
-	err = ext.Accept(req)
+	err = ext.Accept(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External} error calling Accept:", err)
 		return
 	}
 
@@ -139,10 +138,9 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeSave(req)
+	err = hook.BeforeSave(res, req)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling BeforeSave:", err)
 		return
 	}
 
@@ -152,10 +150,9 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	// check if the content is Trustable should be auto-approved
 	trusted, ok := post.(Trustable)
 	if ok {
-		err := trusted.AutoApprove(req)
+		err := trusted.AutoApprove(res, req)
 		if err != nil {
-			log.Println("[External] error:", err)
-			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("[External] error calling AutoApprove:", err)
 			return
 		}
 	} else {
@@ -164,8 +161,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	id, err := db.SetContent(t+spec+":-1", req.PostForm)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling SetContent:", err)
 		return
 	}
 
@@ -173,10 +169,9 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
 	req = req.WithContext(ctx)
 
-	err = hook.AfterSave(req)
+	err = hook.AfterSave(res, req)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling AfterSave:", err)
 		return
 	}
 

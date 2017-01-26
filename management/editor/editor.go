@@ -18,7 +18,7 @@ type Editable interface {
 type Mergeable interface {
 	// Approve copies an external post to the internal collection and triggers
 	// a re-sort of its content type posts
-	Approve(req *http.Request) error
+	Approve(http.ResponseWriter, *http.Request) error
 }
 
 // Editor is a view containing fields to manage content

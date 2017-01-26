@@ -180,7 +180,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
 	// check if should be hidden
 	if h, ok := it.(item.Hideable); ok {
-		err := h.Hide(req)
+		err := h.Hide(res, req)
 		if err == item.ErrAllowHiddenItem {
 			return false
 		}

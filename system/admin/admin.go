@@ -5,6 +5,7 @@ package admin
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -606,4 +607,23 @@ var err500HTML = []byte(`
 // Error500 creates a subview for a 500 error page
 func Error500() ([]byte, error) {
 	return Admin(err500HTML)
+}
+
+var errMessageHTML = `
+<div class="error-page eMsg col s6">
+<div class="card">
+<div class="card-content">
+    <div class="card-title"><b>Error:&nbsp;</b>%s</div>
+    <blockquote>%s</blockquote>
+</div>
+</div>
+</div>
+`
+
+// ErrorMessage is a generic error message container, similar to Error500() and
+// others in this package, ecxept it expects the caller to provide a title and
+// message to describe to a view why the error is being shown
+func ErrorMessage(title, message string) ([]byte, error) {
+	eHTML := fmt.Sprintf(errMessageHTML, title, message)
+	return Admin([]byte(eHTML))
 }
