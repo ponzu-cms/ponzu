@@ -1360,13 +1360,6 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = hook.BeforeApprove(res, req)
 	if err != nil {
 		log.Println("Error running BeforeApprove hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
@@ -1374,39 +1367,18 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = m.Approve(res, req)
 	if err != nil {
 		log.Println("Error running Approve method in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
 	err = hook.AfterApprove(res, req)
 	if err != nil {
 		log.Println("Error running AfterApprove hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
 	err = hook.BeforeSave(res, req)
 	if err != nil {
 		log.Println("Error running BeforeSave hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
@@ -1431,13 +1403,6 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = hook.AfterSave(res, req)
 	if err != nil {
 		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
 		return
 	}
 
@@ -1671,14 +1636,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		err = hook.BeforeSave(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running BeforeSave method in editHandler for:", t, err)
 			return
 		}
 
@@ -1701,14 +1659,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 
 		err = hook.AfterSave(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running AfterSave method in editHandler for:", t, err)
 			return
 		}
 
@@ -1794,28 +1745,14 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	if reject == "true" {
 		err = hook.BeforeReject(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running BeforeReject method in deleteHandler for:", t, err)
 			return
 		}
 	}
 
 	err = hook.BeforeDelete(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
+		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
 		return
 	}
 
@@ -1828,28 +1765,14 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.AfterDelete(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		errView, err := Error500()
-		if err != nil {
-			return
-		}
-
-		res.Write(errView)
+		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
 		return
 	}
 
 	if reject == "true" {
 		err = hook.AfterReject(res, req)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			log.Println("Error running AfterReject method in deleteHandler for:", t, err)
 			return
 		}
 	}
@@ -2274,14 +2197,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		if ok {
 			err := h.BeforeSave(res, req)
 			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := Error500()
-				if err != nil {
-					return
-				}
-
-				res.Write(errView)
+				log.Println("Error running BeforeSave method in addonHandler for:", id, err)
 				return
 			}
 		}
