@@ -127,8 +127,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	// before saving to DB
 	err = ext.Accept(res, req)
 	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External} error calling Accept:", err)
 		return
 	}
 
@@ -141,8 +140,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.BeforeSave(res, req)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling BeforeSave:", err)
 		return
 	}
 
@@ -154,8 +152,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	if ok {
 		err := trusted.AutoApprove(res, req)
 		if err != nil {
-			log.Println("[External] error:", err)
-			res.WriteHeader(http.StatusInternalServerError)
+			log.Println("[External] error calling AutoApprove:", err)
 			return
 		}
 	} else {
@@ -164,8 +161,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	id, err := db.SetContent(t+spec+":-1", req.PostForm)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling SetContent:", err)
 		return
 	}
 
@@ -175,8 +171,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.AfterSave(res, req)
 	if err != nil {
-		log.Println("[External] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println("[External] error calling AfterSave:", err)
 		return
 	}
 
