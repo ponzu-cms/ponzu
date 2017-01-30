@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -162,6 +163,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	id, err := db.SetContent(t+spec+":-1", req.PostForm)
 	if err != nil {
 		log.Println("[External] error calling SetContent:", err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -172,6 +174,43 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = hook.AfterSave(res, req)
 	if err != nil {
 		log.Println("[External] error calling AfterSave:", err)
+		return
+	}
+
+	// create JSON response to send data back to client
+	var data map[string]interface{}
+	if spec != "" {
+		spec = strings.TrimPrefix(spec, "__")
+		data = map[string]interface{}{
+			"status": spec,
+			"type":   t,
+		}
+	} else {
+		spec = "public"
+		data = map[string]interface{}{
+			"id":     id,
+			"status": spec,
+			"type":   t,
+		}
+	}
+
+	resp := map[string]interface{}{
+		"data": []map[string]interface{}{
+			data,
+		},
+	}
+
+	j, err := json.Marshal(resp)
+	if err != nil {
+		log.Println("[External] error marshalling response to JSON:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	_, err = res.Write(j)
+	if err != nil {
+		log.Println("[External] error writing response:", err)
 		return
 	}
 
