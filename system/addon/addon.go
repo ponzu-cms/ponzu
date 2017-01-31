@@ -163,6 +163,11 @@ func Disable(key string) error {
 	return nil
 }
 
+// KeyFromMeta creates a unique string identifier for an addon based on its url and name
+func KeyFromMeta(meta Meta) (string, error) {
+	return reverseDNS(meta)
+}
+
 func setStatus(key, status string) error {
 	a, err := db.Addon(key)
 	if err != nil {
