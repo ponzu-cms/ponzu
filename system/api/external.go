@@ -15,7 +15,7 @@ import (
 )
 
 // Externalable accepts or rejects external POST requests to endpoints such as:
-// /external/content?type=Review
+// /api/content/external?type=Review
 type Externalable interface {
 	// Accept allows external content submissions of a specific type
 	Accept(http.ResponseWriter, *http.Request) error
