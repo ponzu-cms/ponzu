@@ -128,7 +128,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	// before saving to DB
 	err = ext.Accept(res, req)
 	if err != nil {
-		log.Println("[External} error calling Accept:", err)
+		log.Println("[External] error calling Accept:", err)
 		return
 	}
 
