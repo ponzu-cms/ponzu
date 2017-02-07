@@ -85,6 +85,7 @@ func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte 
 // form of the struct field that this editor input is representing
 func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 	name := TagNameFromStructField(fieldName, p)
+	value := ValueFromStructField(fieldName, p)
 	tmpl :=
 		`<div class="file-input ` + name + ` input-field col s12">
 			<label class="active">` + attrs["label"] + `</label>
@@ -98,7 +99,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 				</div>
 			</div>
 			<div class="preview"><div class="img-clip"></div></div>			
-			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + ValueFromStructField(fieldName, p) + `" />
+			<input class="store ` + name + `" type="hidden" name="` + name + `" value="` + value + `" />
 		</div>`
 
 	script :=
@@ -111,9 +112,28 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 					clip = preview.find('.img-clip'),
 					reset = document.createElement('div'),
 					img = document.createElement('img'),
+					video = document.createElement('video'),
+					unknown = document.createElement('div'),
+					viewLink = document.createElement('a'),
+					viewLinkText = document.createTextNode('Download / View '),
+					iconLaunch = document.createElement('i'),
+					iconLaunchText = document.createTextNode('launch'),
 					uploadSrc = store.val();
+					video.setAttribute
 					preview.hide();
-				
+					viewLink.setAttribute('href', '` + value + `');
+					viewLink.setAttribute('target', '_blank');
+					viewLink.appendChild(viewLinkText);
+					viewLink.style.display = 'block';
+					viewLink.style.marginRight = '10px';					
+					viewLink.style.textAlign = 'right';
+					iconLaunch.className = 'material-icons tiny';
+					iconLaunch.style.position = 'relative';
+					iconLaunch.style.top = '3px';
+					iconLaunch.appendChild(iconLaunchText);
+					viewLink.appendChild(iconLaunch);
+					preview.append(viewLink);
+
 				// when ` + name + ` input changes (file is selected), remove
 				// the 'name' and 'value' attrs from the hidden store input.
 				// add the 'name' attr to ` + name + ` input
@@ -122,8 +142,45 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 				});
 
 				if (uploadSrc.length > 0) {
-					$(img).attr('src', store.val());
-					clip.append(img);
+					var ext = uploadSrc.substring(uploadSrc.lastIndexOf('.'));
+					switch (ext) {
+						case '.jpg':
+						case '.jpeg':
+						case '.webp':
+						case '.gif':
+						case '.png':
+							$(img).attr('src', store.val());
+							clip.append(img);
+							break;
+						case '.mp4':
+						case '.webm':
+							$(video)
+								.attr('src', store.val())
+								.attr('type', 'video/'+ext.substring(1))
+								.attr('controls', true)
+								.css('width', '100%');
+							clip.append(video);
+							break;
+						default:
+							$(img).attr('src', '/admin/static/dashboard/img/ponzu-file.png');
+							$(unknown)
+								.css({
+									position: 'absolute', 
+									top: '10px', 
+									left: '10px',
+									border: 'solid 1px #ddd',
+									padding: '7px 7px 5px 12px',
+									fontWeight: 'bold',
+									background: '#888',
+									color: '#fff',
+									textTransform: 'uppercase',
+									letterSpacing: '2px' 
+								})
+								.text(ext);
+							clip.append(img);
+							clip.append(unknown);
+							clip.css('maxWidth', '200px');
+					}
 					preview.show();
 
 					$(reset).addClass('reset ` + name + ` btn waves-effect waves-light grey');
