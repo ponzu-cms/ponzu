@@ -124,8 +124,7 @@ select.browser-default {
 
 .file-input .preview .img-clip {
     overflow: hidden;
-    max-width: 150px;
-    max-height: 150px;   
+    max-width: 300px;
     margin: 10px;    
 }
 
