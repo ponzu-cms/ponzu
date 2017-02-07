@@ -94,7 +94,7 @@ $ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]str
 ```
 
 The command above will generate the file `content/review.go` with boilerplate
-methods, as well as struct definition, and cooresponding field tags like:
+methods, as well as struct definition, and corresponding field tags like:
 
 ```go
 type Review struct {

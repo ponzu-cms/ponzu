@@ -66,7 +66,7 @@ generate, gen, g <generator type (,...fields)>
 	$ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]string"
 
 	The command above will generate a file 'content/review.go' with boilerplate
-	methods, as well as struct definition, and cooresponding field tags like:
+	methods, as well as struct definition, and corresponding field tags like:
 
 	type Review struct {
 		Title  string   ` + "`json:" + `"title"` + "`" + `
