@@ -49,7 +49,7 @@ $ go get github.com/ponzu-cms/ponzu/...
 Go 1.8+
 
 Since HTTP/2 Server Push is used, Go 1.8+ is required. However, it is not 
-required of clients conntecing to a Ponzu server to make HTTP/2 requests. 
+required of clients connecting to a Ponzu server to make HTTP/2 requests. 
 
 ## Usage
 
