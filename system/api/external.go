@@ -124,18 +124,22 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// call Accept with the request, enabling developer to add or chack data
-	// before saving to DB
-	err = ext.Accept(res, req)
-	if err != nil {
-		log.Println("[External] error calling Accept:", err)
-		return
-	}
-
 	hook, ok := post.(item.Hookable)
 	if !ok {
 		log.Println("[External] error: Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = hook.BeforeAccept(res, req)
+	if err != nil {
+		log.Println("[External] error calling BeforeAccept:", err)
+		return
+	}
+
+	err = ext.Accept(res, req)
+	if err != nil {
+		log.Println("[External] error calling Accept:", err)
 		return
 	}
 
@@ -148,7 +152,10 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	// set specifier for db bucket in case content is/isn't Trustable
 	var spec string
 
-	// check if the content is Trustable should be auto-approved
+	// check if the content is Trustable should be auto-approved, if so the
+	// content is immediately added to the public content API. If not, then it
+	// is added to a "pending" list, only visible to Admins in the CMS and only
+	// if the type implements editor.Mergable
 	trusted, ok := post.(Trustable)
 	if ok {
 		err := trusted.AutoApprove(res, req)
@@ -174,6 +181,12 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = hook.AfterSave(res, req)
 	if err != nil {
 		log.Println("[External] error calling AfterSave:", err)
+		return
+	}
+
+	err = hook.AfterAccept(res, req)
+	if err != nil {
+		log.Println("[External] error calling AfterAccept:", err)
 		return
 	}
 
