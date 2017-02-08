@@ -42,6 +42,9 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
+	BeforeAccept(http.ResponseWriter, *http.Request) error
+	AfterAccept(http.ResponseWriter, *http.Request) error
+
 	BeforeSave(http.ResponseWriter, *http.Request) error
 	AfterSave(http.ResponseWriter, *http.Request) error
 
@@ -119,6 +122,16 @@ func (i Item) UniqueID() uuid.UUID {
 // partially implements the Identifiable interface
 func (i Item) String() string {
 	return fmt.Sprintf("Item ID: %s", i.UniqueID())
+}
+
+// BeforeAccept is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeAccept(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterAccept is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterAccept(res http.ResponseWriter, req *http.Request) error {
+	return nil
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable
