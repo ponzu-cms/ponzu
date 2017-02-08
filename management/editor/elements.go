@@ -143,6 +143,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 				if (uploadSrc.length > 0) {
 					var ext = uploadSrc.substring(uploadSrc.lastIndexOf('.'));
+					ext = ext.toLowerCase();
 					switch (ext) {
 						case '.jpg':
 						case '.jpeg':
