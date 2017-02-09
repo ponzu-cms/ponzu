@@ -1306,6 +1306,8 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	pendingID := req.FormValue("id")
+
 	t := req.FormValue("type")
 	if strings.Contains(t, "__") {
 		t = strings.Split(t, "__")[0]
@@ -1406,9 +1408,8 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	pendID := req.FormValue("id")
-	if pendID != "" {
-		err = db.DeleteContent(req.FormValue("type")+":"+pendID, req.Form)
+	if pendingID != "" {
+		err = db.DeleteContent(req.FormValue("type")+":"+pendingID, req.Form)
 		if err != nil {
 			log.Println("Failed to remove content after approval:", err)
 		}
