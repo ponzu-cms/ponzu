@@ -90,7 +90,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), res, req, &j)
+	j, err = omit(it(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -139,7 +139,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(pt(), res, req, &j)
+	j, err = omit(pt(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -182,7 +182,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), res, req, &j)
+	j, err = omit(it(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
