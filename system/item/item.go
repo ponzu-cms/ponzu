@@ -71,6 +71,14 @@ type Pushable interface {
 	Push() []string
 }
 
+// Omittable lets a user define certin fields within a content struct to remove
+// from an API response. Helpful when you want data in the CMS, but not entirely
+// shown or available from the content API. All items in the slice should be the
+// json tag names of the struct fields to which they coorespond.
+type Omittable interface {
+	Omit() []string
+}
+
 // Item should only be embedded into content type structs.
 type Item struct {
 	UUID      uuid.UUID `json:"uuid"`
