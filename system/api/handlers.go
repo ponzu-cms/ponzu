@@ -1,16 +1,12 @@
 package api
 
 import (
-	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
@@ -94,6 +90,12 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	j, err = omit(it(), res, req, &j)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
 }
 
@@ -137,6 +139,12 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	j, err = omit(pt(), res, req, &j)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
 }
 
@@ -174,199 +182,11 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	j, err = omit(it(), res, req, &j)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
-}
-
-func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
-	// check if should be hidden
-	if h, ok := it.(item.Hideable); ok {
-		err := h.Hide(res, req)
-		if err == item.ErrAllowHiddenItem {
-			return false
-		}
-
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			return true
-		}
-
-		res.WriteHeader(http.StatusNotFound)
-		return true
-	}
-
-	return false
-}
-
-func fmtJSON(data ...json.RawMessage) ([]byte, error) {
-	var msg = []json.RawMessage{}
-	for _, d := range data {
-		msg = append(msg, d)
-	}
-
-	resp := map[string][]json.RawMessage{
-		"data": msg,
-	}
-
-	var buf = &bytes.Buffer{}
-	enc := json.NewEncoder(buf)
-	err := enc.Encode(resp)
-	if err != nil {
-		log.Println("Failed to encode data to JSON:", err)
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
-}
-
-func toJSON(data []string) ([]byte, error) {
-	var buf = &bytes.Buffer{}
-	enc := json.NewEncoder(buf)
-	resp := map[string][]string{
-		"data": data,
-	}
-
-	err := enc.Encode(resp)
-	if err != nil {
-		log.Println("Failed to encode data to JSON:", err)
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
-}
-
-// sendData should be used any time you want to communicate
-// data back to a foreign client
-func sendData(res http.ResponseWriter, req *http.Request, data []byte) {
-	res.Header().Set("Content-Type", "application/json")
-	res.Header().Set("Vary", "Accept-Encoding")
-
-	_, err := res.Write(data)
-	if err != nil {
-		log.Println("Error writing to response in sendData")
-	}
-}
-
-// sendPreflight is used to respond to a cross-origin "OPTIONS" request
-func sendPreflight(res http.ResponseWriter) {
-	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
-	res.WriteHeader(200)
-	return
-}
-
-func responseWithCORS(res http.ResponseWriter, req *http.Request) (http.ResponseWriter, bool) {
-	if db.ConfigCache("cors_disabled").(bool) == true {
-		// check origin matches config domain
-		domain := db.ConfigCache("domain").(string)
-		origin := req.Header.Get("Origin")
-		u, err := url.Parse(origin)
-		if err != nil {
-			log.Println("Error parsing URL from request Origin header:", origin)
-			return res, false
-		}
-
-		// hack to get dev environments to bypass cors since u.Host (below) will
-		// be empty, based on Go's url.Parse function
-		if domain == "localhost" {
-			domain = ""
-		}
-		origin = u.Host
-
-		// currently, this will check for exact match. will need feedback to
-		// determine if subdomains should be allowed or allow multiple domains
-		// in config
-		if origin == domain {
-			// apply limited CORS headers and return
-			res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-			res.Header().Set("Access-Control-Allow-Origin", domain)
-			return res, true
-		}
-
-		// disallow request
-		res.WriteHeader(http.StatusForbidden)
-		return res, false
-	}
-
-	// apply full CORS headers and return
-	res.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
-
-	return res, true
-}
-
-// CORS wraps a HandlerFunc to respond to OPTIONS requests properly
-func CORS(next http.HandlerFunc) http.HandlerFunc {
-	return db.CacheControl(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		res, cors := responseWithCORS(res, req)
-		if !cors {
-			return
-		}
-
-		if req.Method == http.MethodOptions {
-			sendPreflight(res)
-			return
-		}
-
-		next.ServeHTTP(res, req)
-	}))
-}
-
-// Record wraps a HandlerFunc to record API requests for analytical purposes
-func Record(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		go analytics.Record(req)
-
-		next.ServeHTTP(res, req)
-	})
-}
-
-// Gzip wraps a HandlerFunc to compress responses when possible
-func Gzip(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		if db.ConfigCache("gzip_disabled").(bool) == true {
-			next.ServeHTTP(res, req)
-			return
-		}
-
-		// check if req header content-encoding supports gzip
-		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
-			// gzip response data
-			res.Header().Set("Content-Encoding", "gzip")
-			var gzres gzipResponseWriter
-			if pusher, ok := res.(http.Pusher); ok {
-				gzres = gzipResponseWriter{res, pusher, gzip.NewWriter(res)}
-			} else {
-				gzres = gzipResponseWriter{res, nil, gzip.NewWriter(res)}
-			}
-
-			next.ServeHTTP(gzres, req)
-			return
-		}
-
-		next.ServeHTTP(res, req)
-	})
-}
-
-type gzipResponseWriter struct {
-	http.ResponseWriter
-	pusher http.Pusher
-
-	gw *gzip.Writer
-}
-
-func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
-	defer gzw.gw.Close()
-	return gzw.gw.Write(p)
-}
-
-func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error {
-	if opts == nil {
-		opts = &http.PushOptions{
-			Header: make(http.Header),
-		}
-	}
-
-	opts.Header.Set("Accept-Encoding", "gzip")
-
-	return gzw.pusher.Push(target, opts)
 }
