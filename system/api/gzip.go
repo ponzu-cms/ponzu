@@ -48,6 +48,10 @@ func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
 }
 
 func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error {
+	if gzw.pusher == nil {
+		return nil
+	}
+
 	if opts == nil {
 		opts = &http.PushOptions{
 			Header: make(http.Header),
