@@ -65,7 +65,7 @@ type Hideable interface {
 
 // Pushable lets a user define which values of certain struct fields are
 // 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
-// should be the json tag names of the struct fields to which they coorespond.
+// should be the json tag names of the struct fields to which they correspond.
 type Pushable interface {
 	// the values contained by fields returned by Push must strictly be URL paths
 	Push() []string
@@ -74,7 +74,7 @@ type Pushable interface {
 // Omittable lets a user define certin fields within a content struct to remove
 // from an API response. Helpful when you want data in the CMS, but not entirely
 // shown or available from the content API. All items in the slice should be the
-// json tag names of the struct fields to which they coorespond.
+// json tag names of the struct fields to which they correspond.
 type Omittable interface {
 	Omit() []string
 }
