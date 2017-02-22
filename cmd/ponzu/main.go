@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/ponzu-cms/ponzu/system/admin"
@@ -14,8 +15,6 @@ import (
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/tls"
-
-	"path/filepath"
 
 	_ "github.com/ponzu-cms/ponzu/content"
 )
