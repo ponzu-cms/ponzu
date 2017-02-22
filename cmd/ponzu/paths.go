@@ -2,9 +2,9 @@ package main
 
 import "runtime"
 
-// GetPonzuServerBuildOutputFileName returns de correct
-// ponzu-server file name based on the host Operating System
-func GetPonzuServerBuildOutputFileName() string {
+// buildOutputName returns the correct ponzu-server file name 
+// based on the host Operating System
+func buildOutputName() string {
 	if runtime.GOOS == "windows" {
 		return "ponzu-server.exe"
 	}
