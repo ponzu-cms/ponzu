@@ -15,6 +15,8 @@ import (
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/tls"
 
+	"path/filepath"
+
 	_ "github.com/ponzu-cms/ponzu/content"
 )
 
@@ -146,7 +148,10 @@ func main() {
 			services = "admin,api"
 		}
 
-		serve := exec.Command(buildOutputName(),
+		path := buildOutputPath()
+		name := buildOutputName()
+		buildPathName := strings.Join([]string{path, name}, string(filepath.Separator))
+		serve := exec.Command(buildPathName,
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--httpsport=%d", httpsport),
 			addTLS,
