@@ -302,7 +302,7 @@ func buildPonzuServer(args []string) error {
 	}
 
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
-	buildOptions := []string{"build", "-o", "ponzu-server"}
+	buildOptions := []string{"build", "-o", buildOutputName()}
 	cmdBuildFiles := []string{"main.go", "options.go", "generate.go", "usage.go"}
 	var cmdBuildFilePaths []string
 	for _, file := range cmdBuildFiles {
