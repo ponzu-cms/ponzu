@@ -147,9 +147,8 @@ func main() {
 			services = "admin,api"
 		}
 
-		path := buildOutputPath()
 		name := buildOutputName()
-		buildPathName := strings.Join([]string{path, name}, string(filepath.Separator))
+		buildPathName := strings.Join([]string{".", name}, string(filepath.Separator))
 		serve := exec.Command(buildPathName,
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--httpsport=%d", httpsport),
