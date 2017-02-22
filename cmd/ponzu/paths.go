@@ -11,14 +11,3 @@ func buildOutputName() string {
 
 	return "ponzu-server"
 }
-
-// buildOutputPath returns the correct path to the ponzu-server binary
-// built, based on the host Operating System. This is necessary so that
-// the UNIX-y systems know to look in the current directory, and not the $PATH
-func buildOutputPath() string {
-	if runtime.GOOS == "windows" {
-		return ""
-	}
-
-	return "."
-}
