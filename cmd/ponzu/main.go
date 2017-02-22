@@ -146,7 +146,7 @@ func main() {
 			services = "admin,api"
 		}
 
-		serve := exec.Command(GetPonzuServerBuildOutputFileName(),
+		serve := exec.Command(buildOutputName(),
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--httpsport=%d", httpsport),
 			addTLS,
