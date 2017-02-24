@@ -22,7 +22,7 @@ func getAddon(args []string) error {
 	var addonPath = args[1]
 
 	// Go get
-	cmdOptions = append(cmdOptions, addonPath)
+	cmdOptions = append(cmdOptions, "get", addonPath)
 	get := exec.Command(gocmd, cmdOptions...)
 	get.Stderr = os.Stderr
 	get.Stdout = os.Stdout
