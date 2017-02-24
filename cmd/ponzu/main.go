@@ -276,11 +276,11 @@ func main() {
 			os.Exit(0)
 		}
 
-		/*err := getAddon(args)
+		err := getAddon(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
-		}*/
+		}
 
 	case "":
 		fmt.Println(usage)
