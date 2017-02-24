@@ -88,6 +88,10 @@ func main() {
 		case "version", "v":
 			fmt.Println(usageVersion)
 			os.Exit(0)
+
+		case "add", "a":
+			fmt.Println(usageAdd)
+			os.Exit(0)
 		}
 
 	case "new":
@@ -263,6 +267,13 @@ func main() {
 
 		default:
 			fmt.Println("Input not recognized. No upgrade made. Answer as 'y' or 'n' only.")
+		}
+
+	case "add", "a":
+		// expecting two args, add and the go gettable package uri
+		if len(args) < 2 {
+			fmt.Println(usageAdd)
+			os.Exit(0)
 		}
 
 	case "":
