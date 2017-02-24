@@ -39,18 +39,27 @@ func getAddon(args []string) error {
 	// Copy to ./addons folder
 	// GOPATH can be a list delimited by ":" on Linux or ";" on Windows
 	// `go get` uses the first, this should parse out the first whatever the OS
-	envGOPATH := os.Getenv("GOPATH")
-	gopaths := strings.Split(envGOPATH, ":")
-	gopath := gopaths[0]
-	gopaths = strings.Split(envGOPATH, ";")
-	gopath = gopaths[0]
+	gopath := resolveGOPATH()
 
 	src := filepath.Join(gopath, addonPath)
-	dest := filepath.Join("./addons", addonPath)
+	dest := filepath.Join("addons", addonPath)
 
 	err = copyAll(src, dest)
 	if err != nil {
 		errorFunc(err)
 	}
 	return nil
+}
+
+// GOPATH can be a list delimited by ":" on Linux or ";" on Windows
+// `go get` uses saves packages to the first entry, so this function
+// should parse out the first whatever the OS
+func resolveGOPATH() string {
+
+	envGOPATH := os.Getenv("GOPATH")
+	gopaths := strings.Split(envGOPATH, ":")
+	gopath := gopaths[0]
+	gopaths = strings.Split(envGOPATH, ";")
+	gopath = gopaths[0]
+	return gopath
 }
