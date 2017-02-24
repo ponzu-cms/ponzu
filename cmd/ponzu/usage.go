@@ -171,8 +171,6 @@ var usageAdd = `
 
 	Example:
 	$ ponzu add github.com/bosssauce/fbscheduler
-	(or)
-	$ ponzu --cli add github.com/bosssauce/fbscheduler"
 
 
 `
