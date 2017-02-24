@@ -185,6 +185,7 @@ $ ponzu upgrade
 ### add, a
 
 Downloads an addon to GOPATH/src and copys it to the Ponzu project's ./addons directory.
+Must be called from within a Ponzu project directory.
 
 Example:
 ```bash
