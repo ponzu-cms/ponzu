@@ -37,9 +37,8 @@ func getAddon(args []string) error {
 	}
 
 	// Copy to ./addons folder
-
 	// GOPATH can be a list delimited by ":" on Linux or ";" on Windows
-	// go get uses the first, this should parse out the first whatever the OS
+	// `go get` uses the first, this should parse out the first whatever the OS
 	envGOPATH := os.Getenv("GOPATH")
 	gopaths := strings.Split(envGOPATH, ":")
 	gopath := gopaths[0]
