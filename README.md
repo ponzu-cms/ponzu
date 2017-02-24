@@ -182,6 +182,19 @@ $ ponzu upgrade
 
 ---
 
+### add, a
+
+Downloads an addon to GOPATH/src and copys it to the Ponzu project's ./addons directory.
+
+Example:
+```bash
+$ ponzu add github.com/bosssauce/fbscheduler
+```
+
+Errors will be reported, but successful add commands return nothing.
+
+---
+
 ### version, v
 
 Prints the version of Ponzu your project is using. Must be called from within a 
