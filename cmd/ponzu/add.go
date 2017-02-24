@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -42,7 +43,9 @@ func getAddon(args []string) error {
 	gopath := resolveGOPATH()
 
 	src := filepath.Join(gopath, addonPath)
+	log.Println(src)
 	dest := filepath.Join("addons", addonPath)
+	log.Println(dest)
 
 	err = copyAll(src, dest)
 	if err != nil {
@@ -55,7 +58,6 @@ func getAddon(args []string) error {
 // `go get` uses saves packages to the first entry, so this function
 // should parse out the first whatever the OS
 func resolveGOPATH() string {
-
 	envGOPATH := os.Getenv("GOPATH")
 	gopaths := strings.Split(envGOPATH, ":")
 	gopath := gopaths[0]
