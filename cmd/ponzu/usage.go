@@ -163,7 +163,7 @@ var usageVersion = `
 `
 
 var usageAdd = `
-[--cli] add, d <addon URI>
+[--cli] add, a <addon URI>
 
 	Downloads addon from specified URI to $GOPATH/src and copys it to the
 	current project's ./addons directory. Must be called from within a 

@@ -21,7 +21,7 @@ import (
 
 var (
 	usage = usageHeader + usageNew + usageGenerate +
-		usageBuild + usageRun + usageUpgrade + usageVersion
+		usageBuild + usageRun + usageUpgrade + usageAdd + usageVersion
 	port      int
 	httpsport int
 	https     bool
@@ -275,6 +275,12 @@ func main() {
 			fmt.Println(usageAdd)
 			os.Exit(0)
 		}
+
+		/*err := getAddon(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}*/
 
 	case "":
 		fmt.Println(usage)
