@@ -42,14 +42,18 @@ func getAddon(args []string) error {
 		addError(err)
 	}
 
-	src := filepath.Join(gopath, addonPath)
+	src := filepath.Join(gopath, "src", addonPath)
 	dest := filepath.Join(pwd, "addons", addonPath)
 	log.Println(dest)
 
 	err = os.Mkdir(dest, os.ModeDir|os.ModePerm)
-	err = copyAll(src, dest)
 	if err != nil {
 		addError(err)
+	}
+	err = copyAll(src, dest)
+	if err != nil {
+		log.Println(err)
+		//addError(err)
 	}
 	return nil
 }
