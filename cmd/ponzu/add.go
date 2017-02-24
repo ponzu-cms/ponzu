@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,11 +13,6 @@ import (
 // for IDE auto-import and code completion, then copy entire directory
 // tree to project's ./addons folder
 func getAddon(args []string) error {
-
-	// error return
-	errorFunc := func(err error) error {
-		return errors.New("Ponzu add failed. " + "\n" + err.Error())
-	}
 
 	var cmdOptions []string
 	var addonPath = args[1]
@@ -29,11 +25,11 @@ func getAddon(args []string) error {
 
 	err := get.Start()
 	if err != nil {
-		errorFunc(err)
+		addError(err)
 	}
 	err = get.Wait()
 	if err != nil {
-		errorFunc(err)
+		addError(err)
 	}
 
 	// Copy to ./addons folder
@@ -43,15 +39,17 @@ func getAddon(args []string) error {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		errorFunc(err)
+		addError(err)
 	}
 
 	src := filepath.Join(gopath, addonPath)
 	dest := filepath.Join(pwd, "addons", addonPath)
+	log.Println(dest)
 
+	err = os.Mkdir(dest, os.ModeDir|os.ModePerm)
 	err = copyAll(src, dest)
 	if err != nil {
-		errorFunc(err)
+		addError(err)
 	}
 	return nil
 }
@@ -66,4 +64,9 @@ func resolveGOPATH() string {
 	gopaths = strings.Split(envGOPATH, ";")
 	gopath = gopaths[0]
 	return gopath
+}
+
+// error return
+func addError(err error) error {
+	return errors.New("Ponzu add failed. " + "\n" + err.Error())
 }
