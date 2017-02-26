@@ -56,6 +56,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if user.IsValid(req) == false {
+		log.Println("[Update] invalid user.")
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -64,7 +65,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	ext, ok := post.(Updateable)
 	if !ok {
-		log.Println("[Update] rejected non-replaceable type:", t, "from:", req.RemoteAddr)
+		log.Println("[Update] rejected non-updateable type:", t, "from:", req.RemoteAddr)
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
