@@ -1,6 +1,8 @@
 ![My friend, "Gotoro"](ponzu-banner.png)
 
-# Ponzu
+# Ponzu 
+[![Sourcegraph Badge](https://sourcegraph.com/github.com/ponzu-cms/ponzu/-/badge.svg)](https://sourcegraph.com/github.com/ponzu-cms/ponzu?badge)
+
 Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
 provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via 
 [Let's Encrypt](https://letsencrypt.org)), a useful CMS and scaffolding to 
