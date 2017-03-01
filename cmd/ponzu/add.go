@@ -6,7 +6,9 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -34,9 +36,11 @@ func getAddon(args []string) error {
 	}
 
 	// copy to ./addons folder
-	// GOPATH can be a list delimited by ":" on Linux or ";" on Windows
-	// `go get` uses the first, this should parse out the first whatever the OS
-	gopath := resolveGOPATH()
+	// resolve GOPATH
+	gopath, err := getGOPATH()
+	if err != nil {
+		return addError(err)
+	}
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -56,16 +60,29 @@ func getAddon(args []string) error {
 	return nil
 }
 
-// GOPATH can be a list delimited by ":" on Linux or ";" on Windows
-// `go get` uses saves packages to the first entry, so this function
-// should parse out the first whatever the OS
-func resolveGOPATH() string {
-	envGOPATH := os.Getenv("GOPATH")
-	gopaths := strings.Split(envGOPATH, ":")
-	gopath := gopaths[0]
-	gopaths = strings.Split(envGOPATH, ";")
-	gopath = gopaths[0]
-	return gopath
+// resolve GOPATH. In 1.8 can be default, or custom. A custom GOPATH can
+// also contain multiple paths, in which case 'go get' uses the first
+func getGOPATH() (string, error) {
+	var gopath string
+	gopath = os.Getenv("GOPATH")
+	if gopath == "" {
+		// not set, find the default
+		usr, err := user.Current()
+		if err != nil {
+			return gopath, err
+		}
+		gopath = filepath.Join(usr.HomeDir, "go")
+	} else {
+		// parse out in case of multiple, retain first
+		if runtime.GOOS == "windows" {
+			gopaths := strings.Split(gopath, ";")
+			gopath = gopaths[0]
+		} else {
+			gopaths := strings.Split(gopath, ":")
+			gopath = gopaths[0]
+		}
+	}
+	return gopath, nil
 }
 
 // this is distinct from copyAll() in that files are copied, not moved,
