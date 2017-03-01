@@ -14,11 +14,14 @@ import (
 
 func newProjectInDir(path string) error {
 	// set path to be nested inside $GOPATH/src
-	gopath := os.Getenv("GOPATH")
+	gopath, err := getGOPATH()
+	if err != nil {
+		return err
+	}
 	path = filepath.Join(gopath, "src", path)
 
 	// check if anything exists at the path, ask if it should be overwritten
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	if _, err = os.Stat(path); !os.IsNotExist(err) {
 		fmt.Println("Path exists, overwrite contents? (y/N):")
 
 		answer, err := getAnswer()
@@ -67,7 +70,10 @@ func getAnswer() (string, error) {
 }
 
 func createProjectInDir(path string) error {
-	gopath := os.Getenv("GOPATH")
+	gopath, err := getGOPATH()
+	if err != nil {
+		return err
+	}
 	repo := ponzuRepo
 	local := filepath.Join(gopath, "src", filepath.Join(repo...))
 	network := "https://" + strings.Join(repo, "/") + ".git"
@@ -76,7 +82,7 @@ func createProjectInDir(path string) error {
 	}
 
 	// create the directory or overwrite it
-	err := os.MkdirAll(path, os.ModeDir|os.ModePerm)
+	err = os.MkdirAll(path, os.ModeDir|os.ModePerm)
 	if err != nil {
 		return err
 	}

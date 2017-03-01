@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"time"
 )
@@ -180,7 +179,10 @@ func ponzu(isCLI bool) (map[string]interface{}, error) {
 
 	info := filepath.Join("cmd", "ponzu", "ponzu.json")
 	if isCLI {
-		gopath := os.Getenv("GOPATH")
+		gopath, err := getGOPATH()
+		if err != nil {
+			return nil, err
+		}
 		repo := filepath.Join(gopath, "src", "github.com", "ponzu-cms", "ponzu")
 		info = filepath.Join(repo, "cmd", "ponzu", "ponzu.json")
 	}
