@@ -1,10 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
+	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
 
@@ -15,7 +17,7 @@ func omit(it interface{}, data []byte) ([]byte, error) {
 		return data, nil
 	}
 
-	return omitFields(om, data, "data.0.")
+	return omitFields(om, data, "data")
 }
 
 func omitFields(om item.Omittable, data []byte, pathPrefix string) ([]byte, error) {
@@ -23,15 +25,17 @@ func omitFields(om item.Omittable, data []byte, pathPrefix string) ([]byte, erro
 	fields := om.Omit()
 
 	// remove each field from json, all responses contain json object(s) in top-level "data" array
-	var omitted = data
-	for i := range fields {
-		var err error
-		omitted, err = sjson.DeleteBytes(omitted, pathPrefix+fields[i])
-		if err != nil {
-			log.Println("Erorr omitting field:", fields[i], "from item.Omittable:", om)
-			return nil, err
+	n := int(gjson.GetBytes(data, pathPrefix+".#").Int())
+	for i := 0; i < n; i++ {
+		for k := range fields {
+			var err error
+			data, err = sjson.DeleteBytes(data, fmt.Sprintf("%s.%d.%s", pathPrefix, i, fields[k]))
+			if err != nil {
+				log.Println("Erorr omitting field:", fields[k], "from item.Omittable:", om)
+				return nil, err
+			}
 		}
 	}
 
-	return omitted, nil
+	return data, nil
 }
