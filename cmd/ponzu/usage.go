@@ -162,6 +162,19 @@ var usageVersion = `
 
 `
 
+var usageAdd = `
+add, a <import path>
+
+	Downloads addon from specified import path to $GOPATH/src and copys it to the
+	current project's ./addons directory. Must be called from within a 
+	Ponzu project directory.
+
+	Example:
+	$ ponzu add github.com/bosssauce/fbscheduler
+
+
+`
+
 func ponzu(isCLI bool) (map[string]interface{}, error) {
 	kv := make(map[string]interface{})
 
