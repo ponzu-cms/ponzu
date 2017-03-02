@@ -64,7 +64,7 @@ func UpdateContent(target string, data url.Values) (int, error) {
 
 	err = json.Unmarshal(existingContent, &s)
 	if err != nil {
-		log.Println("Error decoding json while sorting", ns, ":", err)
+		log.Println("Error decoding json while updating", ns, ":", err)
 		return 0, err
 	}
 
