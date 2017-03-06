@@ -52,8 +52,8 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	id := req.URL.Query().Get("id")
-	if id == "" {
-		log.Println("[Update] attempt to submit update with missing id from:", req.RemoteAddr)
+	if !db.IsValidID(id) {
+		log.Println("[Update] attempt to submit update with missing or invalid id from:", req.RemoteAddr)
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -160,7 +160,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	// set specifier for db bucket in case content is/isn't Trustable
 	var spec string
 
-	_, err = db.UpdateContent(t+spec+":"+id, req.PostForm)
+	_, err = db.SetContent(t+spec+":"+id, req.PostForm)
 	if err != nil {
 		log.Println("[Update] error calling UpdateContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
