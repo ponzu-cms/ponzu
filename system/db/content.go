@@ -112,8 +112,8 @@ func mergeData(ns string, data url.Values, existingContent []byte) ([]byte, erro
 	var j []byte
 	t, ok := item.Types[ns]
 	if !ok {
+		log.Println("Type not found from namespace:", ns)
 		return j, errors.New("Invalid type.")
-		// handle
 	}
 
 	// Unmarsal the existing values

@@ -162,7 +162,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	_, err = db.SetContent(t+spec+":"+id, req.PostForm)
 	if err != nil {
-		log.Println("[Update] error calling UpdateContent:", err)
+		log.Println("[Update] error calling SetContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
