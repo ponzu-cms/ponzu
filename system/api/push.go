@@ -7,6 +7,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/tidwall/gjson"
+	"golang.org/x/net/http2"
 )
 
 func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, data []byte) {
@@ -23,8 +24,12 @@ func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, dat
 			for i := range values {
 				val := values[i]
 				val.ForEach(func(k, v gjson.Result) bool {
+					if v.String() == "null" {
+						return true
+					}
+
 					err := pusher.Push(v.String(), nil)
-					if err != nil {
+					if err != nil && err != http2.ErrRecursivePush {
 						log.Println("Error during Push of value:", v.String())
 					}
 

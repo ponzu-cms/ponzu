@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -16,6 +17,15 @@ import (
 	"github.com/gorilla/schema"
 	uuid "github.com/satori/go.uuid"
 )
+
+func IsValidID(id string) bool {
+	// ID should be a non-negative integer.
+	// ID of -1 is special for new posts, not updates.
+	if i, err := strconv.Atoi(id); err != nil || i < 0 {
+		return false
+	}
+	return true
+}
 
 // SetContent inserts or updates values in the database.
 // The `target` argument is a string made up of namespace:id (string:int)
@@ -33,10 +43,16 @@ func SetContent(target string, data url.Values) (int, error) {
 		return insert(ns, data)
 	}
 
-	return update(ns, id, data)
+	// retrieve existing content from the database
+	existingContent, err := Content(target)
+	if err != nil {
+		return 0, err
+	}
+	return update(ns, id, data, &existingContent)
 }
 
-func update(ns, id string, data url.Values) (int, error) {
+// update can support merge or replace behavior
+func update(ns, id string, data url.Values, existingContent *[]byte) (int, error) {
 	var specifier string // i.e. __pending, __sorted, etc.
 	if strings.Contains(ns, "__") {
 		spec := strings.Split(ns, "__")
@@ -49,9 +65,17 @@ func update(ns, id string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	j, err := postToJSON(ns, data)
-	if err != nil {
-		return 0, err
+	var j []byte
+	if existingContent == nil {
+		j, err = postToJSON(ns, data)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		j, err = mergeData(ns, data, *existingContent)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {
@@ -82,6 +106,43 @@ func update(ns, id string, data url.Values) (int, error) {
 	}
 
 	return cid, nil
+}
+
+func mergeData(ns string, data url.Values, existingContent []byte) ([]byte, error) {
+	var j []byte
+	t, ok := item.Types[ns]
+	if !ok {
+		log.Println("Type not found from namespace:", ns)
+		return j, errors.New("Invalid type.")
+	}
+
+	// Unmarsal the existing values
+	s := t()
+	err := json.Unmarshal(existingContent, &s)
+	if err != nil {
+		log.Println("Error decoding json while updating", ns, ":", err)
+		return j, err
+	}
+
+	// Don't allow the Item fields to be updated from form values
+	data.Del("id")
+	data.Del("uuid")
+	data.Del("slug")
+
+	dec := schema.NewDecoder()
+	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+	err = dec.Decode(s, data)
+	if err != nil {
+		return j, err
+	}
+
+	j, err = json.Marshal(s)
+	if err != nil {
+		return j, err
+	}
+
+	return j, nil
 }
 
 func insert(ns string, data url.Values) (int, error) {

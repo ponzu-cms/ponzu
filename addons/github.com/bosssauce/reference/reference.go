@@ -115,7 +115,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs map[string]string, co
 
 func encodeDataToOptions(contentType, tmplString string) (map[string]string, error) {
 	// encode all content type from db into options map
-	// options in form of map["?type=<contentType>&id=<id>"]t.String()
+	// options in form of map["/api/content?type=<contentType>&id=<id>"]t.String()
 	options := make(map[string]string)
 
 	var all map[string]interface{}
@@ -134,7 +134,7 @@ func encodeDataToOptions(contentType, tmplString string) (map[string]string, err
 
 	for i := range data {
 		item := data[i].(map[string]interface{})
-		k := fmt.Sprintf("?type=%s&id=%.0f", contentType, item["id"].(float64))
+		k := fmt.Sprintf("/api/content?type=%s&id=%.0f", contentType, item["id"].(float64))
 		v := &bytes.Buffer{}
 		err := tmpl.Execute(v, item)
 		if err != nil {
