@@ -28,9 +28,19 @@ func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, dat
 						return true
 					}
 
+					// check that the push is not to its parent URL
+					if v.String() == (req.URL.Path + "?" + req.URL.RawQuery) {
+						return true
+					}
+
 					err := pusher.Push(v.String(), nil)
-					if err != nil && err != http2.ErrRecursivePush {
-						log.Println("Error during Push of value:", v.String())
+					// check for error, "http2: recursive push not allowed"
+					// and return, supressing a log message
+					if err != nil && err.Error() == http2.ErrRecursivePush.Error() {
+						return true
+					}
+					if err != nil {
+						log.Println("Error during Push of value:", v.String(), err)
 					}
 
 					return true
