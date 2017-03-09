@@ -1,6 +1,7 @@
 ![My friend, "Gotoro"](ponzu-banner.png)
 
 # Ponzu 
+[![Current Release](https://img.shields.io/github/release/ponzu-cms/ponzu.svg)](https://github.com/ponzu-cms/ponzu/releases/latest)
 [![Sourcegraph Badge](https://sourcegraph.com/github.com/ponzu-cms/ponzu/-/badge.svg)](https://sourcegraph.com/github.com/ponzu-cms/ponzu?badge)
 
 Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
@@ -272,6 +273,7 @@ $ ponzu --dev -fork=github.com/nilslice/ponzu new /path/to/new/project
 - [golang.org/x/text/unicode/norm](https://golang.org/x/text/unicode/norm)
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
+- [golang.org/x/net/http2](https://golang.org/x/net/http2)
 - [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
 - [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
