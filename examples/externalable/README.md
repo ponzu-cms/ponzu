@@ -20,7 +20,7 @@ type Song struct {
 ```
 
 See the file `content/song.go` and read the comments to understand the various
-methods needed to satify required interfaces for this kind of activity.
+methods needed to satisfy required interfaces for this kind of activity.
 
 ### Overview
 1. Implement `api.Externalable` with the `Accept(http.ResponseWriter, *http.Request)` method to allow outside POST requests
