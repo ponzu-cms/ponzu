@@ -2,9 +2,10 @@
 
 This example shows how to enable outside clients to submit content to your CMS.
 All content submitted must be done through a POST request encoded as `multipart/form-data`
+to the API endpoint `/api/content/external?type=<Type>`
 
 ## Song example
-Imagine an app that lets users add Spotif music to a global playlist, and you need them
+Imagine an app that lets users add Spotify music to a global playlist, and you need them
 to supply songs in the format:
 ```go
 type Song struct {
