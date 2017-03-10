@@ -184,6 +184,17 @@ func (s *Song) AfterAccept(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
+// AfterAcceptUpdate is called after AcceptUpdate, and is useful for logging or triggering
+// notifications, etc. after the data is saved to the database, etc.
+// The request has a context containing the databse 'target' affected by the
+// request.
+func (s *Song) AfterAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
+	addr := req.RemoteAddr
+	log.Println("Song updated by:", addr, "titled:", req.PostFormValue("title"))
+
+	return nil
+}
+
 // Approve implements editor.Mergeable, which enables content supplied by external
 // clients to be approved and thus added to the public content API. Before content
 // is approved, it is waiting in the Pending bucket, and can only be approved in
