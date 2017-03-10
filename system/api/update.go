@@ -21,7 +21,6 @@ var ErrNoAuth = errors.New("Auth failed for update request.")
 // /api/content/update?type=Review&id=1
 type Updateable interface {
 	// AcceptUpdate allows external content update submissions of a specific type
-	// user.IsValid(req) may be checked in AcceptUpdate to validate the request
 	AcceptUpdate(http.ResponseWriter, *http.Request) error
 }
 
@@ -139,6 +138,10 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	err = hook.BeforeAcceptUpdate(res, req)
 	if err != nil {
 		log.Println("[Update] error calling BeforeAcceptUpdate:", err)
+		if err == ErrNoAuth {
+			// BeforeAcceptUpdate can check user.IsValid(req) for auth
+			res.WriteHeader(http.StatusUnauthorized)
+		}
 		return
 	}
 
@@ -146,6 +149,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("[Update] error calling AcceptUpdate:", err)
 		if err == ErrNoAuth {
+			// AcceptUpdate can check user.IsValid(req) for auth
 			res.WriteHeader(http.StatusUnauthorized)
 		}
 		return
