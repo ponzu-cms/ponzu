@@ -11,4 +11,5 @@ for this directory.
 
 ### Table of Contents
 1. [Add content via HTTP API using the `api.Externalable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/externalable)
+2. [Update content via HTTP API using the `api.Updateable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/updateable)
 
