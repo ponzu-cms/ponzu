@@ -79,69 +79,6 @@ func init() {
 // String defines the display name of a Song in the CMS list-view
 func (s *Song) String() string { return s.Title }
 
-// Accept implements api.Externalable, and allows external POST requests from clients
-// to add content as long as the request contains the json tag names of the Song
-// struct fields, and is multipart encoded
-func (s *Song) Accept(res http.ResponseWriter, req *http.Request) error {
-	// do form data validation for required fields
-	required := []string{
-		"title",
-		"artist",
-		"rating",
-		"opinion",
-		"spotify_url",
-	}
-
-	for _, r := range required {
-		if req.PostFormValue(r) == "" {
-			err := fmt.Errorf("request missing required field: %s", r)
-			return err
-		}
-	}
-
-	return nil
-}
-
-// BeforeAccept is only called if the Song type implements api.Externalable
-// It is called before Accept, and returning an error will cancel the request
-// causing the system to reject the data sent in the POST
-func (s *Song) BeforeAccept(res http.ResponseWriter, req *http.Request) error {
-	// do initial user authentication here on the request, checking for a
-	// token or cookie, or that certain form fields are set and valid
-
-	// for example, this will check if the request was made by a CMS admin user:
-	if !user.IsValid(req) {
-		addr := req.RemoteAddr
-		err := fmt.Errorf("request rejected, invalid user. IP: %s", addr)
-		return err
-	}
-
-	// you could then to data validation on the request post form, or do it in
-	// the Accept method, which is called after BeforeAccept
-
-	return nil
-}
-
-// BeforeAcceptUpdate is only called if the Song type implements api.Updateable
-// It is called before AcceptUpdate, and returning an error will cancel the request
-// causing the system to reject the data sent in the POST
-func (s *Song) BeforeAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
-	// do initial user authentication here on the request, checking for a
-	// token or cookie, or that certain form fields are set and valid
-
-	// for example, this will check if the request was made by a CMS admin user:
-	if !user.IsValid(req) {
-		addr := req.RemoteAddr
-		err := fmt.Errorf("request rejected, invalid user. IP: %s", addr)
-		return err
-	}
-
-	// you could then to data validation on the request post form, or do it in
-	// the Accept method, which is called after BeforeAccept
-
-	return nil
-}
-
 // AcceptUpdate is called after BeforeAccept and is where you may influence the
 // merge process.  For example, maybe you don't want an empty string for the Title
 // or Artist field to be accepted by the update request.  Updates will always merge
@@ -169,6 +106,26 @@ func (s *Song) AcceptUpdate(res http.ResponseWriter, req *http.Request) error {
 			req.PostForm.Del(k)
 		}
 	}
+
+	return nil
+}
+
+// BeforeAcceptUpdate is only called if the Song type implements api.Updateable
+// It is called before AcceptUpdate, and returning an error will cancel the request
+// causing the system to reject the data sent in the POST
+func (s *Song) BeforeAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
+	// do initial user authentication here on the request, checking for a
+	// token or cookie, or that certain form fields are set and valid
+
+	// for example, this will check if the request was made by a CMS admin user:
+	if !user.IsValid(req) {
+		addr := req.RemoteAddr
+		err := fmt.Errorf("request rejected, invalid user. IP: %s", addr)
+		return err
+	}
+
+	// you could then to data validation on the request post form, or do it in
+	// the Accept method, which is called after BeforeAccept
 
 	return nil
 }
