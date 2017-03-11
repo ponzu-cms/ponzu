@@ -130,56 +130,13 @@ func (s *Song) BeforeAcceptUpdate(res http.ResponseWriter, req *http.Request) er
 	return nil
 }
 
-// AfterAccept is called after Accept, and is useful for logging or triggering
-// notifications, etc. after the data is saved to the database, etc.
-// The request has a context containing the databse 'target' affected by the
-// request. Ex. Song__pending:3 or Song:8 depending if Song implements api.Trustable
-func (s *Song) AfterAccept(res http.ResponseWriter, req *http.Request) error {
-	addr := req.RemoteAddr
-	log.Println("Song sent by:", addr, "titled:", req.PostFormValue("title"))
-
-	return nil
-}
-
 // AfterAcceptUpdate is called after AcceptUpdate, and is useful for logging or triggering
 // notifications, etc. after the data is saved to the database, etc.
 // The request has a context containing the databse 'target' affected by the
 // request.
 func (s *Song) AfterAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
-	log.Println("Song updated by:", addr, "titled:", req.PostFormValue("title"))
-
-	return nil
-}
-
-// Approve implements editor.Mergeable, which enables content supplied by external
-// clients to be approved and thus added to the public content API. Before content
-// is approved, it is waiting in the Pending bucket, and can only be approved in
-// the CMS if the Mergeable interface is satisfied. If not, you will not see this
-// content show up in the CMS.
-func (s *Song) Approve(res http.ResponseWriter, req *http.Request) error {
-	return nil
-}
-
-/*
-   NOTICE: if AutoApprove (seen below) is implemented, the Approve method above will have no
-   effect, except to add the Public / Pending toggle in the CMS UI. Though, no
-   Song content would be in Pending, since all externally submitting Song data
-   is immediately approved.
-*/
-
-// AutoApprove implements api.Trustable, and will automatically approve content
-// that has been submitted by an external client via api.Externalable. Be careful
-// when using AutoApprove, because content will immediately be available through
-// your public content API. If the Trustable interface is satisfied, the AfterApprove
-// method is bypassed. The
-func (s *Song) AutoApprove(res http.ResponseWriter, req *http.Request) error {
-	// Use AutoApprove to check for trust-specific headers or whitelisted IPs,
-	// etc. Remember, you will not be able to Approve or Reject content that
-	// is auto-approved. You could add a field to Song, i.e.
-	// AutoApproved bool `json:auto_approved`
-	// and set that data here, as it is called before the content is saved, but
-	// after the BeforeSave hook.
+	log.Println("Song updated by:", addr)
 
 	return nil
 }
