@@ -136,7 +136,7 @@ func (s *Song) BeforeAcceptUpdate(res http.ResponseWriter, req *http.Request) er
 // request.
 func (s *Song) AfterAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
-	log.Println("Song updated by:", addr)
+	log.Println("Song updated by:", addr, "with title", req.PostFormValue("title"))
 
 	return nil
 }
