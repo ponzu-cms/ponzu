@@ -79,37 +79,6 @@ func init() {
 // String defines the display name of a Song in the CMS list-view
 func (s *Song) String() string { return s.Title }
 
-// AcceptUpdate is called after BeforeAccept and is where you may influence the
-// merge process.  For example, maybe you don't want an empty string for the Title
-// or Artist field to be accepted by the update request.  Updates will always merge
-// with existing values, but by default will accept zero value as an update if sent.
-func (s *Song) AcceptUpdate(res http.ResponseWriter, req *http.Request) error {
-	addr := req.RemoteAddr
-	log.Println("Song update sent by:", addr, "id:", req.URL.Query().Get("id"))
-
-	// On update its fine if fields are missing, but we don't want
-	// title overwritten by a blank or empty string since that would
-	// break the display name.  Artist is also required to be non-blank.
-
-	var required = map[string]interface{}{
-		"title":  nil,
-		"artist": nil,
-	}
-
-	for k, _ := range req.PostForm {
-		blank := (strings.TrimSpace(req.PostFormValue(k)) == "")
-		if _, ok := required[k]; ok && blank {
-			log.Println("Removing blank value for:", k)
-			// We'll just remove the blank values.
-			// Alternately we could return an error to
-			// reject the post.
-			req.PostForm.Del(k)
-		}
-	}
-
-	return nil
-}
-
 // BeforeAcceptUpdate is only called if the Song type implements api.Updateable
 // It is called before AcceptUpdate, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
@@ -130,13 +99,43 @@ func (s *Song) BeforeAcceptUpdate(res http.ResponseWriter, req *http.Request) er
 	return nil
 }
 
+// AcceptUpdate is called after BeforeAccept and is where you may influence the
+// merge process.  For example, maybe you don't want an empty string for the Title
+// or Artist field to be accepted by the update request.  Updates will always merge
+// with existing values, but by default will accept zero value as an update if sent.
+func (s *Song) AcceptUpdate(res http.ResponseWriter, req *http.Request) error {
+	addr := req.RemoteAddr
+	log.Println("Song update sent by:", addr, "id:", req.URL.Query().Get("id"))
+
+	// On update its fine if fields are missing, but we don't want
+	// title overwritten by a blank or empty string since that would
+	// break the display name.  Artist is also required to be non-blank.
+	var required = map[string]interface{}{
+		"title":  nil,
+		"artist": nil,
+	}
+
+	for k, _ := range req.PostForm {
+		blank := (strings.TrimSpace(req.PostFormValue(k)) == "")
+		if _, ok := required[k]; ok && blank {
+			log.Println("Removing blank value for:", k)
+			// We'll just remove the blank values.
+			// Alternately we could return an error to
+			// reject the post.
+			req.PostForm.Del(k)
+		}
+	}
+
+	return nil
+}
+
 // AfterAcceptUpdate is called after AcceptUpdate, and is useful for logging or triggering
 // notifications, etc. after the data is saved to the database, etc.
 // The request has a context containing the databse 'target' affected by the
 // request.
 func (s *Song) AfterAcceptUpdate(res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
-	log.Println("Song updated by:", addr, "with title", req.PostFormValue("title"))
+	log.Println("Song updated by:", addr, "id:", req.URL.Query().Get("id"))
 
 	return nil
 }
