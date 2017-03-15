@@ -27,7 +27,7 @@ type Trustable interface {
 	AutoApprove(http.ResponseWriter, *http.Request) error
 }
 
-func externalContentHandler(res http.ResponseWriter, req *http.Request) {
+func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
