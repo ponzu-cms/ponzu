@@ -78,10 +78,10 @@ func init() {
 // String defines the display name of a Song in the CMS list-view
 func (s *Song) String() string { return s.Title }
 
-// Accept implements api.Externalable, and allows external POST requests from clients
+// Create implements api.Createable, and allows external POST requests from clients
 // to add content as long as the request contains the json tag names of the Song
 // struct fields, and is multipart encoded
-func (s *Song) Accept(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) Create(res http.ResponseWriter, req *http.Request) error {
 	// do form data validation for required fields
 	required := []string{
 		"title",
@@ -101,10 +101,10 @@ func (s *Song) Accept(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
-// BeforeAccept is only called if the Song type implements api.Externalable
-// It is called before Accept, and returning an error will cancel the request
+// BeforeAPICreate is only called if the Song type implements api.Createable
+// It is called before Create, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
-func (s *Song) BeforeAccept(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) BeforeAPICreate(res http.ResponseWriter, req *http.Request) error {
 	// do initial user authentication here on the request, checking for a
 	// token or cookie, or that certain form fields are set and valid
 
@@ -116,16 +116,16 @@ func (s *Song) BeforeAccept(res http.ResponseWriter, req *http.Request) error {
 	}
 
 	// you could then to data validation on the request post form, or do it in
-	// the Accept method, which is called after BeforeAccept
+	// the Create method, which is called after BeforeAPICreate
 
 	return nil
 }
 
-// AfterAccept is called after Accept, and is useful for logging or triggering
+// AfterAPICreate is called after Create, and is useful for logging or triggering
 // notifications, etc. after the data is saved to the database, etc.
 // The request has a context containing the databse 'target' affected by the
 // request. Ex. Song__pending:3 or Song:8 depending if Song implements api.Trustable
-func (s *Song) AfterAccept(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) AfterAPICreate(res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
 	log.Println("Song sent by:", addr, "titled:", req.PostFormValue("title"))
 
@@ -149,7 +149,7 @@ func (s *Song) Approve(res http.ResponseWriter, req *http.Request) error {
 */
 
 // AutoApprove implements api.Trustable, and will automatically approve content
-// that has been submitted by an external client via api.Externalable. Be careful
+// that has been submitted by an external client via api.Createable. Be careful
 // when using AutoApprove, because content will immediately be available through
 // your public content API. If the Trustable interface is satisfied, the AfterApprove
 // method is bypassed. The
