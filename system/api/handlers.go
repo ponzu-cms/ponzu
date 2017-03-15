@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,6 +11,9 @@ import (
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
+
+// ErrNoAuth should be used to report failed auth requests
+var ErrNoAuth = errors.New("Auth failed for request")
 
 // deprecating from API, but going to provide code here in case someone wants it
 func typesHandler(res http.ResponseWriter, req *http.Request) {
