@@ -23,9 +23,9 @@ See the file `content/song.go` and read the comments to understand the various
 methods needed to satisfy required interfaces for this kind of activity.
 
 ### Overview
-1. Implement `api.Createable` with the `Create(http.ResponseWriter, *http.Request)` method to allow outside POST requests
-2. Implement `editor.Mergeable` with the `Approve(http.ResponseWriter, *http.Request)` method so you can control the Approval / Rejection of submitted content OR
-3. Implement `api.Trustable`  with the `AutoApprove(http.ResponseWriter, *http.Request)` method to bypass `Approve` and auto-approve and publish submitted content
+1. Implement `api.Createable` with the `Create(http.ResponseWriter, *http.Request) error` method to allow outside POST requests
+2. Implement `editor.Mergeable` with the `Approve(http.ResponseWriter, *http.Request) error` method so you can control the Approval / Rejection of submitted content OR
+3. Implement `api.Trustable`  with the `AutoApprove(http.ResponseWriter, *http.Request) error` method to bypass `Approve` and auto-approve and publish submitted content
 
 There are various validation and request checks shown in this example as well. 
 Please feel free to modify and submit a PR for updates or bug fixes!

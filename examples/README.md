@@ -10,6 +10,6 @@ feature, it would be very helpful to include an example with a concrete use-case
 for this directory. 
 
 ### Table of Contents
-1. [Add content via HTTP API using the `api.Createable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/createable)
+1. [Create content via HTTP API using the `api.Createable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/createable)
 2. [Update content via HTTP API using the `api.Updateable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/updateable)
-
+3. [Delete content via HTTP API using the `api.Deleteable` interface](https://github.com/ponzu-cms/ponzu/tree/master/examples/deleteable)

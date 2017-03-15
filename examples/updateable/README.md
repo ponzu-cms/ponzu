@@ -23,8 +23,8 @@ See the file `content/song.go` and read the comments to understand the various
 methods needed to satisfy required interfaces for this kind of activity.
 
 ### Overview
-1. Implement `api.Updateable` with the `Update(http.ResponseWriter, *http.Request)` method to allow outside POST requests. 
-2. Consistent with the createable example, authentication can be validated in `BeforeAPIUpdate(http.ResponseWriter, *http.Request)`
+1. Implement `api.Updateable` with the `Update(http.ResponseWriter, *http.Request) error` method to allow outside POST requests. 
+2. Consistent with the createable example, authentication can be validated in `BeforeAPIUpdate(http.ResponseWriter, *http.Request) error`
 
 There are various validation and request checks shown in this example as well. 
 Please feel free to modify and submit a PR for updates or bug fixes!
