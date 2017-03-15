@@ -8,6 +8,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
+	"github.com/ponzu-cms/ponzu/system/api"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
@@ -110,9 +111,7 @@ func (s *Song) BeforeAPICreate(res http.ResponseWriter, req *http.Request) error
 
 	// for example, this will check if the request was made by a CMS admin user:
 	if !user.IsValid(req) {
-		addr := req.RemoteAddr
-		err := fmt.Errorf("request rejected, invalid user. IP: %s", addr)
-		return err
+		return api.ErrNoAuth
 	}
 
 	// you could then to data validation on the request post form, or do it in
