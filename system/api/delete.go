@@ -91,7 +91,7 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.DeleteContent(t+":"+id, req.PostForm)
+	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
 		log.Println("[Delete] error calling DeleteContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
