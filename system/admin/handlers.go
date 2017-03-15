@@ -866,7 +866,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	var hasExt bool
-	_, ok = pt.(api.Externalable)
+	_, ok = pt.(api.Createable)
 	if ok {
 		hasExt = true
 	}
@@ -1409,7 +1409,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if pendingID != "" {
-		err = db.DeleteContent(req.FormValue("type")+":"+pendingID, req.Form)
+		err = db.DeleteContent(req.FormValue("type") + ":" + pendingID)
 		if err != nil {
 			log.Println("Failed to remove content after approval:", err)
 		}
@@ -1757,7 +1757,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = db.DeleteContent(t+":"+id, req.Form)
+	err = db.DeleteContent(t + ":" + id)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)

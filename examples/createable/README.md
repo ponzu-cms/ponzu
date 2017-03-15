@@ -1,8 +1,8 @@
-# Updateable
+# Createable
 
-This example shows how to enable outside clients to update content to your CMS.
+This example shows how to enable outside clients to submit content to your CMS.
 All content submitted must be done through a POST request encoded as `multipart/form-data`
-to the API endpoint `/api/content/update?type=<Type>&id=<id>`
+to the API endpoint `/api/content/create?type=<Type>`
 
 ## Song example
 Imagine an app that lets users add Spotify music to a global playlist, and you need them
@@ -23,9 +23,9 @@ See the file `content/song.go` and read the comments to understand the various
 methods needed to satisfy required interfaces for this kind of activity.
 
 ### Overview
-1. Implement `api.Updateable` with the `Update(http.ResponseWriter, *http.Request)` method to allow outside POST requests. 
-2. Consistent with the createable example, authentication can be validated in `BeforeAPIUpdate(http.ResponseWriter, *http.Request)`
+1. Implement `api.Createable` with the `Create(http.ResponseWriter, *http.Request)` method to allow outside POST requests
+2. Implement `editor.Mergeable` with the `Approve(http.ResponseWriter, *http.Request)` method so you can control the Approval / Rejection of submitted content OR
+3. Implement `api.Trustable`  with the `AutoApprove(http.ResponseWriter, *http.Request)` method to bypass `Approve` and auto-approve and publish submitted content
 
 There are various validation and request checks shown in this example as well. 
 Please feel free to modify and submit a PR for updates or bug fixes!
-

@@ -3,7 +3,6 @@ package content
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"net/http"
 
@@ -80,10 +79,10 @@ func init() {
 // String defines the display name of a Song in the CMS list-view
 func (s *Song) String() string { return s.Title }
 
-// BeforeAPIUpdate is only called if the Song type implements api.Updateable
-// It is called before Update, and returning an error will cancel the request
+// BeforeAPIDelete is only called if the Song type implements api.Deleteable
+// It is called before Delete, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
-func (s *Song) BeforeAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) BeforeAPIDelete(res http.ResponseWriter, req *http.Request) error {
 	// do initial user authentication here on the request, checking for a
 	// token or cookie, or that certain form fields are set and valid
 
@@ -93,48 +92,25 @@ func (s *Song) BeforeAPIUpdate(res http.ResponseWriter, req *http.Request) error
 	}
 
 	// you could then to data validation on the request post form, or do it in
-	// the Update method, which is called after BeforeAPIUpdate
+	// the Delete method, which is called after BeforeAPIDelete
 
 	return nil
 }
 
-// Update is called after BeforeAPIUpdate and is where you may influence the
-// merge process.  For example, maybe you don't want an empty string for the Title
-// or Artist field to be accepted by the update request.  Updates will always merge
-// with existing values, but by default will accept zero value as an update if sent.
-func (s *Song) Update(res http.ResponseWriter, req *http.Request) error {
-	addr := req.RemoteAddr
-	log.Println("Song update sent by:", addr, "id:", req.URL.Query().Get("id"))
-
-	// On update its fine if fields are missing, but we don't want
-	// title overwritten by a blank or empty string since that would
-	// break the display name.  Artist is also required to be non-blank.
-	var required = map[string]interface{}{
-		"title":  nil,
-		"artist": nil,
-	}
-
-	for k, _ := range req.PostForm {
-		blank := (strings.TrimSpace(req.PostFormValue(k)) == "")
-		if _, ok := required[k]; ok && blank {
-			log.Println("Removing blank value for:", k)
-			// We'll just remove the blank values.
-			// Alternately we could return an error to
-			// reject the post.
-			req.PostForm.Del(k)
-		}
-	}
-
+// Delete is called after BeforeAPIDelete and implements api.Deleteable. All
+// other delete-based hooks are only called if this is implemented.
+func (s *Song) Delete(res http.ResponseWriter, req *http.Request) error {
+	// See BeforeAPIDelete above, how we have checked the request for some
+	// form of auth. This could be done here instead, but if it is done once
+	// above, it means the request is valid here too.
 	return nil
 }
 
-// AfterAPIUpdate is called after Update, and is useful for logging or triggering
-// notifications, etc. after the data is saved to the database, etc.
-// The request has a context containing the databse 'target' affected by the
-// request.
-func (s *Song) AfterAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+// AfterAPIDelete is called after Delete, and is useful for logging or triggering
+// notifications, etc. after the data is deleted frm the database, etc.
+func (s *Song) AfterAPIDelete(res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
-	log.Println("Song updated by:", addr, "id:", req.URL.Query().Get("id"))
+	log.Println("Song deleted by:", addr, "id:", req.URL.Query().Get("id"))
 
 	return nil
 }

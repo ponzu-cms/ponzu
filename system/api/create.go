@@ -14,20 +14,20 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
-// Externalable accepts or rejects external POST requests to endpoints such as:
-// /api/content/external?type=Review
-type Externalable interface {
-	// Accept allows external content submissions of a specific type
-	Accept(http.ResponseWriter, *http.Request) error
+// Createable accepts or rejects external POST requests to endpoints such as:
+// /api/content/create?type=Review
+type Createable interface {
+	// Create enables external clients to submit content of a specific type
+	Create(http.ResponseWriter, *http.Request) error
 }
 
 // Trustable allows external content to be auto-approved, meaning content sent
-// as an Externalable will be stored in the public content bucket
+// as an Createable will be stored in the public content bucket
 type Trustable interface {
 	AutoApprove(http.ResponseWriter, *http.Request) error
 }
 
-func externalContentHandler(res http.ResponseWriter, req *http.Request) {
+func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -35,7 +35,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
-		log.Println("[External] error:", err)
+		log.Println("[Create] error:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -48,16 +48,16 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	p, found := item.Types[t]
 	if !found {
-		log.Println("[External] attempt to submit unknown type:", t, "from:", req.RemoteAddr)
+		log.Println("[Create] attempt to submit unknown type:", t, "from:", req.RemoteAddr)
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	post := p()
 
-	ext, ok := post.(Externalable)
+	ext, ok := post.(Createable)
 	if !ok {
-		log.Println("[External] rejected non-externalable type:", t, "from:", req.RemoteAddr)
+		log.Println("[Create] rejected non-createable type:", t, "from:", req.RemoteAddr)
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -126,26 +126,26 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	hook, ok := post.(item.Hookable)
 	if !ok {
-		log.Println("[External] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+		log.Println("[Create] error: Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = hook.BeforeAccept(res, req)
+	err = hook.BeforeAPICreate(res, req)
 	if err != nil {
-		log.Println("[External] error calling BeforeAccept:", err)
+		log.Println("[Create] error calling BeforeAccept:", err)
 		return
 	}
 
-	err = ext.Accept(res, req)
+	err = ext.Create(res, req)
 	if err != nil {
-		log.Println("[External] error calling Accept:", err)
+		log.Println("[Create] error calling Accept:", err)
 		return
 	}
 
 	err = hook.BeforeSave(res, req)
 	if err != nil {
-		log.Println("[External] error calling BeforeSave:", err)
+		log.Println("[Create] error calling BeforeSave:", err)
 		return
 	}
 
@@ -160,7 +160,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	if ok {
 		err := trusted.AutoApprove(res, req)
 		if err != nil {
-			log.Println("[External] error calling AutoApprove:", err)
+			log.Println("[Create] error calling AutoApprove:", err)
 			return
 		}
 	} else {
@@ -169,7 +169,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	id, err := db.SetContent(t+spec+":-1", req.PostForm)
 	if err != nil {
-		log.Println("[External] error calling SetContent:", err)
+		log.Println("[Create] error calling SetContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -180,13 +180,13 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.AfterSave(res, req)
 	if err != nil {
-		log.Println("[External] error calling AfterSave:", err)
+		log.Println("[Create] error calling AfterSave:", err)
 		return
 	}
 
-	err = hook.AfterAccept(res, req)
+	err = hook.AfterAPICreate(res, req)
 	if err != nil {
-		log.Println("[External] error calling AfterAccept:", err)
+		log.Println("[Create] error calling AfterAccept:", err)
 		return
 	}
 
@@ -215,7 +215,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	j, err := json.Marshal(resp)
 	if err != nil {
-		log.Println("[External] error marshalling response to JSON:", err)
+		log.Println("[Create] error marshalling response to JSON:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -223,7 +223,7 @@ func externalContentHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	_, err = res.Write(j)
 	if err != nil {
-		log.Println("[External] error writing response:", err)
+		log.Println("[Create] error writing response:", err)
 		return
 	}
 

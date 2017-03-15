@@ -228,11 +228,25 @@ func insert(ns string, data url.Values) (int, error) {
 
 // DeleteContent removes an item from the database. Deleting a non-existent item
 // will return a nil error.
-func DeleteContent(target string, data url.Values) error {
+func DeleteContent(target string) error {
 	t := strings.Split(target, ":")
 	ns, id := t[0], t[1]
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	b, err := Content(target)
+	if err != nil {
+		return err
+	}
+
+	// get content slug to delete from __contentIndex if it exists
+	// this way content added later can use slugs even if previously
+	// deleted content had used one
+	var itm item.Item
+	err = json.Unmarshal(b, &itm)
+	if err != nil {
+		return err
+	}
+
+	err = store.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ns))
 		if b == nil {
 			return bolt.ErrBucketNotFound
@@ -244,14 +258,13 @@ func DeleteContent(target string, data url.Values) error {
 		}
 
 		// if content has a slug, also delete it from __contentIndex
-		slug := data.Get("slug")
-		if slug != "" {
+		if itm.Slug != "" {
 			ci := tx.Bucket([]byte("__contentIndex"))
 			if ci == nil {
 				return bolt.ErrBucketNotFound
 			}
 
-			err := ci.Delete([]byte(slug))
+			err := ci.Delete([]byte(itm.Slug))
 			if err != nil {
 				return err
 			}
