@@ -866,7 +866,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	var hasExt bool
-	_, ok = pt.(api.Externalable)
+	_, ok = pt.(api.Createable)
 	if ok {
 		hasExt = true
 	}
