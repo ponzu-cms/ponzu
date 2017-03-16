@@ -32,7 +32,7 @@ func setup() {
 
 	// get host/domain and email from Config to use for TLS request to Let's encryption.
 	// we will fail fatally if either are not found since Let's Encrypt will rate-limit
-	// and sending incomplete requests is wasteful and guarenteed to fail its check
+	// and sending incomplete requests is wasteful and guaranteed to fail its check
 	host, err := db.Config("domain")
 	if err != nil {
 		log.Fatalln("Error identifying host/domain during TLS set-up.", err)

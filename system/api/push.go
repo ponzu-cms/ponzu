@@ -35,7 +35,7 @@ func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, dat
 
 					err := pusher.Push(v.String(), nil)
 					// check for error, "http2: recursive push not allowed"
-					// and return, supressing a log message
+					// and return, suppressing a log message
 					if err != nil && err.Error() == http2.ErrRecursivePush.Error() {
 						return true
 					}

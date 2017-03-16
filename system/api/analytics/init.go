@@ -137,7 +137,7 @@ func serve() {
 // ChartData returns the map containing decoded javascript needed to chart RANGE
 // days of data by day
 func ChartData() (map[string]interface{}, error) {
-	// set thresholds for today and the RANGE-1 days preceeding
+	// set thresholds for today and the RANGE-1 days preceding
 	times := [RANGE]time.Time{}
 	dates := [RANGE]string{}
 	now := time.Now()
