@@ -192,7 +192,7 @@ var func = (function() {
 
     /**
      * returns bnd (bounds) from rect
-     * - IE Compatability Issue: http://goo.gl/sRLOAo
+     * - IE Compatibility Issue: http://goo.gl/sRLOAo
      * - Scroll Issue: http://goo.gl/sNjUc
      * @param {Rect} rect
      * @return {Object} bounds
@@ -2248,8 +2248,8 @@ var dom = (function() {
     * @property {Array} [options.toolbar]
     * @property {Boolean} [options.airMode=false]
     * @property {Array} [options.airPopover]
-    * @property {Fucntion} [options.onInit] initialize
-    * @property {Fucntion} [options.onsubmit]
+    * @property {Function} [options.onInit] initialize
+    * @property {Function} [options.onsubmit]
     */
     options: {
       // >>>>>>> CK extra options
@@ -2414,7 +2414,7 @@ var dom = (function() {
 
       fontSizes: ['12', '13', '14', '15', '16', '17', '18', '25', '37'],
 
-      // pallete colors(n x n)
+      // palette colors(n x n)
       colors: [//grey      brown      dpurple    purple     indigo     blue       cyan       green      lgreen     yellow     amber      orange     dorange    red        pink
               ['#fafafa', '#efebe9', '#7e57c2', '#ab47bc', '#5c6bc0', '#42a5f5', '#26c6da', '#66bb6a', '#9ccc65', '#ffee58', '#ffca28', '#ffa726', '#ff7043', '#ef5350', '#ec407a'],
               ['#f5f5f5', '#d7ccc8', '#673ab7', '#9c27b0', '#3f51b5', '#2196f3', '#00bcd4', '#4caf50', '#8bc34a', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#f44336', '#e91e63'],
@@ -2427,7 +2427,7 @@ var dom = (function() {
               ['#424242', '#4e342e', '#651fff', '#d500f9', '#3d5afe', '#2979ff', '#00e5ff', '#00e676', '#76ff03', '#ffea00', '#ffc400', '#ff9100', '#ff3d00', '#ff1744', '#f50057'],
               ['#212121', '#3e2723', '#6200ea', '#aa00ff', '#304ffe', '#2962ff', '#00b8d4', '#00c853', '#64dd17', '#ffd600', '#ffab00', '#ff6d00', '#dd2c00', '#d50000', '#c51162'],
       ],
-      // pallete colors(n x n)
+      // palette colors(n x n)
       colorTitles: [
                //grey            brown             dpurple                 purple             indigo             blue             cyan             green             lgreen                  yellow             amber             orange             dorange                 red             pink
               ['grey lighten5', 'brown lighten5', 'deep-purple lighten1', 'purple lighten1', 'indigo lighten1', 'blue lighten1', 'cyan lighten1', 'green lighten1', 'light-green lighten1', 'yellow lighten1', 'amber lighten1', 'orange lighten1', 'deep-orange lighten1', 'red lighten1', 'pink lighten1'],
@@ -2875,7 +2875,7 @@ var dom = (function() {
      * [workaround] for old jQuery
      * passing an array of style properties to .css()
      * will result in an object of property-value pairs.
-     * (compability with version < 1.9)
+     * (compatibility with version < 1.9)
      *
      * @private
      * @param  {jQuery} $obj
@@ -6865,7 +6865,7 @@ var dom = (function() {
           if (!$.isFunction(buttonInfo)) { continue; }
 
           var $button = $(buttonInfo(langInfo, options));
-          $button.attr('data-name', groupButtons[i]);  // set button's alias, becuase to get button element from $toolbar
+          $button.attr('data-name', groupButtons[i]);  // set button's alias, because to get button element from $toolbar
           $group.append($button);
         }
         $toolbar.append($group);
