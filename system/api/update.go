@@ -161,9 +161,9 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	// set specifier for db bucket in case content is/isn't Trustable
 	var spec string
 
-	_, err = db.SetContent(t+spec+":"+id, req.PostForm)
+	_, err = db.UpdateContent(t+spec+":"+id, req.PostForm)
 	if err != nil {
-		log.Println("[Update] error calling SetContent:", err)
+		log.Println("[Update] error calling UpdateContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

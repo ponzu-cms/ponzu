@@ -3,7 +3,6 @@ package db
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -18,16 +17,18 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// IsValidID checks that an ID from a DB target is valid.
+// ID should be an integer greater than 0.
+// ID of -1 is special for new posts, not updates.
+// IDs start at 1 for auto-incrementing
 func IsValidID(id string) bool {
-	// ID should be a non-negative integer.
-	// ID of -1 is special for new posts, not updates.
-	if i, err := strconv.Atoi(id); err != nil || i < 0 {
+	if i, err := strconv.Atoi(id); err != nil || i < 1 {
 		return false
 	}
 	return true
 }
 
-// SetContent inserts or updates values in the database.
+// SetContent inserts/replaces values in the database.
 // The `target` argument is a string made up of namespace:id (string:int)
 func SetContent(target string, data url.Values) (int, error) {
 	t := strings.Split(target, ":")
@@ -43,6 +44,19 @@ func SetContent(target string, data url.Values) (int, error) {
 		return insert(ns, data)
 	}
 
+	return update(ns, id, data, nil)
+}
+
+// UpdateContent updates/merges values in the database.
+// The `target` argument is a string made up of namespace:id (string:int)
+func UpdateContent(target string, data url.Values) (int, error) {
+	t := strings.Split(target, ":")
+	ns, id := t[0], t[1]
+
+	if !IsValidID(id) {
+		return 0, fmt.Errorf("Invalid ID in target for UpdateContent: %s", target)
+	}
+
 	// retrieve existing content from the database
 	existingContent, err := Content(target)
 	if err != nil {
@@ -51,7 +65,9 @@ func SetContent(target string, data url.Values) (int, error) {
 	return update(ns, id, data, &existingContent)
 }
 
-// update can support merge or replace behavior
+// update can support merge or replace behavior depending on existingContent.
+// if existingContent is non-nil, we merge field values. empty/missing fields are ignored.
+// if existingContent is nil, we replace field values. empty/missing fields are reset.
 func update(ns, id string, data url.Values, existingContent *[]byte) (int, error) {
 	var specifier string // i.e. __pending, __sorted, etc.
 	if strings.Contains(ns, "__") {
@@ -112,8 +128,7 @@ func mergeData(ns string, data url.Values, existingContent []byte) ([]byte, erro
 	var j []byte
 	t, ok := item.Types[ns]
 	if !ok {
-		log.Println("Type not found from namespace:", ns)
-		return j, errors.New("Invalid type.")
+		return nil, fmt.Errorf("namespace type not found:", ns)
 	}
 
 	// Unmarsal the existing values
