@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/ponzu-cms/ponzu/system/item"
 )
 
 // StoreFiles stores file uploads at paths like /YYYY/MM/filename.ext
@@ -50,7 +52,11 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 
 	// loop over all files and save them to disk
 	for name, fds := range req.MultipartForm.File {
-		filename := fds[0].Filename
+		filename, err := item.NormalizeString(fds[0].Filename)
+		if err != nil {
+			return nil, err
+		}
+
 		src, err := fds[0].Open()
 		if err != nil {
 			err := fmt.Errorf("Couldn't open uploaded file: %s", err)
