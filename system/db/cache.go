@@ -16,7 +16,7 @@ func CacheControl(next http.Handler) http.HandlerFunc {
 			res.Header().Add("Cache-Control", "no-cache")
 			next.ServeHTTP(res, req)
 		} else {
-			age := ConfigCache("cache_max_age").(int64)
+			age := int64(ConfigCache("cache_max_age").(float64))
 			etag := ConfigCache("etag").(string)
 			if age == 0 {
 				age = DefaultMaxAge
