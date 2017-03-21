@@ -13,6 +13,11 @@ import (
 	"github.com/gorilla/schema"
 )
 
+const (
+	// DefaultMaxAge provides a 2592000 second (30-day) cache max-age setting
+	DefaultMaxAge = int64(60 * 60 * 24 * 30)
+)
+
 var configCache map[string]interface{}
 
 func init() {
