@@ -156,6 +156,7 @@ func setFieldView(field *generateField, viewType string) error {
 
 	switch strings.ToLower(viewType) {
 	case "hidden":
+		tmpl, err = tmplFrom("gen-hidden.tmpl")
 	case "textarea":
 	case "richtext":
 	case "select":
@@ -165,6 +166,7 @@ func setFieldView(field *generateField, viewType string) error {
 	case "file":
 	case "tags":
 	case "custom":
+		tmpl, err = tmplFrom("gen-custom.tmpl")
 	default:
 		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.")
 		fmt.Println(msg)
