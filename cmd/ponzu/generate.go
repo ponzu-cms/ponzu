@@ -37,7 +37,7 @@ func parseType(args []string) (generateType, error) {
 
 	fields := args[1:]
 	for _, field := range fields {
-		f, err := parseField(field)
+		f, err := parseField(field, t)
 		if err != nil {
 			return generateType{}, err
 		}
@@ -52,18 +52,17 @@ func parseType(args []string) (generateType, error) {
 	return t, nil
 }
 
-func parseField(raw string) (generateField, error) {
+func parseField(raw string, gt generateType) (generateField, error) {
 	// contents:string or // contents:string:richtext
 	if !strings.Contains(raw, ":") {
 		return generateField{}, fmt.Errorf("Invalid generate argument. [%s]", raw)
 	}
 
 	data := strings.Split(raw, ":")
-	name := fieldName(data[0])
 
 	field := generateField{
-		Name:     name,
-		Initial:  strings.ToLower(string(name[0])),
+		Name:     fieldName(data[0]),
+		Initial:  gt.Initial,
 		TypeName: strings.ToLower(data[1]),
 		JSONName: fieldJSONName(data[0]),
 	}
