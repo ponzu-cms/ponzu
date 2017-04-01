@@ -154,21 +154,28 @@ func setFieldView(field *generateField, viewType string) error {
 		return template.ParseFiles(filepath.Join(tmplDir, filename))
 	}
 
-	switch strings.ToLower(viewType) {
-	case "hidden":
-		tmpl, err = tmplFrom("gen-hidden.tmpl")
-	case "textarea":
-	case "richtext":
-	case "select":
-	case "input":
-		tmpl, err = tmplFrom("gen-input.tmpl")
+	viewType = strings.ToLower(viewType)
+	switch viewType {
 	case "checkbox":
-	case "file":
-	case "tags":
+		tmpl, err = tmplFrom("gen-checkbox.tmpl")
 	case "custom":
 		tmpl, err = tmplFrom("gen-custom.tmpl")
+	case "file":
+		tmpl, err = tmplFrom("gen-file.tmpl")
+	case "hidden":
+		tmpl, err = tmplFrom("gen-hidden.tmpl")
+	case "input", "text":
+		tmpl, err = tmplFrom("gen-input.tmpl")
+	case "richtext":
+		tmpl, err = tmplFrom("gen-richtext.tmpl")
+	case "select":
+		tmpl, err = tmplFrom("gen-select.tmpl")
+	case "textarea":
+		tmpl, err = tmplFrom("gen-textarea.tmpl")
+	case "tags":
+		tmpl, err = tmplFrom("gen-tags.tmpl")
 	default:
-		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.")
+		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.", viewType)
 		fmt.Println(msg)
 		tmpl, err = tmplFrom("gen-input.tmpl")
 	}
