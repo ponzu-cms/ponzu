@@ -59,20 +59,23 @@ func parseField(raw string) (generateField, error) {
 	}
 
 	data := strings.Split(raw, ":")
-	view := `nil`
+	name := fieldName(data[0])
 
 	field := generateField{
-		Name:     fieldName(data[0]),
+		Name:     name,
+		Initial:  string(name[0]),
 		TypeName: strings.ToLower(data[1]),
 		JSONName: fieldJSONName(data[0]),
-		View:     view,
 	}
 
+	fieldType := "input"
 	if len(data) == 3 {
-		err := setFieldView(&field, data[2])
-		if err != nil {
-			return generateField{}, err
-		}
+		fieldType = data[2]
+	}
+
+	err := setFieldView(&field, fieldType)
+	if err != nil {
+		return generateField{}, err
 	}
 
 	return field, nil
@@ -153,6 +156,7 @@ func setFieldView(field *generateField, viewType string) error {
 	}
 
 	switch strings.ToLower(viewType) {
+	case "hidden":
 	case "textarea":
 	case "richtext":
 	case "select":
@@ -161,6 +165,7 @@ func setFieldView(field *generateField, viewType string) error {
 	case "checkbox":
 	case "file":
 	case "tags":
+	case "custom":
 	default:
 		tmpl, err = tmplFrom("gen-input.tmpl")
 	}
