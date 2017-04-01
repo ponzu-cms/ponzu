@@ -63,7 +63,7 @@ func parseField(raw string) (generateField, error) {
 
 	field := generateField{
 		Name:     name,
-		Initial:  string(name[0]),
+		Initial:  strings.ToLower(string(name[0])),
 		TypeName: strings.ToLower(data[1]),
 		JSONName: fieldJSONName(data[0]),
 	}
