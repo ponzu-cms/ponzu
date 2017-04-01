@@ -166,6 +166,8 @@ func setFieldView(field *generateField, viewType string) error {
 	case "tags":
 	case "custom":
 	default:
+		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.")
+		fmt.Println(msg)
 		tmpl, err = tmplFrom("gen-input.tmpl")
 	}
 
