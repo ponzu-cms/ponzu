@@ -20,13 +20,9 @@ func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form({{ .Initial }},
         // Take note that the first argument to these Input-like functions 
         // is the string version of each {{ .Name }} field, and must follow 
-        // this pattern for auto-decoding and auto-encoding reasons:{{ $initial := .Initial }}
+        // this pattern for auto-decoding and auto-encoding reasons:
         {{ range .Fields }}editor.Field{
-			View: editor.Input("{{ .Name }}", {{ $initial }}, map[string]string{
-				"label":       "{{ .Name }}",
-				"type":        "text",
-				"placeholder": "Enter the {{ .Name }} here",
-			}),
+			{{ .View }}
 		},
 		{{ end }}
 	)

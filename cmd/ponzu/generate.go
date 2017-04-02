@@ -18,8 +18,10 @@ type generateType struct {
 
 type generateField struct {
 	Name     string
+	Initial  string
 	TypeName string
 	JSONName string
+	View     string
 }
 
 // blog title:string Author:string PostCategory:string content:string some_thing:int
@@ -31,10 +33,14 @@ func parseType(args []string) (generateType, error) {
 
 	fields := args[1:]
 	for _, field := range fields {
-		f, err := parseField(field)
+		f, err := parseField(field, t)
 		if err != nil {
 			return generateType{}, err
 		}
+		// NEW
+		// set initial (1st character of the type's name) on field so we don't need
+		// to set the template variable like was done in prior version
+		f.Initial = t.Initial
 
 		t.Fields = append(t.Fields, f)
 	}
@@ -42,17 +48,29 @@ func parseType(args []string) (generateType, error) {
 	return t, nil
 }
 
-func parseField(raw string) (generateField, error) {
-	// title:string
+func parseField(raw string, gt generateType) (generateField, error) {
+	// contents:string or // contents:string:richtext
 	if !strings.Contains(raw, ":") {
 		return generateField{}, fmt.Errorf("Invalid generate argument. [%s]", raw)
 	}
 
-	pair := strings.Split(raw, ":")
+	data := strings.Split(raw, ":")
+
 	field := generateField{
-		Name:     fieldName(pair[0]),
-		TypeName: strings.ToLower(pair[1]),
-		JSONName: fieldJSONName(pair[0]),
+		Name:     fieldName(data[0]),
+		Initial:  gt.Initial,
+		TypeName: strings.ToLower(data[1]),
+		JSONName: fieldJSONName(data[0]),
+	}
+
+	fieldType := "input"
+	if len(data) == 3 {
+		fieldType = data[2]
+	}
+
+	err := setFieldView(&field, fieldType)
+	if err != nil {
+		return generateField{}, err
 	}
 
 	return field, nil
@@ -116,6 +134,62 @@ func fieldJSONName(name string) string {
 	return name
 }
 
+// set the specified view inside the editor field for a generated field for a type
+func setFieldView(field *generateField, viewType string) error {
+	var err error
+	var tmpl *template.Template
+	buf := &bytes.Buffer{}
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	tmplDir := filepath.Join(pwd, "cmd", "ponzu", "templates")
+	tmplFrom := func(filename string) (*template.Template, error) {
+		return template.ParseFiles(filepath.Join(tmplDir, filename))
+	}
+
+	viewType = strings.ToLower(viewType)
+	switch viewType {
+	case "checkbox":
+		tmpl, err = tmplFrom("gen-checkbox.tmpl")
+	case "custom":
+		tmpl, err = tmplFrom("gen-custom.tmpl")
+	case "file":
+		tmpl, err = tmplFrom("gen-file.tmpl")
+	case "hidden":
+		tmpl, err = tmplFrom("gen-hidden.tmpl")
+	case "input", "text":
+		tmpl, err = tmplFrom("gen-input.tmpl")
+	case "richtext":
+		tmpl, err = tmplFrom("gen-richtext.tmpl")
+	case "select":
+		tmpl, err = tmplFrom("gen-select.tmpl")
+	case "textarea":
+		tmpl, err = tmplFrom("gen-textarea.tmpl")
+	case "tags":
+		tmpl, err = tmplFrom("gen-tags.tmpl")
+	default:
+		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.", viewType)
+		fmt.Println(msg)
+		tmpl, err = tmplFrom("gen-input.tmpl")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.Execute(buf, field)
+	if err != nil {
+		return err
+	}
+
+	field.View = buf.String()
+
+	return nil
+}
+
 func isUpper(char rune) bool {
 	if char >= 'A' && char <= 'Z' {
 		return true
@@ -163,7 +237,7 @@ func generateContentType(args []string) error {
 		return fmt.Errorf("Failed to parse type args: %s", err.Error())
 	}
 
-	tmplPath := filepath.Join(pwd, "cmd", "ponzu", "contentType.tmpl")
+	tmplPath := filepath.Join(pwd, "cmd", "ponzu", "templates", "gen-content.tmpl")
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("Failed to parse template: %s", err.Error())
