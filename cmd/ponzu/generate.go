@@ -24,10 +24,6 @@ type generateField struct {
 	View     string
 }
 
-// following the type, an optional third param could designate the editor.Input-like
-// func to call which would output different text based on the element returned
-// blog title:string Author:string PostCategory:string content:string:richtext some_thing:int
-
 // blog title:string Author:string PostCategory:string content:string some_thing:int
 func parseType(args []string) (generateType, error) {
 	t := generateType{
