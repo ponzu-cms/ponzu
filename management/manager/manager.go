@@ -39,7 +39,10 @@ const managerHTML = `
 						hour = hour + 12;
 					}
 
-				var date = new Date(year, month, day, hour, minute);
+				// add seconds to Date() to differentiate times more precisely,
+				// although not 100% accurately
+				var sec = (new Date()).getSeconds();
+				var date = new Date(year, month, day, hour, minute, sec);
 				
 				$ts.val(date.getTime());
 			}
