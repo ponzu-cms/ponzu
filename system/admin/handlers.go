@@ -941,8 +941,13 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 										var path = window.location.pathname;
 										var s = sort.val();
 										var t = getParam('type');
+										var status = getParam('status');
 
-										window.location.replace(path + '?type=' + t + '&order=' + s)
+										if (status == "") {
+											status = "public";
+										}
+
+										window.location.replace(path + '?type=' + t + '&order=' + s + '&status=' + status);
 									});
 
 									var order = getParam('order');
