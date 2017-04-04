@@ -459,7 +459,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 		i := 0   // count of num posts added
 		cur := 0 // count of num cursor moves
 		switch opts.Order {
-		case "asc":
+		case "desc", "":
 			for k, v := c.Last(); k != nil; k, v = c.Prev() {
 				if cur < start {
 					cur++
@@ -475,7 +475,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 				cur++
 			}
 
-		case "desc", "":
+		case "asc":
 			for k, v := c.First(); k != nil; k, v = c.Next() {
 				if cur < start {
 					cur++
@@ -493,7 +493,7 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 
 		default:
 			// results for DESC order
-			for k, v := c.First(); k != nil; k, v = c.Next() {
+			for k, v := c.Last(); k != nil; k, v = c.Prev() {
 				if cur < start {
 					cur++
 					continue
