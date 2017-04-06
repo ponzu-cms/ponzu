@@ -1,11 +1,13 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
+	"github.com/ponzu-cms/ponzu/system/item"
 )
 
 // Search tracks all search indices to use throughout system
@@ -23,11 +25,19 @@ func init() {
 // MapIndex creates the mapping for a type and tracks the index to be used within
 // the system for adding/deleting/checking data
 func MapIndex(typeName string) error {
-	// TODO: type assert for Searchable, get configuration (which can be overridden)
+	// type assert for Searchable, get configuration (which can be overridden)
 	// by Ponzu user if defines own SearchMapping()
+	it, ok := item.Types[typeName]
+	if !ok {
+		return fmt.Errorf("Failed to MapIndex for %s, type doesn't exist", typeName)
+	}
+	s, ok := it().(Searchable)
+	if !ok {
+		return fmt.Errorf("Item type %s doesn't implement db.Searchable", typeName)
+	}
 
-	mapping := bleve.NewIndexMapping()
-	mapping.StoreDynamic = false
+	mapping := s.SearchMapping()
+
 	idxName := typeName + ".index"
 	var idx bleve.Index
 
