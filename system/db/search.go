@@ -28,7 +28,7 @@ func MapIndex(typeName string) error {
 
 	mapping := bleve.NewIndexMapping()
 	mapping.StoreDynamic = false
-	idxPath := typeName + ".index"
+	idxName := typeName + ".index"
 	var idx bleve.Index
 
 	// check if index exists, use it or create new one
@@ -44,7 +44,8 @@ func MapIndex(typeName string) error {
 		return err
 	}
 
-	if _, err = os.Stat(filepath.Join(searchPath, idxPath)); os.IsNotExist(err) {
+	idxPath := filepath.Join(searchPath, idxName)
+	if _, err = os.Stat(idxPath); os.IsNotExist(err) {
 		idx, err = bleve.New(idxPath, mapping)
 		if err != nil {
 			return err
