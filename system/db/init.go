@@ -80,6 +80,12 @@ func Init() {
 
 	go func() {
 		for t := range item.Types {
+			err := MapIndex(t)
+			if err != nil {
+				log.Fatalln("[search] Error:", err)
+				return
+			}
+
 			SortContent(t)
 		}
 	}()
