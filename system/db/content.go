@@ -123,7 +123,7 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 
 	// add data to search index
 	target := fmt.Sprintf("%s:%s", ns, id)
-	err = Search[ns].Index(target, j)
+	err = Search[ns].Index(target, string(j))
 	if err != nil {
 		return 0, err
 	}
@@ -249,7 +249,7 @@ func insert(ns string, data url.Values) (int, error) {
 
 	// add data to search index
 	target := fmt.Sprintf("%s:%s", ns, cid)
-	err = Search[ns].Index(target, j)
+	err = Search[ns].Index(target, string(j))
 	if err != nil {
 		return 0, err
 	}
