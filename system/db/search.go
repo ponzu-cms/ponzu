@@ -5,10 +5,16 @@ import (
 	"path/filepath"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/mapping"
 )
 
 // Search tracks all search indices to use throughout system
 var Search map[string]bleve.Index
+
+// Searchable ...
+type Searchable interface {
+	SearchMapping() *mapping.IndexMappingImpl
+}
 
 func init() {
 	Search = make(map[string]bleve.Index)
@@ -17,9 +23,12 @@ func init() {
 // MapIndex creates the mapping for a type and tracks the index to be used within
 // the system for adding/deleting/checking data
 func MapIndex(typeName string) error {
+	// TODO: type assert for Searchable, get configuration (which can be overridden)
+	// by Ponzu user if defines own SearchMapping()
+
 	mapping := bleve.NewIndexMapping()
 	mapping.StoreDynamic = false
-	idxFile := typeName + ".index"
+	idxPath := typeName + ".index"
 	var idx bleve.Index
 
 	// check if index exists, use it or create new one
@@ -27,13 +36,21 @@ func MapIndex(typeName string) error {
 	if err != nil {
 		return err
 	}
-	if _, err = os.Stat(filepath.Join(pwd, idxFile)); os.IsNotExist(err) {
-		idx, err = bleve.New(idxFile, mapping)
+
+	searchPath := filepath.Join(pwd, "search")
+
+	err = os.MkdirAll(searchPath, os.ModeDir|os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	if _, err = os.Stat(filepath.Join(searchPath, idxPath)); os.IsNotExist(err) {
+		idx, err = bleve.New(idxPath, mapping)
 		if err != nil {
 			return err
 		}
 	} else {
-		idx, err = bleve.Open(idxFile)
+		idx, err = bleve.Open(idxPath)
 		if err != nil {
 			return err
 		}

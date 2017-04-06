@@ -121,6 +121,13 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 		return 0, err
 	}
 
+	// add data to search index
+	target := fmt.Sprintf("%s:%s", ns, id)
+	err = Search[ns].Index(target, j)
+	if err != nil {
+		return 0, err
+	}
+
 	return cid, nil
 }
 
@@ -169,6 +176,8 @@ func insert(ns string, data url.Values) (int, error) {
 		specifier = "__" + spec[1]
 	}
 
+	var j []byte
+	var cid string
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
@@ -181,7 +190,7 @@ func insert(ns string, data url.Values) (int, error) {
 		if err != nil {
 			return err
 		}
-		cid := strconv.FormatUint(id, 10)
+		cid = strconv.FormatUint(id, 10)
 		effectedID, err = strconv.Atoi(cid)
 		if err != nil {
 			return err
@@ -197,7 +206,7 @@ func insert(ns string, data url.Values) (int, error) {
 			data.Set("__specifier", specifier)
 		}
 
-		j, err := postToJSON(ns, data)
+		j, err = postToJSON(ns, data)
 		if err != nil {
 			return err
 		}
@@ -234,6 +243,13 @@ func insert(ns string, data url.Values) (int, error) {
 
 	// insert changes data, so invalidate client caching
 	err = InvalidateCache()
+	if err != nil {
+		return 0, err
+	}
+
+	// add data to search index
+	target := fmt.Sprintf("%s:%s", ns, cid)
+	err = Search[ns].Index(target, j)
 	if err != nil {
 		return 0, err
 	}
