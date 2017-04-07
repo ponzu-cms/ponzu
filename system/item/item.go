@@ -212,11 +212,11 @@ func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
 
 // SearchMapping returns a default implementation of a Bleve IndexMappingImpl
 // partially implements db.Searchable
-func (i Item) SearchMapping() *mapping.IndexMappingImpl {
+func (i Item) SearchMapping() (*mapping.IndexMappingImpl, error) {
 	mapping := bleve.NewIndexMapping()
 	mapping.StoreDynamic = false
 
-	return mapping
+	return mapping, nil
 }
 
 // Slug returns a URL friendly string from the title of a post item

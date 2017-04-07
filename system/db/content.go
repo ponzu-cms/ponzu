@@ -121,9 +121,8 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 		return 0, err
 	}
 
-	// add data to search index
 	target := fmt.Sprintf("%s:%s", ns, id)
-	err = Search[ns].Index(target, string(j))
+	err = UpdateSearchIndex(target, string(j))
 	if err != nil {
 		return 0, err
 	}
@@ -135,7 +134,7 @@ func mergeData(ns string, data url.Values, existingContent []byte) ([]byte, erro
 	var j []byte
 	t, ok := item.Types[ns]
 	if !ok {
-		return nil, fmt.Errorf("namespace type not found:", ns)
+		return nil, fmt.Errorf("Namespace type not found: %s", ns)
 	}
 
 	// Unmarsal the existing values
@@ -247,9 +246,8 @@ func insert(ns string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	// add data to search index
 	target := fmt.Sprintf("%s:%s", ns, cid)
-	err = Search[ns].Index(target, string(j))
+	err = UpdateSearchIndex(target, string(j))
 	if err != nil {
 		return 0, err
 	}
@@ -311,6 +309,15 @@ func DeleteContent(target string) error {
 	err = InvalidateCache()
 	if err != nil {
 		return err
+	}
+
+	// delete indexed data from search index
+	if !strings.Contains(ns, "__") {
+		target = fmt.Sprintf("%s:%s", ns, id)
+		err = DeleteSearchIndex(target)
+		if err != nil {
+			return err
+		}
 	}
 
 	// exception to typical "run in goroutine" pattern:

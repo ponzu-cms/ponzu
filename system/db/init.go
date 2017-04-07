@@ -80,7 +80,7 @@ func Init() {
 
 	go func() {
 		for t := range item.Types {
-			err := MapIndex(t)
+			err := MapSearchIndex(t)
 			if err != nil {
 				log.Fatalln("[search] Error:", err)
 				return
