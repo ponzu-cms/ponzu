@@ -10,9 +10,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ponzu-cms/ponzu/system/item"
+
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
-	"github.com/ponzu-cms/ponzu/system/item"
 	uuid "github.com/satori/go.uuid"
 )
 
