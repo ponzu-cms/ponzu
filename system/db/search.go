@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,8 +12,13 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
-// Search tracks all search indices to use throughout system
-var Search map[string]bleve.Index
+var (
+	// Search tracks all search indices to use throughout system
+	Search map[string]bleve.Index
+
+	// ErrNoSearchIndex is for failed checks for an index in Search map
+	ErrNoSearchIndex = errors.New("No search index found for type provided")
+)
 
 // Searchable ...
 type Searchable interface {
@@ -30,11 +36,11 @@ func MapSearchIndex(typeName string) error {
 	// by Ponzu user if defines own SearchMapping()
 	it, ok := item.Types[typeName]
 	if !ok {
-		return fmt.Errorf("Failed to MapIndex for %s, type doesn't exist", typeName)
+		return fmt.Errorf("[search] MapSearchIndex Error: Failed to MapIndex for %s, type doesn't exist", typeName)
 	}
 	s, ok := it().(Searchable)
 	if !ok {
-		return fmt.Errorf("Item type %s doesn't implement db.Searchable", typeName)
+		return fmt.Errorf("[search] MapSearchIndex Error: Item type %s doesn't implement db.Searchable", typeName)
 	}
 
 	mapping, err := s.SearchMapping()
@@ -67,6 +73,7 @@ func MapSearchIndex(typeName string) error {
 		if err != nil {
 			return err
 		}
+		idx.SetName(idxName)
 	} else {
 		idx, err = bleve.Open(idxPath)
 		if err != nil {
@@ -110,4 +117,28 @@ func DeleteSearchIndex(id string) error {
 	}
 
 	return nil
+}
+
+// SearchType conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
+// and an error. If there is no search index for the typeName (Type) provided,
+// db.ErrNoSearchIndex will be returned as the error
+func SearchType(typeName, query string) ([]string, error) {
+	idx, ok := Search[typeName]
+	if !ok {
+		return nil, ErrNoSearchIndex
+	}
+
+	q := bleve.NewQueryStringQuery(query)
+	req := bleve.NewSearchRequest(q)
+	res, err := idx.Search(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []string
+	for _, hit := range res.Hits {
+		results = append(results, hit.ID)
+	}
+
+	return results, nil
 }

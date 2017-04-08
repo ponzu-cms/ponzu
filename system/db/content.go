@@ -10,10 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ponzu-cms/ponzu/system/item"
-
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
+	"github.com/ponzu-cms/ponzu/system/item"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -121,11 +120,14 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 		return 0, err
 	}
 
-	target := fmt.Sprintf("%s:%s", ns, id)
-	err = UpdateSearchIndex(target, string(j))
-	if err != nil {
-		return 0, err
-	}
+	go func() {
+		// update data in search index
+		target := fmt.Sprintf("%s:%s", ns, id)
+		err = UpdateSearchIndex(target, string(j))
+		if err != nil {
+			log.Println("[search] UpdateSearchIndex Error:", err)
+		}
+	}()
 
 	return cid, nil
 }
@@ -246,11 +248,14 @@ func insert(ns string, data url.Values) (int, error) {
 		return 0, err
 	}
 
-	target := fmt.Sprintf("%s:%s", ns, cid)
-	err = UpdateSearchIndex(target, string(j))
-	if err != nil {
-		return 0, err
-	}
+	go func() {
+		// add data to seach index
+		target := fmt.Sprintf("%s:%s", ns, cid)
+		err = UpdateSearchIndex(target, string(j))
+		if err != nil {
+			log.Println("[search] UpdateSearchIndex Error:", err)
+		}
+	}()
 
 	return effectedID, nil
 }
@@ -311,14 +316,16 @@ func DeleteContent(target string) error {
 		return err
 	}
 
-	// delete indexed data from search index
-	if !strings.Contains(ns, "__") {
-		target = fmt.Sprintf("%s:%s", ns, id)
-		err = DeleteSearchIndex(target)
-		if err != nil {
-			return err
+	go func() {
+		// delete indexed data from search index
+		if !strings.Contains(ns, "__") {
+			target = fmt.Sprintf("%s:%s", ns, id)
+			err = DeleteSearchIndex(target)
+			if err != nil {
+				log.Println("[search] DeleteSearchIndex Error:", err)
+			}
 		}
-	}
+	}()
 
 	// exception to typical "run in goroutine" pattern:
 	// we want to have an updated admin view as soon as this is deleted, so
@@ -355,6 +362,23 @@ func Content(target string) ([]byte, error) {
 	}
 
 	return val.Bytes(), nil
+}
+
+// ContentMulti returns a set of content based on the the targets / identifiers
+// provided in Ponzu target string format: Type:ID
+// NOTE: All targets should be of the same type
+func ContentMulti(targets []string) ([][]byte, error) {
+	var contents [][]byte
+	for i := range targets {
+		b, err := Content(targets[i])
+		if err != nil {
+			return nil, err
+		}
+
+		contents = append(contents, b)
+	}
+
+	return contents, nil
 }
 
 // ContentBySlug does a lookup in the content index to find the type and id of

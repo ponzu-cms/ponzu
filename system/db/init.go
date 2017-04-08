@@ -82,7 +82,7 @@ func Init() {
 		for t := range item.Types {
 			err := MapSearchIndex(t)
 			if err != nil {
-				log.Fatalln("[search] Error:", err)
+				log.Fatalln(err)
 				return
 			}
 
