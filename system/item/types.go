@@ -26,6 +26,9 @@ var (
 	// if requested by a valid admin or user
 	ErrAllowHiddenItem = errors.New(`Allow hidden item`)
 
+	// ErrNoSearchMapping can be used to tell the system not to create an index mapping
+	ErrNoSearchMapping = errors.New(`No search mapping for item`)
+
 	// Types is a map used to reference a type name to its actual Editable type
 	// mainly for lookups in /admin route based utilities
 	Types map[string]func() interface{}
