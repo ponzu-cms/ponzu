@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
@@ -563,10 +564,54 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 	return total, posts
 }
 
+var sortContentCalls = make(map[string]time.Time)
+var waitDuration = time.Millisecond * 4000
+
+func enoughTime(key string, withDelay bool) bool {
+	last, ok := sortContentCalls[key]
+	if !ok {
+		// no envocation yet
+		// track next evocation
+		sortContentCalls[key] = time.Now()
+		return true
+	}
+
+	// if our required wait time has not been met, return false
+	if !time.Now().After(last.Add(waitDuration)) {
+		return false
+	}
+
+	// dispatch a delayed envocation in case no additional one follows
+	if withDelay {
+		go func() {
+			select {
+			case <-time.After(waitDuration):
+				if enoughTime(key, false) {
+					// track next evocation
+					sortContentCalls[key] = time.Now()
+					SortContent(key)
+				} else {
+					// retrigger
+					SortContent(key)
+				}
+			}
+		}()
+	}
+
+	// track next evocation
+	sortContentCalls[key] = time.Now()
+	return true
+}
+
 // SortContent sorts all content of the type supplied as the namespace by time,
 // in descending order, from most recent to least recent
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
+	// wait if running too frequently per namespace
+	if !enoughTime(namespace, true) {
+		return
+	}
+
 	// only sort main content types i.e. Post
 	if strings.Contains(namespace, "__") {
 		return
