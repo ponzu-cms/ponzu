@@ -565,13 +565,13 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 }
 
 var sortContentCalls = make(map[string]time.Time)
-var waitDuration = time.Millisecond * 4000
+var waitDuration = time.Millisecond * 2000
 
 func enoughTime(key string, withDelay bool) bool {
 	last, ok := sortContentCalls[key]
 	if !ok {
-		// no envocation yet
-		// track next evocation
+		// no invocation yet
+		// track next invocation
 		sortContentCalls[key] = time.Now()
 		return true
 	}
@@ -587,7 +587,7 @@ func enoughTime(key string, withDelay bool) bool {
 			select {
 			case <-time.After(waitDuration):
 				if enoughTime(key, false) {
-					// track next evocation
+					// track next invocation
 					sortContentCalls[key] = time.Now()
 					SortContent(key)
 				} else {
@@ -598,7 +598,7 @@ func enoughTime(key string, withDelay bool) bool {
 		}()
 	}
 
-	// track next evocation
+	// track next invocation
 	sortContentCalls[key] = time.Now()
 	return true
 }
