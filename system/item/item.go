@@ -219,6 +219,12 @@ func (i Item) SearchMapping() (*mapping.IndexMappingImpl, error) {
 	return mapping, nil
 }
 
+// IndexContent determines if a type should be indexed for searching
+// partially implements db.Searchable
+func (i Item) IndexContent() bool {
+	return false
+}
+
 // Slug returns a URL friendly string from the title of a post item
 func Slug(i Identifiable) (string, error) {
 	// get the name of the post item

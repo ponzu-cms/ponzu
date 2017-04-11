@@ -9,6 +9,8 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
+	"encoding/json"
+
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
 )
@@ -24,6 +26,7 @@ var (
 // Searchable ...
 type Searchable interface {
 	SearchMapping() (*mapping.IndexMappingImpl, error)
+	IndexContent() bool
 }
 
 func init() {
@@ -42,6 +45,11 @@ func MapSearchIndex(typeName string) error {
 	s, ok := it().(Searchable)
 	if !ok {
 		return fmt.Errorf("[search] MapSearchIndex Error: Item type %s doesn't implement db.Searchable", typeName)
+	}
+
+	// skip setting or using index for types that shouldn't be indexed
+	if !s.IndexContent() {
+		return nil
 	}
 
 	mapping, err := s.SearchMapping()
@@ -97,8 +105,20 @@ func UpdateSearchIndex(id string, data interface{}) error {
 
 	idx, ok := Search[ns]
 	if ok {
+		// unmarshal json to struct, error if not registered
+		it, ok := item.Types[ns]
+		if !ok {
+			return fmt.Errorf("[search] UpdateSearchIndex Error: type '%s' doesn't exist", ns)
+		}
+
+		p := it()
+		err := json.Unmarshal(data.([]byte), &p)
+		if err != nil {
+			return err
+		}
+
 		// add data to search index
-		return idx.Index(id, data)
+		return idx.Index(id, p)
 	}
 
 	return nil

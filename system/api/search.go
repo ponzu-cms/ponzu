@@ -44,7 +44,7 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 	// execute search for query provided, if no index for type send 404
 	matches, err := db.SearchType(t, q)
 	if err == db.ErrNoSearchIndex {
-		res.WriteHeader(http.StatusBadRequest)
+		res.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if err != nil {
