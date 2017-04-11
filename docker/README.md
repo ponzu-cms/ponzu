@@ -10,9 +10,11 @@ Ponzu is distributed as a docker image **NEEDS LINK**, which aids in docker depl
 docker build -f docker/Dockerfile -t ponzu-dev .
 ```
 
-#### Start the image and SSH into for debugging:
+#### Start the image, share the local directory and pseudo terminal (tty) into for debugging:
 ```bash
-docker run -it ponzu-dev
-pwd #will output /ponzu
-ponzu version #will output the ponzu version
+docker run -v $(pwd):/go/src/github.com/ponzu-cms/ponzu -it ponzu-dev
+pwd # will output the go src directory for ponzu
+ponzu version # will output the ponzu version
+# make an edit on your local and rebuild
+go get github.com/ponzu-cms/ponzu/...
 ```
