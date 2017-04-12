@@ -53,9 +53,6 @@ func MapSearchIndex(typeName string) error {
 	}
 
 	mapping, err := s.SearchMapping()
-	if err == item.ErrNoSearchMapping {
-		return nil
-	}
 	if err != nil {
 		return err
 	}
