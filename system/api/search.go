@@ -61,6 +61,11 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// if we have matches, push the first as its matched by relevance
+	if len(bb) > 0 {
+		push(res, req, it, bb[0])
+	}
+
 	var result = []json.RawMessage{}
 	for i := range bb {
 		result = append(result, bb[i])
