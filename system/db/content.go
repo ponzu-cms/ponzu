@@ -125,7 +125,7 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 	go func() {
 		// update data in search index
 		target := fmt.Sprintf("%s:%s", ns, id)
-		err = UpdateSearchIndex(target, string(j))
+		err = UpdateSearchIndex(target, j)
 		if err != nil {
 			log.Println("[search] UpdateSearchIndex Error:", err)
 		}
@@ -253,7 +253,7 @@ func insert(ns string, data url.Values) (int, error) {
 	go func() {
 		// add data to seach index
 		target := fmt.Sprintf("%s:%s", ns, cid)
-		err = UpdateSearchIndex(target, string(j))
+		err = UpdateSearchIndex(target, j)
 		if err != nil {
 			log.Println("[search] UpdateSearchIndex Error:", err)
 		}

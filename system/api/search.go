@@ -44,7 +44,7 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 	// execute search for query provided, if no index for type send 404
 	matches, err := db.SearchType(t, q)
 	if err == db.ErrNoSearchIndex {
-		res.WriteHeader(http.StatusBadRequest)
+		res.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if err != nil {
@@ -59,6 +59,11 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 		log.Println("[search] Error:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+
+	// if we have matches, push the first as its matched by relevance
+	if len(bb) > 0 {
+		push(res, req, it, bb[0])
 	}
 
 	var result = []json.RawMessage{}
