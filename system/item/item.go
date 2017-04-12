@@ -7,6 +7,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/mapping"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -206,6 +208,21 @@ func (i Item) BeforeReject(res http.ResponseWriter, req *http.Request) error {
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
 func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
 	return nil
+}
+
+// SearchMapping returns a default implementation of a Bleve IndexMappingImpl
+// partially implements db.Searchable
+func (i Item) SearchMapping() (*mapping.IndexMappingImpl, error) {
+	mapping := bleve.NewIndexMapping()
+	mapping.StoreDynamic = false
+
+	return mapping, nil
+}
+
+// IndexContent determines if a type should be indexed for searching
+// partially implements db.Searchable
+func (i Item) IndexContent() bool {
+	return false
 }
 
 // Slug returns a URL friendly string from the title of a post item

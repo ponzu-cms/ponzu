@@ -295,6 +295,7 @@ $ ponzu --dev -fork=github.com/nilslice/ponzu new /path/to/new/project
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
 - [golang.org/x/net/http2](https://golang.org/x/net/http2)
+- [github.com/blevesearch/bleve](https://github.com/blevesearch/bleve)
 - [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
 - [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)

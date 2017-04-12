@@ -121,6 +121,15 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 		return 0, err
 	}
 
+	go func() {
+		// update data in search index
+		target := fmt.Sprintf("%s:%s", ns, id)
+		err = UpdateSearchIndex(target, j)
+		if err != nil {
+			log.Println("[search] UpdateSearchIndex Error:", err)
+		}
+	}()
+
 	return cid, nil
 }
 
@@ -128,7 +137,7 @@ func mergeData(ns string, data url.Values, existingContent []byte) ([]byte, erro
 	var j []byte
 	t, ok := item.Types[ns]
 	if !ok {
-		return nil, fmt.Errorf("namespace type not found:", ns)
+		return nil, fmt.Errorf("Namespace type not found: %s", ns)
 	}
 
 	// Unmarsal the existing values
@@ -169,6 +178,8 @@ func insert(ns string, data url.Values) (int, error) {
 		specifier = "__" + spec[1]
 	}
 
+	var j []byte
+	var cid string
 	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
@@ -181,7 +192,7 @@ func insert(ns string, data url.Values) (int, error) {
 		if err != nil {
 			return err
 		}
-		cid := strconv.FormatUint(id, 10)
+		cid = strconv.FormatUint(id, 10)
 		effectedID, err = strconv.Atoi(cid)
 		if err != nil {
 			return err
@@ -197,7 +208,7 @@ func insert(ns string, data url.Values) (int, error) {
 			data.Set("__specifier", specifier)
 		}
 
-		j, err := postToJSON(ns, data)
+		j, err = postToJSON(ns, data)
 		if err != nil {
 			return err
 		}
@@ -237,6 +248,15 @@ func insert(ns string, data url.Values) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	go func() {
+		// add data to seach index
+		target := fmt.Sprintf("%s:%s", ns, cid)
+		err = UpdateSearchIndex(target, j)
+		if err != nil {
+			log.Println("[search] UpdateSearchIndex Error:", err)
+		}
+	}()
 
 	return effectedID, nil
 }
@@ -297,6 +317,17 @@ func DeleteContent(target string) error {
 		return err
 	}
 
+	go func() {
+		// delete indexed data from search index
+		if !strings.Contains(ns, "__") {
+			target = fmt.Sprintf("%s:%s", ns, id)
+			err = DeleteSearchIndex(target)
+			if err != nil {
+				log.Println("[search] DeleteSearchIndex Error:", err)
+			}
+		}
+	}()
+
 	// exception to typical "run in goroutine" pattern:
 	// we want to have an updated admin view as soon as this is deleted, so
 	// in some cases, the delete and redirect is faster than the sort,
@@ -332,6 +363,23 @@ func Content(target string) ([]byte, error) {
 	}
 
 	return val.Bytes(), nil
+}
+
+// ContentMulti returns a set of content based on the the targets / identifiers
+// provided in Ponzu target string format: Type:ID
+// NOTE: All targets should be of the same type
+func ContentMulti(targets []string) ([][]byte, error) {
+	var contents [][]byte
+	for i := range targets {
+		b, err := Content(targets[i])
+		if err != nil {
+			return nil, err
+		}
+
+		contents = append(contents, b)
+	}
+
+	return contents, nil
 }
 
 // ContentBySlug does a lookup in the content index to find the type and id of
