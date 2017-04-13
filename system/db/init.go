@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/search"
 
 	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
@@ -80,7 +81,7 @@ func Init() {
 
 	go func() {
 		for t := range item.Types {
-			err := MapSearchIndex(t)
+			err := search.MapIndex(t)
 			if err != nil {
 				log.Fatalln(err)
 				return

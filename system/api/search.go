@@ -8,6 +8,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/search"
 )
 
 func searchContentHandler(res http.ResponseWriter, req *http.Request) {
@@ -42,8 +43,8 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// execute search for query provided, if no index for type send 404
-	matches, err := db.SearchType(t, q)
-	if err == db.ErrNoSearchIndex {
+	matches, err := search.TypeQuery(t, q)
+	if err == search.ErrNoIndex {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}

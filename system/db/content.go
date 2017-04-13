@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/search"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
@@ -125,9 +126,9 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 	go func() {
 		// update data in search index
 		target := fmt.Sprintf("%s:%s", ns, id)
-		err = UpdateSearchIndex(target, j)
+		err = search.UpdateIndex(target, j)
 		if err != nil {
-			log.Println("[search] UpdateSearchIndex Error:", err)
+			log.Println("[search] UpdateIndex Error:", err)
 		}
 	}()
 
@@ -253,9 +254,9 @@ func insert(ns string, data url.Values) (int, error) {
 	go func() {
 		// add data to seach index
 		target := fmt.Sprintf("%s:%s", ns, cid)
-		err = UpdateSearchIndex(target, j)
+		err = search.UpdateIndex(target, j)
 		if err != nil {
-			log.Println("[search] UpdateSearchIndex Error:", err)
+			log.Println("[search] UpdateIndex Error:", err)
 		}
 	}()
 
@@ -322,9 +323,9 @@ func DeleteContent(target string) error {
 		// delete indexed data from search index
 		if !strings.Contains(ns, "__") {
 			target = fmt.Sprintf("%s:%s", ns, id)
-			err = DeleteSearchIndex(target)
+			err = search.DeleteIndex(target)
 			if err != nil {
-				log.Println("[search] DeleteSearchIndex Error:", err)
+				log.Println("[search] DeleteIndex Error:", err)
 			}
 		}
 	}()
