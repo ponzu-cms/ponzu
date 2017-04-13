@@ -1,9 +1,0 @@
-# This override is for local development.
-# On a live server you would not do this.
-admin:
-  ports:
-    - "4000:8080"
-web:
-  ports:
-    #host will listen on port 3000 in dev
-    - "3000:80"

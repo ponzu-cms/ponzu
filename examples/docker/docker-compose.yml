@@ -28,4 +28,5 @@ web:
 
   # expose the port we configured Nginx to bind to
   ports:
-    - "80:80"
+    #host will listen on port 3000 in dev
+    - "3000:80"
