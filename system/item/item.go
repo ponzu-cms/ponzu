@@ -211,7 +211,7 @@ func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
 }
 
 // SearchMapping returns a default implementation of a Bleve IndexMappingImpl
-// partially implements db.Searchable
+// partially implements search.Searchable
 func (i Item) SearchMapping() (*mapping.IndexMappingImpl, error) {
 	mapping := bleve.NewIndexMapping()
 	mapping.StoreDynamic = false
@@ -220,7 +220,7 @@ func (i Item) SearchMapping() (*mapping.IndexMappingImpl, error) {
 }
 
 // IndexContent determines if a type should be indexed for searching
-// partially implements db.Searchable
+// partially implements search.Searchable
 func (i Item) IndexContent() bool {
 	return false
 }
