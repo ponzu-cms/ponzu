@@ -11,6 +11,8 @@ admin:
   volumes:
     - ./admin:/go/src/project
 
+  command: bash /go/src/project/start_admin.sh start
+
 # service configuration for our web server
 # web:
 
