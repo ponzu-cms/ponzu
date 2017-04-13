@@ -1,0 +1,22 @@
+main{
+    margin-top: 25vh !important;
+    margin-bottom: 25vh !important;
+}
+article{
+    margin: 0 0 1rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #666;
+}
+
+article p{
+    margin: 0;
+}
+
+article h3 {
+    margin-bottom: 0.5rem;
+}
+
+article h6{
+    font-size:1.1rem;
+    margin-bottom: 0.4rem;
+}
