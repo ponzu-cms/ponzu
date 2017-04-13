@@ -1,0 +1,5 @@
+# This override is for local development.
+# On a live server you would not do this.
+admin:
+  ports:
+    - "8080:8080"

@@ -1,0 +1,29 @@
+# service configuration for our dockerized Ponzu app
+admin:
+
+  # use the Dockerfile in the ponzu directory
+  build: ./admin
+
+  # expose the port we configured Ponzu to publish
+  expose:
+    - "8080"
+
+  volumes:
+    - ./admin:/go/src/project
+
+# service configuration for our web server
+# web:
+
+  # set the build context to web directory
+#  build: ./web
+
+  # build with a different Dockerfile
+#  dockerfile: config/containers/Dockerfile-nginx
+
+  # makes the web container aware of the app container
+#  links:
+#    - admin
+
+  # expose the port we configured Nginx to bind to
+##  ports:
+#    - "80:80"

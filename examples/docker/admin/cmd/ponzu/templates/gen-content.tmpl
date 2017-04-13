@@ -1,0 +1,39 @@
+package content
+
+import (
+	"fmt"
+
+	"github.com/ponzu-cms/ponzu/management/editor"
+	"github.com/ponzu-cms/ponzu/system/item"
+)
+
+type {{ .Name }} struct {
+    item.Item
+
+    {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
+    {{ end }}	
+}
+
+// MarshalEditor writes a buffer of html to edit a {{ .Name }} within the CMS
+// and implements editor.Editable
+func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
+	view, err := editor.Form({{ .Initial }},
+        // Take note that the first argument to these Input-like functions 
+        // is the string version of each {{ .Name }} field, and must follow 
+        // this pattern for auto-decoding and auto-encoding reasons:
+        {{ range .Fields }}editor.Field{
+			{{ .View }}
+		},
+		{{ end }}
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to render {{ .Name }} editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	item.Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
+}

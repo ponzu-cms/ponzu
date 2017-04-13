@@ -1,0 +1,7 @@
+# These directories should not be copied over from the local machine
+uploads
+search
+
+# These are the databases which persist and should not copy over
+system.db
+analytics.db

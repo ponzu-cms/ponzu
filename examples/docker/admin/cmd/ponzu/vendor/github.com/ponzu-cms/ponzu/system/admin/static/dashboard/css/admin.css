@@ -1,0 +1,249 @@
+.navbar-fixed {
+    z-index: 10000 !important;
+}
+
+.nav-wrapper {
+    width: 95%;
+    max-width: 1300px;
+    margin: auto;
+}
+
+.nav-wrapper a:hover {
+    color: inherit !important;
+}
+
+.admin-ui {
+    width: 95%;
+    max-width: 1300px;    
+    margin: 1% auto;
+}
+
+.init {
+    float: none !important;
+    margin: auto !important;
+}
+
+.manager {
+    margin-bottom: 2%;
+}
+
+.left-nav .row li a {
+    padding: 10px 0;
+    transition: color 0.3s ease;
+}
+
+.left-nav .card-title {
+    margin-top: 10px !important;
+}
+
+.left-nav .card-title:first-child {
+    margin-top: 0px !important;
+}
+
+.col.card-title {
+    padding: 0px !important;
+}
+
+ul.posts li, ul.users li {
+    display: block;
+    margin: 0 0 20px 0;
+    padding: 0 0 20px 0 !important;
+    border-bottom: solid 1px #e0e0e0;
+}
+
+ul.posts li:last-child {
+    border-bottom: none;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.post-search .search {
+    margin: 0px !important;
+}
+
+
+.post-search .search-icon {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.post-search {
+    position: relative;
+}
+
+li a {
+    transition: color 0.3s ease;
+}
+
+li a:hover {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+a.new-post {
+    margin: 0.5rem 0 1rem 0.75rem;
+}
+
+textarea {
+    margin: 20px auto;
+    display: block;
+}
+
+.material-icons {
+    line-height: 1.4;
+}
+
+.clear {
+    clear: both;
+    display: block;
+}
+
+.clear.padding {
+    padding: 10px 0;
+}
+
+select.browser-default {
+    margin: 10px 0;
+}
+
+.iso-texteditor {
+    position: relative;
+    margin: 20px 0;
+    padding: 0px !important;
+}
+
+.file-input .preview {
+    display: inline-block;
+    position: relative;
+    margin: 0.5rem 0 1rem 0;        
+    background-color:#fff; 
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;   
+}
+
+.file-input .preview .img-clip {
+    overflow: hidden;
+    max-width: 300px;
+    margin: 10px;    
+}
+
+.file-input .preview img {
+    width: 100%;
+}
+
+.file-input .preview .reset {
+    padding: 0 8px;
+    position: absolute;
+    top: -5%;
+    right: -5%;
+    display: block;
+    border-radius: 50%;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.file-input .preview:hover .reset {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}    
+
+footer p {
+    color: #9e9e9e;
+}
+
+.post-controls .save-post, .post-controls .approve-post {
+    margin-left: 10px;
+}
+
+span.post-detail {
+    font-size: 11px;
+    color: #9e9e9e;
+    font-style: italic;  
+}
+
+.quick-delete-post, .delete-user {
+    display: none;
+}
+
+li:hover .quick-delete-post, li:hover .delete-user {
+    display: inline-block;
+}
+
+.quick-delete-post span, .delete-user span {
+    cursor: pointer;
+    color: #F44336;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.user-management {
+    padding: 20px;
+}
+
+.controls button {
+    padding: 0px 10px 5px 10px;
+    position: relative;
+    top: -10px;
+}
+
+tr.default-fields, tr.editor-fields {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.addon-meta a {
+    color: #7e7e7e;
+    text-decoration: underline;
+    font-style: italic;
+}
+
+.addon-meta {
+    display: block;
+    color: #9e9e9e;
+    font-size: 12px;
+}
+
+/* OVERRIDE Bootstrap + Materialize conflicts */
+.iso-texteditor.input-field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 0.8rem;
+    left: 0.75rem;
+    font-size: 0.8rem;
+    display: block;
+    font-weight: normal !important;
+    cursor: text;
+    transition: .2s ease-out;
+    -webkit-transform: translateY(-140%);
+    -moz-transform: translateY(-140%);
+    -ms-transform: translateY(-140%);
+    -o-transform: translateY(-140%);
+    transform: translateY(-140%);
+}
+
+.chips {
+    margin-top: 10px;
+}
+
+.external.post-controls .col.input-field {
+    margin-top: 40px;
+    padding: 0;
+}
+
+.approve-details {
+    text-align: right;
+    padding: 10px 0 !important;
+}
+
+select {
+    border: 1px solid #e2e2e2;
+    height: 2.5rem;
+}
+
+.note-editor * {
+    max-width: 100%;
+}
