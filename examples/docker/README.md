@@ -17,9 +17,12 @@ docker-compose build
 docker-compose start -d
 ```
 
-Visit the http://localhost:3000/admin to configure Ponzu.
+#### Then follow these steps:
+1. Visit the http://localhost:3000/admin to configure Ponzu.
+2. Add several songs http://localhost:3000/admin/reviews
+3. Visit http://localhost:3000/ to see the rest service accessed via AJAX
 
-Stop the on containers:
+Stop the containers:
 ```
 docker-compose stop
 ```
@@ -44,7 +47,6 @@ docker run -v $(pwd)/admin:/go/src/project -it docker_admin
 
 # run a ponzu command
 ponzu generate content message title:"string" description:"string"
-
 ```
 
-After the above your new `message.go` model is now available in your local filesystem. Use `docker-compose up -d` to see the new model in the admin.
+After the above generate command `message.go` content type is now available in your local filesystem. Use `docker-compose build` then `docker-compose up -d` to see the new model in the admin.
