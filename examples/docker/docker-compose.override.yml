@@ -3,6 +3,7 @@
 admin:
   ports:
     - "4000:8080"
-# web:
-#  ports:
-#  - "3000:80"
+web:
+  ports:
+    #host will listen on port 3000 in dev
+    - "3000:80"

@@ -14,18 +14,18 @@ admin:
   command: bash /go/src/project/start_admin.sh start
 
 # service configuration for our web server
-# web:
+web:
 
-  # set the build context to web directory
-#  build: ./web
+  # use the dockerfile in the web directory
+  build: ./web
 
-  # build with a different Dockerfile
-#  dockerfile: config/containers/Dockerfile-nginx
+  volumes:
+    - ./web/public:/public
 
-  # makes the web container aware of the app container
-#  links:
-#    - admin
+  # makes the web container aware of the admin container
+  links:
+    - admin
 
   # expose the port we configured Nginx to bind to
-##  ports:
-#    - "80:80"
+  ports:
+    - "80:80"

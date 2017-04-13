@@ -16,7 +16,8 @@ docker-compose build
 #start the containers in the background
 docker-compose start -d
 ```
-Visit the http://localhost:3000/admin/init to configure Ponzu.
+
+Visit the http://localhost:3000/admin to configure Ponzu.
 
 Stop the on containers:
 ```
