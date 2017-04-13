@@ -19,7 +19,7 @@ docker-compose start -d
 
 #### Then follow these steps:
 1. Visit the http://localhost:3000/admin to configure Ponzu.
-2. Add several songs http://localhost:3000/admin/reviews
+2. Add several songs http://localhost:3000/admin/contents?type=Song
 3. Visit http://localhost:3000/ to see the rest service accessed via AJAX
 
 Stop the containers:

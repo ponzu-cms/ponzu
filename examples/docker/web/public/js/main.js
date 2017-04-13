@@ -1,9 +1,6 @@
 (function() {
 
-    let mainContainer;
-
     function loadHomepage() {
-        mainContainer = document.querySelector('#main');
         const xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/contents?type=Song');
         xhr.onreadystatechange = renderHomepage;
@@ -38,7 +35,7 @@
                 html = '<p><strong>The /api endpoint did not respond correctly :-(</strong></p>';
             }
 
-            mainContainer.innerHTML = html;
+            document.querySelector('#main').innerHTML = html;
         }
     }
 
