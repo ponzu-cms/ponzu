@@ -215,8 +215,27 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 					clip = preview.find('.img-clip'),
 					reset = document.createElement('div'),
 					img = document.createElement('img'),
+					video = document.createElement('video'),
+					unknown = document.createElement('div'),
+					viewLink = document.createElement('a'),
+					viewLinkText = document.createTextNode('Download / View '),
+					iconLaunch = document.createElement('i'),
+					iconLaunchText = document.createTextNode('launch'),
 					uploadSrc = store.val();
+					video.setAttribute
 					preview.hide();
+					viewLink.setAttribute('href', '%[3]s');
+					viewLink.setAttribute('target', '_blank');
+					viewLink.appendChild(viewLinkText);
+					viewLink.style.display = 'block';
+					viewLink.style.marginRight = '10px';					
+					viewLink.style.textAlign = 'right';
+					iconLaunch.className = 'material-icons tiny';
+					iconLaunch.style.position = 'relative';
+					iconLaunch.style.top = '3px';
+					iconLaunch.appendChild(iconLaunchText);
+					viewLink.appendChild(iconLaunch);
+					preview.append(viewLink);
 				
 				// when %[2]s input changes (file is selected), remove
 				// the 'name' and 'value' attrs from the hidden store input.
@@ -226,15 +245,52 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 				});
 
 				if (uploadSrc.length > 0) {
-					$(img).attr('src', store.val());
-					clip.append(img);
+					var ext = uploadSrc.substring(uploadSrc.lastIndexOf('.'));
+					ext = ext.toLowerCase();
+					switch (ext) {
+						case '.jpg':
+						case '.jpeg':
+						case '.webp':
+						case '.gif':
+						case '.png':
+							$(img).attr('src', store.val());
+							clip.append(img);
+							break;
+						case '.mp4':
+						case '.webm':
+							$(video)
+								.attr('src', store.val())
+								.attr('type', 'video/'+ext.substring(1))
+								.attr('controls', true)
+								.css('width', '100%%');
+							clip.append(video);
+							break;
+						default:
+							$(img).attr('src', '/admin/static/dashboard/img/ponzu-file.png');
+							$(unknown)
+								.css({
+									position: 'absolute', 
+									top: '10px', 
+									left: '10px',
+									border: 'solid 1px #ddd',
+									padding: '7px 7px 5px 12px',
+									fontWeight: 'bold',
+									background: '#888',
+									color: '#fff',
+									textTransform: 'uppercase',
+									letterSpacing: '2px' 
+								})
+								.text(ext);
+							clip.append(img);
+							clip.append(unknown);
+							clip.css('maxWidth', '200px');
+					}
 					preview.show();
 
 					$(reset).addClass('reset %[2]s btn waves-effect waves-light grey');
 					$(reset).html('<i class="material-icons tiny">clear<i>');
 					$(reset).on('click', function(e) {
 						e.preventDefault();
-						var preview = $(this).parent().closest('.preview');
 						preview.animate({"opacity": 0.1}, 200, function() {
 							preview.slideUp(250, function() {
 								resetImage();
@@ -274,7 +330,7 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 			return nil
 		}
 
-		_, err = html.WriteString(fmt.Sprintf(script, nameidx, className))
+		_, err = html.WriteString(fmt.Sprintf(script, nameidx, className, val))
 		if err != nil {
 			log.Println("Error writing HTML string to FileRepeater buffer")
 			return nil
