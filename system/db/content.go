@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/item"
@@ -567,41 +568,48 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 
 var sortContentCalls = make(map[string]time.Time)
 var waitDuration = time.Millisecond * 2000
+var sortMutex = &sync.Mutex{}
 
-func enoughTime(key string, withDelay bool) bool {
+func setLastInvocation(key string) {
+	sortMutex.Lock()
+	sortContentCalls[key] = time.Now()
+	sortMutex.Unlock()
+}
+
+func lastInvocation(key string) (time.Time, bool) {
+	sortMutex.Lock()
 	last, ok := sortContentCalls[key]
+	sortMutex.Unlock()
+	return last, ok
+}
+
+func enoughTime(key string) bool {
+	last, ok := lastInvocation(key)
 	if !ok {
 		// no invocation yet
 		// track next invocation
-		sortContentCalls[key] = time.Now()
+		setLastInvocation(key)
 		return true
 	}
 
-	// if our required wait time has not been met, return false
-	if !time.Now().After(last.Add(waitDuration)) {
-		return false
+	// if our required wait time has been met, return true
+	if time.Now().After(last.Add(waitDuration)) {
+		setLastInvocation(key)
+		return true
 	}
 
-	// dispatch a delayed envocation in case no additional one follows
-	if withDelay {
-		go func() {
-			select {
-			case <-time.After(waitDuration):
-				if enoughTime(key, false) {
-					// track next invocation
-					sortContentCalls[key] = time.Now()
-					SortContent(key)
-				} else {
-					// retrigger
-					SortContent(key)
-				}
-			}
-		}()
-	}
+	// dispatch a delayed invocation in case no additional one follows
+	go func() {
+		lastInvocationBeforeTimer, _ := lastInvocation(key) // zero value can be handled, no need for ok
+		enoughTimer := time.NewTimer(waitDuration)
+		<-enoughTimer.C
+		lastInvocationAfterTimer, _ := lastInvocation(key)
+		if !lastInvocationAfterTimer.After(lastInvocationBeforeTimer) {
+			SortContent(key)
+		}
+	}()
 
-	// track next invocation
-	sortContentCalls[key] = time.Now()
-	return true
+	return false
 }
 
 // SortContent sorts all content of the type supplied as the namespace by time,
@@ -609,7 +617,7 @@ func enoughTime(key string, withDelay bool) bool {
 // Should be called from a goroutine after SetContent is successful
 func SortContent(namespace string) {
 	// wait if running too frequently per namespace
-	if !enoughTime(namespace, true) {
+	if !enoughTime(namespace) {
 		return
 	}
 
