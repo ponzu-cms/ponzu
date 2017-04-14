@@ -600,16 +600,15 @@ func enoughTime(key string) bool {
 
 	// dispatch a delayed invocation in case no additional one follows
 	go func() {
-		lastInvocationBeforeTicker, _ := lastInvocation(key) // zero value can be handled, no need for ok
-		enoughTicker := time.NewTicker(waitDuration)
-		select {
-		case <-enoughTicker.C:
-			lastInvocationAfterTicker, _ := lastInvocation(key)
-			if !lastInvocationAfterTicker.After(lastInvocationBeforeTicker) {
-				SortContent(key)
-			}
+		lastInvocationBeforeTimer, _ := lastInvocation(key) // zero value can be handled, no need for ok
+		enoughTimer := time.NewTimer(waitDuration)
+		<-enoughTimer.C
+		lastInvocationAfterTimer, _ := lastInvocation(key)
+		if !lastInvocationAfterTimer.After(lastInvocationBeforeTimer) {
+			SortContent(key)
 		}
 	}()
+
 	return false
 }
 
