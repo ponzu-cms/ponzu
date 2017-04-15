@@ -24,6 +24,32 @@ type generateField struct {
 	View     string
 }
 
+var reservedFiledNames = map[string]string{
+	"uuid":      "UUID",
+	"item":      "Item",
+	"id":        "ID",
+	"slug":      "Slug",
+	"timestamp": "Timestamp",
+	"updated":   "Updated",
+}
+
+func legalFieldNames(fields ...generateField) (bool, map[string]string) {
+	conflicts := make(map[string]string)
+	for _, field := range fields {
+		for jsonName, fieldName := range reservedFiledNames {
+			if field.JSONName == jsonName || field.Name == fieldName {
+				conflicts[jsonName] = fieldName
+			}
+		}
+	}
+
+	if len(conflicts) > 0 {
+		return false, conflicts
+	}
+
+	return true, conflicts
+}
+
 // blog title:string Author:string PostCategory:string content:string some_thing:int
 func parseType(args []string) (generateType, error) {
 	t := generateType{
@@ -37,12 +63,26 @@ func parseType(args []string) (generateType, error) {
 		if err != nil {
 			return generateType{}, err
 		}
-		// NEW
+
 		// set initial (1st character of the type's name) on field so we don't need
 		// to set the template variable like was done in prior version
 		f.Initial = t.Initial
 
 		t.Fields = append(t.Fields, f)
+	}
+
+	if ok, nameConflicts := legalFieldNames(t.Fields...); !ok {
+		for jsonName, fieldName := range nameConflicts {
+			fmt.Println(fmt.Sprintf("reserved field name: %s (%s)", jsonName, fieldName))
+		}
+
+		count := len(nameConflicts)
+		var c = "conflict"
+		if count > 1 {
+			c = "conflicts"
+		}
+
+		return generateType{}, fmt.Errorf("You have (%d) naming %s - please rename and try again", count, c)
 	}
 
 	return t, nil
@@ -221,14 +261,8 @@ func generateContentType(args []string) error {
 	filePath := filepath.Join(contentDir, fileName)
 
 	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
-		return fmt.Errorf("Please remove '%s' before executing this command.", fileName)
-	}
-
-	// no file exists.. ok to write new one
-	file, err := os.Create(filePath)
-	defer file.Close()
-	if err != nil {
-		return err
+		localFile := filepath.Join("content", fileName)
+		return fmt.Errorf("Please remove '%s' before executing this command", localFile)
 	}
 
 	// parse type info from args
@@ -252,6 +286,13 @@ func generateContentType(args []string) error {
 	fmtBuf, err := format.Source(buf.Bytes())
 	if err != nil {
 		return fmt.Errorf("Failed to format template: %s", err.Error())
+	}
+
+	// no file exists.. ok to write new one
+	file, err := os.Create(filePath)
+	defer file.Close()
+	if err != nil {
+		return err
 	}
 
 	_, err = file.Write(fmtBuf)
