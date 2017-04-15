@@ -1,4 +1,4 @@
-package db
+package search
 
 import (
 	"errors"
@@ -19,8 +19,8 @@ var (
 	// Search tracks all search indices to use throughout system
 	Search map[string]bleve.Index
 
-	// ErrNoSearchIndex is for failed checks for an index in Search map
-	ErrNoSearchIndex = errors.New("No search index found for type provided")
+	// ErrNoIndex is for failed checks for an index in Search map
+	ErrNoIndex = errors.New("No search index found for type provided")
 )
 
 // Searchable ...
@@ -33,18 +33,18 @@ func init() {
 	Search = make(map[string]bleve.Index)
 }
 
-// MapSearchIndex creates the mapping for a type and tracks the index to be used within
+// MapIndex creates the mapping for a type and tracks the index to be used within
 // the system for adding/deleting/checking data
-func MapSearchIndex(typeName string) error {
+func MapIndex(typeName string) error {
 	// type assert for Searchable, get configuration (which can be overridden)
 	// by Ponzu user if defines own SearchMapping()
 	it, ok := item.Types[typeName]
 	if !ok {
-		return fmt.Errorf("[search] MapSearchIndex Error: Failed to MapIndex for %s, type doesn't exist", typeName)
+		return fmt.Errorf("[search] MapIndex Error: Failed to MapIndex for %s, type doesn't exist", typeName)
 	}
 	s, ok := it().(Searchable)
 	if !ok {
-		return fmt.Errorf("[search] MapSearchIndex Error: Item type %s doesn't implement db.Searchable", typeName)
+		return fmt.Errorf("[search] MapIndex Error: Item type %s doesn't implement search.Searchable", typeName)
 	}
 
 	// skip setting or using index for types that shouldn't be indexed
@@ -93,9 +93,9 @@ func MapSearchIndex(typeName string) error {
 	return nil
 }
 
-// UpdateSearchIndex sets data into a content type's search index at the given
+// UpdateIndex sets data into a content type's search index at the given
 // identifier
-func UpdateSearchIndex(id string, data interface{}) error {
+func UpdateIndex(id string, data interface{}) error {
 	// check if there is a search index to work with
 	target := strings.Split(id, ":")
 	ns := target[0]
@@ -105,7 +105,7 @@ func UpdateSearchIndex(id string, data interface{}) error {
 		// unmarshal json to struct, error if not registered
 		it, ok := item.Types[ns]
 		if !ok {
-			return fmt.Errorf("[search] UpdateSearchIndex Error: type '%s' doesn't exist", ns)
+			return fmt.Errorf("[search] UpdateIndex Error: type '%s' doesn't exist", ns)
 		}
 
 		p := it()
@@ -121,9 +121,9 @@ func UpdateSearchIndex(id string, data interface{}) error {
 	return nil
 }
 
-// DeleteSearchIndex removes data from a content type's search index at the
+// DeleteIndex removes data from a content type's search index at the
 // given identifier
-func DeleteSearchIndex(id string) error {
+func DeleteIndex(id string) error {
 	// check if there is a search index to work with
 	target := strings.Split(id, ":")
 	ns := target[0]
@@ -137,13 +137,13 @@ func DeleteSearchIndex(id string) error {
 	return nil
 }
 
-// SearchType conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
+// TypeQuery conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
 // and an error. If there is no search index for the typeName (Type) provided,
-// db.ErrNoSearchIndex will be returned as the error
-func SearchType(typeName, query string) ([]string, error) {
+// db.ErrNoIndex will be returned as the error
+func TypeQuery(typeName, query string) ([]string, error) {
 	idx, ok := Search[typeName]
 	if !ok {
-		return nil, ErrNoSearchIndex
+		return nil, ErrNoIndex
 	}
 
 	q := bleve.NewQueryStringQuery(query)
