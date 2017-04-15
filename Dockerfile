@@ -1,6 +1,6 @@
 
 # Base our image on an official, minimal image of our preferred golang
-FROM golang:latest
+FROM golang:1.8.1
 
 # Note: The default golang docker image, already has the GOPATH env variable set.
 # GOPATH is located at /go
@@ -21,7 +21,7 @@ WORKDIR $PONZU_ROOT
 COPY . .
 
 # the following runs the code inside of the $GO_SRC/$PONZU_GITHUB directory
-RUN go get $PONZU_GITHUB...
+RUN go get -u $PONZU_GITHUB...
 
 # Define the scripts we want run once the container boots
 # CMD [ "" ]
