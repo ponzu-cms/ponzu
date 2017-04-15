@@ -2,9 +2,9 @@
 
 ## Ponzu Docker build
 
-Ponzu is distributed as a docker image **NEEDS LINK**, which aids in docker deployment. The Dockerfile in this directory is used by ponzu to generate the docker image which contains the ponzu executable.
+Ponzu is distributed as a [docker image](https://hub.docker.com/r/ponzu/ponzu/), which aids in docker deployment. The Dockerfile in this directory is used by ponzu to generate the docker image which contains the ponzu executable.
 
-### The following are convient commands during development of Ponzu.
+### The following are convenient commands during development of Ponzu core.
 
 #### Build the docker image. Run from the root of the project.
 ```bash
