@@ -114,6 +114,11 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 
 		jwt.Secret([]byte(secret))
 		token, err := jwt.New(claims)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		http.SetCookie(res, &http.Cookie{
 			Name:    "_token",

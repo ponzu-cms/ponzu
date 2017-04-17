@@ -253,7 +253,7 @@ func insert(ns string, data url.Values) (int, error) {
 	}
 
 	go func() {
-		// add data to seach index
+		// add data to search index
 		target := fmt.Sprintf("%s:%s", ns, cid)
 		err = search.UpdateIndex(target, j)
 		if err != nil {

@@ -51,6 +51,9 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 
 	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
 
 	// loop over all files and save them to disk
 	for name, fds := range req.MultipartForm.File {
