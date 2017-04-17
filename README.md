@@ -3,6 +3,7 @@
 # Ponzu 
 [![Current Release](https://img.shields.io/github/release/ponzu-cms/ponzu.svg)](https://github.com/ponzu-cms/ponzu/releases/latest)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/ponzu-cms/ponzu)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ponzu-cms/ponzu)](https://goreportcard.com/report/github.com/ponzu-cms/ponzu)
 [![Sourcegraph Badge](https://sourcegraph.com/github.com/ponzu-cms/ponzu/-/badge.svg)](https://sourcegraph.com/github.com/ponzu-cms/ponzu?badge)
 
 Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
