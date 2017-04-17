@@ -1,3 +1,6 @@
+// Package config provides a content type to manage the Ponzu system's configuration
+// settings for things such as its name, domain, HTTP(s) port, email, server defaults
+// and backups.
 package config
 
 import (

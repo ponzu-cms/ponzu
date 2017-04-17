@@ -1,3 +1,5 @@
+// Package manager contains the admin UI to the CMS which wraps all content editor
+// interfaces to manage the create/edit/delete capabilities of Ponzu content.
 package manager
 
 import (

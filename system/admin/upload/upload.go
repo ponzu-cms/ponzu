@@ -1,3 +1,5 @@
+// Package upload provides a re-usable file upload and storage utility for Ponzu
+// systems to handle multipart form data.
 package upload
 
 import (

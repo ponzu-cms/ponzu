@@ -1,3 +1,5 @@
+// Package user contains the basic admin user creation and authentication code,
+// specific to Ponzu systems.
 package user
 
 import (

@@ -1,3 +1,6 @@
+// Package item provides the default functionality to Ponzu's content/data types,
+// how they interact with the API, and how to override or enhance their abilities
+// using various interfaces.
 package item
 
 import (

@@ -1,3 +1,6 @@
+// Package db contains all interfaces to the databases used by Ponzu, including
+// exported functions to easily manage addons, users, indices, search, content,
+// and configuration.
 package db
 
 import (

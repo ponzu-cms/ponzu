@@ -1,3 +1,6 @@
+// Package tls provides the functionality to Ponzu systems to encrypt HTTP traffic
+// through the ability to generate self-signed certificates for local development
+// and fetch/update production certificates from Let's Encrypt.
 package tls
 
 import (

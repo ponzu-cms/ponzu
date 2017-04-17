@@ -1,3 +1,6 @@
+// Package system contains a collection of packages that make up the internal
+// Ponzu system, which handles addons, administration, the Admin server, the API
+// server, analytics, databases, search, TLS, and various internal types.
 package system
 
 import (

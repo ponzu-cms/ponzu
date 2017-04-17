@@ -1,6 +1,10 @@
+// Package search is a wrapper around the blevesearch/bleve search indexing and
+// query package, and provides interfaces to extend Ponzu items with rich, full-text
+// search capability.
 package search
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -8,8 +12,6 @@ import (
 	"strings"
 
 	"github.com/ponzu-cms/ponzu/system/item"
-
-	"encoding/json"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
