@@ -2,6 +2,7 @@
 
 # Ponzu 
 [![Current Release](https://img.shields.io/github/release/ponzu-cms/ponzu.svg)](https://github.com/ponzu-cms/ponzu/releases/latest)
+[![GoDoc]](https://godoc.org/github.com/ponzu-cms/ponzu)
 [![Sourcegraph Badge](https://sourcegraph.com/github.com/ponzu-cms/ponzu/-/badge.svg)](https://sourcegraph.com/github.com/ponzu-cms/ponzu?badge)
 
 Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It 
@@ -20,7 +21,7 @@ rapid development, but need a fast JSON response in a high-concurrency environme
 
 **Because you want to turn this:**  
 ```bash
-$ ponzu generate content song title:"string" artist:"string" rating:"int" opinion:"string" spotify_url:"string"
+$ ponzu gen content song title:"string" artist:"string" rating:"int" opinion:"string":richtext spotify_url:"string"
 ```
 
 **Into this:** 
@@ -28,16 +29,16 @@ $ ponzu generate content song title:"string" artist:"string" rating:"int" opinio
 ![song go-rt](https://cloud.githubusercontent.com/assets/7517515/20726600/2ecd96a8-b62b-11e6-8589-c00c630ea6cc.png)
 
 **What's inside**  
-:ballot_box_with_check: Automatic & Free SSL/TLS*  
-:ballot_box_with_check: HTTP/2 and Server Push  
-:ballot_box_with_check: Rapid development with CLI-controlled code generators  
-:ballot_box_with_check: User-friendly, extensible CMS and administration dashboard  
-:ballot_box_with_check: Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
-:ballot_box_with_check: Fast, helpful framework while maintaining control 
+- Automatic & Free SSL/TLS*  
+- HTTP/2 and Server Push  
+- Rapid development with CLI-controlled code generators  
+- User-friendly, extensible CMS and administration dashboard  
+- Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
+- Fast, helpful framework while maintaining control 
 
 *TLS:
- - Development: self-signed certificates auto-generated
- - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)  
+- Development: self-signed certificates auto-generated
+- Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)  
 
 ## Wiki
 For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
