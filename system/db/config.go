@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/ponzu-cms/ponzu/system/admin/config"
 
@@ -18,6 +19,7 @@ const (
 	DefaultMaxAge = int64(60 * 60 * 24 * 30)
 )
 
+var mu = &sync.Mutex{}
 var configCache map[string]interface{}
 
 func init() {
@@ -115,7 +117,9 @@ func SetConfig(data url.Values) error {
 		return err
 	}
 
+	mu.Lock()
 	configCache = kv
+	mu.Unlock()
 
 	return nil
 }
@@ -215,7 +219,11 @@ func PutConfig(key string, value interface{}) error {
 // ConfigCache is a in-memory cache of the Configs for quicker lookups
 // 'key' is the JSON tag associated with the config field
 func ConfigCache(key string) interface{} {
-	return configCache[key]
+	mu.Lock()
+	val := configCache[key]
+	mu.Unlock()
+
+	return val
 }
 
 // LoadCacheConfig loads the config into a cache to be accessed by ConfigCache()
@@ -239,7 +247,9 @@ func LoadCacheConfig() error {
 		return err
 	}
 
+	mu.Lock()
 	configCache = kv
+	mu.Unlock()
 
 	return nil
 }
