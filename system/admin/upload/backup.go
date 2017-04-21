@@ -3,6 +3,7 @@ package upload
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 
 // Backup creates an archive of a project's uploads and writes it
 // to the response as a download
-func Backup(res http.ResponseWriter) error {
+func Backup(ctx context.Context, res http.ResponseWriter) error {
 	ts := time.Now().Unix()
 	filename := fmt.Sprintf("uploads-%d.bak.tar.gz", ts)
 	tmp := os.TempDir()
@@ -30,7 +31,8 @@ func Backup(res http.ResponseWriter) error {
 	gz := gzip.NewWriter(f)
 	tarball := tar.NewWriter(gz)
 
-	err = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
+	errChan := make(chan error, 1)
+	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -53,6 +55,7 @@ func Backup(res http.ResponseWriter) error {
 				return err
 			}
 			defer src.Close()
+
 			_, err = io.Copy(tarball, src)
 			if err != nil {
 				return err
@@ -64,6 +67,24 @@ func Backup(res http.ResponseWriter) error {
 			}
 
 			err = gz.Flush()
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	// stop processing if we get a cancellation signal
+	err = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
+		go func() { errChan <- walkFn(path, info, err) }()
+
+		select {
+		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+		case err := <-errChan:
 			if err != nil {
 				return err
 			}
