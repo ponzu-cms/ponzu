@@ -195,9 +195,12 @@ func configHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func backupHandler(res http.ResponseWriter, req *http.Request) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	switch req.URL.Query().Get("source") {
 	case "system":
-		err := db.Backup(res)
+		err := db.Backup(ctx, res)
 		if err != nil {
 			log.Println("Failed to run backup on system:", err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -205,7 +208,7 @@ func backupHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 	case "analytics":
-		err := analytics.Backup(res)
+		err := analytics.Backup(ctx, res)
 		if err != nil {
 			log.Println("Failed to run backup on analytics:", err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -213,7 +216,7 @@ func backupHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 	case "uploads":
-		err := upload.Backup(res)
+		err := upload.Backup(ctx, res)
 		if err != nil {
 			log.Println("Failed to run backup on uploads:", err)
 			res.WriteHeader(http.StatusInternalServerError)
