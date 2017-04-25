@@ -194,3 +194,44 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 
 	sendData(res, req, j)
 }
+
+func uploadsHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	slug := req.URL.Query().Get("slug")
+	if slug == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	upload, err := db.UploadBySlug(slug)
+	if err != nil {
+		log.Println("Error finding upload by slug:", slug, err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	it := func() interface{} {
+		return new(item.FileUpload)
+	}
+
+	push(res, req, it, upload)
+
+	j, err := fmtJSON(json.RawMessage(upload))
+	if err != nil {
+		log.Println("Error fmtJSON on upload:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	j, err = omit(it(), j)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	sendData(res, req, j)
+}
