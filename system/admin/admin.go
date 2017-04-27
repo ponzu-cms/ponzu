@@ -368,41 +368,41 @@ func UsersList(req *http.Request) ([]byte, error) {
     <div class="card user-management">
         <div class="card-title">Edit your account:</div>    
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users/edit" method="post">
-            <div class="input-feild col s9">
+            <div class="col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value="{{ .User.Email }}"/>
             </div>
 
-            <div class="input-feild col s9">
+            <div class="col s9">
                 <div>To approve changes, enter your password:</div>
                 
                 <label class="active">Current Password</label>
                 <input type="password" name="password"/>
             </div>
 
-            <div class="input-feild col s9">
+            <div class="col s9">
                 <label class="active">New Password: (leave blank if no password change needed)</label>
                 <input name="new_password" type="password"/>
             </div>
 
-            <div class="input-feild col s9">                        
+            <div class="col s9">                        
                 <button class="btn waves-effect waves-light green right" type="submit">Save</button>
             </div>
         </form>
 
         <div class="card-title">Add a new user:</div>        
         <form class="row" enctype="multipart/form-data" action="/admin/configure/users" method="post">
-            <div class="input-feild col s9">
+            <div class="col s9">
                 <label class="active">Email Address</label>
                 <input type="email" name="email" value=""/>
             </div>
 
-            <div class="input-feild col s9">
+            <div class="col s9">
                 <label class="active">Password</label>
                 <input type="password" name="password"/>
             </div>
 
-            <div class="input-feild col s9">            
+            <div class="col s9">            
                 <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
             </div>   
         </form>        
