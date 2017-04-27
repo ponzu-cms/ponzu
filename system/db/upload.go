@@ -66,28 +66,24 @@ func SetUpload(data url.Values) error {
 			return err
 		}
 
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	// add slug to __contentIndex for lookup
-	return store.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("__contentIndex"))
+		// add slug to __contentIndex for lookup
+		b, err = tx.CreateBucketIfNotExists([]byte("__contentIndex"))
 		if err != nil {
 			return err
 		}
 
 		k := []byte(data.Get("slug"))
-		v := []byte(fmt.Sprintf("%s:%s", "__uploads", data.Get("id")))
+		v := []byte(fmt.Sprintf("%s:%d", "__uploads", id))
 		err = b.Put(k, v)
 		if err != nil {
 			return err
 		}
+		// -
 
 		return nil
 	})
+
+	return err
 }
 
 // Upload returns the value for an upload by its target (__uploads:{id})
