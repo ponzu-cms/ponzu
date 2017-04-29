@@ -2057,6 +2057,250 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func editUploadHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		q := req.URL.Query()
+		i := q.Get("id")
+		t := "__uploads"
+
+		post := &item.FileUpload{}
+
+		if i != "" {
+			data, err := db.Upload(t + ":" + i)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			if len(data) < 1 || data == nil {
+				res.WriteHeader(http.StatusNotFound)
+				errView, err := Error404()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			err = json.Unmarshal(data, post)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		} else {
+			it, ok := interface{}(post).(item.Identifiable)
+			if !ok {
+				log.Println("Content type", t, "doesn't implement item.Identifiable")
+				return
+			}
+
+			it.SetItemID(-1)
+		}
+
+		m, err := manager.Manage(interface{}(post).(editor.Editable), t)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		adminView, err := Admin(m)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(adminView)
+
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		cid := req.FormValue("id")
+		t := req.FormValue("type")
+		pt := "__uploads"
+		ts := req.FormValue("timestamp")
+		up := req.FormValue("updated")
+
+		// create a timestamp if one was not set
+		if ts == "" {
+			ts = fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UTC().UnixNano()/int64(time.Millisecond))
+			req.PostForm.Set("timestamp", ts)
+		}
+
+		if up == "" {
+			req.PostForm.Set("updated", ts)
+		}
+
+		urlPaths, err := upload.StoreFiles(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		for name, urlPath := range urlPaths {
+			req.PostForm.Set(name, urlPath)
+		}
+
+		// check for any multi-value fields (ex. checkbox fields)
+		// and correctly format for db storage. Essentially, we need
+		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+		fieldOrderValue := make(map[string]map[string][]string)
+		ordVal := make(map[string][]string)
+		for k, v := range req.PostForm {
+			if strings.Contains(k, ".") {
+				fo := strings.Split(k, ".")
+
+				// put the order and the field value into map
+				field := string(fo[0])
+				order := string(fo[1])
+				fieldOrderValue[field] = ordVal
+
+				// orderValue is 0:[?type=Thing&id=1]
+				orderValue := fieldOrderValue[field]
+				orderValue[order] = v
+				fieldOrderValue[field] = orderValue
+
+				// discard the post form value with name.N
+				req.PostForm.Del(k)
+			}
+
+		}
+
+		// add/set the key & value to the post form in order
+		for f, ov := range fieldOrderValue {
+			for i := 0; i < len(ov); i++ {
+				position := fmt.Sprintf("%d", i)
+				fieldValue := ov[position]
+
+				if req.PostForm.Get(f) == "" {
+					for i, fv := range fieldValue {
+						if i == 0 {
+							req.PostForm.Set(f, fv)
+						} else {
+							req.PostForm.Add(f, fv)
+						}
+					}
+				} else {
+					for _, fv := range fieldValue {
+						req.PostForm.Add(f, fv)
+					}
+				}
+			}
+		}
+
+		post := interface{}(&item.FileUpload{})
+		hook, ok := post.(item.Hookable)
+		if !ok {
+			log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err = hook.BeforeSave(res, req)
+		if err != nil {
+			log.Println("Error running BeforeSave method in editHandler for:", t, err)
+			return
+		}
+
+		id, err := db.SetUpload(t+":"+cid, req.PostForm)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		// set the target in the context so user can get saved value from db in hook
+		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
+		req = req.WithContext(ctx)
+
+		err = hook.AfterSave(res, req)
+		if err != nil {
+			log.Println("Error running AfterSave method in editHandler for:", t, err)
+			return
+		}
+
+		scheme := req.URL.Scheme
+		host := req.URL.Host
+		path := req.URL.Path
+		sid := fmt.Sprintf("%d", id)
+		redir := scheme + host + path + "?type=" + pt + "&id=" + sid
+
+		if req.URL.Query().Get("status") == "pending" {
+			redir += "&status=pending"
+		}
+
+		http.Redirect(res, req, redir, http.StatusFound)
+	case http.MethodPut:
+		urlPaths, err := upload.StoreFiles(req)
+		if err != nil {
+			log.Println("Couldn't store file uploads.", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write([]byte(`{"data": [{"url": "` + urlPaths["file"] + `"}]}`))
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+/*
+func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -2072,6 +2316,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	res.Write([]byte(`{"data": [{"url": "` + urlPaths["file"] + `"}]}`))
 }
+*/
 
 func searchHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()

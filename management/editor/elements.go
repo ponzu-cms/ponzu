@@ -276,7 +276,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 					data.append("file", files[0]);
 					$.ajax({
 						data: data,
-						type: 'POST',
+						type: 'PUT',	
 						url: '/admin/edit/upload',
 						cache: false,
 						contentType: false,

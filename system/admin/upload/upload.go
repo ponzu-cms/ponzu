@@ -115,7 +115,7 @@ func storeFileInfo(size int64, filename, urlPath string, fds []*multipart.FileHe
 		"content_length": []string{fmt.Sprintf("%d", size)},
 	}
 
-	err := db.SetUpload(data)
+	_, err := db.SetUpload("__uploads:-1", data)
 	if err != nil {
 		log.Println("Error saving file upload record to database:", err)
 	}

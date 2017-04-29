@@ -10,41 +10,64 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
+	"strconv"
+
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
 	uuid "github.com/satori/go.uuid"
 )
 
 // SetUpload stores information about files uploaded to the system
-func SetUpload(data url.Values) error {
-	// set new UUID for upload
-	data.Set("uuid", uuid.NewV4().String())
-
-	// create slug based on filename and timestamp/updated fields
-	slug := data.Get("name")
-	slug, err := checkSlugForDuplicate(slug)
-	if err != nil {
-		return err
+func SetUpload(target string, data url.Values) (int, error) {
+	parts := strings.Split(target, ":")
+	if parts[0] != "__uploads" {
+		return 0, fmt.Errorf("cannot call SetUpload with target type: %s", parts[0])
 	}
-	data.Set("slug", slug)
+	pid := parts[1]
+
+	if data.Get("uuid") == "" {
+		// set new UUID for upload
+		data.Set("uuid", uuid.NewV4().String())
+	}
+
+	if data.Get("slug") == "" {
+		// create slug based on filename and timestamp/updated fields
+		slug := data.Get("name")
+		slug, err := checkSlugForDuplicate(slug)
+		if err != nil {
+			return 0, err
+		}
+		data.Set("slug", slug)
+	}
 
 	ts := fmt.Sprintf("%d", time.Now().Unix()*1000)
-	data.Set("timestamp", ts)
+	if data.Get("timestamp") == "" {
+		data.Set("timestamp", ts)
+	}
+
 	data.Set("updated", ts)
 
 	// store in database
-	err = store.Update(func(tx *bolt.Tx) error {
+	var id int64
+	err := store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__uploads"))
 		if err != nil {
 			return err
 		}
 
-		// get sequential ID for item
-		id, err := b.NextSequence()
-		if err != nil {
-			return err
+		if pid == "-1" {
+			// get sequential ID for item
+			id, err := b.NextSequence()
+			if err != nil {
+				return err
+			}
+			data.Set("id", fmt.Sprintf("%d", id))
+		} else {
+			id, err = strconv.ParseInt(pid, 10, 64)
+			if err != nil {
+				return err
+			}
 		}
-		data.Set("id", fmt.Sprintf("%d", id))
 
 		file := &item.FileUpload{}
 		dec := schema.NewDecoder()
@@ -78,12 +101,14 @@ func SetUpload(data url.Values) error {
 		if err != nil {
 			return err
 		}
-		// -
 
 		return nil
 	})
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	return int(id), nil
 }
 
 // Upload returns the value for an upload by its target (__uploads:{id})
@@ -136,3 +161,34 @@ func UploadBySlug(slug string) ([]byte, error) {
 
 	return val.Bytes(), err
 }
+
+// func replaceUpload(id string, data url.Values) error {
+// 	// Unmarsal the existing values
+// 	s := t()
+// 	err := json.Unmarshal(existingContent, &s)
+// 	if err != nil {
+// 		log.Println("Error decoding json while updating", ns, ":", err)
+// 		return j, err
+// 	}
+
+// 	// Don't allow the Item fields to be updated from form values
+// 	data.Del("id")
+// 	data.Del("uuid")
+// 	data.Del("slug")
+
+// 	dec := schema.NewDecoder()
+// 	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+// 	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+// 	err = dec.Decode(s, data)
+// 	if err != nil {
+// 		return j, err
+// 	}
+
+// 	j, err = json.Marshal(s)
+// 	if err != nil {
+// 		return j, err
+// 	}
+
+// 	return j, nil
+// 	return nil
+// }

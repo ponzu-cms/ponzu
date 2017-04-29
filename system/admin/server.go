@@ -33,6 +33,7 @@ func Run() {
 	http.HandleFunc("/admin/configure/users/delete", user.Auth(configUsersDeleteHandler))
 
 	http.HandleFunc("/admin/uploads", user.Auth(uploadContentsHandler))
+	// http.HandleFunc("/admin/uploads/search", user.Auth(uploadSearchHandler))
 
 	http.HandleFunc("/admin/contents", user.Auth(contentsHandler))
 	http.HandleFunc("/admin/contents/search", user.Auth(searchHandler))
