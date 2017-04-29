@@ -66,6 +66,7 @@ var mainAdminHTML = `
                     <div class="row collection-item">
                         <li><a class="col s12" href="/admin/configure"><i class="tiny left material-icons">settings</i>Configuration</a></li>
                         <li><a class="col s12" href="/admin/configure/users"><i class="tiny left material-icons">supervisor_account</i>Admin Users</a></li>
+                        <li><a class="col s12" href="/admin/uploads"><i class="tiny left material-icons">present_to_all</i>Addons</a></li>
                         <li><a class="col s12" href="/admin/addons"><i class="tiny left material-icons">settings_input_svideo</i>Addons</a></li>
                     </div>
                 </ul>
