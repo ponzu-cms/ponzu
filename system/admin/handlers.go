@@ -912,7 +912,7 @@ func uploadContentsHandler(res http.ResponseWriter, req *http.Request) {
 										var path = window.location.pathname;
 										var s = sort.val();
 
-										window.location.replace(path + '&order=' + s);
+										window.location.replace(path + '?order=' + s);
 									});
 
 									var order = getParam('order');
@@ -924,7 +924,7 @@ func uploadContentsHandler(res http.ResponseWriter, req *http.Request) {
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="/admin/contents/search" method="get">
+					<form class="col s4" action="/admin/uploads/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -1073,7 +1073,7 @@ func uploadContentsHandler(res http.ResponseWriter, req *http.Request) {
 	</script>
 	`
 
-	btn := `<div class="col s3"><a href="/admin/upload" class="btn new-post waves-effect waves-light">New Upload</a></div></div>`
+	btn := `<div class="col s3"><a href="/admin/edit/upload" class="btn new-post waves-effect waves-light">New Upload</a></div></div>`
 	html = html + b.String() + script + btn
 
 	adminView, err := Admin([]byte(html))
@@ -1539,9 +1539,14 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 		status = "__" + status
 	}
 
+	link := `<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>`
+	if strings.HasPrefix(typeName, "__") {
+		link = `<a href="/admin/edit/upload?id=` + cid + `">` + i.String() + `</a>`
+	}
+
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>
+				` + link + `
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
@@ -2149,7 +2154,6 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		cid := req.FormValue("id")
 		t := req.FormValue("type")
 		pt := "__uploads"
 		ts := req.FormValue("timestamp")
@@ -2165,6 +2169,27 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 			req.PostForm.Set("updated", ts)
 		}
 
+		post := interface{}(&item.FileUpload{})
+		hook, ok := post.(item.Hookable)
+		if !ok {
+			log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err = hook.BeforeSave(res, req)
+		if err != nil {
+			log.Println("Error running BeforeSave method in editHandler for:", t, err)
+			return
+		}
+
+		// StoreFiles has the SetUpload call (which is equivalent of SetContent in other handlers)
 		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
 			log.Println(err)
@@ -2229,43 +2254,6 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
-		post := interface{}(&item.FileUpload{})
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := Error400()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
-			return
-		}
-
-		err = hook.BeforeSave(res, req)
-		if err != nil {
-			log.Println("Error running BeforeSave method in editHandler for:", t, err)
-			return
-		}
-
-		id, err := db.SetUpload(t+":"+cid, req.PostForm)
-		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := Error500()
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
-			return
-		}
-
-		// set the target in the context so user can get saved value from db in hook
-		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
-		req = req.WithContext(ctx)
-
 		err = hook.AfterSave(res, req)
 		if err != nil {
 			log.Println("Error running AfterSave method in editHandler for:", t, err)
@@ -2274,15 +2262,9 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 
 		scheme := req.URL.Scheme
 		host := req.URL.Host
-		path := req.URL.Path
-		sid := fmt.Sprintf("%d", id)
-		redir := scheme + host + path + "?type=" + pt + "&id=" + sid
-
-		if req.URL.Query().Get("status") == "pending" {
-			redir += "&status=pending"
-		}
-
+		redir := scheme + host + "/admin/uploads"
 		http.Redirect(res, req, redir, http.StatusFound)
+
 	case http.MethodPut:
 		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
@@ -2414,6 +2396,109 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
+	html = html + b.String() + btn
+
+	adminView, err := Admin([]byte(html))
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "text/html")
+	res.Write(adminView)
+}
+
+func uploadSearchHandler(res http.ResponseWriter, req *http.Request) {
+	q := req.URL.Query()
+	t := "__uploads"
+	search := q.Get("q")
+	status := q.Get("status")
+
+	if t == "" || search == "" {
+		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+		return
+	}
+
+	posts := db.UploadAll()
+	b := &bytes.Buffer{}
+	p := interface{}(&item.FileUpload{}).(editor.Editable)
+
+	html := `<div class="col s9 card">		
+					<div class="card-content">
+					<div class="row">
+					<div class="card-title col s7">Uploads Results</div>	
+					<form class="col s4" action="/admin/uploads/search" method="get">
+						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
+							<i class="right material-icons search-icon">search</i>
+							<input class="search" name="q" type="text" placeholder="Within all Upload fields" class="search"/>
+							<input type="hidden" name="type" value="` + t + `" />
+						</div>
+                    </form>	
+					</div>
+					<ul class="posts row">`
+
+	for i := range posts {
+		// skip posts that don't have any matching search criteria
+		match := strings.ToLower(search)
+		all := strings.ToLower(string(posts[i]))
+		if !strings.Contains(all, match) {
+			continue
+		}
+
+		err := json.Unmarshal(posts[i], &p)
+		if err != nil {
+			log.Println("Error unmarshal search result json into", t, err, posts[i])
+
+			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+			_, err = b.Write([]byte(post))
+			if err != nil {
+				log.Println(err)
+
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+				}
+
+				res.Write(errView)
+				return
+			}
+			continue
+		}
+
+		post := adminPostListItem(p, t, status)
+		_, err = b.Write([]byte(post))
+		if err != nil {
+			log.Println(err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	_, err := b.WriteString(`</ul></div></div>`)
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	btn := `<div class="col s3"><a href="/admin/edit/upload" class="btn new-post waves-effect waves-light">New Upload</a></div></div>`
 	html = html + b.String() + btn
 
 	adminView, err := Admin([]byte(html))

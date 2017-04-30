@@ -2,15 +2,16 @@ package db
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/item"
-
-	"strconv"
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
@@ -25,7 +26,8 @@ func SetUpload(target string, data url.Values) (int, error) {
 	}
 	pid := parts[1]
 
-	if data.Get("uuid") == "" {
+	if data.Get("uuid") == "" ||
+		data.Get("uuid") == (uuid.UUID{}).String() {
 		// set new UUID for upload
 		data.Set("uuid", uuid.NewV4().String())
 	}
@@ -48,8 +50,9 @@ func SetUpload(target string, data url.Values) (int, error) {
 	data.Set("updated", ts)
 
 	// store in database
-	var id int64
-	err := store.Update(func(tx *bolt.Tx) error {
+	var id uint64
+	var err error
+	err = store.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__uploads"))
 		if err != nil {
 			return err
@@ -57,16 +60,18 @@ func SetUpload(target string, data url.Values) (int, error) {
 
 		if pid == "-1" {
 			// get sequential ID for item
-			id, err := b.NextSequence()
+			id, err = b.NextSequence()
 			if err != nil {
 				return err
 			}
 			data.Set("id", fmt.Sprintf("%d", id))
 		} else {
-			id, err = strconv.ParseInt(pid, 10, 64)
+			uid, err := strconv.ParseInt(pid, 10, 64)
 			if err != nil {
 				return err
 			}
+			id = uint64(uid)
+			data.Set("id", fmt.Sprintf("%d", id))
 		}
 
 		file := &item.FileUpload{}
@@ -84,7 +89,11 @@ func SetUpload(target string, data url.Values) (int, error) {
 			return err
 		}
 
-		err = b.Put([]byte(data.Get("id")), j)
+		uploadKey, err := key(data.Get("id"))
+		if err != nil {
+			return err
+		}
+		err = b.Put(uploadKey, j)
 		if err != nil {
 			return err
 		}
@@ -96,7 +105,8 @@ func SetUpload(target string, data url.Values) (int, error) {
 		}
 
 		k := []byte(data.Get("slug"))
-		v := []byte(fmt.Sprintf("%s:%d", "__uploads", id))
+		v := []byte(fmt.Sprintf("__uploads:%d", id))
+
 		err = b.Put(k, v)
 		if err != nil {
 			return err
@@ -119,9 +129,12 @@ func Upload(target string) ([]byte, error) {
 		return nil, fmt.Errorf("invalid target for upload: %s", target)
 	}
 
-	id := []byte(parts[1])
+	id, err := key(parts[1])
+	if err != nil {
+		return nil, err
+	}
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err = store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("__uploads"))
 		if b == nil {
 			return bolt.ErrBucketNotFound
@@ -145,11 +158,12 @@ func UploadBySlug(slug string) ([]byte, error) {
 			return bolt.ErrBucketNotFound
 		}
 
-		target := b.Get([]byte(slug))
-		if target == nil {
-			return fmt.Errorf("no value for target in %s", "__contentIndex")
+		v := b.Get([]byte(slug))
+		if v == nil {
+			return fmt.Errorf("no value for key '%s' in __contentIndex", slug)
 		}
-		j, err := Upload(string(target))
+
+		j, err := Upload(string(v))
 		if err != nil {
 			return err
 		}
@@ -162,33 +176,38 @@ func UploadBySlug(slug string) ([]byte, error) {
 	return val.Bytes(), err
 }
 
-// func replaceUpload(id string, data url.Values) error {
-// 	// Unmarsal the existing values
-// 	s := t()
-// 	err := json.Unmarshal(existingContent, &s)
-// 	if err != nil {
-// 		log.Println("Error decoding json while updating", ns, ":", err)
-// 		return j, err
-// 	}
+// UploadAll returns a [][]byte containing all upload data from the system
+func UploadAll() [][]byte {
+	var uploads [][]byte
+	err := store.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("__uploads"))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
 
-// 	// Don't allow the Item fields to be updated from form values
-// 	data.Del("id")
-// 	data.Del("uuid")
-// 	data.Del("slug")
+		numKeys := b.Stats().KeyN
+		uploads = make([][]byte, 0, numKeys)
 
-// 	dec := schema.NewDecoder()
-// 	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
-// 	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
-// 	err = dec.Decode(s, data)
-// 	if err != nil {
-// 		return j, err
-// 	}
+		return b.ForEach(func(k, v []byte) error {
+			uploads = append(uploads, v)
+			return nil
+		})
+	})
+	if err != nil {
+		log.Println("Error in UploadAll:", err)
+		return nil
+	}
 
-// 	j, err = json.Marshal(s)
-// 	if err != nil {
-// 		return j, err
-// 	}
+	return uploads
+}
 
-// 	return j, nil
-// 	return nil
-// }
+func key(sid string) ([]byte, error) {
+	id, err := strconv.Atoi(sid)
+	if err != nil {
+		return nil, err
+	}
+
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, uint64(id))
+	return b, err
+}

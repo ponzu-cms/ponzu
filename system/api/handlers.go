@@ -210,7 +210,7 @@ func uploadsHandler(res http.ResponseWriter, req *http.Request) {
 	upload, err := db.UploadBySlug(slug)
 	if err != nil {
 		log.Println("Error finding upload by slug:", slug, err)
-		res.WriteHeader(http.StatusInternalServerError)
+		res.WriteHeader(http.StatusNotFound)
 		return
 	}
 

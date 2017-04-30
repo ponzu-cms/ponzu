@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ponzu-cms/ponzu/management/editor"
 )
@@ -30,15 +31,12 @@ func (f *FileUpload) MarshalEditor() ([]byte, error) {
 
 				return []byte(`
             <div class="input-field col s12">
-                <label class="active">` + f.Name + `</label>
                 <!-- Add your custom editor field view here. -->
-				<h4>` + f.Name + `</h4>
-
-				<img class="preview" src="` + f.Path + `"/>
-				<p>File information:</p>
+				<h5>` + f.Name + `</h5>
 				<ul>
-					<li>Content-Length: ` + fmt.Sprintf("%s", FmtBytes(float64(f.ContentLength))) + `</li>
-					<li>Content-Type: ` + f.ContentType + `</li>
+					<li><span class="grey-text text-lighten-1">Content-Length:</span> ` + fmt.Sprintf("%s", FmtBytes(float64(f.ContentLength))) + `</li>
+					<li><span class="grey-text text-lighten-1">Content-Type:</span> ` + f.ContentType + `</li>
+					<li><span class="grey-text text-lighten-1">Uploaded:</span> ` + FmtTime(f.Timestamp) + `</li>
 				</ul>
             </div>
             `)
@@ -55,17 +53,13 @@ func (f *FileUpload) MarshalEditor() ([]byte, error) {
 		return nil, err
 	}
 
-	open := []byte(`
-	<div class="card">
-		<div class="card-content">
-			<div class="card-title">File Uploads</div>
-		</div>
-		<form action="/admin/uploads" method="post">
-	`)
-	close := []byte(`</form></div>`)
 	script := []byte(`
 	<script>
 		$(function() {
+			// change form action to upload-specific endpoint
+			var form = $('form');
+			form.attr('action', '/admin/edit/upload');
+			
 			// hide default fields & labels unnecessary for the config
 			var fields = $('.default-fields');
 			fields.css('position', 'relative');
@@ -88,14 +82,17 @@ func (f *FileUpload) MarshalEditor() ([]byte, error) {
 			fields.find('input[name=client_secret]').attr('name', '');
 
 			// hide save, show delete
-			fields.find('.save-post').hide();
-			fields.find('.delete-post').show();
+			if ($('h5').length > 0) {
+				fields.find('.save-post').hide();
+				fields.find('.delete-post').show();
+			} else {
+				fields.find('.save-post').show();
+				fields.find('.delete-post').hide();
+			}
 		});
 	</script>
 	`)
 
-	view = append(open, view...)
-	view = append(view, close...)
 	view = append(view, script...)
 
 	return view, nil
@@ -135,4 +132,9 @@ func FmtBytes(size float64) string {
 		return fmt.Sprintf("%0.f B", size)
 	}
 
+}
+
+// FmtTime shows a human readable time based on the timestamp
+func FmtTime(t int64) string {
+	return time.Unix(t/1000, 0).Format("03:04 PM Jan 2, 2006") + " (UTC)"
 }
