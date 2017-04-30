@@ -201,6 +201,28 @@ func UploadAll() [][]byte {
 	return uploads
 }
 
+// DeleteUpload removes the value for an upload at its key id, based on the
+// target provided i.e. __uploads:{id}
+func DeleteUpload(target string) error {
+	parts := strings.Split(target, ":")
+	if len(parts) < 2 {
+		return fmt.Errorf("Error deleting upload, invalid target %s", target)
+	}
+	id, err := key(parts[1])
+	if err != nil {
+		return err
+	}
+
+	return store.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(parts[0]))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+
+		return b.Delete(id)
+	})
+}
+
 func key(sid string) ([]byte, error) {
 	id, err := strconv.Atoi(sid)
 	if err != nil {
