@@ -1913,6 +1913,20 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		if cid == "-1" {
+			err = hook.BeforeAdminCreate(res, req)
+			if err != nil {
+				log.Println("Error running BeforeAdminCreate method in editHandler for:", t, err)
+				return
+			}
+		} else {
+			err = hook.BeforeAdminUpdate(res, req)
+			if err != nil {
+				log.Println("Error running BeforeAdminUpdate method in editHandler for:", t, err)
+				return
+			}
+		}
+
 		err = hook.BeforeSave(res, req)
 		if err != nil {
 			log.Println("Error running BeforeSave method in editHandler for:", t, err)
@@ -1940,6 +1954,20 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Println("Error running AfterSave method in editHandler for:", t, err)
 			return
+		}
+
+		if cid == "-1" {
+			err = hook.AfterAdminCreate(res, req)
+			if err != nil {
+				log.Println("Error running AfterAdminUpdate method in editHandler for:", t, err)
+				return
+			}
+		} else {
+			err = hook.AfterAdminUpdate(res, req)
+			if err != nil {
+				log.Println("Error running AfterAdminUpdate method in editHandler for:", t, err)
+				return
+			}
 		}
 
 		scheme := req.URL.Scheme
@@ -2029,6 +2057,12 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	err = hook.BeforeAdminDelete(res, req)
+	if err != nil {
+		log.Println("Error running BeforeAdminDelete method in deleteHandler for:", t, err)
+		return
+	}
+
 	err = hook.BeforeDelete(res, req)
 	if err != nil {
 		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
@@ -2043,6 +2077,12 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	err = hook.AfterDelete(res, req)
+	if err != nil {
+		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
+		return
+	}
+
+	err = hook.AfterAdminDelete(res, req)
 	if err != nil {
 		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
 		return
