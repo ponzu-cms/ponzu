@@ -67,6 +67,13 @@ type Hookable interface {
 
 	BeforeReject(http.ResponseWriter, *http.Request) error
 	AfterReject(http.ResponseWriter, *http.Request) error
+
+	// Enable/Disable used for addons
+	BeforeEnable(http.ResponseWriter, *http.Request) error
+	AfterEnable(http.ResponseWriter, *http.Request) error
+
+	BeforeDisable(http.ResponseWriter, *http.Request) error
+	AfterDisable(http.ResponseWriter, *http.Request) error
 }
 
 // Hideable lets a user keep items hidden

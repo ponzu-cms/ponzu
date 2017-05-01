@@ -2698,7 +2698,21 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 		id := req.PostFormValue("id")
 		action := strings.ToLower(req.PostFormValue("action"))
 
-		_, err = db.Addon(id)
+		at, ok := addon.Types[id]
+		if !ok {
+			log.Println("Error: no addon type found for:", id)
+			log.Println(err)
+			res.WriteHeader(http.StatusNotFound)
+			errView, err := Error404()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		b, err := db.Addon(id)
 		if err == db.ErrNoAddonExists {
 			log.Println(err)
 			res.WriteHeader(http.StatusNotFound)
@@ -2722,9 +2736,29 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		adn := at()
+		err = json.Unmarshal(b, adn)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		h, ok := adn.(item.Hookable)
+		if !ok {
+			log.Println("Addon", adn, "does not implement the item.Hookable interface or embed item.Item")
+			return
+		}
+
 		switch action {
 		case "enable":
-			err := addon.Enable(id)
+			err := h.BeforeEnable(res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2736,8 +2770,61 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 				res.Write(errView)
 				return
 			}
+
+			err = addon.Enable(id)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			err = h.AfterEnable(res, req)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
 		case "disable":
-			err := addon.Disable(id)
+			err := h.BeforeDisable(res, req)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			err = addon.Disable(id)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			err = h.AfterDisable(res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
