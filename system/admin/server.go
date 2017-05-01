@@ -32,6 +32,9 @@ func Run() {
 	http.HandleFunc("/admin/configure/users/edit", user.Auth(configUsersEditHandler))
 	http.HandleFunc("/admin/configure/users/delete", user.Auth(configUsersDeleteHandler))
 
+	http.HandleFunc("/admin/uploads", user.Auth(uploadContentsHandler))
+	http.HandleFunc("/admin/uploads/search", user.Auth(uploadSearchHandler))
+
 	http.HandleFunc("/admin/contents", user.Auth(contentsHandler))
 	http.HandleFunc("/admin/contents/search", user.Auth(searchHandler))
 
@@ -39,6 +42,7 @@ func Run() {
 	http.HandleFunc("/admin/edit/delete", user.Auth(deleteHandler))
 	http.HandleFunc("/admin/edit/approve", user.Auth(approveContentHandler))
 	http.HandleFunc("/admin/edit/upload", user.Auth(editUploadHandler))
+	http.HandleFunc("/admin/edit/upload/delete", user.Auth(deleteUploadHandler))
 
 	pwd, err := os.Getwd()
 	if err != nil {

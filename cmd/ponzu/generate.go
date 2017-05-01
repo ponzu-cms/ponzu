@@ -24,7 +24,7 @@ type generateField struct {
 	View     string
 }
 
-var reservedFieledNames = map[string]string{
+var reservedFieldNames = map[string]string{
 	"uuid":      "UUID",
 	"item":      "Item",
 	"id":        "ID",
@@ -36,7 +36,7 @@ var reservedFieledNames = map[string]string{
 func legalFieldNames(fields ...generateField) (bool, map[string]string) {
 	conflicts := make(map[string]string)
 	for _, field := range fields {
-		for jsonName, fieldName := range reservedFieledNames {
+		for jsonName, fieldName := range reservedFieldNames {
 			if field.JSONName == jsonName || field.Name == fieldName {
 				conflicts[jsonName] = fieldName
 			}

@@ -827,6 +827,266 @@ func recoveryKeyHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func uploadContentsHandler(res http.ResponseWriter, req *http.Request) {
+	q := req.URL.Query()
+
+	order := strings.ToLower(q.Get("order"))
+	if order != "asc" {
+		order = "desc"
+	}
+
+	pt := interface{}(&item.FileUpload{})
+
+	p, ok := pt.(editor.Editable)
+	if !ok {
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+	if err != nil {
+		if q.Get("count") == "" {
+			count = 10
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
+	if err != nil {
+		if q.Get("offset") == "" {
+			offset = 0
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	opts := db.QueryOptions{
+		Count:  count,
+		Offset: offset,
+		Order:  order,
+	}
+
+	b := &bytes.Buffer{}
+	var total int
+	var posts [][]byte
+
+	html := `<div class="col s9 card">		
+					<div class="card-content">
+					<div class="row">
+					<div class="col s8">
+						<div class="row">
+							<div class="card-title col s7">Uploaded Items</div>
+							<div class="col s5 input-field inline">
+								<select class="browser-default __ponzu sort-order">
+									<option value="DESC">New to Old</option>
+									<option value="ASC">Old to New</option>
+								</select>
+								<label class="active">Sort:</label>
+							</div>	
+							<script>
+								$(function() {
+									var sort = $('select.__ponzu.sort-order');
+
+									sort.on('change', function() {
+										var path = window.location.pathname;
+										var s = sort.val();
+
+										window.location.replace(path + '?order=' + s);
+									});
+
+									var order = getParam('order');
+									if (order !== '') {
+										sort.val(order);
+									}
+									
+								});
+							</script>
+						</div>
+					</div>
+					<form class="col s4" action="/admin/uploads/search" method="get">
+						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
+							<i class="right material-icons search-icon">search</i>
+							<input class="search" name="q" type="text" placeholder="Within all Upload fields" class="search"/>
+							<input type="hidden" name="type" value="__uploads" />
+						</div>
+                    </form>	
+					</div>`
+
+	t := "__uploads"
+	status := ""
+	total, posts = db.Query(t, opts)
+
+	for i := range posts {
+		err := json.Unmarshal(posts[i], &p)
+		if err != nil {
+			log.Println("Error unmarshal json into", t, err, string(posts[i]))
+
+			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+			_, err := b.Write([]byte(post))
+			if err != nil {
+				log.Println(err)
+
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+				}
+
+				res.Write(errView)
+				return
+			}
+			continue
+		}
+
+		post := adminPostListItem(p, t, status)
+		_, err = b.Write(post)
+		if err != nil {
+			log.Println(err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	html += `<ul class="posts row">`
+
+	_, err = b.Write([]byte(`</ul>`))
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	statusDisabled := "disabled"
+	prevStatus := ""
+	nextStatus := ""
+	// total may be less than 10 (default count), so reset count to match total
+	if total < count {
+		count = total
+	}
+	// nothing previous to current list
+	if offset == 0 {
+		prevStatus = statusDisabled
+	}
+	// nothing after current list
+	if (offset+1)*count >= total {
+		nextStatus = statusDisabled
+	}
+
+	// set up pagination values
+	urlFmt := req.URL.Path + "?count=%d&offset=%d&&order=%s"
+	prevURL := fmt.Sprintf(urlFmt, count, offset-1, order)
+	nextURL := fmt.Sprintf(urlFmt, count, offset+1, order)
+	start := 1 + count*offset
+	end := start + count - 1
+
+	if total < end {
+		end = total
+	}
+
+	pagination := fmt.Sprintf(`
+	<ul class="pagination row">
+		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
+		<li class="col s8">%d to %d of %d</li>
+		<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
+	</ul>
+	`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
+
+	// show indicator that a collection of items will be listed implicitly, but
+	// that none are created yet
+	if total < 1 {
+		pagination = `
+		<ul class="pagination row">
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_left</i></a></li>
+			<li class="col s8">0 to 0 of 0</li>
+			<li class="col s2 waves-effect disabled"><a href="#"><i class="material-icons">chevron_right</i></a></li>
+		</ul>
+		`
+	}
+
+	_, err = b.Write([]byte(pagination + `</div></div>`))
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	script := `
+	<script>
+		$(function() {
+			var del = $('.quick-delete-post.__ponzu span');
+			del.on('click', function(e) {
+				if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+					$(e.target).parent().submit();
+				}
+			});
+		});
+
+		// disable link from being clicked if parent is 'disabled'
+		$(function() {
+			$('ul.pagination li.disabled a').on('click', function(e) {
+				e.preventDefault();
+			});
+		});
+	</script>
+	`
+
+	btn := `<div class="col s3"><a href="/admin/edit/upload" class="btn new-post waves-effect waves-light">New Upload</a></div></div>`
+	html = html + b.String() + script + btn
+
+	adminView, err := Admin([]byte(html))
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "text/html")
+	res.Write(adminView)
+}
+
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	t := q.Get("type")
@@ -1279,9 +1539,14 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 		status = "__" + status
 	}
 
+	link := `<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>`
+	if strings.HasPrefix(typeName, "__") {
+		link = `<a href="/admin/edit/upload?id=` + cid + `">` + i.String() + `</a>`
+	}
+
 	post := `
 			<li class="col s12">
-				<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>
+				` + link + `
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
@@ -1796,6 +2061,291 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 	http.Redirect(res, req, redir, http.StatusFound)
 }
 
+func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	id := req.FormValue("id")
+	t := "__uploads"
+
+	if id == "" || t == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	post := interface{}(&item.FileUpload{})
+	hook, ok := post.(item.Hookable)
+	if !ok {
+		log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		errView, err := Error400()
+		if err != nil {
+			return
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	err = hook.BeforeDelete(res, req)
+	if err != nil {
+		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
+		return
+	}
+
+	err = db.DeleteUpload(t + ":" + id)
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = hook.AfterDelete(res, req)
+	if err != nil {
+		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
+		return
+	}
+
+	redir := "/admin/uploads"
+	http.Redirect(res, req, redir, http.StatusFound)
+}
+
+func editUploadHandler(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		q := req.URL.Query()
+		i := q.Get("id")
+		t := "__uploads"
+
+		post := &item.FileUpload{}
+
+		if i != "" {
+			data, err := db.Upload(t + ":" + i)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			if len(data) < 1 || data == nil {
+				res.WriteHeader(http.StatusNotFound)
+				errView, err := Error404()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+
+			err = json.Unmarshal(data, post)
+			if err != nil {
+				log.Println(err)
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					return
+				}
+
+				res.Write(errView)
+				return
+			}
+		} else {
+			it, ok := interface{}(post).(item.Identifiable)
+			if !ok {
+				log.Println("Content type", t, "doesn't implement item.Identifiable")
+				return
+			}
+
+			it.SetItemID(-1)
+		}
+
+		m, err := manager.Manage(interface{}(post).(editor.Editable), t)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		adminView, err := Admin(m)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "text/html")
+		res.Write(adminView)
+
+	case http.MethodPost:
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		t := req.FormValue("type")
+		pt := "__uploads"
+		ts := req.FormValue("timestamp")
+		up := req.FormValue("updated")
+
+		// create a timestamp if one was not set
+		if ts == "" {
+			ts = fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UTC().UnixNano()/int64(time.Millisecond))
+			req.PostForm.Set("timestamp", ts)
+		}
+
+		if up == "" {
+			req.PostForm.Set("updated", ts)
+		}
+
+		post := interface{}(&item.FileUpload{})
+		hook, ok := post.(item.Hookable)
+		if !ok {
+			log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		err = hook.BeforeSave(res, req)
+		if err != nil {
+			log.Println("Error running BeforeSave method in editHandler for:", t, err)
+			return
+		}
+
+		// StoreFiles has the SetUpload call (which is equivalent of SetContent in other handlers)
+		urlPaths, err := upload.StoreFiles(req)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
+		for name, urlPath := range urlPaths {
+			req.PostForm.Set(name, urlPath)
+		}
+
+		// check for any multi-value fields (ex. checkbox fields)
+		// and correctly format for db storage. Essentially, we need
+		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+		fieldOrderValue := make(map[string]map[string][]string)
+		ordVal := make(map[string][]string)
+		for k, v := range req.PostForm {
+			if strings.Contains(k, ".") {
+				fo := strings.Split(k, ".")
+
+				// put the order and the field value into map
+				field := string(fo[0])
+				order := string(fo[1])
+				fieldOrderValue[field] = ordVal
+
+				// orderValue is 0:[?type=Thing&id=1]
+				orderValue := fieldOrderValue[field]
+				orderValue[order] = v
+				fieldOrderValue[field] = orderValue
+
+				// discard the post form value with name.N
+				req.PostForm.Del(k)
+			}
+
+		}
+
+		// add/set the key & value to the post form in order
+		for f, ov := range fieldOrderValue {
+			for i := 0; i < len(ov); i++ {
+				position := fmt.Sprintf("%d", i)
+				fieldValue := ov[position]
+
+				if req.PostForm.Get(f) == "" {
+					for i, fv := range fieldValue {
+						if i == 0 {
+							req.PostForm.Set(f, fv)
+						} else {
+							req.PostForm.Add(f, fv)
+						}
+					}
+				} else {
+					for _, fv := range fieldValue {
+						req.PostForm.Add(f, fv)
+					}
+				}
+			}
+		}
+
+		err = hook.AfterSave(res, req)
+		if err != nil {
+			log.Println("Error running AfterSave method in editHandler for:", t, err)
+			return
+		}
+
+		scheme := req.URL.Scheme
+		host := req.URL.Host
+		redir := scheme + host + "/admin/uploads"
+		http.Redirect(res, req, redir, http.StatusFound)
+
+	case http.MethodPut:
+		urlPaths, err := upload.StoreFiles(req)
+		if err != nil {
+			log.Println("Couldn't store file uploads.", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write([]byte(`{"data": [{"url": "` + urlPaths["file"] + `"}]}`))
+	default:
+		res.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+/*
 func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
@@ -1812,6 +2362,7 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	res.Write([]byte(`{"data": [{"url": "` + urlPaths["file"] + `"}]}`))
 }
+*/
 
 func searchHandler(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
@@ -1909,6 +2460,109 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
+	html = html + b.String() + btn
+
+	adminView, err := Admin([]byte(html))
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "text/html")
+	res.Write(adminView)
+}
+
+func uploadSearchHandler(res http.ResponseWriter, req *http.Request) {
+	q := req.URL.Query()
+	t := "__uploads"
+	search := q.Get("q")
+	status := q.Get("status")
+
+	if t == "" || search == "" {
+		http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+		return
+	}
+
+	posts := db.UploadAll()
+	b := &bytes.Buffer{}
+	p := interface{}(&item.FileUpload{}).(editor.Editable)
+
+	html := `<div class="col s9 card">		
+					<div class="card-content">
+					<div class="row">
+					<div class="card-title col s7">Uploads Results</div>	
+					<form class="col s4" action="/admin/uploads/search" method="get">
+						<div class="input-field post-search inline">
+							<label class="active">Search:</label>
+							<i class="right material-icons search-icon">search</i>
+							<input class="search" name="q" type="text" placeholder="Within all Upload fields" class="search"/>
+							<input type="hidden" name="type" value="` + t + `" />
+						</div>
+                    </form>	
+					</div>
+					<ul class="posts row">`
+
+	for i := range posts {
+		// skip posts that don't have any matching search criteria
+		match := strings.ToLower(search)
+		all := strings.ToLower(string(posts[i]))
+		if !strings.Contains(all, match) {
+			continue
+		}
+
+		err := json.Unmarshal(posts[i], &p)
+		if err != nil {
+			log.Println("Error unmarshal search result json into", t, err, posts[i])
+
+			post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
+			_, err = b.Write([]byte(post))
+			if err != nil {
+				log.Println(err)
+
+				res.WriteHeader(http.StatusInternalServerError)
+				errView, err := Error500()
+				if err != nil {
+					log.Println(err)
+				}
+
+				res.Write(errView)
+				return
+			}
+			continue
+		}
+
+		post := adminPostListItem(p, t, status)
+		_, err = b.Write([]byte(post))
+		if err != nil {
+			log.Println(err)
+
+			res.WriteHeader(http.StatusInternalServerError)
+			errView, err := Error500()
+			if err != nil {
+				log.Println(err)
+			}
+
+			res.Write(errView)
+			return
+		}
+	}
+
+	_, err := b.WriteString(`</ul></div></div>`)
+	if err != nil {
+		log.Println(err)
+
+		res.WriteHeader(http.StatusInternalServerError)
+		errView, err := Error500()
+		if err != nil {
+			log.Println(err)
+		}
+
+		res.Write(errView)
+		return
+	}
+
+	btn := `<div class="col s3"><a href="/admin/edit/upload" class="btn new-post waves-effect waves-light">New Upload</a></div></div>`
 	html = html + b.String() + btn
 
 	adminView, err := Admin([]byte(html))

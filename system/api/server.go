@@ -17,5 +17,7 @@ func Run() {
 
 	http.HandleFunc("/api/content/delete", Record(CORS(deleteContentHandler)))
 
-	http.HandleFunc("/api/search", Record(CORS(searchContentHandler)))
+	http.HandleFunc("/api/search", Record(CORS(Gzip(searchContentHandler))))
+
+	http.HandleFunc("/api/uploads", Record(CORS(Gzip(uploadsHandler))))
 }

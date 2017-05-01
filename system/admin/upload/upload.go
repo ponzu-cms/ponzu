@@ -5,12 +5,16 @@ package upload
 import (
 	"fmt"
 	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
@@ -86,16 +90,33 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 		}
 
 		// copy file from src to dst on disk
-		if _, err = io.Copy(dst, src); err != nil {
+		var size int64
+		if size, err = io.Copy(dst, src); err != nil {
 			err := fmt.Errorf("Failed to copy uploaded file to destination: %s", err)
 			return nil, err
 		}
 
 		// add name:urlPath to req.PostForm to be inserted into db
 		urlPath := fmt.Sprintf("/%s/%s/%d/%02d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), filename)
-
 		urlPaths[name] = urlPath
+
+		// add upload information to db
+		go storeFileInfo(size, filename, urlPath, fds)
 	}
 
 	return urlPaths, nil
+}
+
+func storeFileInfo(size int64, filename, urlPath string, fds []*multipart.FileHeader) {
+	data := url.Values{
+		"name":           []string{filename},
+		"path":           []string{urlPath},
+		"content_type":   []string{fds[0].Header.Get("Content-Type")},
+		"content_length": []string{fmt.Sprintf("%d", size)},
+	}
+
+	_, err := db.SetUpload("__uploads:-1", data)
+	if err != nil {
+		log.Println("Error saving file upload record to database:", err)
+	}
 }
