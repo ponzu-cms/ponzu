@@ -237,3 +237,9 @@ func reverseDNS(meta Meta) (string, error) {
 
 	return strings.Join(append(strap, name), "."), nil
 }
+
+// String returns the addon name and overrides the item String() method in
+// item.Identifiable interface
+func (a *Addon) String() string {
+	return a.PonzuAddonName
+}

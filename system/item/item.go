@@ -56,6 +56,15 @@ type Hookable interface {
 	BeforeAPIDelete(http.ResponseWriter, *http.Request) error
 	AfterAPIDelete(http.ResponseWriter, *http.Request) error
 
+	BeforeAdminCreate(http.ResponseWriter, *http.Request) error
+	AfterAdminCreate(http.ResponseWriter, *http.Request) error
+
+	BeforeAdminUpdate(http.ResponseWriter, *http.Request) error
+	AfterAdminUpdate(http.ResponseWriter, *http.Request) error
+
+	BeforeAdminDelete(http.ResponseWriter, *http.Request) error
+	AfterAdminDelete(http.ResponseWriter, *http.Request) error
+
 	BeforeSave(http.ResponseWriter, *http.Request) error
 	AfterSave(http.ResponseWriter, *http.Request) error
 
@@ -67,6 +76,13 @@ type Hookable interface {
 
 	BeforeReject(http.ResponseWriter, *http.Request) error
 	AfterReject(http.ResponseWriter, *http.Request) error
+
+	// Enable/Disable used for addons
+	BeforeEnable(http.ResponseWriter, *http.Request) error
+	AfterEnable(http.ResponseWriter, *http.Request) error
+
+	BeforeDisable(http.ResponseWriter, *http.Request) error
+	AfterDisable(http.ResponseWriter, *http.Request) error
 }
 
 // Hideable lets a user keep items hidden
@@ -173,6 +189,36 @@ func (i Item) AfterAPIDelete(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
+// BeforeAdminCreate is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeAdminCreate(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterAdminCreate is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterAdminCreate(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// BeforeAdminUpdate is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeAdminUpdate(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterAdminUpdate is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterAdminUpdate(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// BeforeAdminDelete is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeAdminDelete(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterAdminDelete is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterAdminDelete(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable
 func (i Item) BeforeSave(res http.ResponseWriter, req *http.Request) error {
 	return nil
@@ -210,6 +256,26 @@ func (i Item) BeforeReject(res http.ResponseWriter, req *http.Request) error {
 
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
 func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// BeforeEnable is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeEnable(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterEnable is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterEnable(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// BeforeDisable is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeDisable(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterDisable is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterDisable(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
