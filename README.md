@@ -41,8 +41,8 @@ $ ponzu gen content song title:"string" artist:"string" rating:"int" opinion:"st
 - Development: self-signed certificates auto-generated
 - Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)  
 
-## Wiki
-For more detailed information, check out the [wiki](https://github.com/ponzu-cms/ponzu/wiki)
+## Documentation
+For more detailed documentation, check out the [docs](https://docs.ponzu-cms.org)
 
 ## Installation
 
