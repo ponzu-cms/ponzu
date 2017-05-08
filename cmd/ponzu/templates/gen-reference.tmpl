@@ -1,0 +1,6 @@
+View: reference.Select("[[ .Name ]]", [[ .Initial ]], map[string]string{
+        "label": "[[ .Name ]]",
+    }, 
+    "[[ .ReferenceName ]]", 
+    `[[ range .ReferenceJSONTags ]]{{ .[[ . ]] }} [[ else ]][[ .ReferenceName ]]: {{ .id }}[[ end ]]`,
+),

@@ -2,7 +2,9 @@ package content
 
 import (
 	"fmt"
-
+	{{ if .HasReferences }}
+	"github.com/bosssauce/reference"
+	{{ end }}
 	"github.com/ponzu-cms/ponzu/management/editor"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
