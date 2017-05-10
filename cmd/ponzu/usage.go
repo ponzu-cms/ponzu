@@ -51,7 +51,7 @@ new <directory>
 	$ ponzu new myProject
 	> New ponzu project created at $GOPATH/src/myProject
 
-	Errors will be reported, but successful commands retrun nothing.
+	Errors will be reported, but successful commands return nothing.
 
 
 `
@@ -77,7 +77,7 @@ generate, gen, g <generator type (,...fields)>
 	The generate command will intelligently parse more sophisticated field names
 	such as 'field_name' and convert it to 'FieldName' and vice versa, only where 
 	appropriate as per common Go idioms. Errors will be reported, but successful 
-	generate commands retrun nothing.
+	generate commands return nothing.
 
 
 `
