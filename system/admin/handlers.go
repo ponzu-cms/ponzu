@@ -1497,18 +1497,16 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
 			New ` + t + `
 		</a>`
-	html = html + b.String() + btn
 
 	if _, ok := pt.(format.CSVFormattable); ok {
-		btn = `<br/>
+		btn += `<br/>
 				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					.CSV
 				</a>`
-		html = html + b.String() + btn
 	}
 
-	html += `</div></div>` + script
+	html += b.String() + script + btn + `</div></div>`
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
