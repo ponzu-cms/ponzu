@@ -1,21 +1,20 @@
 package admin
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"encoding/csv"
-
-	"io/ioutil"
-	"os"
-
 	"github.com/ponzu-cms/ponzu/management/format"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+
 	"github.com/tidwall/gjson"
 )
 
@@ -108,6 +107,8 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 			return
 		}
 	}
+
+	csvBuf.Flush()
 
 	// write the buffer to a content-disposition response
 	csvB, err := ioutil.ReadAll(tmpFile)

@@ -1496,21 +1496,19 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	btn := `<div class="col s3">
 		<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
 			New ` + t + `
-		</a>
-		</div>`
+		</a>`
 	html = html + b.String() + btn
 
 	if _, ok := pt.(format.CSVFormattable); ok {
-		btn = `<div class="col s3">
-				<a href="/admin/edit/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+		btn = `<br/>
+				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					.CSV
-				</a>
-				</div>`
+				</a>`
 		html = html + b.String() + btn
 	}
 
-	html += `</div>` + script
+	html += `</div></div>` + script
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
@@ -2527,21 +2525,19 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 	btn := `<div class="col s3">
 			<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
 				New ` + t + `
-			</a>
-			</div>`
+			</a>`
 	html = html + b.String() + btn
 
 	if _, ok := post.(format.CSVFormattable); ok {
-		btn = `<div class="col s3">
-				<a href="/admin/edit/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+		btn = `<br/>
+				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					.CSV
-				</a>
-				</div>`
+				</a>`
 		html = html + b.String() + btn
 	}
 
-	html += `</div>`
+	html += `</div></div>`
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
