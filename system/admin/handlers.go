@@ -1502,7 +1502,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		btn += `<br/>
 				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
-					.CSV
+					CSV
 				</a>`
 	}
 
