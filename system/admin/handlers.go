@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/management/editor"
+	"github.com/ponzu-cms/ponzu/management/format"
 	"github.com/ponzu-cms/ponzu/management/manager"
 	"github.com/ponzu-cms/ponzu/system/addon"
 	"github.com/ponzu-cms/ponzu/system/admin/config"
@@ -1492,8 +1493,20 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	</script>
 	`
 
-	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
-	html = html + b.String() + script + btn
+	btn := `<div class="col s3">
+		<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
+			New ` + t + `
+		</a>`
+
+	if _, ok := pt.(format.CSVFormattable); ok {
+		btn += `<br/>
+				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+					<i class="material-icons left">system_update_alt</i>
+					CSV
+				</a>`
+	}
+
+	html += b.String() + script + btn + `</div></div>`
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
@@ -2422,7 +2435,15 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 
 	posts := db.ContentAll(t + specifier)
 	b := &bytes.Buffer{}
-	p := item.Types[t]().(editor.Editable)
+	pt, ok := item.Types[t]
+	if !ok {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	post := pt()
+
+	p := post.(editor.Editable)
 
 	html := `<div class="col s9 card">		
 					<div class="card-content">
@@ -2499,8 +2520,22 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	btn := `<div class="col s3"><a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">New ` + t + `</a></div></div>`
+	btn := `<div class="col s3">
+			<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
+				New ` + t + `
+			</a>`
 	html = html + b.String() + btn
+
+	if _, ok := post.(format.CSVFormattable); ok {
+		btn = `<br/>
+				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+					<i class="material-icons left">system_update_alt</i>
+					CSV
+				</a>`
+		html = html + b.String() + btn
+	}
+
+	html += `</div></div>`
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {

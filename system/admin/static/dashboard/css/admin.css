@@ -81,7 +81,7 @@ li a:hover {
     transition: color 0.3s ease;
 }
 
-a.new-post {
+a.new-post, a.export-post {
     margin: 0.5rem 0 1rem 0.75rem;
 }
 
