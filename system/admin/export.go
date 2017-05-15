@@ -70,6 +70,11 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 		return
 	}
 
+	err = os.Chmod(tmpFile.Name(), 0666)
+	if err != nil {
+		log.Println("chmod err:", err)
+	}
+
 	csvBuf := csv.NewWriter(tmpFile)
 
 	t := req.URL.Query().Get("type")
