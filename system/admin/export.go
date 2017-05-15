@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -70,8 +69,6 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer os.Remove(filepath.Join(os.TempDir(), tmpFile.Name()))
-	defer tmpFile.Close()
 
 	csvBuf := csv.NewWriter(tmpFile)
 
@@ -80,6 +77,7 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 	// get content data and loop through creating a csv row per result
 	bb := db.ContentAll(t)
 
+	// add field names to first row
 	err = csvBuf.Write(fields)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
@@ -111,11 +109,16 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 	csvBuf.Flush()
 
 	// write the buffer to a content-disposition response
-	csvB, err := ioutil.ReadAll(tmpFile)
+	fi, err := tmpFile.Stat()
 	if err != nil {
-		log.Println("Failed to read tmp file for CSV export:", err)
+		log.Println("Failed to read tmp file info for CSV export:", err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+
+	err = tmpFile.Close()
+	if err != nil {
+		log.Println("Failed to close tmp file for CSV export:", err)
 	}
 
 	ts := time.Now().Unix()
@@ -123,12 +126,12 @@ func exportCSV(res http.ResponseWriter, req *http.Request, pt func() interface{}
 
 	res.Header().Set("Content-Type", "text/csv")
 	res.Header().Set("Content-Disposition", fmt.Sprintf(disposition, t, ts))
-	res.Header().Set("Content-Length", fmt.Sprintf("%d", len(csvB)))
+	res.Header().Set("Content-Length", fmt.Sprintf("%d", int(fi.Size())))
 
-	_, err = res.Write(csvB)
+	http.ServeFile(res, req, tmpFile.Name())
+
+	err = os.Remove(tmpFile.Name())
 	if err != nil {
-		log.Println("Failed to write tmp file to response for CSV export:", err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Println("Failed to remove tmp file for CSV export:", err)
 	}
 }
