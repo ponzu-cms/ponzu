@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/spf13/cobra"
 )
 
 type generateType struct {
@@ -412,4 +414,40 @@ func generateContentType(args []string) error {
 	}
 
 	return nil
+}
+
+var generateCmd = &cobra.Command{
+	Use:   "generate <generator type (,...fields)>",
+	Short: "generate boilerplate code for various Ponzu components",
+	Long: `Generate boilerplate code for various Ponzu components, such as 'content'.
+
+Example:
+$ ponzu gen content review title:"string" body:"string" rating:"int" tags:"[]string"
+
+The command above will generate a file 'content/review.go' with boilerplate
+methods, as well as struct definition, and corresponding field tags like:
+
+type Review struct {
+	Title  string   ` + "`json:" + `"title"` + "`" + `
+	Body   string   ` + "`json:" + `"body"` + "`" + `
+	Rating int      ` + "`json:" + `"rating"` + "`" + `
+	Tags   []string ` + "`json:" + `"tags"` + "`" + `
+}
+
+The generate command will intelligently parse more sophisticated field names
+such as 'field_name' and convert it to 'FieldName' and vice versa, only where
+appropriate as per common Go idioms. Errors will be reported, but successful
+generate commands return nothing.`,
+}
+
+var contentCmd = &cobra.Command{
+	Use: "content <namespace> <field> <field>...",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return generateContentType(args)
+	},
+}
+
+func init() {
+	generateCmd.AddCommand(contentCmd)
+	rootCmd.AddCommand(generateCmd)
 }
