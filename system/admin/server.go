@@ -37,6 +37,7 @@ func Run() {
 
 	http.HandleFunc("/admin/contents", user.Auth(contentsHandler))
 	http.HandleFunc("/admin/contents/search", user.Auth(searchHandler))
+	http.HandleFunc("/admin/contents/export", user.Auth(exportHandler))
 
 	http.HandleFunc("/admin/edit", user.Auth(editHandler))
 	http.HandleFunc("/admin/edit/delete", user.Auth(deleteHandler))
