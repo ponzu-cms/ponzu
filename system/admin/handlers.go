@@ -2545,14 +2545,6 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 			New ` + t + `
 		</a>`
 
-	if _, ok := post.(format.CSVFormattable); ok {
-		btn += `<br/>
-				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
-					<i class="material-icons left">system_update_alt</i>
-					CSV
-				</a>`
-	}
-
 	html += b.String() + script + btn + `</div></div>`
 
 	adminView, err := Admin([]byte(html))
