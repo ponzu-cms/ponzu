@@ -72,15 +72,13 @@ var buildCmd = &cobra.Command{
 the necessary files from your workspace into the vendored directory, and
 will build/compile the project to then be run.
 
-Example:
-$ ponzu build
-(or)
-$ ponzu -gocmd=go1.8rc1 build
-
 By providing the 'gocmd' flag, you can specify which Go command to build the
 project, if testing a different release of Go.
 
 Errors will be reported, but successful build commands return nothing.`,
+	Example: `$ ponzu build
+(or)
+$ ponzu -gocmd=go1.8rc1 build`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return buildPonzuServer()
 	},

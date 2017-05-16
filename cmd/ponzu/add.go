@@ -17,10 +17,8 @@ var addCmd = &cobra.Command{
 	Short: "Downloads addon from specified import path",
 	Long: `Downloads addon from specified import path to $GOPATH/src and copys it to the
 current project's ./addons directory. Must be called from within a
-Ponzu project directory.
-
-Example:
-$ ponzu add github.com/bosssauce/fbscheduler`,
+Ponzu project directory.`,
+	Example: `$ ponzu add github.com/bosssauce/fbscheduler`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// expecting two args, add and the go gettable package uri
 		if len(args) < 1 {

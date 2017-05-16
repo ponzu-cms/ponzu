@@ -21,11 +21,9 @@ there is no local repository to clone from at the local machine's $GOPATH,
 'new' will attempt to clone the 'github.com/ponzu-cms/ponzu' package from
 over the network.
 
-Example:
-$ ponzu new myProject
-> New ponzu project created at $GOPATH/src/myProject
-
 Errors will be reported, but successful commands return nothing.`,
+	Example: `$ ponzu new myProject
+> New ponzu project created at $GOPATH/src/myProject`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("project name not supplied")

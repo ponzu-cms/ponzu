@@ -60,15 +60,6 @@ The segments, separated by a comma, describe which services to start, either
 if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org)
 
-Example:
-$ ponzu run
-(or)
-$ ponzu -port=8080 --https run admin,api
-(or)
-$ ponzu run admin
-(or)
-$ ponzu -port=8888 run api
-
 Defaults to '-port=8080 run admin,api' (running Admin & API on port 8080, without TLS)
 
 Note:
@@ -76,6 +67,13 @@ Admin and API cannot run on separate processes unless you use a copy of the
 database, since the first process to open it receives a lock. If you intend
 to run the Admin and API on separate processes, you must call them with the
 'ponzu' command independently.`,
+	Example: `$ ponzu run
+(or)
+$ ponzu -port=8080 --https run admin,api
+(or)
+$ ponzu run admin
+(or)
+$ ponzu -port=8888 run api`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var addTLS string
 		if https {
