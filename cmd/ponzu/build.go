@@ -5,20 +5,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 func buildPonzuServer() error {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
 	// copy all ./content files to internal vendor directory
 	src := "content"
 	dst := filepath.Join("cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "content")
-	err = emptyDir(dst)
+	err := emptyDir(dst)
 	if err != nil {
 		return err
 	}
@@ -36,18 +32,9 @@ func buildPonzuServer() error {
 	}
 
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
-	buildOptions := []string{"build", "-o", buildOutputName()}
-	cmdBuildFiles := []string{
-		"main.go", "options.go", "generate.go",
-		"usage.go", "paths.go", "add.go",
-	}
-	var cmdBuildFilePaths []string
-	for _, file := range cmdBuildFiles {
-		p := filepath.Join(pwd, "cmd", "ponzu", file)
-		cmdBuildFilePaths = append(cmdBuildFilePaths, p)
-	}
-
-	build := exec.Command(gocmd, append(buildOptions, cmdBuildFilePaths...)...)
+	cmdPackageName := strings.Join([]string{".", "cmd", "ponzu"}, "/")
+	buildOptions := []string{"build", "-o", buildOutputName(), cmdPackageName}
+	build := exec.Command(gocmd, buildOptions...)
 	build.Stderr = os.Stderr
 	build.Stdout = os.Stdout
 
