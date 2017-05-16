@@ -2520,22 +2520,40 @@ func searchHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	script := `
+	<script>
+		$(function() {
+			var del = $('.quick-delete-post.__ponzu span');
+			del.on('click', function(e) {
+				if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+					$(e.target).parent().submit();
+				}
+			});
+		});
+
+		// disable link from being clicked if parent is 'disabled'
+		$(function() {
+			$('ul.pagination li.disabled a').on('click', function(e) {
+				e.preventDefault();
+			});
+		});
+	</script>
+	`
+
 	btn := `<div class="col s3">
-			<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
-				New ` + t + `
-			</a>`
-	html = html + b.String() + btn
+		<a href="/admin/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
+			New ` + t + `
+		</a>`
 
 	if _, ok := post.(format.CSVFormattable); ok {
-		btn = `<br/>
+		btn += `<br/>
 				<a href="/admin/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					CSV
 				</a>`
-		html = html + b.String() + btn
 	}
 
-	html += `</div></div>`
+	html += b.String() + script + btn + `</div></div>`
 
 	adminView, err := Admin([]byte(html))
 	if err != nil {
