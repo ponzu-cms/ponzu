@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,9 +11,9 @@ import (
 )
 
 var newCmd = &cobra.Command{
-	Use:   "new <projectName>",
-	Short: "creates a 'ponzu' directory by the name supplied as a parameter",
-	Long: `Creates a 'ponzu' directory by the name supplied as a parameter
+	Use:   "new [projectName]",
+	Short: "creates a 'ponzu' directory or the name supplied as a parameter",
+	Long: `Creates a 'ponzu' directory or one by the name supplied as a parameter
 immediately following the 'new' option in the $GOPATH/src directory. Note:
 'new' depends on the program 'git' and possibly a network connection. If
 there is no local repository to clone from at the local machine's $GOPATH,
@@ -25,10 +24,6 @@ Errors will be reported, but successful commands return nothing.`,
 	Example: `$ ponzu new myProject
 > New ponzu project created at $GOPATH/src/myProject`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("project name not supplied")
-		}
-
 		return newProjectInDir(args[0])
 	},
 }
