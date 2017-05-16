@@ -191,9 +191,12 @@ func init() {
 	pflags := rootCmd.PersistentFlags()
 	pflags.StringVar(&gocmd, "gocmd", "go", "custom go command if using beta or new release of Go")
 
-	viper.BindPFlag("dev", pflags.Lookup("dev"))
-	viper.BindPFlag("cli", pflags.Lookup("cli"))
+	viper.SetEnvPrefix("PONZU")
 	viper.BindPFlag("gocmd", pflags.Lookup("gocmd"))
+	// bind the flags for run to environment variables, with PONZU_ prefix.
+	viper.BindPFlag("port", runCmd.Flags().Lookup("port"))
+	viper.BindPFlag("httpsport", runCmd.Flags().Lookup("httpsport"))
+	viper.BindPFlag("devhttps", runCmd.Flags().Lookup("devhttps"))
 }
 
 func main() {
