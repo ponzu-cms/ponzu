@@ -417,8 +417,9 @@ func generateContentType(args []string) error {
 }
 
 var generateCmd = &cobra.Command{
-	Use:   "generate <generator type (,...fields)>",
-	Short: "generate boilerplate code for various Ponzu components",
+	Use:     "generate <generator type (,...fields)>",
+	Aliases: []string{"gen", "g"},
+	Short:   "generate boilerplate code for various Ponzu components",
 	Long: `Generate boilerplate code for various Ponzu components, such as 'content'.
 
 The command above will generate a file 'content/review.go' with boilerplate
@@ -439,8 +440,9 @@ generate commands return nothing.`,
 }
 
 var contentCmd = &cobra.Command{
-	Use:   "content <namespace> <field> <field>...",
-	Short: "generates a new content type",
+	Use:     "content <namespace> <field> <field>...",
+	Aliases: []string{"c"},
+	Short:   "generates a new content type",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return generateContentType(args)
 	},

@@ -113,9 +113,10 @@ var ErrWrongOrMissingService = errors.New("To execute 'ponzu serve', " +
 	"you must specify which service to run.")
 
 var serveCmd = &cobra.Command{
-	Use:    "serve <service,service>",
-	Short:  "actually run the server",
-	Hidden: true,
+	Use:     "serve <service,service>",
+	Aliases: []string{"s"},
+	Short:   "actually run the server",
+	Hidden:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return ErrWrongOrMissingService

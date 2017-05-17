@@ -13,8 +13,9 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add <repo>",
-	Short: "Downloads addon from specified import path",
+	Use:     "add <repo>",
+	Aliases: []string{"a"},
+	Short:   "Downloads addon from specified import path",
 	Long: `Downloads addon from specified import path to $GOPATH/src and copys it to the
 current project's ./addons directory. Must be called from within a
 Ponzu project directory.`,
