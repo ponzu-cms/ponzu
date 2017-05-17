@@ -90,16 +90,7 @@ func createProjectInDir(path string) error {
 			local = filepath.Join(gopath, "src", fork)
 		}
 
-		devClone := exec.Command("git", "clone", local, "--branch", "ponzu-dev", "--single-branch", path)
-		devClone.Stdout = os.Stdout
-		devClone.Stderr = os.Stderr
-
-		err = devClone.Start()
-		if err != nil {
-			return err
-		}
-
-		err = devClone.Wait()
+		err = execAndWait("git", "clone", local, "--branch", "ponzu-dev", "--single-branch", path)
 		if err != nil {
 			return err
 		}
@@ -114,15 +105,7 @@ func createProjectInDir(path string) error {
 	}
 
 	// try to git clone the repository from the local machine's $GOPATH
-	localClone := exec.Command("git", "clone", local, path)
-	localClone.Stdout = os.Stdout
-	localClone.Stderr = os.Stderr
-
-	err = localClone.Start()
-	if err != nil {
-		return err
-	}
-	err = localClone.Wait()
+	err = execAndWait("git", "clone", local, path)
 	if err != nil {
 		fmt.Println("Couldn't clone from", local, "- trying network...")
 

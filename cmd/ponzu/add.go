@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -39,15 +38,7 @@ func getAddon(addonPath string) error {
 
 	// Go get
 	cmdOptions = append(cmdOptions, "get", addonPath)
-	get := exec.Command(gocmd, cmdOptions...)
-	get.Stderr = os.Stderr
-	get.Stdout = os.Stdout
-
-	err := get.Start()
-	if err != nil {
-		return addError(err)
-	}
-	err = get.Wait()
+	err := execAndWait(gocmd, cmdOptions...)
 	if err != nil {
 		return addError(err)
 	}

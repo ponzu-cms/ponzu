@@ -1,9 +1,6 @@
 package main
 
 import (
-	"errors"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -34,22 +31,7 @@ func buildPonzuServer() error {
 	// execute go build -o ponzu-cms cmd/ponzu/*.go
 	cmdPackageName := strings.Join([]string{".", "cmd", "ponzu"}, "/")
 	buildOptions := []string{"build", "-o", buildOutputName(), cmdPackageName}
-	build := exec.Command(gocmd, buildOptions...)
-	build.Stderr = os.Stderr
-	build.Stdout = os.Stdout
-
-	err = build.Start()
-	if err != nil {
-		return errors.New("Ponzu build step failed. Please try again. " + "\n" + err.Error())
-
-	}
-	err = build.Wait()
-	if err != nil {
-		return errors.New("Ponzu build step failed. Please try again. " + "\n" + err.Error())
-
-	}
-
-	return nil
+	return execAndWait(gocmd, buildOptions...)
 }
 
 var buildCmd = &cobra.Command{
