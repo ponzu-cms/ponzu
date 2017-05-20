@@ -32,14 +32,15 @@ Errors will be reported, but successful commands return nothing.`,
 	},
 }
 
-func checkNmkAbs(gPath string) (string, error) {
+// name2path transforns a project name to an absolute path
+func name2path(projectName string) (string, error) {
 	gopath, err := getGOPATH()
 	if err != nil {
 		return "", err
 	}
 	gosrc := filepath.Join(gopath, "src")
 
-	path := gPath
+	path := projectName
 	// support current directory
 	if path == "." {
 		path, err = os.Getwd()
@@ -56,7 +57,7 @@ func checkNmkAbs(gPath string) (string, error) {
 		return "", err
 	}
 	if len(srcrel) >= 2 && srcrel[:2] == ".." {
-		return "", fmt.Errorf("path '%s' must be inside '%s'", gPath, gosrc)
+		return "", fmt.Errorf("path '%s' must be inside '%s'", projectName, gosrc)
 	}
 	if srcrel == "." {
 		return "", fmt.Errorf("path '%s' must not be %s", path, filepath.Join("GOPATH", "src"))
@@ -76,7 +77,7 @@ func checkNmkAbs(gPath string) (string, error) {
 }
 
 func newProjectInDir(path string) error {
-	path, err := checkNmkAbs(path)
+	path, err := name2path(path)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}

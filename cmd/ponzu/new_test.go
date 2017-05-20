@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestNewCheckNmkAbs(t *testing.T) {
+func TestNewName2Path(t *testing.T) {
 	savedGOPATH := os.Getenv("GOPATH")
 	defer os.Setenv("GOPATH", savedGOPATH)
 	pwd, err := os.Getwd()
@@ -55,7 +55,7 @@ func TestNewCheckNmkAbs(t *testing.T) {
 		if err != nil {
 			t.Fatalf("could not setup base: %s", err)
 		}
-		got, gotE := checkNmkAbs(test.a)
+		got, gotE := name2path(test.a)
 		if got != test.wantP {
 			t.Errorf("got '%s', want: '%s'", got, test.wantP)
 		}
