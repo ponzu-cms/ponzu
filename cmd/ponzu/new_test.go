@@ -15,28 +15,43 @@ func TestNewCheckNmkAbs(t *testing.T) {
 	}
 
 	isNil := func(e error) bool { return e == nil }
+	isNonNil := func(e error) bool { return e != nil }
+
+	baseDir := filepath.Join(pwd, "test-fixtures", "new")
 
 	testTable := []struct {
-		base, wd, a,
+		gopath, wd, a,
 		wantP string
 		wantE func(e error) bool
 	}{{
-		base:  filepath.Join(pwd, "test-fixtures", "new"),
-		wd:    filepath.Join("src", "existing"),
-		a:     ".",
-		wantP: filepath.Join(pwd, "test-fixtures", "new", "src", "existing"),
-		wantE: os.IsExist,
+		gopath: baseDir,
+		wd:     filepath.Join("src", "existing"),
+		a:      ".",
+		wantP:  filepath.Join(pwd, "test-fixtures", "new", "src", "existing"),
+		wantE:  os.IsExist,
 	}, {
-		base:  filepath.Join(pwd, "test-fixtures", "new"),
-		wd:    filepath.Join(""),
-		a:     "non-existing",
-		wantP: filepath.Join(pwd, "test-fixtures", "new", "src", "non-existing"),
-		wantE: isNil,
+		gopath: baseDir,
+		wd:     filepath.Join(""),
+		a:      "non-existing",
+		wantP:  filepath.Join(pwd, "test-fixtures", "new", "src", "non-existing"),
+		wantE:  isNil,
+	}, {
+		gopath: baseDir,
+		wd:     filepath.Join(""),
+		a:      ".",
+		wantP:  "",
+		wantE:  isNonNil,
+	}, {
+		gopath: baseDir,
+		wd:     "..",
+		a:      ".",
+		wantP:  "",
+		wantE:  isNonNil,
 	}}
 
 	for _, test := range testTable {
-		os.Setenv("GOPATH", test.base)
-		err = os.Chdir(filepath.Join(test.base, test.wd))
+		os.Setenv("GOPATH", test.gopath)
+		err = os.Chdir(filepath.Join(test.gopath, test.wd))
 		if err != nil {
 			t.Fatalf("could not setup base: %s", err)
 		}
