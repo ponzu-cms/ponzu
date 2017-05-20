@@ -24,20 +24,66 @@ Errors will be reported, but successful commands return nothing.`,
 	Example: `$ ponzu new myProject
 > New ponzu project created at $GOPATH/src/myProject`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return newProjectInDir(args[0])
+		projectName := "ponzu"
+		if len(args) > 0 {
+			projectName = args[0]
+		}
+		return newProjectInDir(projectName)
 	},
 }
 
-func newProjectInDir(path string) error {
-	// set path to be nested inside $GOPATH/src
+func checkNmkAbs(gPath string) (string, error) {
 	gopath, err := getGOPATH()
 	if err != nil {
+		return "", err
+	}
+	gosrc := filepath.Join(gopath, "src")
+
+	path := gPath
+	// support current directory
+	if path == "." {
+		path, err = os.Getwd()
+		if err != nil {
+			return "", err
+		}
+	} else {
+		path = filepath.Join(gosrc, path)
+	}
+
+	// make sure path is inside $GOPATH/src
+	srcrel, err := filepath.Rel(gosrc, path)
+	if err != nil {
+		return "", err
+	}
+	if len(srcrel) >= 2 && srcrel[:2] == ".." {
+		return "", fmt.Errorf("path '%s' must be inside '%s'", gPath, gosrc)
+	}
+	if srcrel == "." {
+		return "", fmt.Errorf("path '%s' must not be %s", path, filepath.Join("GOPATH", "src"))
+	}
+
+	_, err = os.Stat(path)
+	if err != nil && !os.IsNotExist(err) {
+		return "", err
+	}
+	if err == nil {
+		err = os.ErrExist
+	} else if os.IsNotExist(err) {
+		err = nil
+	}
+
+	return path, err
+}
+
+func newProjectInDir(path string) error {
+	path, err := checkNmkAbs(path)
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
-	path = filepath.Join(gopath, "src", path)
 
-	// check if anything exists at the path, ask if it should be overwritten
-	if _, err = os.Stat(path); !os.IsNotExist(err) {
+	// path exists, ask if it should be overwritten
+	if os.IsNotExist(err) {
+		fmt.Printf("Using '%s' as project directory\n", path)
 		fmt.Println("Path exists, overwrite contents? (y/N):")
 
 		answer, err := getAnswer()
