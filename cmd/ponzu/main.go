@@ -177,7 +177,7 @@ var serveCmd = &cobra.Command{
 func init() {
 	for _, cmd := range []*cobra.Command{runCmd, serveCmd} {
 		cmd.Flags().IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
-		cmd.Flags().IntVar(&httpsport, "http-sport", 443, "port for ponzu to bind its HTTPS listener")
+		cmd.Flags().IntVar(&httpsport, "https-port", 443, "port for ponzu to bind its HTTPS listener")
 		cmd.Flags().BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
 		cmd.Flags().BoolVar(&devhttps, "dev-https", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	}
