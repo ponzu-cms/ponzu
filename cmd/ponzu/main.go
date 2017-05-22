@@ -92,7 +92,7 @@ $ ponzu run --port=8888 api`,
 		buildPathName := strings.Join([]string{".", name}, string(filepath.Separator))
 		serve := exec.Command(buildPathName,
 			fmt.Sprintf("--port=%d", port),
-			fmt.Sprintf("--httpsport=%d", httpsport),
+			fmt.Sprintf("--https-port=%d", httpsport),
 			addTLS,
 			"serve",
 			services,
