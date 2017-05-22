@@ -13,7 +13,7 @@ import (
 var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
 	Short: "upgrades your project to the current ponzu version",
-	Long: `Will backup your own custom project code (like content, addons, uploads, etc) so
+	Long: `Will backup your own custom project code (like content, addons, uploads, etc)
 if necessary. Before running '$ ponzu upgrade', you should update the 'ponzu'
 package by running '$ go get -u github.com/ponzu-cms/ponzu/...'`,
 	Example: `$ ponzu upgrade`,
@@ -25,6 +25,7 @@ package by running '$ go get -u github.com/ponzu-cms/ponzu/...'`,
 		}
 
 		fmt.Println("Only files you added to this directory, 'addons' and 'content' will be preserved.")
+		fmt.Println("Changes you made to Ponzu's internal code will be overwritten.")
 		fmt.Println("Upgrade this project? (y/N):")
 
 		answer, err := getAnswer()

@@ -77,6 +77,8 @@ var helpCmd = &cobra.Command{
 
 var cmds []*cobra.Command
 
+// RegisterCmdlineCommand adds a cobra command to the root command and makes it
+// known to the main package
 func RegisterCmdlineCommand(cmd *cobra.Command) {
 	rootCmd.AddCommand(cmd)
 	cmds = append(cmds, cmd)

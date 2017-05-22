@@ -11,22 +11,24 @@ import (
 )
 
 var newCmd = &cobra.Command{
-	Use:   "new [projectName]",
-	Short: "creates a 'ponzu' directory or the name supplied as a parameter",
-	Long: `Creates a 'ponzu' directory or one by the name supplied as a parameter
+	Use:   "new [flags] <project name>",
+	Short: "creates a project directory of the name supplied as a parameter",
+	Long: `Creates aproject  directory of the name supplied as a parameter
 immediately following the 'new' option in the $GOPATH/src directory. Note:
 'new' depends on the program 'git' and possibly a network connection. If
 there is no local repository to clone from at the local machine's $GOPATH,
 'new' will attempt to clone the 'github.com/ponzu-cms/ponzu' package from
-over the network.
-
-Errors will be reported, but successful commands return nothing.`,
-	Example: `$ ponzu new myProject
-> New ponzu project created at $GOPATH/src/myProject`,
+over the network.`,
+	Example: `$ ponzu new github.com/nilslice/proj
+> New ponzu project created at $GOPATH/src/github.com/nilslice/proj`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectName := "ponzu"
 		if len(args) > 0 {
 			projectName = args[0]
+		} else {
+			msg := "Please provide a project name."
+			msg += "\nThis will create a directory within your $GOPATH/src."
+			return fmt.Errorf("%s", msg)
 		}
 		return newProjectInDir(projectName)
 	},

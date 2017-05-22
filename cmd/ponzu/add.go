@@ -12,17 +12,16 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:     "add <repo>",
+	Use:     "add <import path>",
 	Aliases: []string{"a"},
 	Short:   "Downloads addon from specified import path",
 	Long: `Downloads addon from specified import path to $GOPATH/src and copys it to the
-current project's ./addons directory. Must be called from within a
-Ponzu project directory.`,
+current project's addons directory. Must be called from within a Ponzu project directory.`,
 	Example: `$ ponzu add github.com/bosssauce/fbscheduler`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// expecting two args, add and the go gettable package uri
+		// expecting two args, add/a and the go gettable package uri
 		if len(args) < 1 {
-			return errors.New("repo not given")
+			return errors.New("no import path provided")
 		}
 
 		return getAddon(args[0])

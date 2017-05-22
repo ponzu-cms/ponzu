@@ -17,10 +17,10 @@ var versionCmd = &cobra.Command{
 	Long: `Prints the version of Ponzu your project is using. Must be called from
 within a Ponzu project directory.`,
 	Example: `$ ponzu version
-> Ponzu v0.7.1
+> Ponzu v0.8.2
 (or)
-$ ponzu --cli version
-> Ponzu v0.7.2`,
+$ ponzu version --cli
+> Ponzu v0.9.2`,
 	Run: func(cmd *cobra.Command, args []string) {
 		p, err := version(cli)
 		if err != nil {

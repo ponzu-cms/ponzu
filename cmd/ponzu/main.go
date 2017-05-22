@@ -15,14 +15,14 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/ponzu-cms/ponzu/content"
 	"github.com/ponzu-cms/ponzu/system/admin"
 	"github.com/ponzu-cms/ponzu/system/api"
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/tls"
-	"github.com/spf13/cobra"
 
-	_ "github.com/ponzu-cms/ponzu/content"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -41,17 +41,13 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use: "ponzu",
-	Long: `Ponzu is a powerful and efficient open-source HTTP server framework and CMS. It
-provides automatic, free, and secure HTTP/2 over TLS (certificates obtained via
-[Let's Encrypt](https://letsencrypt.org)), a useful CMS and scaffolding to
-generate set-up code, and a fast HTTP API on which to build modern applications.
-
-Ponzu is released under the BSD-3-Clause license (see LICENSE).
+	Long: `Ponzu is an open-source HTTP server framework and CMS, released under 
+the BSD-3-Clause license.
 (c) 2016 - ` + year + ` Boss Sauce Creative, LLC`,
 }
 
 var runCmd = &cobra.Command{
-	Use:   "run <service(,service)>",
+	Use:   "run [flags] <service(,service)>",
 	Short: "starts the 'ponzu' HTTP server for the JSON API and or Admin System.",
 	Long: `Starts the 'ponzu' HTTP server for the JSON API, Admin System, or both.
 The segments, separated by a comma, describe which services to start, either
@@ -59,7 +55,7 @@ The segments, separated by a comma, describe which services to start, either
 if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org)
 
-Defaults to '-port=8080 run admin,api' (running Admin & API on port 8080, without TLS)
+Defaults to 'run -port=8080 admin,api' (running Admin & API on port 8080, without TLS)
 
 Note:
 Admin and API cannot run on separate processes unless you use a copy of the
@@ -68,11 +64,11 @@ to run the Admin and API on separate processes, you must call them with the
 'ponzu' command independently.`,
 	Example: `$ ponzu run
 (or)
-$ ponzu -port=8080 --https run admin,api
+$ ponzu run --port=8080 --https admin,api
 (or)
 $ ponzu run admin
 (or)
-$ ponzu -port=8888 run api`,
+$ ponzu run --port=8888 api`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var addTLS string
 		if https {
@@ -108,13 +104,15 @@ $ ponzu -port=8888 run api`,
 	},
 }
 
+// ErrWrongOrMissingService informs a user that the services to run must be
+// explicitly specified when serve is called
 var ErrWrongOrMissingService = errors.New("To execute 'ponzu serve', " +
 	"you must specify which service to run.")
 
 var serveCmd = &cobra.Command{
-	Use:     "serve <service,service>",
+	Use:     "serve [flags] <service,service>",
 	Aliases: []string{"s"},
-	Short:   "actually run the server",
+	Short:   "actually run the server (serve is wrapped by the run command)",
 	Hidden:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -179,9 +177,9 @@ var serveCmd = &cobra.Command{
 func init() {
 	for _, cmd := range []*cobra.Command{runCmd, serveCmd} {
 		cmd.Flags().IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
-		cmd.Flags().IntVar(&httpsport, "httpsport", 443, "port for ponzu to bind its HTTPS listener")
+		cmd.Flags().IntVar(&httpsport, "http-sport", 443, "port for ponzu to bind its HTTPS listener")
 		cmd.Flags().BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
-		cmd.Flags().BoolVar(&devhttps, "devhttps", false, "[dev environment] enable automatic TLS/SSL certificate management")
+		cmd.Flags().BoolVar(&devhttps, "dev-https", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	}
 
 	RegisterCmdlineCommand(runCmd)

@@ -61,24 +61,23 @@ required of clients connecting to a Ponzu server to make HTTP/2 requests.
 ## Usage
 
 ```bash
-$ ponzu [flags] command <params>
+$ ponzu command [flags] <params>
 ```
 
 ## Commands
 
 ### new
 
-Creates a 'ponzu' directory, or one by the name supplied as a parameter 
-immediately following the 'new' option in the $GOPATH/src directory. Note: 
-'new' depends on the program 'git' and possibly a network connection. If 
-there is no local repository to clone from at the local machine's $GOPATH, 
-'new' will attempt to clone the 'github.com/ponzu-cms/ponzu' package from 
-over the network.
+Creates a project directory of the name supplied as a parameter immediately
+following the 'new' option in the $GOPATH/src directory. Note: 'new' depends on 
+the program 'git' and possibly a network connection. If there is no local 
+repository to clone from at the local machine's $GOPATH, 'new' will attempt to 
+clone the 'github.com/ponzu-cms/ponzu' package from over the network.
 
 Example:
 ```bash
-$ ponzu new myProject
-> New ponzu project created at $GOPATH/src/myProject
+$ ponzu new github.com/nilslice/proj
+> New ponzu project created at $GOPATH/src/github.com/nilslice/proj
 ```
 
 Errors will be reported, but successful commands return nothing.
@@ -147,13 +146,13 @@ the necessary files from your workspace into the vendored directory, and
 will build/compile the project to then be run. 
 
 Optional flags:
-- `-gocmd` sets the binary used when executing `go build` within `ponzu` build step
+- `--gocmd` sets the binary used when executing `go build` within `ponzu` build step
 
 Example:
 ```bash
 $ ponzu build
 (or)
-$ ponzu -gocmd=go1.8rc1 build # useful for testing
+$ ponzu build --gocmd=go1.8rc1 # useful for testing
 ```
 
 Errors will be reported, but successful build commands return nothing.
@@ -169,24 +168,24 @@ if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 Optional flags:
-- `-port` sets the port on which the server listens for HTTP requests [defaults to 8080]
-- `-httpsport` sets the port on which the server listens for HTTPS requests [defaults to 443]
+- `--port` sets the port on which the server listens for HTTP requests [defaults to 8080]
+- `--https-port` sets the port on which the server listens for HTTPS requests [defaults to 443]
 - `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
-- `--devhttps` generates self-signed SSL certificates for development-only (port is 10443)
+- `--dev-https` generates self-signed SSL certificates for development-only (port is 10443)
 
 Example: 
 ```bash
 $ ponzu run
 (or)
-$ ponzu -port=8080 --https run admin,api
+$ ponzu run --port=8080 --https admin,api
 (or) 
 $ ponzu run admin
 (or)
-$ ponzu -port=8888 run api
+$ ponzu run --port=8888 api
 (or)
-$ ponzu --devhttps run
+$ ponzu --dev-https run
 ```
-Defaults to `$ ponzu -port=8080 run admin,api` (running Admin & API on port 8080, without TLS)
+Defaults to `$ ponzu run --port=8080 admin,api` (running Admin & API on port 8080, without TLS)
 
 *Note:* 
 Admin and API cannot run on separate processes unless you use a copy of the
@@ -233,10 +232,10 @@ print the version of the Ponzu CLI you have installed.
 Example:
 ```bash
 $ ponzu version
-> Ponzu v0.7.1
+> Ponzu v0.8.2
 (or)
-$ ponzu --cli version
-> Ponzu v0.7.2
+$ ponzu version --cli
+> Ponzu v0.9.2
 ```
 
 ---
@@ -283,14 +282,14 @@ $ git push origin ponzu-dev
 ```
 
 **Note:** if you intend to work on your own fork and contribute from it, you will
-need to also pass `-fork=path/to/your/fork` (using OS-standard filepath structure),
+need to also pass `--fork=path/to/your/fork` (using OS-standard filepath structure),
 where `path/to/your/fork` _must_ be within `$GOPATH/src`, and you are working from a branch
 called `ponzu-dev`. 
 
 For example: 
 ```bash
 # ($GOPATH/src is implied in the fork path, do not add it yourself)
-$ ponzu --dev -fork=github.com/nilslice/ponzu new /path/to/new/project
+$ ponzu new --dev --fork=github.com/nilslice/ponzu /path/to/new/project
 ```
 
 
@@ -307,6 +306,7 @@ $ ponzu --dev -fork=github.com/nilslice/ponzu new /path/to/new/project
 - [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/tidwall/sjson](https://github.com/tidwall/sjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
+- [github.com/spf13/cobra](github.com/spf13/cobra)
 - [Materialnote Editor](https://github.com/Cerealkillerway/materialNote)
 - [Materialize.css](https://github.com/Dogfalo/materialize)
 - [jQuery](https://github.com/jquery/jquery)
