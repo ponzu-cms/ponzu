@@ -1926,6 +1926,23 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		// Let's be nice and make a proper item for the Hookable methods
+		dec := schema.NewDecoder()
+		dec.IgnoreUnknownKeys(true)
+		dec.SetAliasTag("json")
+		err = dec.Decode(post, req.PostForm)
+		if err != nil {
+			log.Println("Error decoding post form for edit handler:", t, err)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
 		if cid == "-1" {
 			err = hook.BeforeAdminCreate(res, req)
 			if err != nil {

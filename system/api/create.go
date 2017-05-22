@@ -12,6 +12,8 @@ import (
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+
+	"github.com/gorilla/schema"
 )
 
 // Createable accepts or rejects external POST requests to endpoints such as:
@@ -127,6 +129,17 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	hook, ok := post.(item.Hookable)
 	if !ok {
 		log.Println("[Create] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Let's be nice and make a proper item for the Hookable methods
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err = dec.Decode(post, req.PostForm)
+	if err != nil {
+		log.Println("Error decoding post form for edit handler:", t, err)
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
