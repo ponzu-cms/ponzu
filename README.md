@@ -246,7 +246,7 @@ $ ponzu version --cli
 2. Make code changes
 3. Test changes to ponzu-dev branch
     - make a commit to ponzu-dev
-    - to manually test, you will need to use a new copy (ponzu new path/to/code), but pass the --dev flag so that ponzu generates a new copy from the ponzu-dev branch, not master by default (i.e. `$ponzu --dev new /path/to/code`)
+    - to manually test, you will need to use a new copy (ponzu new path/to/code), but pass the --dev flag so that ponzu generates a new copy from the ponzu-dev branch, not master by default (i.e. `$ponzu new --dev /path/to/code`)
     - build and run with $ ponzu build and $ ponzu run
 4. To add back to master: 
     - first push to origin ponzu-dev
