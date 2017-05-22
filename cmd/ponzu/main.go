@@ -185,7 +185,8 @@ func init() {
 		cmd.Flags().BoolVar(&devhttps, "devhttps", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	}
 
-	rootCmd.AddCommand(runCmd, serveCmd)
+	RegisterCmdlineCommand(runCmd)
+	RegisterCmdlineCommand(serveCmd)
 
 	pflags := rootCmd.PersistentFlags()
 	pflags.StringVar(&gocmd, "gocmd", "go", "custom go command if using beta or new release of Go")

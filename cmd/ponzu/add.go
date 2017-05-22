@@ -177,5 +177,5 @@ func addError(err error) error {
 }
 
 func init() {
-	rootCmd.AddCommand(addCmd)
+	RegisterCmdlineCommand(addCmd)
 }

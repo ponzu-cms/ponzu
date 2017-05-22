@@ -54,5 +54,5 @@ $ ponzu -gocmd=go1.8rc1 build`,
 }
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	RegisterCmdlineCommand(buildCmd)
 }

@@ -195,5 +195,5 @@ func init() {
 	newCmd.Flags().StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
 	newCmd.Flags().BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
 
-	rootCmd.AddCommand(newCmd)
+	RegisterCmdlineCommand(newCmd)
 }

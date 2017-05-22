@@ -163,5 +163,5 @@ func upgradePonzuProjectDir(path string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(upgradeCmd)
+	RegisterCmdlineCommand(upgradeCmd)
 }

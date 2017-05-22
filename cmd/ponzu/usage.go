@@ -1,64 +1,97 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"sort"
+	"strings"
+	"text/template"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
 
-var versionCmd = &cobra.Command{
-	Use:     "version",
-	Aliases: []string{"v"},
-	Short:   "Prints the version of Ponzu your project is using.",
-	Long: `Prints the version of Ponzu your project is using. Must be called from
-within a Ponzu project directory.`,
-	Example: `$ ponzu version
-> Ponzu v0.7.1
-(or)
-$ ponzu --cli version
-> Ponzu v0.7.2`,
+var templateFuncs = template.FuncMap{
+	"rpad": rpad,
+	"trimTrailingWhitespaces": trimRightSpace,
+}
+
+var tmpl = `{{with (or .Cmd.Long .Cmd.Short)}}{{. | trimTrailingWhitespaces}}
+
+{{end}}{{if or .Cmd.Runnable .Cmd.HasSubCommands}}Usage:{{if .Cmd.Runnable}}
+  {{.Cmd.UseLine}}{{end}}{{if .Cmd.HasAvailableSubCommands}}
+  {{.Cmd.CommandPath}} [command]{{end}}{{if gt (len .Cmd.Aliases) 0}}
+
+Aliases:
+  {{.Cmd.NameAndAliases}}{{end}}{{if .Cmd.HasExample}}
+
+Examples:
+{{.Cmd.Example}}{{end}}{{if .Cmd.HasAvailableSubCommands}}
+
+Available Commands:{{range .Cmd.Commands}}{{if (or .IsAvailableCommand false)}}
+  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .Cmd.HasAvailableLocalFlags}}
+
+Flags for all commands:
+{{.Cmd.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{range .Subs}}{{if (and .IsAvailableCommand .HasAvailableLocalFlags)}}
+
+Flags for '{{.Name}}' command:
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{end}}{{if .Cmd.HasHelpSubCommands}}
+
+Additional help topics:{{range .Cmd.Commands}}{{if .Cmd.IsAdditionalHelpTopicCommand}}
+  {{rpad .Cmd.CommandPath .Cmd.CommandPathPadding}} {{.Cmd.Short}}{{end}}{{end}}{{end}}{{if .Cmd.HasAvailableSubCommands}}
+
+Use "{{.Cmd.CommandPath}} [command] --help" for more information about a command.{{end}}
+{{end}}`
+
+var helpCmd = &cobra.Command{
+	Use:   "help",
+	Short: "help about any command",
 	Run: func(cmd *cobra.Command, args []string) {
-		p, err := ponzu(cli)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		cmd, _, e := rootCmd.Find(args)
+		if cmd == nil || e != nil {
+			rootCmd.Printf("Unknown help topic %#q\n", args)
+			rootCmd.Usage()
+			return
+		}
+		t := template.New("help")
+		t.Funcs(templateFuncs)
+		template.Must(t.Parse(tmpl))
+		if len(args) > 0 {
+			rootCmd.HelpFunc()(cmd, args)
+			return
 		}
 
-		fmt.Fprintf(os.Stdout, "Ponzu v%s\n", p["version"])
+		sortByName := func(i, j int) bool { return cmds[i].Name() < cmds[j].Name() }
+		sort.Slice(cmds, sortByName)
+
+		err := t.Execute(cmd.OutOrStdout(), struct {
+			Cmd  *cobra.Command
+			Subs []*cobra.Command
+		}{
+			Cmd:  rootCmd,
+			Subs: cmds})
+		if err != nil {
+			cmd.Println(err)
+		}
 	},
 }
 
-func ponzu(isCLI bool) (map[string]interface{}, error) {
-	kv := make(map[string]interface{})
+var cmds []*cobra.Command
 
-	info := filepath.Join("cmd", "ponzu", "ponzu.json")
-	if isCLI {
-		gopath, err := getGOPATH()
-		if err != nil {
-			return nil, err
-		}
-		repo := filepath.Join(gopath, "src", "github.com", "ponzu-cms", "ponzu")
-		info = filepath.Join(repo, "cmd", "ponzu", "ponzu.json")
-	}
-
-	b, err := ioutil.ReadFile(info)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(b, &kv)
-	if err != nil {
-		return nil, err
-	}
-
-	return kv, nil
+func RegisterCmdlineCommand(cmd *cobra.Command) {
+	rootCmd.AddCommand(cmd)
+	cmds = append(cmds, cmd)
 }
 
 func init() {
-	versionCmd.Flags().BoolVar(&cli, "cli", false, "specify that information should be returned about the CLI, not project")
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(helpCmd)
+}
+
+// rpad adds padding to the right of a string.
+func rpad(s string, padding int) string {
+	template := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(template, s)
+}
+
+func trimRightSpace(s string) string {
+	return strings.TrimRightFunc(s, unicode.IsSpace)
 }

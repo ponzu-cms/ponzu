@@ -450,5 +450,5 @@ var contentCmd = &cobra.Command{
 
 func init() {
 	generateCmd.AddCommand(contentCmd)
-	rootCmd.AddCommand(generateCmd)
+	RegisterCmdlineCommand(generateCmd)
 }
