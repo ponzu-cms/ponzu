@@ -5,30 +5,39 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
+
+var addCmd = &cobra.Command{
+	Use:     "add <import path>",
+	Aliases: []string{"a"},
+	Short:   "Downloads addon from specified import path",
+	Long: `Downloads addon from specified import path to $GOPATH/src and copys it to the
+current project's addons directory. Must be called from within a Ponzu project directory.`,
+	Example: `$ ponzu add github.com/bosssauce/fbscheduler`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// expecting two args, add/a and the go gettable package uri
+		if len(args) < 1 {
+			return errors.New("no import path provided")
+		}
+
+		return getAddon(args[0])
+	},
+}
 
 // use `go get` to download addon and add to $GOPATH/src, useful
 // for IDE auto-import and code completion, then copy entire directory
 // tree to project's ./addons folder
-func getAddon(args []string) error {
+func getAddon(addonPath string) error {
 
 	var cmdOptions []string
-	var addonPath = args[1]
 
 	// Go get
 	cmdOptions = append(cmdOptions, "get", addonPath)
-	get := exec.Command(gocmd, cmdOptions...)
-	get.Stderr = os.Stderr
-	get.Stdout = os.Stdout
-
-	err := get.Start()
-	if err != nil {
-		return addError(err)
-	}
-	err = get.Wait()
+	err := execAndWait(gocmd, cmdOptions...)
 	if err != nil {
 		return addError(err)
 	}
@@ -164,4 +173,8 @@ func copyFileContents(src, dst string) (err error) {
 // generic error return
 func addError(err error) error {
 	return errors.New("Ponzu add failed. " + "\n" + err.Error())
+}
+
+func init() {
+	RegisterCmdlineCommand(addCmd)
 }
