@@ -65,6 +65,18 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	b, err := db.Content(t + ":" + id)
+	if err != nil {
+		log.Println("Error in db.Content ", t+":"+id, err)
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = json.Unmarshal(b, post)
+	if err != nil {
+		log.Println("Error unmarshalling ", t, "=", id, err, " Hooks will be called on a zero-value.")
+	}
+
 	err = hook.BeforeAPIDelete(res, req)
 	if err != nil {
 		log.Println("[Delete] error calling BeforeAPIDelete:", err)
