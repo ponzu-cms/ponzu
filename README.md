@@ -29,7 +29,8 @@ $ ponzu gen content song title:"string" artist:"string" rating:"int" opinion:"st
 
 **Into this:** 
 
-![song go-rt](https://cloud.githubusercontent.com/assets/7517515/20726600/2ecd96a8-b62b-11e6-8589-c00c630ea6cc.png)
+![Generated content/song.go](https://cloud.githubusercontent.com/assets/7517515/26396244/7d0c0e40-4027-11e7-8506-e64e444a5483.png)
+
 
 **What's inside**  
 - Automatic & Free SSL/TLS*  
