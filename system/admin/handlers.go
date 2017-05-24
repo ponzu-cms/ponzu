@@ -1926,6 +1926,23 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		// Let's be nice and make a proper item for the Hookable methods
+		dec := schema.NewDecoder()
+		dec.IgnoreUnknownKeys(true)
+		dec.SetAliasTag("json")
+		err = dec.Decode(post, req.PostForm)
+		if err != nil {
+			log.Println("Error decoding post form for edit handler:", t, err)
+			res.WriteHeader(http.StatusBadRequest)
+			errView, err := Error400()
+			if err != nil {
+				return
+			}
+
+			res.Write(errView)
+			return
+		}
+
 		if cid == "-1" {
 			err = hook.BeforeAdminCreate(res, req)
 			if err != nil {
@@ -2059,6 +2076,17 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 		res.Write(errView)
 		return
+	}
+
+	data, err := db.Content(t + ":" + id)
+	if err != nil {
+		log.Println("Error in db.Content ", t+":"+id, err)
+		return
+	}
+
+	err = json.Unmarshal(data, post)
+	if err != nil {
+		log.Println("Error unmarshalling ", t, "=", id, err, " Hooks will be called on a zero-value.")
 	}
 
 	reject := req.URL.Query().Get("reject")
