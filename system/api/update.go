@@ -12,6 +12,8 @@ import (
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+
+	"github.com/gorilla/schema"
 )
 
 // Updateable accepts or rejects update POST requests to endpoints such as:
@@ -129,6 +131,17 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	if !ok {
 		log.Println("[Update] error: Type", t, "does not implement item.Hookable or embed item.Item.")
 		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Let's be nice and make a proper item for the Hookable methods
+	dec := schema.NewDecoder()
+	dec.IgnoreUnknownKeys(true)
+	dec.SetAliasTag("json")
+	err = dec.Decode(post, req.PostForm)
+	if err != nil {
+		log.Println("Error decoding post form for edit handler:", t, err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
