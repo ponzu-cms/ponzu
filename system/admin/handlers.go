@@ -2078,6 +2078,17 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	data, err := db.Content(t + ":" + id)
+	if err != nil {
+		log.Println("Error in db.Content ", t+":"+id, err)
+		return
+	}
+
+	err = json.Unmarshal(data, post)
+	if err != nil {
+		log.Println("Error unmarshalling ", t, "=", id, err, " Hooks will be called on a zero-value.")
+	}
+
 	reject := req.URL.Query().Get("reject")
 	if reject == "true" {
 		err = hook.BeforeReject(res, req)
