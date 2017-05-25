@@ -78,7 +78,7 @@ $ ponzu run --port=8888 api`,
 		}
 
 		if devhttps {
-			addTLS = "--devhttps"
+			addTLS = "--dev-https"
 		}
 
 		var services string
@@ -91,11 +91,11 @@ $ ponzu run --port=8888 api`,
 		name := buildOutputName()
 		buildPathName := strings.Join([]string{".", name}, string(filepath.Separator))
 		serve := exec.Command(buildPathName,
+			"serve",
+			services,
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--https-port=%d", httpsport),
 			addTLS,
-			"serve",
-			services,
 		)
 		serve.Stderr = os.Stderr
 		serve.Stdout = os.Stdout
