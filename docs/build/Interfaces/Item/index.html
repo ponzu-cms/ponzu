@@ -1,0 +1,2077 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.6.1">
+    
+    
+      
+        <title>Item Package Interfaces</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-4d0d3f2fbf.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Ponzu" class="md-logo md-header-nav__button">
+            <img src="../../images/logo.png" width="24" height="24">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  Interfaces
+                </span>
+              
+            
+            Item
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/ponzu-cms/ponzu" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      ponzu-cms/ponzu
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-logo md-nav__button">
+        <img src="../../images/logo.png">
+      </i>
+    
+    Ponzu
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ponzu-cms/ponzu" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      ponzu-cms/ponzu
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      CLI
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        CLI
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../CLI/General-Usage/" title="General Usage" class="md-nav__link">
+      General Usage
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../CLI/Generating-References/" title="Generating References" class="md-nav__link">
+      Generating References
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Content
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Content
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Content/An-Overview/" title="An Overview" class="md-nav__link">
+      An Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Content/Extending-Content/" title="Extending Content" class="md-nav__link">
+      Extending Content
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Form Fields
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Form Fields
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Form-Fields/HTML-Inputs/" title="HTML Inputs" class="md-nav__link">
+      HTML Inputs
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      HTTP APIs
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        HTTP APIs
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/Content/" title="Content" class="md-nav__link">
+      Content
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/File-Metadata/" title="File Metadata" class="md-nav__link">
+      File Metadata
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/Search/" title="Search" class="md-nav__link">
+      Search
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      Interfaces
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Interfaces
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../API/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../Editor/" title="Editor" class="md-nav__link">
+      Editor
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../Format/" title="Format" class="md-nav__link">
+      Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Item
+      </label>
+    
+    <a href="./" title="Item" class="md-nav__link md-nav__link--active">
+      Item
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interfaces" title="Interfaces" class="md-nav__link">
+    Interfaces
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#itempushable" title="item.Pushable" class="md-nav__link">
+    item.Pushable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemhideable" title="item.Hideable" class="md-nav__link">
+    item.Hideable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_1" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_1" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemomittable" title="item.Omittable" class="md-nav__link">
+    item.Omittable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_2" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_2" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemhookable" title="item.Hookable" class="md-nav__link">
+    item.Hookable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_3" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementations" title="Implementations" class="md-nav__link">
+    Implementations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapicreate" title="BeforeAPICreate" class="md-nav__link">
+    BeforeAPICreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapicreate" title="AfterAPICreate" class="md-nav__link">
+    AfterAPICreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapprove" title="BeforeApprove" class="md-nav__link">
+    BeforeApprove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapprove" title="AfterApprove" class="md-nav__link">
+    AfterApprove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforereject" title="BeforeReject" class="md-nav__link">
+    BeforeReject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterreject" title="AfterReject" class="md-nav__link">
+    AfterReject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforesave" title="BeforeSave" class="md-nav__link">
+    BeforeSave
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aftersave" title="AfterSave" class="md-nav__link">
+    AfterSave
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforedelete" title="BeforeDelete" class="md-nav__link">
+    BeforeDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterdelete" title="AfterDelete" class="md-nav__link">
+    AfterDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapidelete" title="BeforeAPIDelete" class="md-nav__link">
+    BeforeAPIDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapidelete" title="AfterAPIDelete" class="md-nav__link">
+    AfterAPIDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapiupdate" title="BeforeAPIUpdate" class="md-nav__link">
+    BeforeAPIUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapiupdate" title="AfterAPIUpdate" class="md-nav__link">
+    AfterAPIUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadmincreate" title="BeforeAdminCreate" class="md-nav__link">
+    BeforeAdminCreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradmincreate" title="AfterAdminCreate" class="md-nav__link">
+    AfterAdminCreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadminupdate" title="BeforeAdminUpdate" class="md-nav__link">
+    BeforeAdminUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradminupdate" title="AfterAdminUpdate" class="md-nav__link">
+    AfterAdminUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadmindelete" title="BeforeAdminDelete" class="md-nav__link">
+    BeforeAdminDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradmindelete" title="AfterAdminDelete" class="md-nav__link">
+    AfterAdminDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeenable" title="BeforeEnable" class="md-nav__link">
+    BeforeEnable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterenable" title="AfterEnable" class="md-nav__link">
+    AfterEnable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforedisable" title="BeforeDisable" class="md-nav__link">
+    BeforeDisable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterdisable" title="AfterDisable" class="md-nav__link">
+    AfterDisable
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemidentifiable" title="item.Identifiable" class="md-nav__link">
+    item.Identifiable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_4" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_3" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemsluggable" title="item.Sluggable" class="md-nav__link">
+    item.Sluggable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_5" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_4" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemsortable" title="item.Sortable" class="md-nav__link">
+    item.Sortable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_6" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_5" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../Search/" title="Search" class="md-nav__link">
+      Search
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Ponzu Addons
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Ponzu Addons
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Ponzu-Addons/Creating-Addons/" title="Creating Addons" class="md-nav__link">
+      Creating Addons
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Ponzu-Addons/Using-Addons/" title="Using Addons" class="md-nav__link">
+      Using Addons
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Quickstart
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Quickstart
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Quickstart/Overview/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
+    
+    <label class="md-nav__link" for="nav-9">
+      References
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-9">
+        References
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../References/Overview/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10">
+    
+    <label class="md-nav__link" for="nav-10">
+      Running Backups
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-10">
+        Running Backups
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Running-Backups/Backups/" title="Backups" class="md-nav__link">
+      Backups
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-11" type="checkbox" id="nav-11">
+    
+    <label class="md-nav__link" for="nav-11">
+      System Configuration
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-11">
+        System Configuration
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Configuration/Settings/" title="Settings" class="md-nav__link">
+      Settings
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-12" type="checkbox" id="nav-12">
+    
+    <label class="md-nav__link" for="nav-12">
+      System Deployment
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-12">
+        System Deployment
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Deployment/Docker/" title="Docker" class="md-nav__link">
+      Docker
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Deployment/SysV-Style/" title="SysV Style" class="md-nav__link">
+      SysV Style
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interfaces" title="Interfaces" class="md-nav__link">
+    Interfaces
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#itempushable" title="item.Pushable" class="md-nav__link">
+    item.Pushable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemhideable" title="item.Hideable" class="md-nav__link">
+    item.Hideable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_1" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_1" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemomittable" title="item.Omittable" class="md-nav__link">
+    item.Omittable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_2" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_2" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemhookable" title="item.Hookable" class="md-nav__link">
+    item.Hookable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_3" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementations" title="Implementations" class="md-nav__link">
+    Implementations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapicreate" title="BeforeAPICreate" class="md-nav__link">
+    BeforeAPICreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapicreate" title="AfterAPICreate" class="md-nav__link">
+    AfterAPICreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapprove" title="BeforeApprove" class="md-nav__link">
+    BeforeApprove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapprove" title="AfterApprove" class="md-nav__link">
+    AfterApprove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforereject" title="BeforeReject" class="md-nav__link">
+    BeforeReject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterreject" title="AfterReject" class="md-nav__link">
+    AfterReject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforesave" title="BeforeSave" class="md-nav__link">
+    BeforeSave
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aftersave" title="AfterSave" class="md-nav__link">
+    AfterSave
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforedelete" title="BeforeDelete" class="md-nav__link">
+    BeforeDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterdelete" title="AfterDelete" class="md-nav__link">
+    AfterDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapidelete" title="BeforeAPIDelete" class="md-nav__link">
+    BeforeAPIDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapidelete" title="AfterAPIDelete" class="md-nav__link">
+    AfterAPIDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeapiupdate" title="BeforeAPIUpdate" class="md-nav__link">
+    BeforeAPIUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterapiupdate" title="AfterAPIUpdate" class="md-nav__link">
+    AfterAPIUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadmincreate" title="BeforeAdminCreate" class="md-nav__link">
+    BeforeAdminCreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradmincreate" title="AfterAdminCreate" class="md-nav__link">
+    AfterAdminCreate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadminupdate" title="BeforeAdminUpdate" class="md-nav__link">
+    BeforeAdminUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradminupdate" title="AfterAdminUpdate" class="md-nav__link">
+    AfterAdminUpdate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeadmindelete" title="BeforeAdminDelete" class="md-nav__link">
+    BeforeAdminDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afteradmindelete" title="AfterAdminDelete" class="md-nav__link">
+    AfterAdminDelete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforeenable" title="BeforeEnable" class="md-nav__link">
+    BeforeEnable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterenable" title="AfterEnable" class="md-nav__link">
+    AfterEnable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforedisable" title="BeforeDisable" class="md-nav__link">
+    BeforeDisable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afterdisable" title="AfterDisable" class="md-nav__link">
+    AfterDisable
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemidentifiable" title="item.Identifiable" class="md-nav__link">
+    item.Identifiable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_4" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_3" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemsluggable" title="item.Sluggable" class="md-nav__link">
+    item.Sluggable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_5" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_4" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itemsortable" title="item.Sortable" class="md-nav__link">
+    item.Sortable
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-set_6" title="Method Set" class="md-nav__link">
+    Method Set
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation_5" title="Implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>Item</h1>
+                
+                <p>Ponzu provides a set of interfaces from the <code>system/item</code> package which extend 
+the functionality of the content in your system and how it interacts with other 
+components inside and outside of Ponzu. </p>
+<hr />
+<h2 id="interfaces">Interfaces<a class="headerlink" href="#interfaces" title="Permanent link">&para;</a></h2>
+<h3 id="itempushable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Pushable">item.Pushable</a><a class="headerlink" href="#itempushable" title="Permanent link">&para;</a></h3>
+<p>Pushable, if <a href="https://http2.github.io/http2-spec/#PushResources">HTTP/2 Server Push</a> 
+is supported by the client, can tell a handler which resources it would like to 
+have "pushed" preemptively to the client. This saves follow-on roundtrip requests 
+for other items which are referenced by the Pushable item. The <code>Push</code> method, the 
+only method in Pushable, must return a <code>[]string</code> containing the <code>json</code> field tags 
+of the referenced items within the type.</p>
+<h5 id="method-set">Method Set<a class="headerlink" href="#method-set" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Pushable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="c1">// the values contained in fields returned by Push must be URL paths</span>
+    <span class="nx">Push</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h5>
+<p>The <code>Push</code> method returns a <code>[]string</code> containing the <code>json</code> tag field names for
+which you want to have pushed to a supported client. The values for the field
+names <strong>must</strong> be URL paths, and cannot be from another origin.</p>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Post</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">item</span><span class="p">.</span><span class="nx">Item</span>
+
+    <span class="nx">HeaderPhoto</span> <span class="kt">string</span> <span class="s">`json:&quot;header_photo&quot;`</span>
+    <span class="nx">Author</span>      <span class="kt">string</span> <span class="s">`json:&quot;author&quot;`</span> <span class="c1">// reference `/api/content/?type=Author&amp;id=2`</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Push</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
+        <span class="s">&quot;header_photo&quot;</span><span class="p">,</span>
+        <span class="s">&quot;author&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr />
+<h3 id="itemhideable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Hideable">item.Hideable</a><a class="headerlink" href="#itemhideable" title="Permanent link">&para;</a></h3>
+<p>Hideable tells an API handler that data of this type shouldn’t be exposed outside 
+the system. Hideable types cannot be used as references (relations in Content types).
+The <code>Hide</code> method, the only method in Hideable, takes an <code>http.ResponseWriter, *http.Request</code> 
+and returns an <code>error</code>. A special error in the <code>items</code> package, <code>ErrAllowHiddenItem</code> 
+can be returned as the error from Hide to instruct handlers to show hidden 
+content in specific cases.</p>
+<h5 id="method-set_1">Method Set<a class="headerlink" href="#method-set_1" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Hideable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Hide</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation_1">Implementation<a class="headerlink" href="#implementation_1" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Hide</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr />
+<h3 id="itemomittable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Omittable">item.Omittable</a><a class="headerlink" href="#itemomittable" title="Permanent link">&para;</a></h3>
+<p>Omittable tells a content API handler to keep certain fields from being exposed 
+through the JSON response. It's single method, <code>Omit</code> takes no arguments and 
+returns a <code>[]string</code> which must be made up of the JSON struct tags for the type 
+containing fields to be omitted.</p>
+<h5 id="method-set_2">Method Set<a class="headerlink" href="#method-set_2" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Omittable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Omit</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation_2">Implementation<a class="headerlink" href="#implementation_2" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Post</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">item</span><span class="p">.</span><span class="nx">Item</span>
+
+    <span class="nx">HeaderPhoto</span> <span class="kt">string</span> <span class="s">`json:&quot;header_photo&quot;`</span>
+    <span class="nx">Author</span>      <span class="kt">string</span> <span class="s">`json:&quot;author&quot;`</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Omit</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
+        <span class="s">&quot;header_photo&quot;</span><span class="p">,</span>
+        <span class="s">&quot;author&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr />
+<h3 id="itemhookable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Hookable">item.Hookable</a><a class="headerlink" href="#itemhookable" title="Permanent link">&para;</a></h3>
+<p>Hookable provides lifecycle hooks into the http handlers which manage Save, Delete,
+Approve, and Reject routines. All methods in its set take an 
+<code>http.ResponseWriter, *http.Request</code> and return an <code>error</code>.</p>
+<h5 id="method-set_3">Method Set<a class="headerlink" href="#method-set_3" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Hookable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">BeforeAPICreate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAPICreate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeAPIUpdate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAPIUpdate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeAPIDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAPIDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeAdminCreate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAdminCreate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeAdminUpdate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAdminUpdate</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeAdminDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterAdminDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeSave</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterSave</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterDelete</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeApprove</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterApprove</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeReject</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterReject</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="c1">// Enable/Disable used exclusively for addons</span>
+    <span class="nx">BeforeEnable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterEnable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="nx">BeforeDisable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="nx">AfterDisable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementations">Implementations<a class="headerlink" href="#implementations" title="Permanent link">&para;</a></h5>
+<h4 id="beforeapicreate">BeforeAPICreate<a class="headerlink" href="#beforeapicreate" title="Permanent link">&para;</a></h4>
+<p>BeforeAPICreate is called before an item is created via a 3rd-party client. If a 
+non-nil <code>error</code> value is returned, the item will not be created/saved.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAPICreate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterapicreate">AfterAPICreate<a class="headerlink" href="#afterapicreate" title="Permanent link">&para;</a></h4>
+<p>AfterAPICreate is called after an item has been created via a 3rd-party client.
+At this point, the item has been saved to the database. If a non-nil <code>error</code> is
+returned, it will respond to the client with an empty response, so be sure to 
+use the <code>http.ResponseWriter</code> from within your hook appropriately.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAPICreate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeapprove">BeforeApprove<a class="headerlink" href="#beforeapprove" title="Permanent link">&para;</a></h4>
+<p>BeforeApprove is called before an item is merged as "Public" from its prior 
+status as "Pending". If a non-nil <code>error</code> value is returned, the item will not be
+appproved, and an error message is displayed to the Admin. </p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeApprove</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterapprove">AfterApprove<a class="headerlink" href="#afterapprove" title="Permanent link">&para;</a></h4>
+<p>AfterApprove is called after an item has been merged as "Public" from its prior
+status as "Pending". If a non-nil <code>error</code> is returned, an error message is 
+displayed to the Admin, however the item will already be irreversibly merged.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterApprove</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforereject">BeforeReject<a class="headerlink" href="#beforereject" title="Permanent link">&para;</a></h4>
+<p>BeforeReject is called before an item is rejected and deleted by default. To reject
+an item, but not delete it, return a non-nil <code>error</code> from this hook - doing so 
+will allow the hook to do what you want it to do prior to the return, but the item
+will remain in the "Pending" section.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeReject</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterreject">AfterReject<a class="headerlink" href="#afterreject" title="Permanent link">&para;</a></h4>
+<p>AfterReject is called after an item is rejected and has been deleted.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterReject</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforesave">BeforeSave<a class="headerlink" href="#beforesave" title="Permanent link">&para;</a></h4>
+<p>BeforeSave is called before any CMS Admin or 3rd-party client triggers a save to 
+the database. This could be done by clicking the 'Save' button on a Content editor, 
+or by a API call to Create or Update the Content item. By returning a non-nil 
+<code>error</code> value, the item will not be saved.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeSave</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="aftersave">AfterSave<a class="headerlink" href="#aftersave" title="Permanent link">&para;</a></h4>
+<p>AfterSave is called after any CMS Admin or 3rd-party client triggers a save to 
+the database. This could be done by clicking the 'Save' button on a Content editor, 
+or by a API call to Create or Update the Content item.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterSave</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforedelete">BeforeDelete<a class="headerlink" href="#beforedelete" title="Permanent link">&para;</a></h4>
+<p>BeforeDelete is called before any CMS Admin or 3rd-party client triggers a delete to 
+the database. This could be done by clicking the 'Delete' button on a Content editor, 
+or by a API call to Delete the Content item. By returning a non-nil <code>error</code> value,
+the item will not be deleted.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterdelete">AfterDelete<a class="headerlink" href="#afterdelete" title="Permanent link">&para;</a></h4>
+<p>AfterSave is called after any CMS Admin or 3rd-party client triggers a delete to 
+the database. This could be done by clicking the 'Delete' button on a Content editor, 
+or by a API call to Delete the Content item.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeapidelete">BeforeAPIDelete<a class="headerlink" href="#beforeapidelete" title="Permanent link">&para;</a></h4>
+<p>BeforeDelete is only called before a 3rd-party client triggers a delete to the 
+database. By returning a non-nil <code>error</code> value, the item will not be deleted.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAPIDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterapidelete">AfterAPIDelete<a class="headerlink" href="#afterapidelete" title="Permanent link">&para;</a></h4>
+<p>AfterAPIDelete is only called after a 3rd-party client triggers a delete to the 
+database.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAPIDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeapiupdate">BeforeAPIUpdate<a class="headerlink" href="#beforeapiupdate" title="Permanent link">&para;</a></h4>
+<p>BeforeAPIUpdate is only called before a 3rd-party client triggers an update to 
+the database. By returning a non-nil <code>error</code> value, the item will not be updated.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAPIUpdate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterapiupdate">AfterAPIUpdate<a class="headerlink" href="#afterapiupdate" title="Permanent link">&para;</a></h4>
+<p>AfterAPIUpdate is only called after a 3rd-party client triggers an update to 
+the database.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAPIUpdate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeadmincreate">BeforeAdminCreate<a class="headerlink" href="#beforeadmincreate" title="Permanent link">&para;</a></h4>
+<p>BeforeAdminCreate is only called before a CMS Admin creates a new Content item.
+It is not called for subsequent saves to the item once it has been created and 
+assigned an ID. By returning a non-nil <code>error</code> value, the item will not be created.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAdminCreate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afteradmincreate">AfterAdminCreate<a class="headerlink" href="#afteradmincreate" title="Permanent link">&para;</a></h4>
+<p>AfterAdminCreate is only called after a CMS Admin creates a new Content item.
+It is not called for subsequent saves to the item once it has been created and 
+assigned an ID.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAdminCreate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeadminupdate">BeforeAdminUpdate<a class="headerlink" href="#beforeadminupdate" title="Permanent link">&para;</a></h4>
+<p>BeforeAdminUpdate is only called before a CMS Admin updates a Content item. By 
+returning a non-nil <code>error</code>, the item will not be updated.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAdminUpdate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afteradminupdate">AfterAdminUpdate<a class="headerlink" href="#afteradminupdate" title="Permanent link">&para;</a></h4>
+<p>AfterAdminUpdate is only called after a CMS Admin updates a Content item.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAdminUpdate</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeadmindelete">BeforeAdminDelete<a class="headerlink" href="#beforeadmindelete" title="Permanent link">&para;</a></h4>
+<p>BeforeAdminDelete is only called before a CMS Admin deletes a Content item. By
+returning a non-nil <code>error</code> value, the item will not be deleted.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeAdminDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afteradmindelete">AfterAdminDelete<a class="headerlink" href="#afteradmindelete" title="Permanent link">&para;</a></h4>
+<p>AfterAdminDelete is only called after a CMS Admin deletes a Content item.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterAdminDelete</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforeenable">BeforeEnable<a class="headerlink" href="#beforeenable" title="Permanent link">&para;</a></h4>
+<p>BeforeEnable is only applicable to Addon items, and is called before the addon
+changes status to "Enabled". By returning a non-nil <code>error</code> value, the addon
+will not become enabled.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeEnable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterenable">AfterEnable<a class="headerlink" href="#afterenable" title="Permanent link">&para;</a></h4>
+<p>AfterEnable is only applicable to Addon items, and is called after the addon 
+changes status to "Enabled".</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterEnable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="beforedisable">BeforeDisable<a class="headerlink" href="#beforedisable" title="Permanent link">&para;</a></h4>
+<p>BeforeDisable is only applicable to Addon items, and is called before the addon
+changes status to "Disabled". By returning a non-nil <code>error</code> value, the addon
+will not become disabled.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">BeforeDisable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4 id="afterdisable">AfterDisable<a class="headerlink" href="#afterdisable" title="Permanent link">&para;</a></h4>
+<p>AfterDisable is only applicable to Addon items, and is called after the addon 
+changes status to "Disabled".</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">AfterDisable</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Hookable is implemented by Item by default as no-ops which are expected to be overridden. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>returning an error from any of these <code>Hookable</code> methods will end the request, 
+causing it to halt immediately after the hook. For example, returning an <code>error</code> 
+from <code>BeforeDelete</code> will result in the content being kept in the database. 
+The same logic applies to all of these interface methods that return an error 
+- <strong>the error defines the behavior</strong>.</p>
+</div>
+<hr />
+<h3 id="itemidentifiable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Identifiable">item.Identifiable</a><a class="headerlink" href="#itemidentifiable" title="Permanent link">&para;</a></h3>
+<p>Identifiable enables a struct to have its ID set/get. Typically this is done to set an ID to -1 indicating it is new for DB inserts, since by default a newly initialized struct would have an ID of 0, the int zero-value, and BoltDB's starting key per bucket is 0, thus overwriting the first record.
+Most notable, Identifiable’s <code>String</code> method is used to set a meaningful display name for an Item. <code>String</code> is called by default in the Admin dashboard to show the Items of certain types, and in the default creation of an Item’s slug.
+Identifiable is implemented by Item by default.</p>
+<h5 id="method-set_4">Method Set<a class="headerlink" href="#method-set_4" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Identifiable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">ItemID</span><span class="p">()</span> <span class="kt">int</span>
+    <span class="nx">SetItemID</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>
+    <span class="nx">UniqueID</span><span class="p">()</span> <span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+    <span class="nx">String</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation_3">Implementation<a class="headerlink" href="#implementation_3" title="Permanent link">&para;</a></h5>
+<p><code>item.Identifiable</code> has a default implementation in the <code>system/item</code> package. 
+It is not advised to override these methods, with the exception of <code>String()</code>, 
+which is commonly used to set the display name of Content items when listed in 
+the CMS, and to customize slugs.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="nx">Item</span><span class="p">)</span> <span class="nx">ItemID</span><span class="p">()</span> <span class="kt">int</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">ID</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">Item</span><span class="p">)</span> <span class="nx">SetItemID</span><span class="p">(</span><span class="nx">id</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">i</span><span class="p">.</span><span class="nx">ID</span> <span class="p">=</span> <span class="nx">id</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="nx">Item</span><span class="p">)</span> <span class="nx">UniqueID</span><span class="p">()</span> <span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="nx">Item</span><span class="p">)</span> <span class="nx">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;Item ID: %s&quot;</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">UniqueID</span><span class="p">())</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr />
+<h3 id="itemsluggable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Sluggable">item.Sluggable</a><a class="headerlink" href="#itemsluggable" title="Permanent link">&para;</a></h3>
+<p>Sluggable makes a struct locatable by URL with it's own path. As an Item implementing Sluggable, slugs may overlap. If this is an issue, make your content struct (or one which embeds Item) implement Sluggable and it will override the slug created by Item's <code>SetSlug</code> method with your own.
+It is not recommended to override <code>SetSlug</code>, but rather the <code>String</code> method on your content struct, which will have a similar, more predictable effect.
+Sluggable is implemented by Item by default.</p>
+<h5 id="method-set_5">Method Set<a class="headerlink" href="#method-set_5" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Sluggable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">SetSlug</span><span class="p">(</span><span class="kt">string</span><span class="p">)</span>
+    <span class="nx">ItemSlug</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation_4">Implementation<a class="headerlink" href="#implementation_4" title="Permanent link">&para;</a></h5>
+<p><code>item.Sluggable</code> has a default implementation in the <code>system/item</code> package. It is
+possible to override these methods on your own Content types, but beware, behavior
+is undefined. It is tempting to override the <code>SetSlug()</code> method to customize your
+Content item slug, but try first to override the <code>String()</code> method found in the
+<code>item.Identifiable</code> interface instead. If you don't get the desired results, try
+<code>SetSlug()</code>.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">Item</span><span class="p">)</span> <span class="nx">SetSlug</span><span class="p">(</span><span class="nx">slug</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">i</span><span class="p">.</span><span class="nx">Slug</span> <span class="p">=</span> <span class="nx">slug</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">Item</span><span class="p">)</span> <span class="nx">ItemSlug</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Slug</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr />
+<h3 id="itemsortable"><a href="https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Sortable">item.Sortable</a><a class="headerlink" href="#itemsortable" title="Permanent link">&para;</a></h3>
+<p>Sortable enables items to be sorted by time, as per the sort.Interface interface. Sortable is implemented by Item by default.</p>
+<h5 id="method-set_6">Method Set<a class="headerlink" href="#method-set_6" title="Permanent link">&para;</a></h5>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Sortable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Time</span><span class="p">()</span> <span class="kt">int64</span>
+    <span class="nx">Touch</span><span class="p">()</span> <span class="kt">int64</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5 id="implementation_5">Implementation<a class="headerlink" href="#implementation_5" title="Permanent link">&para;</a></h5>
+<p><code>item.Sortable</code> has a default implementation in the <code>system/item</code> package. It is
+possible to override these methods on your own Content type, but beware, behavior 
+is undefined.</p>
+<div class="codehilite"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="nx">Item</span><span class="p">)</span> <span class="nx">Time</span><span class="p">()</span> <span class="kt">int64</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Timestamp</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="nx">Item</span><span class="p">)</span> <span class="nx">Touch</span><span class="p">()</span> <span class="kt">int64</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Updated</span>
+<span class="p">}</span>
+</pre></div>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../Format/" title="Format" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Format
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../Search/" title="Search" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Search
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="https://github.com/ponzu-cms" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/ponzu_cms" class="md-footer-social__link fa fa-twitter"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-6b599127bc.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+      <script>!function(e,t,a,n,o,c,i){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,c=t.createElement(a),i=t.getElementsByTagName(a)[0],c.async=1,c.src=n,i.parentNode.insertBefore(c,i)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-98609560-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var t=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",t,e.href)})});var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})</script>
+      
+    
+  </body>
+</html>
