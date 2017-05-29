@@ -26,17 +26,20 @@ import (
 )
 
 var (
-	port      int
 	httpsport int
+	port      int
+	docsport  int
 	https     bool
 	devhttps  bool
+	docs      bool
 	cli       bool
 
 	// for ponzu internal / core development
-	dev   bool
-	fork  string
 	gocmd string
-	year  = fmt.Sprintf("%d", time.Now().Year())
+	fork  string
+	dev   bool
+
+	year = fmt.Sprintf("%d", time.Now().Year())
 )
 
 var rootCmd = &cobra.Command{
@@ -55,7 +58,7 @@ The segments, separated by a comma, describe which services to start, either
 if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org)
 
-Defaults to 'run -port=8080 admin,api' (running Admin & API on port 8080, without TLS)
+Defaults to 'run --port=8080 admin,api' (running Admin & API on port 8080, without TLS)
 
 Note:
 Admin and API cannot run on separate processes unless you use a copy of the
@@ -81,6 +84,13 @@ $ ponzu run --port=8888 api`,
 			addTLS = "--dev-https"
 		}
 
+		var addDocs string
+		if docs {
+			addDocs = "--docs"
+		} else {
+			addDocs = "--docs=false"
+		}
+
 		var services string
 		if len(args) > 0 {
 			services = args[0]
@@ -95,6 +105,8 @@ $ ponzu run --port=8888 api`,
 			services,
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--https-port=%d", httpsport),
+			fmt.Sprintf("--docs-port=%d", docsport),
+			addDocs,
 			addTLS,
 		)
 		serve.Stderr = os.Stderr
@@ -137,6 +149,11 @@ var serveCmd = &cobra.Command{
 			}
 		}
 
+		// run docs server if --docs is true
+		if docs {
+			admin.Docs(docsport)
+		}
+
 		// save the https port the system is listening on
 		err := db.PutConfig("https_port", fmt.Sprintf("%d", httpsport))
 		if err != nil {
@@ -176,14 +193,16 @@ var serveCmd = &cobra.Command{
 
 func init() {
 	for _, cmd := range []*cobra.Command{runCmd, serveCmd} {
-		cmd.Flags().IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
 		cmd.Flags().IntVar(&httpsport, "https-port", 443, "port for ponzu to bind its HTTPS listener")
+		cmd.Flags().IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
+		cmd.Flags().IntVar(&docsport, "docs-port", 1234, "[dev environment] override the documentation server port")
+		cmd.Flags().BoolVar(&docs, "docs", false, "[dev environment] run HTTP server to view local HTML documentation")
 		cmd.Flags().BoolVar(&https, "https", false, "enable automatic TLS/SSL certificate management")
 		cmd.Flags().BoolVar(&devhttps, "dev-https", false, "[dev environment] enable automatic TLS/SSL certificate management")
 	}
 
-	RegisterCmdlineCommand(runCmd)
 	RegisterCmdlineCommand(serveCmd)
+	RegisterCmdlineCommand(runCmd)
 
 	pflags := rootCmd.PersistentFlags()
 	pflags.StringVar(&gocmd, "gocmd", "go", "custom go command if using beta or new release of Go")
