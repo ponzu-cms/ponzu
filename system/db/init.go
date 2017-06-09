@@ -93,30 +93,14 @@ func Init() {
 // We still have no guarentee whatsoever that item.Types is defined
 // Should be called from a goroutine after SetContent is successful (SortContent requirement)
 func InitSearchIndex() {
-	log.Println("init db gofunc START ..............................................................................")
-
-	// if len(item.Types) == 0 {
-	// 	log.Println("item.types = 0")
-	// 	time.Sleep(time.Second * 1)
-	// }
-
-	log.Printf("item.Types: %#v", item.Types)
-
 	for t := range item.Types {
 		err := search.MapIndex(t)
-		log.Printf("item.Types in gofunc: %#v", t)
-		log.Printf("err: %#v", err)
 		if err != nil {
 			log.Fatalln(err)
 			return
 		}
-
 		SortContent(t)
-
 	}
-
-	log.Println("init db gofunc END ..............................................................................")
-
 }
 
 // SystemInitComplete checks if there is at least 1 admin user in the db which
