@@ -85,17 +85,38 @@ func Init() {
 		log.Fatalln("Failed to invalidate cache.", err)
 	}
 
-	go func() {
-		for t := range item.Types {
-			err := search.MapIndex(t)
-			if err != nil {
-				log.Fatalln(err)
-				return
-			}
+}
 
-			SortContent(t)
+// InitSearchIndex initializes Search Index for search to be functional
+// This was moved out of db.Init and put to main(), because addoon checker was initializing db together with
+// search indexing initialisation in time when there were no item.Types defined so search index was always empty when using addons.
+// We still have no guarentee whatsoever that item.Types is defined
+// Should be called from a goroutine after SetContent is successful (SortContent requirement)
+func InitSearchIndex() {
+	log.Println("init db gofunc START ..............................................................................")
+
+	// if len(item.Types) == 0 {
+	// 	log.Println("item.types = 0")
+	// 	time.Sleep(time.Second * 1)
+	// }
+
+	log.Printf("item.Types: %#v", item.Types)
+
+	for t := range item.Types {
+		err := search.MapIndex(t)
+		log.Printf("item.Types in gofunc: %#v", t)
+		log.Printf("err: %#v", err)
+		if err != nil {
+			log.Fatalln(err)
+			return
 		}
-	}()
+
+		SortContent(t)
+
+	}
+
+	log.Println("init db gofunc END ..............................................................................")
+
 }
 
 // SystemInitComplete checks if there is at least 1 admin user in the db which
