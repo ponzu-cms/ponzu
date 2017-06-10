@@ -88,9 +88,9 @@ func Init() {
 }
 
 // InitSearchIndex initializes Search Index for search to be functional
-// This was moved out of db.Init and put to main(), because addoon checker was initializing db together with
-// search indexing initialisation in time when there were no item.Types defined so search index was always empty when using addons.
-// We still have no guarentee whatsoever that item.Types is defined
+// This was moved out of db.Init and put to main(), because addon checker was initializing db together with
+// search indexing initialisation in time when there were no item.Types defined so search index was always 
+// empty when using addons. We still have no guarentee whatsoever that item.Types is defined
 // Should be called from a goroutine after SetContent is successful (SortContent requirement)
 func InitSearchIndex() {
 	for t := range item.Types {
