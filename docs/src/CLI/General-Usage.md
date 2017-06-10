@@ -121,10 +121,13 @@ if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) 
 
 Optional flags:
+
 - `--port` sets the port on which the server listens for HTTP requests [defaults to 8080]
 - `--https-port` sets the port on which the server listens for HTTPS requests [defaults to 443]
 - `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
 - `--dev-https` generates self-signed SSL certificates for development-only (port is 10443)
+- `--docs` runs a local documentation server in case of no network connection
+- `--docs-port` sets the port on which the docs server listens for HTTP requests [defaults to 1234]
 
 Example: 
 ```bash
@@ -136,7 +139,7 @@ $ ponzu run admin
 (or)
 $ ponzu run --port=8888 api
 (or)
-$ ponzu --dev-https run
+$ ponzu run --dev-https
 ```
 Defaults to `$ ponzu run --port=8080 admin,api` (running Admin & API on port 8080, without TLS)
 

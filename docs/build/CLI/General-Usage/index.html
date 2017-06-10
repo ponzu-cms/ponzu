@@ -1047,11 +1047,15 @@ The segments, separated by a comma, describe which services to start, either
 'admin' (Admin System / CMS backend) or 'api' (JSON API), and, optionally, 
 if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) </p>
-<p>Optional flags:
-- <code>--port</code> sets the port on which the server listens for HTTP requests [defaults to 8080]
-- <code>--https-port</code> sets the port on which the server listens for HTTPS requests [defaults to 443]
-- <code>--https</code> enables auto HTTPS management via Let's Encrypt (port is always 443)
-- <code>--dev-https</code> generates self-signed SSL certificates for development-only (port is 10443)</p>
+<p>Optional flags:</p>
+<ul>
+<li><code>--port</code> sets the port on which the server listens for HTTP requests [defaults to 8080]</li>
+<li><code>--https-port</code> sets the port on which the server listens for HTTPS requests [defaults to 443]</li>
+<li><code>--https</code> enables auto HTTPS management via Let's Encrypt (port is always 443)</li>
+<li><code>--dev-https</code> generates self-signed SSL certificates for development-only (port is 10443)</li>
+<li><code>--docs</code> runs a local documentation server in case of no network connection</li>
+<li><code>--docs-port</code> sets the port on which the docs server listens for HTTP requests [defaults to 1234]</li>
+</ul>
 <p>Example: </p>
 <div class="codehilite"><pre><span></span>$ ponzu run
 <span class="o">(</span>or<span class="o">)</span>
@@ -1061,7 +1065,7 @@ $ ponzu run admin
 <span class="o">(</span>or<span class="o">)</span>
 $ ponzu run --port<span class="o">=</span><span class="m">8888</span> api
 <span class="o">(</span>or<span class="o">)</span>
-$ ponzu --dev-https run
+$ ponzu run --dev-https
 </pre></div>
 
 
