@@ -1,0 +1,1258 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.6.1">
+    
+    
+      
+        <title>Using the Ponzu Command Line Interface (CLI)</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-4d0d3f2fbf.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Ponzu" class="md-logo md-header-nav__button">
+            <img src="../../images/logo.png" width="24" height="24">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  CLI
+                </span>
+              
+            
+            General Usage
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/ponzu-cms/ponzu" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      ponzu-cms/ponzu
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-logo md-nav__button">
+        <img src="../../images/logo.png">
+      </i>
+    
+    Ponzu
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ponzu-cms/ponzu" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      ponzu-cms/ponzu
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      CLI
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        CLI
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        General Usage
+      </label>
+    
+    <a href="./" title="General Usage" class="md-nav__link md-nav__link--active">
+      General Usage
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new" title="new" class="md-nav__link">
+    new
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-gen-g" title="generate, gen, g" class="md-nav__link">
+    generate, gen, g
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build" title="build" class="md-nav__link">
+    build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" title="run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade" title="upgrade" class="md-nav__link">
+    upgrade
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-a" title="add, a" class="md-nav__link">
+    add, a
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-v" title="version, v" class="md-nav__link">
+    version, v
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" title="Contributing" class="md-nav__link">
+    Contributing
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../Generating-References/" title="Generating References" class="md-nav__link">
+      Generating References
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Content
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Content
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Content/An-Overview/" title="An Overview" class="md-nav__link">
+      An Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Content/Extending-Content/" title="Extending Content" class="md-nav__link">
+      Extending Content
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Form Fields
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Form Fields
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Form-Fields/HTML-Inputs/" title="HTML Inputs" class="md-nav__link">
+      HTML Inputs
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      HTTP APIs
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        HTTP APIs
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/Content/" title="Content" class="md-nav__link">
+      Content
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/File-Metadata/" title="File Metadata" class="md-nav__link">
+      File Metadata
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../HTTP-APIs/Search/" title="Search" class="md-nav__link">
+      Search
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Interfaces
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Interfaces
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Interfaces/API/" title="API" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Interfaces/Editor/" title="Editor" class="md-nav__link">
+      Editor
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Interfaces/Format/" title="Format" class="md-nav__link">
+      Format
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Interfaces/Item/" title="Item" class="md-nav__link">
+      Item
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Interfaces/Search/" title="Search" class="md-nav__link">
+      Search
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Ponzu Addons
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Ponzu Addons
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Ponzu-Addons/Creating-Addons/" title="Creating Addons" class="md-nav__link">
+      Creating Addons
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Ponzu-Addons/Using-Addons/" title="Using Addons" class="md-nav__link">
+      Using Addons
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Quickstart
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Quickstart
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Quickstart/Overview/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
+    
+    <label class="md-nav__link" for="nav-9">
+      References
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-9">
+        References
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../References/Overview/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10">
+    
+    <label class="md-nav__link" for="nav-10">
+      Running Backups
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-10">
+        Running Backups
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Running-Backups/Backups/" title="Backups" class="md-nav__link">
+      Backups
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-11" type="checkbox" id="nav-11">
+    
+    <label class="md-nav__link" for="nav-11">
+      System Configuration
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-11">
+        System Configuration
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Configuration/Settings/" title="Settings" class="md-nav__link">
+      Settings
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-12" type="checkbox" id="nav-12">
+    
+    <label class="md-nav__link" for="nav-12">
+      System Deployment
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-12">
+        System Deployment
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Deployment/Docker/" title="Docker" class="md-nav__link">
+      Docker
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../System-Deployment/SysV-Style/" title="SysV Style" class="md-nav__link">
+      SysV Style
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new" title="new" class="md-nav__link">
+    new
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-gen-g" title="generate, gen, g" class="md-nav__link">
+    generate, gen, g
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build" title="build" class="md-nav__link">
+    build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" title="run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade" title="upgrade" class="md-nav__link">
+    upgrade
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-a" title="add, a" class="md-nav__link">
+    add, a
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-v" title="version, v" class="md-nav__link">
+    version, v
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" title="Contributing" class="md-nav__link">
+    Contributing
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>General Usage</h1>
+                
+                <div class="codehilite"><pre><span></span>$ ponzu <span class="o">[</span>flags<span class="o">]</span> <span class="nb">command</span> &lt;params&gt;
+</pre></div>
+
+
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="new">new<a class="headerlink" href="#new" title="Permanent link">&para;</a></h3>
+<p>Creates a project directory of the name supplied as a parameter immediately
+following the 'new' option in the $GOPATH/src directory. Note: 'new' depends on 
+the program 'git' and possibly a network connection. If there is no local 
+repository to clone from at the local machine's $GOPATH, 'new' will attempt to 
+clone the 'github.com/ponzu-cms/ponzu' package from over the network.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>$ ponzu new github.com/nilslice/proj
+&gt; New ponzu project created at <span class="nv">$GOPATH</span>/src/github.com/nilslice/proj
+</pre></div>
+
+
+<hr />
+<h3 id="generate-gen-g">generate, gen, g<a class="headerlink" href="#generate-gen-g" title="Permanent link">&para;</a></h3>
+<p>Generate boilerplate code for various Ponzu components, such as <code>content</code>.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>            generator      struct fields and built-in types...
+             <span class="p">|</span>              <span class="p">|</span>
+             v              v    
+$ ponzu gen content review title:<span class="s2">&quot;string&quot;</span> body:<span class="s2">&quot;string&quot;</span>:richtext rating:<span class="s2">&quot;int&quot;</span>
+                     ^                                   ^
+                     <span class="p">|</span>                                   <span class="p">|</span>
+                    struct <span class="nb">type</span>                         <span class="o">(</span>optional<span class="o">)</span> input view specifier
+</pre></div>
+
+
+<p>The command above will generate the file <code>content/review.go</code> with boilerplate
+methods, as well as struct definition, and corresponding field tags like:</p>
+<div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Review</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">item</span><span class="p">.</span><span class="nx">Item</span>
+
+    <span class="nx">Title</span>  <span class="kt">string</span>   <span class="s">`json:&quot;title&quot;`</span>
+    <span class="nx">Body</span>   <span class="kt">string</span>   <span class="s">`json:&quot;body&quot;`</span>
+    <span class="nx">Rating</span> <span class="kt">int</span>      <span class="s">`json:&quot;rating&quot;`</span>
+    <span class="nx">Tags</span>   <span class="p">[]</span><span class="kt">string</span> <span class="s">`json:&quot;tags&quot;`</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>The generate command will intelligently parse more sophisticated field names
+such as 'field_name' and convert it to 'FieldName' and vice versa, only where 
+appropriate as per common Go idioms. Errors will be reported, but successful 
+generate commands return nothing.</p>
+<p><strong>Input View Specifiers</strong> <em>(optional)</em></p>
+<p>The CLI can optionally parse a third parameter on the fields provided to generate 
+the type of HTML view an editor field is presented within. If no third parameter
+is added, a plain text HTML input will be generated. In the example above, the 
+argument shown as <code>body:string:richtext</code> would show the Richtext input instead
+of a plain text HTML input (as shown in the screenshot). The following input
+view specifiers are implemented:</p>
+<table>
+<thead>
+<tr>
+<th>CLI parameter</th>
+<th>Generates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>checkbox</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorcheckbox"><code>editor.Checkbox()</code></a></td>
+</tr>
+<tr>
+<td>custom</td>
+<td>generates a pre-styled empty div to fill with HTML</td>
+</tr>
+<tr>
+<td>file</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorfile"><code>editor.File()</code></a></td>
+</tr>
+<tr>
+<td>hidden</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorinput"><code>editor.Input()</code></a> + uses type=hidden</td>
+</tr>
+<tr>
+<td>input, text</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorinput"><code>editor.Input()</code></a></td>
+</tr>
+<tr>
+<td>richtext</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorrichtext"><code>editor.Richtext()</code></a></td>
+</tr>
+<tr>
+<td>select</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editorselect"><code>editor.Select()</code></a></td>
+</tr>
+<tr>
+<td>textarea</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editortextarea"><code>editor.Textarea()</code></a></td>
+</tr>
+<tr>
+<td>tags</td>
+<td><a href="../../Form-Fields/HTML-Inputs/#editortags"><code>editor.Tags()</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generate Content References</strong></p>
+<p>It's also possible to generate all of the code needed to create references between
+your content types. The syntax to do so is below, but refer to the <a href="../../CLI/Generating-References">documentation</a>
+for more details:</p>
+<div class="codehilite"><pre><span></span>$ ponzu gen c author name:string genre:string:select
+$ ponzu gen c book title:string author:@author,name,genre 
+</pre></div>
+
+
+<p>The commands above will generate a <code>Book</code> Content type with a reference to an
+<code>Author</code> item, by also generating a <a href="../../Form-Fields/HTML-Inputs/#referenceselect"><code>reference.Select</code></a>
+as the view for the <code>author</code> field.</p>
+<hr />
+<h3 id="build">build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
+<p>From within your Ponzu project directory, running build will copy and move 
+the necessary files from your workspace into the vendored directory, and 
+will build/compile the project to then be run. </p>
+<p>Optional flags:
+- <code>--gocmd</code> sets the binary used when executing <code>go build</code> within <code>ponzu</code> build step</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>$ ponzu build
+<span class="o">(</span>or<span class="o">)</span>
+$ ponzu build --gocmd<span class="o">=</span>go1.8rc1 <span class="c1"># useful for testing</span>
+</pre></div>
+
+
+<p>Errors will be reported, but successful build commands return nothing.</p>
+<hr />
+<h3 id="run">run<a class="headerlink" href="#run" title="Permanent link">&para;</a></h3>
+<p>Starts the HTTP server for the JSON API, Admin System, or both.
+The segments, separated by a comma, describe which services to start, either 
+'admin' (Admin System / CMS backend) or 'api' (JSON API), and, optionally, 
+if the server should utilize TLS encryption - served over HTTPS, which is
+automatically managed using Let's Encrypt (https://letsencrypt.org) </p>
+<p>Optional flags:</p>
+<ul>
+<li><code>--port</code> sets the port on which the server listens for HTTP requests [defaults to 8080]</li>
+<li><code>--https-port</code> sets the port on which the server listens for HTTPS requests [defaults to 443]</li>
+<li><code>--https</code> enables auto HTTPS management via Let's Encrypt (port is always 443)</li>
+<li><code>--dev-https</code> generates self-signed SSL certificates for development-only (port is 10443)</li>
+<li><code>--docs</code> runs a local documentation server in case of no network connection</li>
+<li><code>--docs-port</code> sets the port on which the docs server listens for HTTP requests [defaults to 1234]</li>
+</ul>
+<p>Example: </p>
+<div class="codehilite"><pre><span></span>$ ponzu run
+<span class="o">(</span>or<span class="o">)</span>
+$ ponzu run --port<span class="o">=</span><span class="m">8080</span> --https admin,api
+<span class="o">(</span>or<span class="o">)</span> 
+$ ponzu run admin
+<span class="o">(</span>or<span class="o">)</span>
+$ ponzu run --port<span class="o">=</span><span class="m">8888</span> api
+<span class="o">(</span>or<span class="o">)</span>
+$ ponzu run --dev-https
+</pre></div>
+
+
+<p>Defaults to <code>$ ponzu run --port=8080 admin,api</code> (running Admin &amp; API on port 8080, without TLS)</p>
+<p><em>Note:</em> 
+Admin and API cannot run on separate processes unless you use a copy of the
+database, since the first process to open it receives a lock. If you intend
+to run the Admin and API on separate processes, you must call them with the
+'ponzu' command independently.</p>
+<hr />
+<h3 id="upgrade">upgrade<a class="headerlink" href="#upgrade" title="Permanent link">&para;</a></h3>
+<p>Will backup your own custom project code (like content, addons, uploads, etc) so
+we can safely re-clone Ponzu from the latest version you have or from the network 
+if necessary. Before running <code>$ ponzu upgrade</code>, you should update the <code>ponzu</code>
+package by running <code>$ go get -u github.com/ponzu-cms/ponzu/...</code> </p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>$ ponzu upgrade
+</pre></div>
+
+
+<hr />
+<h3 id="add-a">add, a<a class="headerlink" href="#add-a" title="Permanent link">&para;</a></h3>
+<p>Downloads an addon to GOPATH/src and copies it to the current Ponzu project's
+<code>/addons</code> directory.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>$ ponzu add github.com/bosssauce/fbscheduler
+</pre></div>
+
+
+<p>Errors will be reported, but successful add commands return nothing.</p>
+<hr />
+<h3 id="version-v">version, v<a class="headerlink" href="#version-v" title="Permanent link">&para;</a></h3>
+<p>Prints the version of Ponzu your project is using. Must be called from within a 
+Ponzu project directory. By passing the <code>--cli</code> flag, the <code>version</code> command will 
+print the version of the Ponzu CLI you have installed.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span>$ ponzu version
+Ponzu v0.8.2
+<span class="c1"># (or)</span>
+$ ponzu version --cli
+Ponzu v0.9.2
+</pre></div>
+
+
+<hr />
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Checkout branch ponzu-dev</li>
+<li>Make code changes</li>
+<li>Test changes to ponzu-dev branch<ul>
+<li>make a commit to ponzu-dev</li>
+<li>to manually test, you will need to use a new copy (ponzu new path/to/code), 
+but pass the <code>--dev</code> flag so that ponzu generates a new copy from the <code>ponzu-dev</code> 
+branch, not master by default (i.e. <code>$ponzu new --dev /path/to/code</code>)</li>
+<li>build and run with <code>$ ponzu build</code> and <code>$ ponzu run</code></li>
+</ul>
+</li>
+<li>To add back to master: <ul>
+<li>first push to origin ponzu-dev</li>
+<li>create a pull request </li>
+<li>will then be merged into master</li>
+</ul>
+</li>
+</ol>
+<p><em>A typical contribution workflow might look like:</em></p>
+<div class="codehilite"><pre><span></span><span class="c1"># clone the repository and checkout ponzu-dev</span>
+$ git clone https://github.com/ponzu-cms/ponzu path/to/local/ponzu <span class="c1"># (or your fork)</span>
+$ git checkout ponzu-dev
+
+<span class="c1"># install ponzu with go get or from your own local path</span>
+$ go get github.com/ponzu-cms/ponzu/...
+<span class="c1"># or</span>
+$ <span class="nb">cd</span> /path/to/local/ponzu 
+$ go install ./...
+
+<span class="c1"># edit files, add features, etc</span>
+$ git add -A
+$ git commit -m <span class="s1">&#39;edited files, added features, etc&#39;</span>
+
+<span class="c1"># now you need to test the feature.. make a new ponzu project, but pass --dev flag</span>
+$ ponzu --dev new /path/to/new/project <span class="c1"># will create $GOPATH/src/path/to/new/project</span>
+
+<span class="c1"># build &amp; run ponzu from the new project directory</span>
+$ <span class="nb">cd</span> /path/to/new/project
+$ ponzu build <span class="o">&amp;&amp;</span> ponzu run
+
+<span class="c1"># push to your origin:ponzu-dev branch and create a PR at ponzu-cms/ponzu</span>
+$ git push origin ponzu-dev
+<span class="c1"># ... go to https://github.com/ponzu-cms/ponzu and create a PR</span>
+</pre></div>
+
+
+<p><strong>Note:</strong> if you intend to work on your own fork and contribute from it, you will
+need to also pass <code>--fork=path/to/your/fork</code> (using OS-standard filepath structure),
+where <code>path/to/your/fork</code> <em>must</em> be within <code>$GOPATH/src</code>, and you are working from a branch
+called <code>ponzu-dev</code>. </p>
+<p>For example: </p>
+<div class="codehilite"><pre><span></span><span class="c1"># ($GOPATH/src is implied in the fork path, do not add it yourself)</span>
+$ ponzu new --dev --fork<span class="o">=</span>github.com/nilslice/ponzu /path/to/new/project
+</pre></div>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../.." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Home
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../Generating-References/" title="Generating References" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Generating References
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="https://github.com/ponzu-cms" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/ponzu_cms" class="md-footer-social__link fa fa-twitter"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-6b599127bc.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+      <script>!function(e,t,a,n,o,c,i){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,c=t.createElement(a),i=t.getElementsByTagName(a)[0],c.async=1,c.src=n,i.parentNode.insertBefore(c,i)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-98609560-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var t=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",t,e.href)})});var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})</script>
+      
+    
+  </body>
+</html>

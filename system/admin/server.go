@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -61,4 +62,24 @@ func Run() {
 
 	// Database & uploads backup via HTTP route registered with Basic Auth middleware.
 	http.HandleFunc("/admin/backup", system.BasicAuth(backupHandler))
+}
+
+// Docs adds the documentation file server to the server, accessible at
+// http://localhost:1234 by default
+func Docs(port int) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln("Couldn't find current directory for file server.")
+	}
+
+	docsDir := filepath.Join(pwd, "docs", "build")
+
+	addr := fmt.Sprintf(":%d", port)
+	url := fmt.Sprintf("http://localhost%s", addr)
+
+	fmt.Println("")
+	fmt.Println("View documentation offline at:", url)
+	fmt.Println("")
+
+	go http.ListenAndServe(addr, http.FileServer(http.Dir(docsDir)))
 }
