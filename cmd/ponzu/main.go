@@ -154,6 +154,9 @@ var serveCmd = &cobra.Command{
 			admin.Docs(docsport)
 		}
 
+		// init search index
+		go db.InitSearchIndex()
+
 		// save the https port the system is listening on
 		err := db.PutConfig("https_port", fmt.Sprintf("%d", httpsport))
 		if err != nil {
