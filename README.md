@@ -271,7 +271,7 @@ $ git add -A
 $ git commit -m 'edited files, added features, etc'
 
 # now you need to test the feature.. make a new ponzu project, but pass --dev flag
-$ ponzu --dev new /path/to/new/project # will create $GOPATH/src/path/to/new/project
+$ ponzu new --dev /path/to/new/project # will create $GOPATH/src/path/to/new/project
 
 # build & run ponzu from the new project directory
 $ cd /path/to/new/project
