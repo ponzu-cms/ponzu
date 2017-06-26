@@ -1,4 +1,4 @@
-package upload
+package search
 
 import (
 	"context"
@@ -12,21 +12,21 @@ import (
 	"github.com/ponzu-cms/ponzu/system/backup"
 )
 
-// Backup creates an archive of a project's uploads and writes it
+// Backup creates an archive of a project's search index and writes it
 // to the response as a download
 func Backup(ctx context.Context, res http.ResponseWriter) error {
 	ts := time.Now().Unix()
-	filename := fmt.Sprintf("uploads-%d.bak.tar.gz", ts)
+	filename := fmt.Sprintf("search-%d.bak.tar.gz", ts)
 	tmp := os.TempDir()
 	bk := filepath.Join(tmp, filename)
 
-	// create uploads-{stamp}.bak.tar.gz
+	// create search-{stamp}.bak.tar.gz
 	f, err := os.Create(bk)
 	if err != nil {
 		return err
 	}
 
-	err = backup.ArchiveFS(ctx, "uploads", f)
+	backup.ArchiveFS(ctx, "search", f)
 
 	err = f.Close()
 	if err != nil {
