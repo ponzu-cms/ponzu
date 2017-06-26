@@ -1851,7 +1851,6 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		// and correctly format for db storage. Essentially, we need
 		// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
 		fieldOrderValue := make(map[string]map[string][]string)
-		ordVal := make(map[string][]string)
 		for k, v := range req.PostForm {
 			if strings.Contains(k, ".") {
 				fo := strings.Split(k, ".")
@@ -1859,7 +1858,9 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 				// put the order and the field value into map
 				field := string(fo[0])
 				order := string(fo[1])
-				fieldOrderValue[field] = ordVal
+				if len(fieldOrderValue[field]) == 0 {
+					fieldOrderValue[field] = make(map[string][]string)
+				}
 
 				// orderValue is 0:[?type=Thing&id=1]
 				orderValue := fieldOrderValue[field]
