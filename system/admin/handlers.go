@@ -23,6 +23,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/api/analytics"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
+	"github.com/ponzu-cms/ponzu/system/search"
 
 	"github.com/gorilla/schema"
 	emailer "github.com/nilslice/email"
@@ -220,6 +221,14 @@ func backupHandler(res http.ResponseWriter, req *http.Request) {
 		err := upload.Backup(ctx, res)
 		if err != nil {
 			log.Println("Failed to run backup on uploads:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	case "search":
+		err := search.Backup(ctx, res)
+		if err != nil {
+			log.Println("Failed to run backup on search:", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
