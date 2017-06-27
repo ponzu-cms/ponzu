@@ -655,6 +655,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#search-indexes" title="Search Indexes" class="md-nav__link">
+    Search Indexes
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -785,6 +792,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#search-indexes" title="Search Indexes" class="md-nav__link">
+    Search Indexes
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -814,11 +828,20 @@
 
 
 <h2 id="uploads">Uploads<a class="headerlink" href="#uploads" title="Permanent link">&para;</a></h2>
-<p>The <code>/uploads</code> directory is gzip compressed and archived as a tar file, stored in the temporary directory (typically <code>/tmp</code> on Linux) on your origin server with a timestamp in the file name. </p>
+<p>The <code>uploads</code> directory is gzip compressed and archived as a tar file, stored in the temporary directory (typically <code>/tmp</code> on Linux) on your origin server with a timestamp in the file name. It is removed after the HTTP response for the backup has been written.</p>
 <p>An example backup request for the <code>/uploads</code> directory would look like:</p>
 <div class="codehilite"><pre><span></span>$ curl --user user:pass <span class="s2">&quot;https://example.com/admin/backup?source=uploads&quot;</span> &gt; uploads.tar.gz
 <span class="c1"># unarchive the tarball with gzip </span>
 $ tar xzf uploads.tar.gz
+</pre></div>
+
+
+<h2 id="search-indexes">Search Indexes<a class="headerlink" href="#search-indexes" title="Permanent link">&para;</a></h2>
+<p>The <code>search</code> directory, which is created to store the various search indexes for your content types (only if they implement <code>search.Searchable</code>), is backed up in the same fashion as <a href="../../Running-Backups/Backups/#uploads">Uploads</a>. </p>
+<p>An example backup request for the <code>/search</code> directory would look like:</p>
+<div class="codehilite"><pre><span></span>$ curl --user user:pass <span class="s2">&quot;https://example.com/admin/backup?source=search&quot;</span> &gt; search.tar.gz
+<span class="c1"># unarchive the tarball with gzip </span>
+$ tar xzf search.tar.gz
 </pre></div>
                 
                   

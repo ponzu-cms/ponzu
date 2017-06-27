@@ -16,11 +16,21 @@ $ curl --user user:pass "https://example.com/admin/backup?source=system" > syste
 ```
 
 ## Uploads
-The `/uploads` directory is gzip compressed and archived as a tar file, stored in the temporary directory (typically `/tmp` on Linux) on your origin server with a timestamp in the file name. 
+The `uploads` directory is gzip compressed and archived as a tar file, stored in the temporary directory (typically `/tmp` on Linux) on your origin server with a timestamp in the file name. It is removed after the HTTP response for the backup has been written.
 
 An example backup request for the `/uploads` directory would look like:
 ```bash
 $ curl --user user:pass "https://example.com/admin/backup?source=uploads" > uploads.tar.gz
 # unarchive the tarball with gzip 
 $ tar xzf uploads.tar.gz
+```
+
+## Search Indexes
+The `search` directory, which is created to store the various search indexes for your content types (only if they implement `search.Searchable`), is backed up in the same fashion as [Uploads](/Running-Backups/Backups/#uploads). 
+
+An example backup request for the `/search` directory would look like:
+```bash
+$ curl --user user:pass "https://example.com/admin/backup?source=search" > search.tar.gz
+# unarchive the tarball with gzip 
+$ tar xzf search.tar.gz
 ```
