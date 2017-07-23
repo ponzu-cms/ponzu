@@ -26,6 +26,7 @@ import (
 )
 
 var (
+	bind      string
 	httpsport int
 	port      int
 	docsport  int
@@ -103,6 +104,7 @@ $ ponzu run --port=8888 api`,
 		serve := exec.Command(buildPathName,
 			"serve",
 			services,
+			fmt.Sprintf("--bind=%s", bind),
 			fmt.Sprintf("--port=%d", port),
 			fmt.Sprintf("--https-port=%d", httpsport),
 			fmt.Sprintf("--docs-port=%d", docsport),
@@ -124,7 +126,7 @@ var ErrWrongOrMissingService = errors.New("To execute 'ponzu serve', " +
 var serveCmd = &cobra.Command{
 	Use:     "serve [flags] <service,service>",
 	Aliases: []string{"s"},
-	Short:   "actually run the server (serve is wrapped by the run command)",
+	Short:   "run the server (serve is wrapped by the run command)",
 	Hidden:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -187,15 +189,26 @@ var serveCmd = &cobra.Command{
 			log.Fatalln("System failed to save config. Please try to run again.", err)
 		}
 
-		fmt.Printf("Server listening on :%d for HTTP requests...\n", port)
-		fmt.Println("\nvisit `/admin` to get started.")
-		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+		// save the bound address the system is listening on so internal system can make
+		// HTTP api calls while in dev or production w/o adding more cli flags
+		if bind == "" {
+			bind = "localhost"
+		}
+		err = db.PutConfig("bind_addr", bind)
+		if err != nil {
+			log.Fatalln("System failed to save config. Please try to run again.", err)
+		}
+
+		fmt.Printf("Server listening at %s:%d for HTTP requests...\n", bind, port)
+		fmt.Println("\nVisit '/admin' to get started.")
+		log.Fatalln(http.ListenAndServe(fmt.Sprintf("%s:%d", bind, port), nil))
 		return nil
 	},
 }
 
 func init() {
 	for _, cmd := range []*cobra.Command{runCmd, serveCmd} {
+		cmd.Flags().StringVar(&bind, "bind", "localhost", "address for ponzu to bind the HTTP(S) server")
 		cmd.Flags().IntVar(&httpsport, "https-port", 443, "port for ponzu to bind its HTTPS listener")
 		cmd.Flags().IntVar(&port, "port", 8080, "port for ponzu to bind its HTTP listener")
 		cmd.Flags().IntVar(&docsport, "docs-port", 1234, "[dev environment] override the documentation server port")
