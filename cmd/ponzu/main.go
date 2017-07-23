@@ -126,7 +126,7 @@ var ErrWrongOrMissingService = errors.New("To execute 'ponzu serve', " +
 var serveCmd = &cobra.Command{
 	Use:     "serve [flags] <service,service>",
 	Aliases: []string{"s"},
-	Short:   "actually run the server (serve is wrapped by the run command)",
+	Short:   "run the server (serve is wrapped by the run command)",
 	Hidden:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -191,6 +191,9 @@ var serveCmd = &cobra.Command{
 
 		// save the bound address the system is listening on so internal system can make
 		// HTTP api calls while in dev or production w/o adding more cli flags
+		if bind == "" {
+			bind = "localhost"
+		}
 		err = db.PutConfig("bind_addr", bind)
 		if err != nil {
 			log.Fatalln("System failed to save config. Please try to run again.", err)
