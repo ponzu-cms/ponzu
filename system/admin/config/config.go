@@ -14,6 +14,7 @@ type Config struct {
 
 	Name                    string   `json:"name"`
 	Domain                  string   `json:"domain"`
+	BindAddress             string   `json:"bind_addr"`
 	HTTPPort                string   `json:"http_port"`
 	HTTPSPort               string   `json:"https_port"`
 	AdminEmail              string   `json:"admin_email"`
@@ -51,6 +52,11 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Input("Domain", c, map[string]string{
 				"label":       "Domain Name (required for SSL certificate)",
 				"placeholder": "e.g. www.example.com or example.com",
+			}),
+		},
+		editor.Field{
+			View: editor.Input("BindAddress", c, map[string]string{
+				"type": "hidden",
 			}),
 		},
 		editor.Field{
