@@ -1049,6 +1049,7 @@ if the server should utilize TLS encryption - served over HTTPS, which is
 automatically managed using Let's Encrypt (https://letsencrypt.org) </p>
 <p>Optional flags:</p>
 <ul>
+<li><code>--bind</code> sets the address for ponzu to bind the HTTP(S) server</li>
 <li><code>--port</code> sets the port on which the server listens for HTTP requests [defaults to 8080]</li>
 <li><code>--https-port</code> sets the port on which the server listens for HTTPS requests [defaults to 443]</li>
 <li><code>--https</code> enables auto HTTPS management via Let's Encrypt (port is always 443)</li>
@@ -1058,6 +1059,8 @@ automatically managed using Let's Encrypt (https://letsencrypt.org) </p>
 </ul>
 <p>Example: </p>
 <div class="codehilite"><pre><span></span>$ ponzu run
+<span class="o">(</span>or<span class="o">)</span>
+$ ponzu run --bind<span class="o">=</span><span class="m">0</span>.0.0.0
 <span class="o">(</span>or<span class="o">)</span>
 $ ponzu run --port<span class="o">=</span><span class="m">8080</span> --https admin,api
 <span class="o">(</span>or<span class="o">)</span> 

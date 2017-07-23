@@ -122,6 +122,7 @@ automatically managed using Let's Encrypt (https://letsencrypt.org)
 
 Optional flags:
 
+- `--bind` sets the address for ponzu to bind the HTTP(S) server
 - `--port` sets the port on which the server listens for HTTP requests [defaults to 8080]
 - `--https-port` sets the port on which the server listens for HTTPS requests [defaults to 443]
 - `--https` enables auto HTTPS management via Let's Encrypt (port is always 443)
@@ -132,6 +133,8 @@ Optional flags:
 Example: 
 ```bash
 $ ponzu run
+(or)
+$ ponzu run --bind=0.0.0.0
 (or)
 $ ponzu run --port=8080 --https admin,api
 (or) 
