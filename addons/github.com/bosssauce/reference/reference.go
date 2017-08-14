@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"html/template"
 	"log"
 	"strings"
@@ -143,7 +144,7 @@ func encodeDataToOptions(contentType, tmplString string) (map[string]string, err
 				contentType, err.Error())
 		}
 
-		options[k] = v.String()
+		options[k] = html.UnescapeString(v.String())
 	}
 
 	return options, nil
