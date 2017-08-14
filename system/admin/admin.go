@@ -160,10 +160,23 @@ var initAdminHTML = `
         
         var logo = $('a.brand-logo');
         var name = $('input#name');
+        var domain = $('input#domain');
+        var hostname = domain.val();
 
+        if (hostname === '') {    
+            hostname = window.location.host || window.location.hostname;
+        }
+        
+        if (hostname.indexOf(':') !== -1) {
+            hostname = hostname.split(':')[0];
+        }
+        
+        domain.val(hostname);
+        
         name.on('change', function(e) {
             logo.text(e.target.value);
         });
+
     });
 </script>
 `
