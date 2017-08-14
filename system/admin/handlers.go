@@ -69,7 +69,7 @@ func initHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// get the site name from post to encode and use as secret
-		name := []byte(req.FormValue("name"))
+		name := []byte(req.FormValue("name") + db.NewEtag())
 		secret := base64.StdEncoding.EncodeToString(name)
 		req.Form.Set("client_secret", secret)
 
