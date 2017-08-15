@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
@@ -10,19 +11,22 @@ import (
 	"github.com/tidwall/sjson"
 )
 
-func omit(it interface{}, data []byte) ([]byte, error) {
+func omit(res http.ResponseWriter, req *http.Request, it interface{}, data []byte) ([]byte, error) {
 	// is it Omittable
 	om, ok := it.(item.Omittable)
 	if !ok {
 		return data, nil
 	}
 
-	return omitFields(om, data, "data")
+	return omitFields(res, req, om, data, "data")
 }
 
-func omitFields(om item.Omittable, data []byte, pathPrefix string) ([]byte, error) {
+func omitFields(res http.ResponseWriter, req *http.Request, om item.Omittable, data []byte, pathPrefix string) ([]byte, error) {
 	// get fields to omit from json data
-	fields := om.Omit()
+	fields, err := om.Omit(res, req)
+	if err != nil {
+		return nil, err
+	}
 
 	// remove each field from json, all responses contain json object(s) in top-level "data" array
 	n := int(gjson.GetBytes(data, pathPrefix+".#").Int())

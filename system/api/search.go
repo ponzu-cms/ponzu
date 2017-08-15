@@ -26,7 +26,7 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(it(), res, req) {
+	if hide(res, req, it()) {
 		return
 	}
 
@@ -64,7 +64,7 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	// if we have matches, push the first as its matched by relevance
 	if len(bb) > 0 {
-		push(res, req, it, bb[0])
+		push(res, req, it(), bb[0])
 	}
 
 	var result = []json.RawMessage{}
@@ -78,7 +78,7 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), j)
+	j, err = omit(res, req, it(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return

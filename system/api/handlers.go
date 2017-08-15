@@ -19,7 +19,7 @@ var ErrNoAuth = errors.New("Auth failed for request")
 func typesHandler(res http.ResponseWriter, req *http.Request) {
 	var types = []string{}
 	for t, fn := range item.Types {
-		if !hide(fn(), res, req) {
+		if !hide(res, req, fn()) {
 			types = append(types, t)
 		}
 	}
@@ -47,7 +47,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(it(), res, req) {
+	if hide(res, req, it()) {
 		return
 	}
 
@@ -94,7 +94,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), j)
+	j, err = omit(res, req, it(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -125,17 +125,24 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(pt(), res, req) {
-		return
-	}
-
 	post, err := db.Content(t + ":" + id)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	push(res, req, pt, post)
+	p := pt()
+	err = json.Unmarshal(post, p)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if hide(res, req, p) {
+		return
+	}
+
+	push(res, req, p, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -143,7 +150,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(pt(), j)
+	j, err = omit(res, req, p, j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -174,11 +181,18 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if hide(it(), res, req) {
+	p := it()
+	err = json.Unmarshal(post, p)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	push(res, req, it, post)
+	if hide(res, req, p) {
+		return
+	}
+
+	push(res, req, p, post)
 
 	j, err := fmtJSON(json.RawMessage(post))
 	if err != nil {
@@ -186,7 +200,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), j)
+	j, err = omit(res, req, p, j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
@@ -218,7 +232,7 @@ func uploadsHandler(res http.ResponseWriter, req *http.Request) {
 		return new(item.FileUpload)
 	}
 
-	push(res, req, it, upload)
+	push(res, req, it(), upload)
 
 	j, err := fmtJSON(json.RawMessage(upload))
 	if err != nil {
@@ -227,7 +241,7 @@ func uploadsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err = omit(it(), j)
+	j, err = omit(res, req, it(), j)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return

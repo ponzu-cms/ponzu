@@ -6,7 +6,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 )
 
-func hide(it interface{}, res http.ResponseWriter, req *http.Request) bool {
+func hide(res http.ResponseWriter, req *http.Request, it interface{}) bool {
 	// check if should be hidden
 	if h, ok := it.(item.Hideable); ok {
 		err := h.Hide(res, req)
