@@ -1528,16 +1528,16 @@ only method in Pushable, must return a <code>[]string</code> containing the <cod
 of the referenced items within the type.</p>
 <h5 id="method-set">Method Set<a class="headerlink" href="#method-set" title="Permanent link">&para;</a></h5>
 <div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Pushable</span> <span class="kd">interface</span> <span class="p">{</span>
-    <span class="c1">// the values contained in fields returned by Push must be URL paths</span>
-    <span class="nx">Push</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span>
+    <span class="c1">// the values contained in []string fields returned by Push must be URL paths</span>
+    <span class="nx">Push</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 
 
 <h5 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h5>
 <p>The <code>Push</code> method returns a <code>[]string</code> containing the <code>json</code> tag field names for
-which you want to have pushed to a supported client. The values for the field
-names <strong>must</strong> be URL paths, and cannot be from another origin.</p>
+which you want to have pushed to a supported client and an error value. The values 
+for the field names <strong>must</strong> be URL paths, and cannot be from another origin.</p>
 <div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Post</span> <span class="kd">struct</span> <span class="p">{</span>
     <span class="nx">item</span><span class="p">.</span><span class="nx">Item</span>
 
@@ -1546,11 +1546,11 @@ names <strong>must</strong> be URL paths, and cannot be from another origin.</p>
     <span class="c1">// ...</span>
 <span class="p">}</span>
 
-<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Push</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Push</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
         <span class="s">&quot;header_photo&quot;</span><span class="p">,</span>
         <span class="s">&quot;author&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="p">},</span> <span class="kc">nil</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -1582,10 +1582,10 @@ content in specific cases.</p>
 <p>Omittable tells a content API handler to keep certain fields from being exposed 
 through the JSON response. It's single method, <code>Omit</code> takes no arguments and 
 returns a <code>[]string</code> which must be made up of the JSON struct tags for the type 
-containing fields to be omitted.</p>
+containing fields to be omitted and an error value.</p>
 <h5 id="method-set_2">Method Set<a class="headerlink" href="#method-set_2" title="Permanent link">&para;</a></h5>
 <div class="codehilite"><pre><span></span><span class="kd">type</span> <span class="nx">Omittable</span> <span class="kd">interface</span> <span class="p">{</span>
-    <span class="nx">Omit</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span>
+    <span class="nx">Omit</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -1599,11 +1599,11 @@ containing fields to be omitted.</p>
     <span class="c1">// ...</span>
 <span class="p">}</span>
 
-<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Omit</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Post</span><span class="p">)</span> <span class="nx">Omit</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
         <span class="s">&quot;header_photo&quot;</span><span class="p">,</span>
         <span class="s">&quot;author&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="p">},</span> <span class="kc">nil</span>
 <span class="p">}</span>
 </pre></div>
 
