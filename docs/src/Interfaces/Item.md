@@ -19,15 +19,15 @@ of the referenced items within the type.
 ##### Method Set
 ```go
 type Pushable interface {
-    // the values contained in fields returned by Push must be URL paths
-    Push() []string
+    // the values contained in []string fields returned by Push must be URL paths
+    Push(http.ResponseWriter, *http.Request) ([]string, error)
 }
 ```
 
 ##### Implementation
 The `Push` method returns a `[]string` containing the `json` tag field names for
-which you want to have pushed to a supported client. The values for the field
-names **must** be URL paths, and cannot be from another origin.
+which you want to have pushed to a supported client and an error value. The values 
+for the field names **must** be URL paths, and cannot be from another origin.
 
 ```go
 type Post struct {
@@ -38,11 +38,11 @@ type Post struct {
     // ...
 }
 
-func (p *Post) Push() []string {
+func (p *Post) Push(res http.ResponseWriter, req *http.Request) ([]string, error) {
     return []string{
         "header_photo",
         "author",
-    }
+    }, nil
 }
 ```
 
@@ -76,12 +76,12 @@ func (p *Post) Hide(res http.ResponseWriter, req *http.Request) error {
 Omittable tells a content API handler to keep certain fields from being exposed 
 through the JSON response. It's single method, `Omit` takes no arguments and 
 returns a `[]string` which must be made up of the JSON struct tags for the type 
-containing fields to be omitted.
+containing fields to be omitted and an error value.
 
 ##### Method Set
 ```go
 type Omittable interface {
-    Omit() []string
+    Omit(http.ResponseWriter, *http.Request) ([]string, error)
 }
 ```
 
@@ -95,11 +95,11 @@ type Post struct {
     // ...
 }
 
-func (p *Post) Omit() []string {
+func (p *Post) Omit(res http.ResponseWriter, req *http.Request) ([]string, error) {
     return []string{
         "header_photo",
         "author",
-    }
+    }, nil
 }
 ```
 

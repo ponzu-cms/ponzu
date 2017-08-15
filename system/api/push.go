@@ -10,12 +10,16 @@ import (
 	"golang.org/x/net/http2"
 )
 
-func push(res http.ResponseWriter, req *http.Request, pt func() interface{}, data []byte) {
+func push(res http.ResponseWriter, req *http.Request, pt interface{}, data []byte) {
 	// Push(target string, opts *PushOptions) error
 	if pusher, ok := res.(http.Pusher); ok {
-		if p, ok := pt().(item.Pushable); ok {
+		if p, ok := pt.(item.Pushable); ok {
 			// get fields to pull values from data
-			fields := p.Push()
+			fields, err := p.Push(res, req)
+			if err != nil {
+				log.Println("[Pushable] error:", err)
+				return
+			}
 
 			// parse values from data to push
 			values := gjson.GetManyBytes(data, fields...)
