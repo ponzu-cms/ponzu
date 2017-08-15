@@ -60,6 +60,9 @@ func upgradePonzuProjectDir(path string) error {
 		"deployment",
 		"management",
 		"system",
+		"docs",
+		"CONTRIBUTING.md",
+		"examples",
 	}
 
 	stamp := fmt.Sprintf("ponzu-%d.bak", time.Now().Unix())
