@@ -1,4 +1,4 @@
-ponzu-server
-uploads
-search
-*.db
+/ponzu-server
+/uploads
+/search
+/*.db
