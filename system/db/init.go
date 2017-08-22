@@ -13,7 +13,22 @@ import (
 	"github.com/nilslice/jwt"
 )
 
-var store *bolt.DB
+var (
+	store *bolt.DB
+
+	buckets = []string{
+		"__config", "__users",
+		"__addons", "__uploads",
+		"__contentIndex",
+	}
+
+	bucketsToAdd []string
+)
+
+// Store provides access to the underlying *bolt.DB store
+func Store() *bolt.DB {
+	return store
+}
 
 // Close exports the abillity to close our db file. Should be called with defer
 // after call to Init() from the same place.
@@ -51,10 +66,8 @@ func Init() {
 		}
 
 		// init db with other buckets as needed
-		buckets := []string{
-			"__config", "__users", "__contentIndex",
-			"__addons", "__uploads",
-		}
+		buckets = append(buckets, bucketsToAdd...)
+
 		for _, name := range buckets {
 			_, err := tx.CreateBucketIfNotExists([]byte(name))
 			if err != nil {
@@ -84,6 +97,11 @@ func Init() {
 	if err != nil {
 		log.Fatalln("Failed to invalidate cache.", err)
 	}
+}
+
+// AddBucket adds a bucket to be created if it doesn't already exist
+func AddBucket(name string) {
+	bucketsToAdd = append(bucketsToAdd, name)
 }
 
 // InitSearchIndex initializes Search Index for search to be functional
