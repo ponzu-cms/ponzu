@@ -147,7 +147,7 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	err = hook.BeforeAPICreate(res, req)
 	if err != nil {
-		log.Println("[Create] error calling BeforeAccept:", err)
+		log.Println("[Create] error calling BeforeCreate:", err)
 		return
 	}
 
