@@ -181,13 +181,13 @@ type Book struct {
 }
 
 
-func (b *Book) Push() []string {
+func (b *Book) Push(res http.ResponseWriter, req *http.Request) ([]string, error) {
     return []string{
         // the json struct tag is used to tell the server which
         // field(s) it should push - only URL paths originating
         // from your server can be pushed!
         "author", 
-    }
+    }, nil
 }
 ...
 ```
@@ -200,7 +200,7 @@ has been made.
 !!! note "What else can I Push?"
     Only fields that are URL paths originating from your server can be pushed. 
     This means that you could also implement `item.Pushable` on the `Author`
-    type, and return `[]string{"photo"}` to push the Author's image!
+    type, and return `[]string{"photo"}, nil` to push the Author's image!
 
 ---
 
