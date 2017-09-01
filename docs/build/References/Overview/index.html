@@ -1038,13 +1038,13 @@ struct, which has a reference to an <code>Author</code>.</p>
 <span class="p">}</span>
 
 
-<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">Book</span><span class="p">)</span> <span class="nx">Push</span><span class="p">()</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">Book</span><span class="p">)</span> <span class="nx">Push</span><span class="p">(</span><span class="nx">res</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
         <span class="c1">// the json struct tag is used to tell the server which</span>
         <span class="c1">// field(s) it should push - only URL paths originating</span>
         <span class="c1">// from your server can be pushed!</span>
         <span class="s">&quot;author&quot;</span><span class="p">,</span> 
-    <span class="p">}</span>
+    <span class="p">},</span> <span class="kc">nil</span>
 <span class="p">}</span>
 <span class="o">...</span>
 </pre></div>
@@ -1058,7 +1058,7 @@ has been made.</p>
 <p class="admonition-title">What else can I Push?</p>
 <p>Only fields that are URL paths originating from your server can be pushed. 
 This means that you could also implement <code>item.Pushable</code> on the <code>Author</code>
-type, and return <code>[]string{"photo"}</code> to push the Author's image!</p>
+type, and return <code>[]string{"photo"}, nil</code> to push the Author's image!</p>
 </div>
 <hr />
 <h3 id="other-considerations">Other Considerations<a class="headerlink" href="#other-considerations" title="Permanent link">&para;</a></h3>
