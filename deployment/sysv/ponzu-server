@@ -9,7 +9,7 @@
 ### END INIT INFO
 
 PROJECT_DIR=<PROJECT DIRECTORY>
-SCRIPT='cd $PROJECT_DIR && ponzu run --port=80' # add --https here to get TLS/HTTPS
+SCRIPT="cd $PROJECT_DIR && ponzu run --port=80" # add --https here to get TLS/HTTPS
 RUNAS=<USER>
 
 PIDFILE=/var/run/ponzu-server.pid
