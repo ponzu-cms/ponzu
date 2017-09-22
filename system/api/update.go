@@ -58,6 +58,20 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 
 	post := p()
 
+	j, err := db.Content(t + ":" + id)
+	if err != nil {
+		log.Println("[Update] error getting content for type:", t, err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(j, post)
+	if err != nil {
+		log.Println("[Update] error populating data in type:", t, err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	ext, ok := post.(Updateable)
 	if !ok {
 		log.Println("[Update] rejected non-updateable type:", t, "from:", req.RemoteAddr)
@@ -221,7 +235,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 		},
 	}
 
-	j, err := json.Marshal(resp)
+	j, err = json.Marshal(resp)
 	if err != nil {
 		log.Println("[Update] error marshalling response to JSON:", err)
 		res.WriteHeader(http.StatusInternalServerError)
