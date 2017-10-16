@@ -122,6 +122,14 @@ func upgradePonzuProjectDir(path string) error {
 		}
 	}
 
+	// development upgrade?
+	if dev {
+		if fork != "" {
+			fmt.Println("Upgrading from " + fork)
+		} else {
+			fmt.Println("Upgrading from 'ponzu-dev' branch")
+		}
+	}
 	err = createProjectInDir(path)
 	if err != nil {
 		fmt.Println("")
@@ -167,5 +175,7 @@ func upgradePonzuProjectDir(path string) error {
 }
 
 func init() {
+	upgradeCmd.Flags().StringVar(&fork, "fork", "", "modify repo source for Ponzu core development")
+	upgradeCmd.Flags().BoolVar(&dev, "dev", false, "modify environment for Ponzu core development")
 	RegisterCmdlineCommand(upgradeCmd)
 }
