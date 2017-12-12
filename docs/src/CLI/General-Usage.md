@@ -46,7 +46,6 @@ type Review struct {
 	Title  string   `json:"title"`
 	Body   string   `json:"body"`
 	Rating int      `json:"rating"`
-	Tags   []string `json:"tags"`
 }
 ```
 
