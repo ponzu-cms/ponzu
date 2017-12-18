@@ -10,6 +10,9 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
 
+      # install ponzu
+      - run: go get -u github.com/ponzu-cms/ponzu/...
+
       # generate
       - run: ponzu new github.com/ponzu-cms/ci/test-project
       - run: cd /go/src/github.com/ponzu-cms/ci/test-project
