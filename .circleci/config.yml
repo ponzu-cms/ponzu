@@ -4,22 +4,12 @@ jobs:
     docker:
       - image: circleci/golang:1.9
 
-    working_directory: /go/src/github.com/ponzu-cms/ci
-
     steps:
       - checkout
-      - run: go get -v -t -d ./...
 
-      # install ponzu
-      - run: go get -u github.com/ponzu-cms/ponzu/...
+      # generate and build project to test
+      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-setup.sh | sh
 
-      # generate
-      - run: ponzu new github.com/ponzu-cms/ci/test-project
-      - run: cd /go/src/github.com/ponzu-cms/ci/test-project
-      - run: ponzu gen content response code:int headers:"[]string" body:string
-      
-      # build and run
-      - run: ponzu build && ponzu run
+      # run tests
+      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-run.sh | sh
 
-      # smoke test
-      - run: curl -L localhost:8080/admin | grep https://www.bosssauce.it
