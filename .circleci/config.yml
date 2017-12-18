@@ -9,7 +9,6 @@ jobs:
     steps:
       - checkout
       - run: go get -v -t -d ./...
-      - run: go test -v ./...
 
       # generate
       - run: ponzu new github.com/ponzu-cms/ci/test-project
