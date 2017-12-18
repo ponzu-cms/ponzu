@@ -11,13 +11,13 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
 
-      - generate
+      # generate
       - run: ponzu new github.com/ponzu-cms/ci/test-project
       - run: cd /go/src/github.com/ponzu-cms/ci/test-project
       - run: ponzu gen content response code:int headers:"[]string" body:string
       
-      - build-and-run
+      # build and run
       - run: ponzu build && ponzu run
 
-      - smoke-test
+      # smoke test
       - run: curl -L localhost:8080/admin | grep https://www.bosssauce.it
