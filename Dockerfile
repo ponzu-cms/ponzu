@@ -1,6 +1,6 @@
 
 # Base our image on an official, minimal image of our preferred golang
-FROM golang:1.8.1
+FROM golang:1.9
 
 # Note: The default golang docker image, already has the GOPATH env variable set.
 # GOPATH is located at /go
