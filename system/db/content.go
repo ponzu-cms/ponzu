@@ -738,10 +738,7 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 
 	// add/set the key & value to the post form in order
 	for f, ov := range fieldOrderValue {
-		for i := 0; i < len(ov); i++ {
-			position := fmt.Sprintf("%d", i)
-			fieldValue := ov[position]
-
+		for _, fieldValue := range ov {
 			if data.Get(f) == "" {
 				for i, fv := range fieldValue {
 					if i == 0 {
