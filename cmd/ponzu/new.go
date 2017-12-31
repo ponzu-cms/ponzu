@@ -183,10 +183,14 @@ func createProjectInDir(path string) error {
 		return err
 	}
 
-	gitDir := filepath.Join(path, ".git")
-	err = os.RemoveAll(gitDir)
-	if err != nil {
-		fmt.Println("Failed to remove .git directory from your project path. Consider removing it manually.")
+	// remove non-project files and directories
+	rmPaths := []string{".git", ".circleci"}
+	for _, rm := range rmPaths {
+		dir := filepath.Join(path, rm)
+		err = os.RemoveAll(dir)
+		if err != nil {
+			fmt.Println("Failed to remove directory from your project path. Consider removing it manually:", dir)
+		}
 	}
 
 	fmt.Println("New ponzu project created at", path)
