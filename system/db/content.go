@@ -203,7 +203,11 @@ func insert(ns string, data url.Values) (int, error) {
 		data.Set("id", cid)
 
 		// add UUID to data for use in embedded Item
-		uid := uuid.NewV4()
+		uid, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+
 		data.Set("uuid", uid.String())
 
 		// if type has a specifier, add it to data for downstream processing
