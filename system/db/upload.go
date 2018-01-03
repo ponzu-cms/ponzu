@@ -30,10 +30,10 @@ func SetUpload(target string, data url.Values) (int, error) {
 		data.Get("uuid") == (uuid.UUID{}).String() {
 
 		// set new UUID for upload
-    uid, err :=  uuid.NewV4()
-    if err != nil {
-      return 0, err
-    }
+		uid, err := uuid.NewV4()
+		if err != nil {
+			return 0, err
+		}
 		data.Set("uuid", uid.String())
 	}
 
