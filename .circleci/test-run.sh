@@ -23,3 +23,7 @@ curl -v --cookie-jar cookies \
 #Test that content types were generated
 curl -b cookies -c cookies http://localhost:8080/admin/contents?type=Person \
     | grep Person
+
+curl -b cookies -c cookies http://localhost:8080/admin/contents?type=Message \
+    | grep Message
+
