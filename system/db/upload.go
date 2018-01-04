@@ -28,8 +28,13 @@ func SetUpload(target string, data url.Values) (int, error) {
 
 	if data.Get("uuid") == "" ||
 		data.Get("uuid") == (uuid.UUID{}).String() {
+
 		// set new UUID for upload
-		data.Set("uuid", uuid.NewV4().String())
+		uid, err := uuid.NewV4()
+		if err != nil {
+			return 0, err
+		}
+		data.Set("uuid", uid.String())
 	}
 
 	if data.Get("slug") == "" {
