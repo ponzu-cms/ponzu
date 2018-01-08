@@ -20,11 +20,13 @@ func Gzip(next http.HandlerFunc) http.HandlerFunc {
 		if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 			// gzip response data
 			res.Header().Set("Content-Encoding", "gzip")
+			gzWriter := gzip.NewWriter(res)
+			defer gzWriter.Close()
 			var gzres gzipResponseWriter
 			if pusher, ok := res.(http.Pusher); ok {
-				gzres = gzipResponseWriter{res, pusher, gzip.NewWriter(res)}
+				gzres = gzipResponseWriter{res, pusher, gzWriter}
 			} else {
-				gzres = gzipResponseWriter{res, nil, gzip.NewWriter(res)}
+				gzres = gzipResponseWriter{res, nil, gzWriter}
 			}
 
 			next.ServeHTTP(gzres, req)
@@ -43,7 +45,6 @@ type gzipResponseWriter struct {
 }
 
 func (gzw gzipResponseWriter) Write(p []byte) (int, error) {
-	defer gzw.gw.Close()
 	return gzw.gw.Write(p)
 }
 
