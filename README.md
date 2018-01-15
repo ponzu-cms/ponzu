@@ -122,7 +122,7 @@ the type of HTML view an editor field is presented within. If no third parameter
 is added, a plain text HTML input will be generated. In the example above, the 
 argument shown as `body:string:richtext` would show the Richtext input instead
 of a plain text HTML input (as shown in the screenshot). The following input
-view specifiers are implmeneted:
+view specifiers are implemented:
 
 | CLI parameter | Generates |
 |---------------|-----------| 
