@@ -16,10 +16,9 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-var m autocert.Manager
-
-// setup attempts to locate or create the cert cache directory and the certs for TLS encryption
-func setup() {
+// newManager attempts to locate or create the cert cache directory and the
+// certs for TLS encryption and returns an autocert.Manager
+func newManager() autocert.Manager {
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalln("Couldn't find working directory to locate or save certificates.")
@@ -57,25 +56,27 @@ func setup() {
 	}
 	fmt.Println("Using", string(email), "as contact email for certificate...")
 
-	m = autocert.Manager{
+	return autocert.Manager{
 		Prompt:      autocert.AcceptTOS,
 		Cache:       cache,
 		HostPolicy:  autocert.HostWhitelist(string(host)),
 		RenewBefore: time.Hour * 24 * 30,
 		Email:       string(email),
 	}
-
 }
 
 // Enable runs the setup for creating or locating production certificates and
 // starts the TLS server
 func Enable() {
-	setup()
+	m := newManager()
 
 	server := &http.Server{
 		Addr:      fmt.Sprintf(":%s", db.ConfigCache("https_port").(string)),
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
+
+	// launch http listener for "http-01" ACME challenge
+	go http.ListenAndServe(":http", m.HTTPHandler(nil))
 
 	log.Fatalln(server.ListenAndServeTLS("", ""))
 }
