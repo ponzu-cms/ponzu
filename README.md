@@ -32,16 +32,18 @@ $ ponzu gen content song title:"string" artist:"string" rating:"int" opinion:"st
 
 
 **What's inside**  
-- Automatic & Free SSL/TLS*  
-- HTTP/2 and Server Push  
-- Rapid development with CLI-controlled code generators  
-- User-friendly, extensible CMS and administration dashboard  
-- Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))  
-- Fast, helpful framework while maintaining control 
+- Automatic & Free SSL/TLS<sup id="a1">[1](#f1)</sup>
+- HTTP/2 and Server Push
+- Rapid development with CLI-controlled code generators
+- User-friendly, extensible CMS and administration dashboard
+- Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))
+- Fast, helpful framework while maintaining control
 
-*TLS:
+<sup id="f1">1</sup> *TLS*:
 - Development: self-signed certificates auto-generated
-- Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)  
+- Production: auto-renewing certificates fetched from [Let's Encrypt](https://letsencrypt.org)
+
+[↩](#a1)
 
 ## Documentation
 For more detailed documentation, check out the [docs](https://docs.ponzu-cms.org)
