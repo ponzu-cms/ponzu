@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Ponzu CMS + Server Framework Docs\n\n\n\n\nWhat is Ponzu?\n\n\n\n\nWatch the \nvideo introduction\n\n\n\n\nPonzu is a powerful and efficient open-source HTTP server framework and CMS. It \nprovides automatic, free, and secure HTTP/2 over TLS (certificates obtained via \n\nLet's Encrypt\n), a useful CMS and scaffolding to generate \ncontent editors, and a fast HTTP API on which to build modern applications.\n\n\nWant to jump in right away? Try the \nQuickstart\n\n\nTable of Contents\n\n\n\n\nCLI\n\n\nContent\n\n\nForm Fields\n\n\nHTTP API - Content\n\n\nHTTP API - File Metadata\n\n\nHTTP API - Search\n\n\nInterfaces - API\n\n\nInterfaces - Editor\n\n\nInterfaces - Item\n\n\nInterfaces - Search\n\n\nCreating Ponzu Addons\n\n\nUsing Ponzu Addons\n\n\nQuickstart\n\n\nBackups\n\n\nSystem Configuration\n\n\n\n\nNeed help? Get in touch\n\n\n\n\nChat: \n#ponzu on Slack\n\n\nReach out on Twitter: \n@ponzu_cms\n\n\nFile an \nissue\n\n\n\n\n\n\ncurrent version: \nv0.9.3\n @ ponzu:master", 
+            "text": "Ponzu CMS + Server Framework Docs\n\n\n\n\nWhat is Ponzu?\n\n\n\n\nWatch the \nvideo introduction\n\n\n\n\nPonzu is a powerful and efficient open-source HTTP server framework and CMS. It \nprovides automatic, free, and secure HTTP/2 over TLS (certificates obtained via \n\nLet's Encrypt\n), a useful CMS and scaffolding to generate \ncontent editors, and a fast HTTP API on which to build modern applications.\n\n\nWant to jump in right away? Try the \nQuickstart\n\n\nTable of Contents\n\n\n\n\nCLI\n\n\nContent\n\n\nForm Fields\n\n\nHTTP API - Content\n\n\nHTTP API - File Metadata\n\n\nHTTP API - Search\n\n\nInterfaces - API\n\n\nInterfaces - Editor\n\n\nInterfaces - Item\n\n\nInterfaces - Search\n\n\nCreating Ponzu Addons\n\n\nUsing Ponzu Addons\n\n\nQuickstart\n\n\nBackups\n\n\nSystem Configuration\n\n\n\n\nNeed help? Get in touch\n\n\n\n\nChat: \n#ponzu on Slack\n\n\nReach out on Twitter: \n@ponzu_cms\n\n\nFile an \nissue\n\n\n\n\n\n\ncurrent version: \nv0.9.4\n @ ponzu:master", 
             "title": "Home"
         }, 
         {
@@ -22,7 +22,7 @@
         }, 
         {
             "location": "/#need-help-get-in-touch", 
-            "text": "Chat:  #ponzu on Slack  Reach out on Twitter:  @ponzu_cms  File an  issue    current version:  v0.9.3  @ ponzu:master", 
+            "text": "Chat:  #ponzu on Slack  Reach out on Twitter:  @ponzu_cms  File an  issue    current version:  v0.9.4  @ ponzu:master", 
             "title": "Need help? Get in touch"
         }, 
         {
