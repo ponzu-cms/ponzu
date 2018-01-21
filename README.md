@@ -4,6 +4,7 @@
 [![Current Release](https://img.shields.io/github/release/ponzu-cms/ponzu.svg)](https://github.com/ponzu-cms/ponzu/releases/latest)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/ponzu-cms/ponzu)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ponzu-cms/ponzu)](https://goreportcard.com/report/github.com/ponzu-cms/ponzu)
+[![CircleCI Build Status](https://circleci.com/gh/ponzu-cms/ponzu.svg?style=shield)](https://circleci.com/gh/ponzu-cms/ponzu/tree/master)
 
 > Watch the [**video introduction**](https://www.youtube.com/watch?v=T_1ncPoLgrg)
 
@@ -51,7 +52,7 @@ For more detailed documentation, check out the [docs](https://docs.ponzu-cms.org
 ## Installation
 
 ```
-$ go get github.com/ponzu-cms/ponzu/...
+$ go get -u github.com/ponzu-cms/ponzu/...
 ```
 
 ## Requirements
@@ -184,7 +185,7 @@ $ ponzu run admin
 (or)
 $ ponzu run --port=8888 api
 (or)
-$ ponzu --dev-https run
+$ ponzu run --dev-https
 ```
 Defaults to `$ ponzu run --port=8080 admin,api` (running Admin & API on port 8080, without TLS)
 
