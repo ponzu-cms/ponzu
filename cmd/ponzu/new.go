@@ -13,7 +13,7 @@ import (
 var newCmd = &cobra.Command{
 	Use:   "new [flags] <project name>",
 	Short: "creates a project directory of the name supplied as a parameter",
-	Long: `Creates aproject  directory of the name supplied as a parameter
+	Long: `Creates a project directory of the name supplied as a parameter
 immediately following the 'new' option in the $GOPATH/src directory. Note:
 'new' depends on the program 'git' and possibly a network connection. If
 there is no local repository to clone from at the local machine's $GOPATH,
