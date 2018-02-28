@@ -142,14 +142,14 @@ func DeleteIndex(id string) error {
 // TypeQuery conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
 // and an error. If there is no search index for the typeName (Type) provided,
 // db.ErrNoIndex will be returned as the error
-func TypeQuery(typeName, query string) ([]string, error) {
+func TypeQuery(typeName, query string, count, offset int) ([]string, error) {
 	idx, ok := Search[typeName]
 	if !ok {
 		return nil, ErrNoIndex
 	}
 
 	q := bleve.NewQueryStringQuery(query)
-	req := bleve.NewSearchRequest(q)
+	req := bleve.NewSearchRequestOptions(q, count, offset, false)
 	res, err := idx.Search(req)
 	if err != nil {
 		return nil, err
