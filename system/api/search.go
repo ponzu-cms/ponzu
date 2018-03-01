@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
@@ -42,8 +43,28 @@ func searchContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	count, err := strconv.Atoi(qs.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+	if err != nil {
+		if qs.Get("count") == "" {
+			count = 10
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	offset, err := strconv.Atoi(qs.Get("offset")) // int: multiplier of count for pagination (0 default)
+	if err != nil {
+		if qs.Get("offset") == "" {
+			offset = 0
+		} else {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
 	// execute search for query provided, if no index for type send 404
-	matches, err := search.TypeQuery(t, q)
+	matches, err := search.TypeQuery(t, q, count, offset)
 	if err == search.ErrNoIndex {
 		res.WriteHeader(http.StatusNotFound)
 		return
