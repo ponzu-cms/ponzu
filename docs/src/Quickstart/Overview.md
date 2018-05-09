@@ -18,7 +18,7 @@ $ cd $GOPATH/src/github.com/nilslice/reviews
 
 5) Generate content type file and boilerplate code (creates `content/review.go`):
 ```bash
-$ ponzu generate content review title:"string" author:"string" rating:"float64" body:"string":richtext website_url:"string" items:"[]string" photo:string:file`
+$ ponzu generate content review title:"string" author:"string" rating:"float64" body:"string":richtext website_url:"string" items:"[]string" photo:string:file
 ```
 
 6) Build your project:
