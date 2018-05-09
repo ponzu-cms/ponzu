@@ -12,11 +12,14 @@ ponzu
 
 # create a project and generate code
 if [ $CIRCLE_BRANCH = "ponzu-dev" ]; then
+<<<<<<< HEAD
         # ensure we have the latest from ponzu-dev branch
         cd /go/src/github.com/ponzu-cms/ponzu
         git checkout ponzu-dev
         git pull origin ponzu-dev
 
+=======
+>>>>>>> update CI code to run --dev if on ponzu-dev branch
         # create new project using the ponzu-dev branch
         ponzu new --dev github.com/ponzu-cms/ci/test-project
 else 
