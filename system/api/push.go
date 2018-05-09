@@ -3,12 +3,14 @@ package api
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/tidwall/gjson"
-	"golang.org/x/net/http2"
 )
+
+const errRecursivePush = "recursive push not allowed"
 
 func push(res http.ResponseWriter, req *http.Request, pt interface{}, data []byte) {
 	// Push(target string, opts *PushOptions) error
@@ -40,7 +42,10 @@ func push(res http.ResponseWriter, req *http.Request, pt interface{}, data []byt
 					err := pusher.Push(v.String(), nil)
 					// check for error, "http2: recursive push not allowed"
 					// and return, suppressing a log message
-					if err != nil && err.Error() == http2.ErrRecursivePush.Error() {
+					// XXX: errRecursivePush has been co-located to this
+					// package instead of importing golang.org/x/net/http2
+					// to get the error itself.
+					if err != nil && strings.Contains(err.Error(), errRecursivePush) {
 						return true
 					}
 					if err != nil {
