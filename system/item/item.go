@@ -12,7 +12,7 @@ import (
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
-	uuid "github.com/satori/go.uuid"
+	"github.com/gofrs/uuid"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )
