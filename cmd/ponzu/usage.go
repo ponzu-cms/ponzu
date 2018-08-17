@@ -85,7 +85,7 @@ func RegisterCmdlineCommand(cmd *cobra.Command) {
 }
 
 func init() {
-	rootCmd.AddCommand(helpCmd)
+	rootCmd.SetHelpCommand(helpCmd)
 }
 
 // rpad adds padding to the right of a string.
