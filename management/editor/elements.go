@@ -261,12 +261,13 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 				height: 250,
 				placeholder: '` + attrs["placeholder"] + `',
 				toolbar: [
-					['style', ['bold', 'italic', 'underline', 'clear']],
-					['font', ['strikethrough', 'superscript', 'subscript']],
+					['style', ['style']],
+					['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
 					['fontsize', ['fontsize']],
 					['color', ['color']],
 					['insert', ['link', 'picture', 'video', 'hr']],					
 					['para', ['ul', 'ol', 'paragraph']],
+					['table', ['table']],
 					['height', ['height']],
 					['misc', ['codeview']]
 				],
