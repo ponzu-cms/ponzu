@@ -16,8 +16,8 @@ import (
 	"github.com/ponzu-cms/ponzu/system/search"
 
 	"github.com/boltdb/bolt"
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
-	uuid "github.com/satori/go.uuid"
 )
 
 // IsValidID checks that an ID from a DB target is valid.

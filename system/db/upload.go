@@ -14,8 +14,8 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/boltdb/bolt"
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
-	uuid "github.com/satori/go.uuid"
 )
 
 // SetUpload stores information about files uploaded to the system
