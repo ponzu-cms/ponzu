@@ -304,7 +304,7 @@ $ ponzu new --dev --fork=github.com/nilslice/ponzu /path/to/new/project
 - [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
 - [github.com/nilslice/email](https://github.com/nilslice/email)
 - [github.com/gorilla/schema](https://github.com/gorilla/schema)
-- [github.com/satori/go.uuid](https://github.com/satori/go.uuid)
+- [github.com/gofrs/uuid](https://github.com/gofrs/uuid)
 - [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/tidwall/sjson](https://github.com/tidwall/sjson)
 - [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
