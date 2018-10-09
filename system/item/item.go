@@ -17,6 +17,24 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var rxList map[*regexp.Regexp][]byte
+
+func init() {
+	// Compile regex once to use in stringToSlug().
+	// We store the compiled regex as the key
+	// and assign the replacement as the map's value.
+	rxList = map[*regexp.Regexp][]byte{
+		regexp.MustCompile("`[-]+`"):                  []byte("-"),
+		regexp.MustCompile("[[:space:]]"):             []byte("-"),
+		regexp.MustCompile("[[:blank:]]"):             []byte(""),
+		regexp.MustCompile("`[^a-z0-9]`i"):            []byte("-"),
+		regexp.MustCompile("[!/:-@[-`{-~]"):           []byte(""),
+		regexp.MustCompile("/[^\x20-\x7F]/"):          []byte(""),
+		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"): []byte("-"),
+		regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i"): []byte("\\1"),
+	}
+}
+
 // Sluggable makes a struct locatable by URL with it's own path.
 // As an Item implementing Sluggable, slugs may overlap. If this is an issue,
 // make your content struct (or one which embeds Item) implement Sluggable
@@ -316,31 +334,10 @@ func isMn(r rune) bool {
 func stringToSlug(s string) (string, error) {
 	src := []byte(strings.ToLower(s))
 
-	// convert all spaces to dash
-	rx := regexp.MustCompile("[[:space:]]")
-	src = rx.ReplaceAll(src, []byte("-"))
-
-	// remove all blanks such as tab
-	rx = regexp.MustCompile("[[:blank:]]")
-	src = rx.ReplaceAll(src, []byte(""))
-
-	rx = regexp.MustCompile("[!/:-@[-`{-~]")
-	src = rx.ReplaceAll(src, []byte(""))
-
-	rx = regexp.MustCompile("/[^\x20-\x7F]/")
-	src = rx.ReplaceAll(src, []byte(""))
-
-	rx = regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i")
-	src = rx.ReplaceAll(src, []byte("-"))
-
-	rx = regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i")
-	src = rx.ReplaceAll(src, []byte("\\1"))
-
-	rx = regexp.MustCompile("`[^a-z0-9]`i")
-	src = rx.ReplaceAll(src, []byte("-"))
-
-	rx = regexp.MustCompile("`[-]+`")
-	src = rx.ReplaceAll(src, []byte("-"))
+	// Range over compiled regex and replacements from init().
+	for rx := range rxList {
+		src = rx.ReplaceAll(src, rxList[rx])
+	}
 
 	str := strings.Replace(string(src), "'", "", -1)
 	str = strings.Replace(str, `"`, "", -1)
