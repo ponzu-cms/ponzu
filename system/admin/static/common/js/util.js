@@ -8,8 +8,6 @@ function replaceBadChars(text) {
     s = s.replace(/[\u201C\u201D\u201E]/g, "\"");
     // ellipsis
     s = s.replace(/\u2026/g, "...");
-    // dashes
-    s = s.replace(/[\u2013\u2014]/g, "-");
     // circumflex
     s = s.replace(/\u02C6/g, "^");
     // open angle bracket
