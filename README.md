@@ -199,7 +199,7 @@ to run the Admin and API on separate processes, you must call them with the
 
 ### upgrade
 
-Will backup your own custom project code (like content, addons, uploads, etc) so
+Will backup your own custom project code (like content, add-ons, uploads, etc) so
 we can safely re-clone Ponzu from the latest version you have or from the network 
 if necessary. Before running `$ ponzu upgrade`, you should update the `ponzu`
 package by running `$ go get -u github.com/ponzu-cms/ponzu/...` 
@@ -213,7 +213,7 @@ $ ponzu upgrade
 
 ### add, a
 
-Downloads an addon to GOPATH/src and copys it to the Ponzu project's ./addons directory.
+Downloads an add-on to GOPATH/src and copys it to the Ponzu project's ./addons directory.
 Must be called from within a Ponzu project directory.
 
 Example:
