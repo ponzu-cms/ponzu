@@ -320,6 +320,6 @@ The Go gopher was designed by Renee French. (http://reneefrench.blogspot.com)
 The design is licensed under the Creative Commons 3.0 Attributions license.
 Read this article for more details: http://blog.golang.org/gopher
 
-The Go gopher vector illustraition by Hugo Arganda [@argandas](https://twitter.com/argandas) (http://about.me/argandas)
+The Go gopher vector illustration by Hugo Arganda [@argandas](https://twitter.com/argandas) (http://about.me/argandas)
 
 "Gotoro", the sushi chef, is a modification of Hugo Arganda's illustration by Steve Manuel (https://github.com/nilslice).
