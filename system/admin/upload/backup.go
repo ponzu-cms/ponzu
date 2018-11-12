@@ -27,6 +27,9 @@ func Backup(ctx context.Context, res http.ResponseWriter) error {
 	}
 
 	err = backup.ArchiveFS(ctx, "uploads", f)
+	if err != nil {
+		return err
+	}
 
 	err = f.Close()
 	if err != nil {
