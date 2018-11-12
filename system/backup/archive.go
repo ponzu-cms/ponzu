@@ -16,6 +16,25 @@ func ArchiveFS(ctx context.Context, basedir string, w io.Writer) error {
 	gz := gzip.NewWriter(w)
 	tarball := tar.NewWriter(gz)
 
+	absPath, err := filepath.Abs(basedir)
+	if err != nil {
+		return err
+	}
+
+	info, err := os.Lstat(absPath)
+	if err != nil {
+		return err
+	}
+
+	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
+		// This is a symlink - we need to follow it
+		bdir, err := os.Readlink(absPath)
+		if err != nil {
+			return err
+		}
+		basedir = bdir
+	}
+
 	errChan := make(chan error, 1)
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -61,7 +80,7 @@ func ArchiveFS(ctx context.Context, basedir string, w io.Writer) error {
 	}
 
 	// stop processing if we get a cancellation signal
-	err := filepath.Walk(basedir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(basedir, func(path string, info os.FileInfo, err error) error {
 		go func() { errChan <- walkFn(path, info, err) }()
 
 		select {
