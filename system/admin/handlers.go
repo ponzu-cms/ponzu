@@ -2200,6 +2200,17 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// get upload data
+	upload, err := db.Upload(t + ":" + id)
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// use path to delete the physical file from disk
+	log.Println("file data:", string(upload))
+
 	err = db.DeleteUpload(t + ":" + id)
 	if err != nil {
 		log.Println(err)
