@@ -1,9 +1,37 @@
 package admin
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
+
+	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/item"
 )
+
+func deleteUploadFromDisk(target string) error {
+	// get data on file
+	data, err := db.Upload(target)
+	if err != nil {
+		return err
+	}
+
+	// unmarshal data
+	upload := item.FileUpload{}
+	if err = json.Unmarshal(data, &upload); err != nil {
+		return err
+	}
+
+	// use path to delete the physical file from disk
+	delPath := strings.Replace(upload.Path, "/api/", "./", 1)
+	err = os.Remove(delPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func restrict(dir http.Dir) justFilesFilesystem {
 	return justFilesFilesystem{dir}

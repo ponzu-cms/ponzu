@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -2201,24 +2200,9 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// get upload data
-	upload := item.FileUpload{}
-	data, err := db.Upload(t + ":" + id)
-	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if err = json.Unmarshal(data, &upload); err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// use path to delete the physical file from disk
-	delPath := strings.Replace(upload.Path, "/api/", "./", 1)
-	err = os.Remove(delPath)
+	// delete from file system, if good, we continue to delete
+	// from database, if bad error 500
+	err = deleteUploadFromDisk(t + ":" + id)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
