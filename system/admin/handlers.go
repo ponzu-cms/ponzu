@@ -1560,10 +1560,11 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 	default:
 		status = "__" + status
 	}
-
+	action := "/admin/edit/delete"
 	link := `<a href="/admin/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>`
 	if strings.HasPrefix(typeName, "__") {
 		link = `<a href="/admin/edit/upload?id=` + cid + `">` + i.String() + `</a>`
+		action = "/admin/edit/upload/delete"
 	}
 
 	post := `
@@ -1572,7 +1573,7 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 				<span class="post-detail">Updated: ` + updatedTime + `</span>
 				<span class="publish-date right">` + publishTime + `</span>
 
-				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="/admin/edit/delete" method="post">
+				<form enctype="multipart/form-data" class="quick-delete-post __ponzu right" action="` + action + `" method="post">
 					<span>Delete</span>
 					<input type="hidden" name="id" value="` + cid + `" />
 					<input type="hidden" name="type" value="` + typeName + status + `" />
