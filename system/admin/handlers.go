@@ -2200,16 +2200,18 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	dbTarget := t + ":" + id
+
 	// delete from file system, if good, we continue to delete
 	// from database, if bad error 500
-	err = deleteUploadFromDisk(t + ":" + id)
+	err = deleteUploadFromDisk(dbTarget)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = db.DeleteUpload(t + ":" + id)
+	err = db.DeleteUpload(dbTarget)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(http.StatusInternalServerError)
