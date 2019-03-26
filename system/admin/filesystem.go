@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ponzu-cms/ponzu/system/db"
@@ -23,9 +24,11 @@ func deleteUploadFromDisk(target string) error {
 		return err
 	}
 
+	// split and rebuild path in OS friendly way
 	// use path to delete the physical file from disk
-	delPath := strings.Replace(upload.Path, "/api/", "./", 1)
-	err = os.Remove(delPath)
+	pathSplit := strings.Split(upload.Path, "/")
+	pathJoin := filepath.Join(pathSplit[2:]...)
+	err = os.Remove(pathJoin)
 	if err != nil {
 		return err
 	}
