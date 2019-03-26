@@ -26,8 +26,8 @@ func deleteUploadFromDisk(target string) error {
 
 	// split and rebuild path in OS friendly way
 	// use path to delete the physical file from disk
-	pathSplit := strings.Split(upload.Path, "/")
-	pathJoin := filepath.Join(pathSplit[2:]...)
+	pathSplit := strings.Split(strings.TrimPrefix(upload.Path, "/api/"), "/")
+	pathJoin := filepath.Join(pathSplit...)
 	err = os.Remove(pathJoin)
 	if err != nil {
 		return err
