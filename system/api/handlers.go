@@ -100,7 +100,31 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// assert hookable
+	get := it()
+	hook, ok := get.(item.Hookable)
+	if !ok {
+		log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// hook before response
+	err = hook.BeforeAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling BeforeAPIResponse:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
+
+	// hook after response
+	err = hook.AfterAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling AfterAPIResponse:", err)
+		return
+	}
 }
 
 func contentHandler(res http.ResponseWriter, req *http.Request) {
@@ -156,7 +180,31 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// assert hookable
+	get := p
+	hook, ok := get.(item.Hookable)
+	if !ok {
+		log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// hook before response
+	err = hook.BeforeAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling BeforeAPIResponse:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
+
+	// hook after response
+	err = hook.AfterAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling AfterAPIResponse:", err)
+		return
+	}
 }
 
 func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
@@ -206,7 +254,32 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// assert hookable
+	get := p
+	hook, ok := get.(item.Hookable)
+	if !ok {
+		log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// hook before response
+	err = hook.BeforeAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling BeforeAPIResponse:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	sendData(res, req, j)
+
+	// hook after response
+	err = hook.AfterAPIResponse(res, req)
+	if err != nil {
+		log.Println("[Response] error calling AfterAPIResponse:", err)
+		return
+	}
+
 }
 
 func uploadsHandler(res http.ResponseWriter, req *http.Request) {

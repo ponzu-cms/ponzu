@@ -24,13 +24,13 @@ func init() {
 	// We store the compiled regex as the key
 	// and assign the replacement as the map's value.
 	rxList = map[*regexp.Regexp][]byte{
-		regexp.MustCompile("`[-]+`"):                  []byte("-"),
-		regexp.MustCompile("[[:space:]]"):             []byte("-"),
-		regexp.MustCompile("[[:blank:]]"):             []byte(""),
-		regexp.MustCompile("`[^a-z0-9]`i"):            []byte("-"),
-		regexp.MustCompile("[!/:-@[-`{-~]"):           []byte(""),
-		regexp.MustCompile("/[^\x20-\x7F]/"):          []byte(""),
-		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"): []byte("-"),
+		regexp.MustCompile("`[-]+`"):                                                                         []byte("-"),
+		regexp.MustCompile("[[:space:]]"):                                                                    []byte("-"),
+		regexp.MustCompile("[[:blank:]]"):                                                                    []byte(""),
+		regexp.MustCompile("`[^a-z0-9]`i"):                                                                   []byte("-"),
+		regexp.MustCompile("[!/:-@[-`{-~]"):                                                                  []byte(""),
+		regexp.MustCompile("/[^\x20-\x7F]/"):                                                                 []byte(""),
+		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"):                                                        []byte("-"),
 		regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i"): []byte("\\1"),
 	}
 }
@@ -65,6 +65,9 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
+	BeforeAPIResponse(http.ResponseWriter, *http.Request) error
+	AfterAPIResponse(http.ResponseWriter, *http.Request) error
+
 	BeforeAPICreate(http.ResponseWriter, *http.Request) error
 	AfterAPICreate(http.ResponseWriter, *http.Request) error
 
@@ -175,6 +178,16 @@ func (i Item) UniqueID() uuid.UUID {
 // partially implements the Identifiable interface
 func (i Item) String() string {
 	return fmt.Sprintf("Item ID: %s", i.UniqueID())
+}
+
+// BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+// AfterAPIResponse is a no-op to ensure structs which embed Item implement Hookable
+func (i Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request) error {
+	return nil
 }
 
 // BeforeAPICreate is a no-op to ensure structs which embed Item implement Hookable
