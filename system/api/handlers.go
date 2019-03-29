@@ -110,7 +110,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// hook before response
-	err = hook.BeforeAPIResponse(res, req)
+	j, err = hook.BeforeAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling BeforeAPIResponse:", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -120,7 +120,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	err = hook.AfterAPIResponse(res, req)
+	_, err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return
@@ -190,7 +190,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// hook before response
-	err = hook.BeforeAPIResponse(res, req)
+	j, err = hook.BeforeAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling BeforeAPIResponse:", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -200,7 +200,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	err = hook.AfterAPIResponse(res, req)
+	_, err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return
@@ -264,7 +264,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// hook before response
-	err = hook.BeforeAPIResponse(res, req)
+	j, err = hook.BeforeAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling BeforeAPIResponse:", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -274,7 +274,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	err = hook.AfterAPIResponse(res, req)
+	_, err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return
