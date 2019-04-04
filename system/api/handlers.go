@@ -120,7 +120,7 @@ func contentsHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	_, err = hook.AfterAPIResponse(res, req, j)
+	err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return
@@ -200,7 +200,7 @@ func contentHandler(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	_, err = hook.AfterAPIResponse(res, req, j)
+	err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return
@@ -274,7 +274,7 @@ func contentHandlerBySlug(res http.ResponseWriter, req *http.Request) {
 	sendData(res, req, j)
 
 	// hook after response
-	_, err = hook.AfterAPIResponse(res, req, j)
+	err = hook.AfterAPIResponse(res, req, j)
 	if err != nil {
 		log.Println("[Response] error calling AfterAPIResponse:", err)
 		return

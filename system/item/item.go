@@ -66,7 +66,7 @@ type Sortable interface {
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
 	BeforeAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
-	AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
+	AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
 
 	BeforeAPICreate(http.ResponseWriter, *http.Request) error
 	AfterAPICreate(http.ResponseWriter, *http.Request) error
@@ -186,8 +186,8 @@ func (i Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data
 }
 
 // AfterAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) ([]byte, error) {
-	return data, nil
+func (i Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) error {
+	return nil
 }
 
 // BeforeAPICreate is a no-op to ensure structs which embed Item implement Hookable
