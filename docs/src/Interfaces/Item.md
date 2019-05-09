@@ -115,7 +115,7 @@ Approve, Reject routines, and API response routines. All methods in its set take
 ```go
 type Hookable interface {
     BeforeAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
-	AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
+    AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
 
     BeforeAPICreate(http.ResponseWriter, *http.Request) error
     AfterAPICreate(http.ResponseWriter, *http.Request) error
