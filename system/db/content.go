@@ -108,6 +108,37 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 			return err
 		}
 
+		// update the slug,type:id in contentIndex if public content
+		if specifier == "" {
+			if len(data["slug"]) > 1 {
+				slug := data["slug"][0]
+				customSlug := data["slug"][1]
+
+				target := fmt.Sprintf("%s:%d", ns, cid)
+				// if slug changed
+				if slug != customSlug {
+					ci := tx.Bucket([]byte("__contentIndex"))
+					if ci == nil {
+						return bolt.ErrBucketNotFound
+					}
+
+					// remove existing slug from __contentIndex
+					err = ci.Delete([]byte(fmt.Sprintf("%s", slug)))
+					if err != nil {
+						return err
+					}
+
+					// insert new slug to __contentIndex
+					k := []byte(customSlug)
+					v := []byte(target)
+					err := ci.Put(k, v)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -773,18 +804,30 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 	// if the content has no slug, and has no specifier, create a slug, check it
 	// for duplicates, and add it to our values
 	if data.Get("slug") == "" && data.Get("__specifier") == "" {
-		slug, err := item.Slug(post.(item.Identifiable))
-		if err != nil {
-			return nil, err
-		}
+		// check custom slug
+		slugsData := data["slug"]
+		if len(slugsData) > 1 && data["slug"][1] != "" {
+			customSlug := data["slug"][1]
 
-		slug, err = checkSlugForDuplicate(slug)
-		if err != nil {
-			return nil, err
-		}
+			if customSlug != "" {
+				post.(item.Sluggable).SetSlug(customSlug)
+				data.Set("slug", customSlug)
+			}
+		} else {
+			// generate default slug
+			slug, err := item.Slug(post.(item.Identifiable))
+			if err != nil {
+				return nil, err
+			}
 
-		post.(item.Sluggable).SetSlug(slug)
-		data.Set("slug", slug)
+			slug, err = checkSlugForDuplicate(slug)
+			if err != nil {
+				return nil, err
+			}
+
+			post.(item.Sluggable).SetSlug(slug)
+			data.Set("slug", slug)
+		}
 	}
 
 	// marshall content struct to json for db storage
