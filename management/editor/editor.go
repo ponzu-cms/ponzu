@@ -238,8 +238,7 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 			View: Input("Slug", p, map[string]string{
 				"label":       "URL Slug",
 				"type":        "text",
-				"disabled":    "true",
-				"placeholder": "Will be set automatically",
+				"placeholder": "Can be left empty for new item",
 			}),
 		},
 		{
