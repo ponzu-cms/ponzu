@@ -107,13 +107,16 @@ func (p *Post) Omit(res http.ResponseWriter, req *http.Request) ([]string, error
 
 ### [item.Hookable](https://godoc.org/github.com/ponzu-cms/ponzu/system/item#Hookable)
 Hookable provides lifecycle hooks into the http handlers which manage Save, Delete,
-Approve, and Reject routines. All methods in its set take an 
-`http.ResponseWriter, *http.Request` and return an `error`.
+Approve, Reject routines, and API response routines. All methods in its set take an 
+`http.ResponseWriter, *http.Request` and return an `error`. Hooks which relate to the API response, additionally take data of type `[]byte`, and may provide a return of the same type.
 
 ##### Method Set
 
 ```go
 type Hookable interface {
+    BeforeAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
+    AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
+
     BeforeAPICreate(http.ResponseWriter, *http.Request) error
     AfterAPICreate(http.ResponseWriter, *http.Request) error
 
@@ -154,6 +157,28 @@ type Hookable interface {
 ```
 
 ##### Implementations
+
+#### BeforeAPIResponse
+BeforeAPIResponse is called before content is sent over the Ponzu API, and 
+provides an opportunity to modify the response data. If a non-nil `error` value
+is returned, a 500 Internal Server Error is sent instead of the response.
+
+```go
+func (p *Post) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) ([]byte, error) {
+    return data, nil
+}
+```
+
+#### AfterAPIResponse
+AfterAPIResponse is called after content is sent over the Ponzu API, whether
+modified or not. The sent response data is available to the hook. A non-nil 
+`error` return will simply generate a log message.
+
+```go
+func (p *Post) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) error {
+    return nil
+}
+```
 
 #### BeforeAPICreate
 BeforeAPICreate is called before an item is created via a 3rd-party client. If a 
