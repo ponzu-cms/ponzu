@@ -108,6 +108,42 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 			return err
 		}
 
+		// get slugs data
+		var (
+			existingSlug, newSlug string
+		)
+		existingSlug = data.Get("slug")
+		if len(data["slug"]) > 1 {
+			newSlug = data["slug"][1]
+		}
+
+		// update the slug (type:id) in contentIndex if public content
+		if specifier == "" {
+
+			target := fmt.Sprintf("%s:%d", ns, cid)
+			// if slug changed and valid
+			if existingSlug != newSlug && newSlug != "" {
+				ci := tx.Bucket([]byte("__contentIndex"))
+				if ci == nil {
+					return bolt.ErrBucketNotFound
+				}
+
+				// remove existing slug from __contentIndex
+				err = ci.Delete([]byte(fmt.Sprintf("%s", existingSlug)))
+				if err != nil {
+					return err
+				}
+
+				// insert new slug to __contentIndex
+				k := []byte(newSlug)
+				v := []byte(target)
+				err := ci.Put(k, v)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -770,21 +806,45 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 		return nil, err
 	}
 
+	// get slugs data
+	var (
+		existingSlug, newSlug string
+	)
+	existingSlug = data.Get("slug")
+	if len(data["slug"]) > 1 {
+		newSlug = data["slug"][1]
+	}
+
+	// for new item
 	// if the content has no slug, and has no specifier, create a slug, check it
 	// for duplicates, and add it to our values
-	if data.Get("slug") == "" && data.Get("__specifier") == "" {
-		slug, err := item.Slug(post.(item.Identifiable))
-		if err != nil {
-			return nil, err
-		}
+	if existingSlug == "" && data.Get("__specifier") == "" {
 
-		slug, err = checkSlugForDuplicate(slug)
-		if err != nil {
-			return nil, err
-		}
+		// if no new slug specified, generate slug
+		if newSlug == "" {
+			slug, err := item.Slug(post.(item.Identifiable))
+			if err != nil {
+				return nil, err
+			}
 
-		post.(item.Sluggable).SetSlug(slug)
-		data.Set("slug", slug)
+			slug, err = checkSlugForDuplicate(slug)
+			if err != nil {
+				return nil, err
+			}
+
+			post.(item.Sluggable).SetSlug(slug)
+			data.Set("slug", slug)
+		} else {
+			post.(item.Sluggable).SetSlug(newSlug)
+			data.Set("slug", newSlug)
+		}
+	}
+
+	// for editing item
+	// prevent edit to empty slug
+	if existingSlug != "" && newSlug == "" {
+		post.(item.Sluggable).SetSlug(existingSlug)
+		data.Set("slug", existingSlug)
 	}
 
 	// marshall content struct to json for db storage
