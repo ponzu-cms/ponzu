@@ -3,7 +3,6 @@
 # Ponzu
 [![Current Release](https://img.shields.io/github/release/ponzu-cms/ponzu.svg)](https://github.com/ponzu-cms/ponzu/releases/latest)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/ponzu-cms/ponzu)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ponzu-cms/ponzu)](https://goreportcard.com/report/github.com/ponzu-cms/ponzu)
 [![CircleCI Build Status](https://circleci.com/gh/ponzu-cms/ponzu.svg?style=shield)](https://circleci.com/gh/ponzu-cms/ponzu/tree/master)
 
 > Watch the [**video introduction**](https://www.youtube.com/watch?v=T_1ncPoLgrg)
