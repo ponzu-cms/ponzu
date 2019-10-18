@@ -10,6 +10,7 @@ import (
 	"html"
 	"html/template"
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/ponzu-cms/ponzu/management/editor"
@@ -83,15 +84,34 @@ func SelectRepeater(fieldName string, p interface{}, attrs map[string]string, co
 
 		opts = append(opts, cta, reset)
 
+		// order the options by value
+		orderedOptions := make([]string, 0, len(options))
 		for k, v := range options {
-			optAttrs := map[string]string{"value": k}
-			if k == val {
+			orderedOptions = append(orderedOptions, fmt.Sprintf("%s__ponzu__order%s", v, k))
+		}
+		sort.Strings(orderedOptions)
+
+		// construct editor elements array from option items
+		for _, v := range orderedOptions {
+			// get key value pair from ordered string
+			vkPair := strings.Split(v, "__ponzu__order")
+			if len(vkPair) < 2 {
+				continue
+			}
+			key := vkPair[1]
+			value := vkPair[0]
+
+			// check for selected item
+			optAttrs := map[string]string{"value": key}
+			if key == val {
 				optAttrs["selected"] = "true"
 			}
+
+			// construct editor elements item
 			opt := &editor.Element{
 				TagName: "option",
 				Attrs:   optAttrs,
-				Data:    v,
+				Data:    value,
 				ViewBuf: &bytes.Buffer{},
 			}
 
