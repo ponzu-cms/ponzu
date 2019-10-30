@@ -16,15 +16,17 @@ type generateType struct {
 	Name          string
 	Initial       string
 	Fields        []generateField
+	MainField     string
 	HasReferences bool
 }
 
 type generateField struct {
-	Name     string
-	Initial  string
-	TypeName string
-	JSONName string
-	View     string
+	Name        string
+	Initial     string
+	TypeName    string
+	JSONName    string
+	View        string
+	IsMainField bool
 
 	IsReference       bool
 	ReferenceName     string
@@ -60,7 +62,8 @@ func legalFieldNames(fields ...generateField) (bool, map[string]string) {
 // blog title:string Author:string PostCategory:string content:string some_thing:int
 func parseType(args []string) (generateType, error) {
 	t := generateType{
-		Name: fieldName(args[0]),
+		Name:      fieldName(args[0]),
+		MainField: "UUID",
 	}
 	t.Initial = strings.ToLower(string(t.Name[0]))
 
@@ -69,6 +72,11 @@ func parseType(args []string) (generateType, error) {
 		f, err := parseField(field, &t)
 		if err != nil {
 			return generateType{}, err
+		}
+
+		// set main field used on display
+		if f.IsMainField && t.MainField == "UUID" {
+			t.MainField = f.Name
 		}
 
 		// set initial (1st character of the type's name) on field so we don't need
@@ -100,17 +108,20 @@ func parseField(raw string, gt *generateType) (generateField, error) {
 	// contents:string:richtext
 	// author:@author,name,age
 	// authors:[]@author,name,age
+	// *title:string
 
 	if !strings.Contains(raw, ":") {
 		return generateField{}, fmt.Errorf("Invalid generate argument. [%s]", raw)
 	}
 
 	data := strings.Split(raw, ":")
+	isMainField := data[0][0] == '*'
 
 	field := generateField{
-		Name:     fieldName(data[0]),
-		Initial:  gt.Initial,
-		JSONName: fieldJSONName(data[0]),
+		Name:        fieldName(data[0]),
+		Initial:     gt.Initial,
+		JSONName:    fieldJSONName(data[0]),
+		IsMainField: isMainField,
 	}
 
 	setFieldTypeName(&field, data[1], gt)
@@ -173,8 +184,8 @@ func setFieldTypeName(field *generateField, fieldType string, gt *generateType) 
 // MyTitle:string myTitle:string my_title:string -> MyTitle
 // error-message:string -> ErrorMessage
 func fieldName(name string) string {
-	// remove _ or - if first character
-	if name[0] == '-' || name[0] == '_' {
+	// remove *, _ or - if first character
+	if name[0] == '-' || name[0] == '_' || name[0] == '*' {
 		name = name[1:]
 	}
 
@@ -202,8 +213,8 @@ func fieldName(name string) string {
 // MyTitle:string myTitle:string my_title:string -> my_title
 // error-message:string -> error-message
 func fieldJSONName(name string) string {
-	// remove _ or - if first character
-	if name[0] == '-' || name[0] == '_' {
+	// remove *, _ or - if first character
+	if name[0] == '-' || name[0] == '_' || name[0] == '*' {
 		name = name[1:]
 	}
 
