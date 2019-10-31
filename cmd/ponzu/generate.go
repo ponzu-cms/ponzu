@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go/format"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -359,6 +361,118 @@ func isHyphen(char rune) bool {
 	return char == '-'
 }
 
+func generate(args []string, fromSource, writeOutput bool) error {
+	var err error
+
+	if fromSource {
+		args, err = parseSourceFile(args)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = generateContentType(args)
+	if err != nil {
+		return err
+	}
+
+	if writeOutput && !fromSource {
+		err = generateOutputFile(args)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func parseSourceFile(args []string) ([]string, error) {
+	name := args[0]
+	fileName := strings.ToLower(name) + ".json"
+
+	// open file in ./content/ dir
+	// if not exists, alert user
+	pwd, err := os.Getwd()
+	if err != nil {
+		return args, err
+	}
+
+	contentDir := filepath.Join(pwd, "content")
+	filePath := filepath.Join(contentDir, fileName)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		localFile := filepath.Join("content", fileName)
+		return args, fmt.Errorf("Please create '%s' before executing this command", localFile)
+	}
+
+	// read data from file
+	file, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return args, err
+	}
+
+	data := make(map[string]string)
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return args, err
+	}
+
+	// add data to args
+	argsFromSource := []string{args[0]}
+	for k, v := range data {
+		argsFromSource = append(argsFromSource, k+":"+v)
+	}
+
+	return argsFromSource, nil
+}
+
+func generateOutputFile(args []string) error {
+	name := args[0]
+	fileName := strings.ToLower(name) + ".json"
+
+	// open file in ./content/ dir
+	// if exists, alert user of conflict
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	contentDir := filepath.Join(pwd, "content")
+	filePath := filepath.Join(contentDir, fileName)
+
+	if _, err := os.Stat(filePath); !os.IsNotExist(err) {
+		localFile := filepath.Join("content", fileName)
+		return fmt.Errorf("Please remove '%s' before executing this command", localFile)
+	}
+
+	// write args to file
+	fields := args[1:]
+	output := make(map[string]string, len(fields))
+	for _, field := range fields {
+		data := strings.Split(field, ":")
+		output[data[0]] = strings.Join(data[1:], ":")
+	}
+
+	jsonOutput, err := json.Marshal(output)
+	if err != nil {
+		return err
+	}
+
+	// no file exists.. ok to write new one
+	file, err := os.Create(filePath)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(jsonOutput)
+	if err != nil {
+		return fmt.Errorf("Failed to write generated file buffer: %s", err.Error())
+	}
+
+	return nil
+}
+
 func generateContentType(args []string) error {
 	name := args[0]
 	fileName := strings.ToLower(name) + ".go"
@@ -444,11 +558,18 @@ var contentCmd = &cobra.Command{
 	Aliases: []string{"c"},
 	Short:   "generates a new content type",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return generateContentType(args)
+		return generate(args, fromSource, writeOutput)
 	},
 }
 
+var (
+	fromSource  bool
+	writeOutput bool
+)
+
 func init() {
 	generateCmd.AddCommand(contentCmd)
+	contentCmd.Flags().BoolVar(&fromSource, "source", false, "define whether to generate content from source file")
+	contentCmd.Flags().BoolVar(&writeOutput, "output", false, "define whether to write content template to file")
 	RegisterCmdlineCommand(generateCmd)
 }
