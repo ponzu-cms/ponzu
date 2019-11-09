@@ -212,7 +212,7 @@ $ ponzu upgrade
 
 ### add, a
 
-Downloads an add-on to GOPATH/src and copys it to the Ponzu project's ./addons directory.
+Downloads an add-on to GOPATH/src and copies it to the Ponzu project's ./addons directory.
 Must be called from within a Ponzu project directory.
 
 Example:
@@ -316,7 +316,7 @@ $ ponzu new --dev --fork=github.com/nilslice/ponzu /path/to/new/project
 
 ### Logo
 The Go gopher was designed by Renee French. (http://reneefrench.blogspot.com)
-The design is licensed under the Creative Commons 3.0 Attributions license.
+The design is licensed under the Creative Commons 3.0 Attribution license.
 Read this article for more details: http://blog.golang.org/gopher
 
 The Go gopher vector illustration by Hugo Arganda [@argandas](https://twitter.com/argandas) (http://about.me/argandas)
