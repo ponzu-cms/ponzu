@@ -8,8 +8,8 @@ jobs:
       - checkout
 
       # generate and build project to test
-      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-setup.sh | sh
+      - run: .circleci/test-setup.sh
 
       # run tests
-      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-run.sh | sh
+      - run: .circleci/test-run.sh | sh
 
