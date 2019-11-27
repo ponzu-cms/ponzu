@@ -5,7 +5,7 @@
 set -ex 
 
 # Install Ponzu CMS
-go get -u github.com/ponzu-cms/ponzu/...
+go install ./...
 
 # test install
 ponzu
