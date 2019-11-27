@@ -16,21 +16,22 @@ type generateType struct {
 	Name          string
 	Initial       string
 	Fields        []generateField
-	MainField     string
+	StringerField string
 	HasReferences bool
 }
 
 type generateField struct {
-	Name        string
-	Initial     string
-	TypeName    string
-	JSONName    string
-	View        string
-	IsMainField bool
+	Name     string
+	Initial  string
+	TypeName string
+	JSONName string
+	View     string
 
 	IsReference       bool
 	ReferenceName     string
 	ReferenceJSONTags []string
+
+	IsStringerOverrideField bool
 }
 
 var reservedFieldNames = map[string]string{
@@ -62,8 +63,8 @@ func legalFieldNames(fields ...generateField) (bool, map[string]string) {
 // blog title:string Author:string PostCategory:string content:string some_thing:int
 func parseType(args []string) (generateType, error) {
 	t := generateType{
-		Name:      fieldName(args[0]),
-		MainField: "UUID",
+		Name:          fieldName(args[0]),
+		StringerField: "UUID",
 	}
 	t.Initial = strings.ToLower(string(t.Name[0]))
 
@@ -75,8 +76,8 @@ func parseType(args []string) (generateType, error) {
 		}
 
 		// set main field used on display
-		if f.IsMainField && t.MainField == "UUID" {
-			t.MainField = f.Name
+		if f.IsStringerOverrideField && t.StringerField == "UUID" {
+			t.StringerField = f.Name
 		}
 
 		// set initial (1st character of the type's name) on field so we don't need
@@ -103,6 +104,16 @@ func parseType(args []string) (generateType, error) {
 	return t, nil
 }
 
+// If found as part of the field name, this field's value on the type will be used in the display
+// of the record when listed in the CMS where it is printed as a string.
+// Note: the first field name encountered is used in the generated code for the content type's
+// implemented `String() string` method.
+const identStringerOverride = '*'
+
+const identParamSplit = ":"
+const identParamRef = "@"
+const identParamRefSlice = "[]@"
+
 func parseField(raw string, gt *generateType) (generateField, error) {
 	// contents:string
 	// contents:string:richtext
@@ -110,18 +121,21 @@ func parseField(raw string, gt *generateType) (generateField, error) {
 	// authors:[]@author,name,age
 	// *title:string
 
-	if !strings.Contains(raw, ":") {
+	if !strings.Contains(raw, identParamSplit) {
 		return generateField{}, fmt.Errorf("Invalid generate argument. [%s]", raw)
 	}
 
-	data := strings.Split(raw, ":")
-	isMainField := data[0][0] == '*'
+	var isStringerOverrideField bool
+	data := strings.Split(raw, identParamSplit)
+	if len(data) != 0 && len(data[0]) != 0 {
+		isStringerOverrideField = data[0][0] == identStringerOverride
+	}
 
 	field := generateField{
-		Name:        fieldName(data[0]),
-		Initial:     gt.Initial,
-		JSONName:    fieldJSONName(data[0]),
-		IsMainField: isMainField,
+		Name:                    fieldName(data[0]),
+		Initial:                 gt.Initial,
+		JSONName:                fieldJSONName(data[0]),
+		IsStringerOverrideField: isStringerOverrideField,
 	}
 
 	setFieldTypeName(&field, data[1], gt)
@@ -143,7 +157,7 @@ func parseField(raw string, gt *generateType) (generateField, error) {
 // a slice of reference types, which we'll set their underlying type to string
 // or []string respectively
 func setFieldTypeName(field *generateField, fieldType string, gt *generateType) {
-	if !strings.Contains(fieldType, "@") {
+	if !strings.Contains(fieldType, identParamRef) {
 		// not a reference, set as-is downcased
 		field.TypeName = strings.ToLower(fieldType)
 		field.IsReference = false
@@ -166,10 +180,10 @@ func setFieldTypeName(field *generateField, fieldType string, gt *generateType) 
 
 	var referenceType string
 	if strings.HasPrefix(fieldType, "[]") {
-		referenceType = strings.TrimPrefix(fieldType, "[]@")
+		referenceType = strings.TrimPrefix(fieldType, identParamRefSlice)
 		fieldType = "[]string"
 	} else {
-		referenceType = strings.TrimPrefix(fieldType, "@")
+		referenceType = strings.TrimPrefix(fieldType, identParamRef)
 		fieldType = "string"
 	}
 
@@ -184,8 +198,8 @@ func setFieldTypeName(field *generateField, fieldType string, gt *generateType) 
 // MyTitle:string myTitle:string my_title:string -> MyTitle
 // error-message:string -> ErrorMessage
 func fieldName(name string) string {
-	// remove *, _ or - if first character
-	if name[0] == '-' || name[0] == '_' || name[0] == '*' {
+	// remove `identStringerOverride`, _ or - if first character
+	if name[0] == '-' || name[0] == '_' || name[0] == identStringerOverride {
 		name = name[1:]
 	}
 
@@ -213,8 +227,8 @@ func fieldName(name string) string {
 // MyTitle:string myTitle:string my_title:string -> my_title
 // error-message:string -> error-message
 func fieldJSONName(name string) string {
-	// remove *, _ or - if first character
-	if name[0] == '-' || name[0] == '_' || name[0] == '*' {
+	// remove `identStringerOverride`, _ or - if first character
+	if name[0] == '-' || name[0] == '_' || name[0] == identStringerOverride {
 		name = name[1:]
 	}
 
@@ -238,6 +252,8 @@ func fieldJSONName(name string) string {
 	return name
 }
 
+const repeaterSuffix = "-repeater"
+
 func optimizeFieldView(field *generateField, viewType string) string {
 	viewType = strings.ToLower(viewType)
 
@@ -256,7 +272,7 @@ func optimizeFieldView(field *generateField, viewType string) string {
 			// ex. authors:"[]string":select
 			// ex. authors:string:select-repeater
 			if viewType == el {
-				viewType = viewType + "-repeater"
+				viewType = viewType + repeaterSuffix
 			}
 		}
 	} else {
@@ -265,7 +281,7 @@ func optimizeFieldView(field *generateField, viewType string) string {
 		// code is correct
 		// ex. authors:string:select-repeater
 		// ex. authors:@author:select-repeater
-		if strings.HasSuffix(viewType, "-repeater") {
+		if strings.HasSuffix(viewType, repeaterSuffix) {
 			field.TypeName = "[]" + field.TypeName
 		}
 	}

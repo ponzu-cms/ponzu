@@ -43,5 +43,5 @@ func init() {
 // String defines how a {{ .Name }} is printed. Update it using more descriptive
 // fields from the {{ .Name }} struct type
 func ({{ .Initial }} *{{ .Name }}) String() string {
-	return fmt.Sprintf("{{ .Name }}: %s", {{ .Initial }}.{{ .MainField }})
+	return fmt.Sprintf("{{ .Name }}: %s", {{ .Initial }}.{{ .StringerField }})
 }
