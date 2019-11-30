@@ -31,10 +31,14 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 		ts = fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond)) // Unix() returns seconds since unix epoch
 	}
 
-	req.Form.Set("timestamp", ts)
-
 	// To use for FormValue name:urlPath
 	urlPaths := make(map[string]string)
+
+	if len(req.MultipartForm.File) == 0 {
+		return urlPaths, nil
+	}
+
+	req.Form.Set("timestamp", ts)
 
 	// get or create upload directory to save files from request
 	pwd, err := os.Getwd()
