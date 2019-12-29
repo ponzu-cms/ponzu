@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/ponzu-cms/ponzu/system/cfg"
+
 	"github.com/ponzu-cms/ponzu/system/backup"
 )
 
@@ -26,7 +28,7 @@ func Backup(ctx context.Context, res http.ResponseWriter) error {
 		return err
 	}
 
-	err = backup.ArchiveFS(ctx, "search", f)
+	err = backup.ArchiveFS(ctx, cfg.SearchDir(), f)
 	if err != nil {
 		return err
 	}

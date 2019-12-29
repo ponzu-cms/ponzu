@@ -13,18 +13,15 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/db"
+	"github.com/ponzu-cms/ponzu/system/cfg"
 	"golang.org/x/crypto/acme/autocert"
 )
 
 // newManager attempts to locate or create the cert cache directory and the
 // certs for TLS encryption and returns an autocert.Manager
 func newManager() autocert.Manager {
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalln("Couldn't find working directory to locate or save certificates.")
-	}
 
-	cache := autocert.DirCache(filepath.Join(pwd, "system", "tls", "certs"))
+	cache := autocert.DirCache(filepath.Join(cfg.TlsDir(), "certs"))
 	if _, err := os.Stat(string(cache)); os.IsNotExist(err) {
 		err := os.MkdirAll(string(cache), os.ModePerm|os.ModeDir)
 		if err != nil {

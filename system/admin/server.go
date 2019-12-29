@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ponzu-cms/ponzu/system/cfg"
+
 	"github.com/ponzu-cms/ponzu/system"
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 	"github.com/ponzu-cms/ponzu/system/api"
@@ -46,18 +48,14 @@ func Run() {
 	http.HandleFunc("/admin/edit/upload", user.Auth(editUploadHandler))
 	http.HandleFunc("/admin/edit/upload/delete", user.Auth(deleteUploadHandler))
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalln("Couldn't find current directory for file server.")
-	}
+	staticDir := cfg.AdminStaticDir()
 
-	staticDir := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system")
-	http.Handle("/admin/static/", db.CacheControl(http.FileServer(restrict(http.Dir(staticDir)))))
+	http.Handle("/admin/static/", db.CacheControl(http.StripPrefix("/admin/static", http.FileServer(restrict(http.Dir(staticDir))))))
 
 	// API path needs to be registered within server package so that it is handled
 	// even if the API server is not running. Otherwise, images/files uploaded
 	// through the editor will not load within the admin system.
-	uploadsDir := filepath.Join(pwd, "uploads")
+	uploadsDir := cfg.UploadDir()
 	http.Handle("/api/uploads/", api.Record(api.CORS(db.CacheControl(http.StripPrefix("/api/uploads/", http.FileServer(restrict(http.Dir(uploadsDir))))))))
 
 	// Database & uploads backup via HTTP route registered with Basic Auth middleware.
