@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ponzu-cms/ponzu/system/cfg"
+
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
 )
@@ -41,7 +43,6 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	req.Form.Set("timestamp", ts)
 
 	// get or create upload directory to save files from request
-
 	i, err := strconv.ParseInt(ts, 10, 64)
 	if err != nil {
 		return nil, err
@@ -51,7 +52,6 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 
 	urlPathPrefix := "api"
 	uploadDirName := "uploads"
-
 	uploadDir := filepath.Join(cfg.UploadDir(), fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 	if err != nil {

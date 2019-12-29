@@ -5,6 +5,9 @@ package db
 
 import (
 	"log"
+	"path/filepath"
+
+	"github.com/ponzu-cms/ponzu/system/cfg"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
