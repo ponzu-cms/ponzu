@@ -41,11 +41,6 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	req.Form.Set("timestamp", ts)
 
 	// get or create upload directory to save files from request
-	pwd, err := os.Getwd()
-	if err != nil {
-		err := fmt.Errorf("Failed to locate current directory: %s", err)
-		return nil, err
-	}
 
 	i, err := strconv.ParseInt(ts, 10, 64)
 	if err != nil {
@@ -57,7 +52,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 	urlPathPrefix := "api"
 	uploadDirName := "uploads"
 
-	uploadDir := filepath.Join(pwd, uploadDirName, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
+	uploadDir := filepath.Join(cfg.UploadDir(), fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err = os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 	if err != nil {
 		return nil, err
