@@ -26,6 +26,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/ponzu-cms/ponzu/system/cfg"
+
 	"github.com/ponzu-cms/ponzu/system/db"
 )
 
@@ -112,12 +114,8 @@ func setupDev() {
 	}
 
 	// overwrite/create directory for devcerts
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalln("Couldn't find working directory to locate or save dev certificates:", err)
-	}
 
-	vendorTLSPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system", "tls")
+	vendorTLSPath := cfg.TlsDir()
 	devcertsPath := filepath.Join(vendorTLSPath, "devcerts")
 
 	// clear all old certs if found
@@ -126,7 +124,7 @@ func setupDev() {
 		log.Fatalln("Failed to remove old files from dev certificate directory:", err)
 	}
 
-	err = os.Mkdir(devcertsPath, os.ModeDir|os.ModePerm)
+	err = os.MkdirAll(devcertsPath, os.ModeDir|os.ModePerm)
 	if err != nil {
 		log.Fatalln("Failed to create directory to locate or save dev certificates:", err)
 	}

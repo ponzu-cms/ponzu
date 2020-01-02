@@ -5,6 +5,9 @@ package db
 
 import (
 	"log"
+	"path/filepath"
+
+	"github.com/ponzu-cms/ponzu/system/cfg"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
@@ -46,7 +49,8 @@ func Init() {
 	}
 
 	var err error
-	store, err = bolt.Open("system.db", 0666, nil)
+	systemDb := filepath.Join(cfg.DataDir(),"system.db")
+	store, err = bolt.Open(systemDb, 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}

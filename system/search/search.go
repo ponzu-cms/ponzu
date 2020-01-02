@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ponzu-cms/ponzu/system/cfg"
+
 	"github.com/ponzu-cms/ponzu/system/item"
 
 	"github.com/blevesearch/bleve"
@@ -62,13 +64,7 @@ func MapIndex(typeName string) error {
 	idxName := typeName + ".index"
 	var idx bleve.Index
 
-	// check if index exists, use it or create new one
-	pwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	searchPath := filepath.Join(pwd, "search")
+	searchPath := cfg.SearchDir()
 
 	err = os.MkdirAll(searchPath, os.ModeDir|os.ModePerm)
 	if err != nil {

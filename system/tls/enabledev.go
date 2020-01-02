@@ -3,8 +3,9 @@ package tls
 import (
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
+
+	"github.com/ponzu-cms/ponzu/system/cfg"
 )
 
 // EnableDev generates self-signed SSL certificates to use HTTPS & HTTP/2 while
@@ -15,13 +16,7 @@ import (
 func EnableDev() {
 	setupDev()
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalln("Couldn't find working directory to activate dev certificates:", err)
-	}
-
-	vendorPath := filepath.Join(pwd, "cmd", "ponzu", "vendor", "github.com", "ponzu-cms", "ponzu", "system", "tls")
-
+	vendorPath := cfg.TlsDir()
 	cert := filepath.Join(vendorPath, "devcerts", "cert.pem")
 	key := filepath.Join(vendorPath, "devcerts", "key.pem")
 
