@@ -22,13 +22,6 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
-	if err != nil {
-		log.Println("[Delete] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	t := req.URL.Query().Get("type")
 	if t == "" {
 		res.WriteHeader(http.StatusBadRequest)

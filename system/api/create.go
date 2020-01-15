@@ -1,19 +1,20 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/admin/upload"
 	"github.com/ponzu-cms/ponzu/system/db"
 	"github.com/ponzu-cms/ponzu/system/item"
-
-	"github.com/gorilla/schema"
 )
 
 // Createable accepts or rejects external POST requests to endpoints such as:
@@ -32,13 +33,6 @@ type Trustable interface {
 func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
-	if err != nil {
-		log.Println("[Create] error:", err)
-		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -64,69 +58,6 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ts := fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond))
-	req.PostForm.Set("timestamp", ts)
-	req.PostForm.Set("updated", ts)
-
-	urlPaths, err := upload.StoreFiles(req)
-	if err != nil {
-		log.Println(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	for name, urlPath := range urlPaths {
-		req.PostForm.Set(name, urlPath)
-	}
-
-	// check for any multi-value fields (ex. checkbox fields)
-	// and correctly format for db storage. Essentially, we need
-	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
-	fieldOrderValue := make(map[string]map[string][]string)
-	for k, v := range req.PostForm {
-		if strings.Contains(k, ".") {
-			fo := strings.Split(k, ".")
-
-			// put the order and the field value into map
-			field := string(fo[0])
-			order := string(fo[1])
-			if len(fieldOrderValue[field]) == 0 {
-				fieldOrderValue[field] = make(map[string][]string)
-			}
-
-			// orderValue is 0:[?type=Thing&id=1]
-			orderValue := fieldOrderValue[field]
-			orderValue[order] = v
-			fieldOrderValue[field] = orderValue
-
-			// discard the post form value with name.N
-			req.PostForm.Del(k)
-		}
-
-	}
-
-	// add/set the key & value to the post form in order
-	for f, ov := range fieldOrderValue {
-		for i := 0; i < len(ov); i++ {
-			position := fmt.Sprintf("%d", i)
-			fieldValue := ov[position]
-
-			if req.PostForm.Get(f) == "" {
-				for i, fv := range fieldValue {
-					if i == 0 {
-						req.PostForm.Set(f, fv)
-					} else {
-						req.PostForm.Add(f, fv)
-					}
-				}
-			} else {
-				for _, fv := range fieldValue {
-					req.PostForm.Add(f, fv)
-				}
-			}
-		}
-	}
-
 	hook, ok := post.(item.Hookable)
 	if !ok {
 		log.Println("[Create] error: Type", t, "does not implement item.Hookable or embed item.Item.")
@@ -134,14 +65,17 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Let's be nice and make a proper item for the Hookable methods
-	dec := schema.NewDecoder()
-	dec.IgnoreUnknownKeys(true)
-	dec.SetAliasTag("json")
-	err = dec.Decode(post, req.PostForm)
+	var formData *url.Values
+	var err error
+	switch req.Header.Get("Content-type") {
+	case "application/json":
+		formData, err = createContentHandlerJSON(res, req)
+	case "multipart/form-data":
+		formData, err = createContentHandlerMultiPartForm(res, req)
+	}
 	if err != nil {
-		log.Println("Error decoding post form for edit handler:", t, err)
-		res.WriteHeader(http.StatusBadRequest)
+		log.Println("[Create] Error calling content handler", err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -181,7 +115,7 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 		spec = "__pending"
 	}
 
-	id, err := db.SetContent(t+spec+":-1", req.PostForm)
+	id, err := db.SetContent(t+spec+":-1", *formData)
 	if err != nil {
 		log.Println("[Create] error calling SetContent:", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -241,4 +175,90 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+}
+
+func createContentHandlerJSON(res http.ResponseWriter, req *http.Request) (*url.Values, error) {
+	body, err := ioutil.ReadAll(req.Body)
+	req.Body.Close()
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	if err != nil {
+		log.Println("[Create] read body error: ", err)
+		return nil, err
+	}
+
+	formData, err := jsonToURLValues(&body)
+	if err != nil {
+		return nil, err
+	}
+	return formData, nil
+}
+
+func createContentHandlerMultiPartForm(res http.ResponseWriter, req *http.Request) (*url.Values, error) {
+	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+	if err != nil {
+		return nil, err
+	}
+
+	ts := fmt.Sprintf("%d", int64(time.Nanosecond)*time.Now().UnixNano()/int64(time.Millisecond))
+	req.PostForm.Set("timestamp", ts)
+	req.PostForm.Set("updated", ts)
+
+	urlPaths, err := upload.StoreFiles(req)
+	if err != nil {
+		return nil, err
+	}
+
+	for name, urlPath := range urlPaths {
+		req.PostForm.Set(name, urlPath)
+	}
+
+	// check for any multi-value fields (ex. checkbox fields)
+	// and correctly format for db storage. Essentially, we need
+	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
+	fieldOrderValue := make(map[string]map[string][]string)
+	for k, v := range req.PostForm {
+		if strings.Contains(k, ".") {
+			fo := strings.Split(k, ".")
+
+			// put the order and the field value into map
+			field := string(fo[0])
+			order := string(fo[1])
+			if len(fieldOrderValue[field]) == 0 {
+				fieldOrderValue[field] = make(map[string][]string)
+			}
+
+			// orderValue is 0:[?type=Thing&id=1]
+			orderValue := fieldOrderValue[field]
+			orderValue[order] = v
+			fieldOrderValue[field] = orderValue
+
+			// discard the post form value with name.N
+			req.PostForm.Del(k)
+		}
+
+	}
+
+	// add/set the key & value to the post form in order
+	for f, ov := range fieldOrderValue {
+		for i := 0; i < len(ov); i++ {
+			position := fmt.Sprintf("%d", i)
+			fieldValue := ov[position]
+
+			if req.PostForm.Get(f) == "" {
+				for i, fv := range fieldValue {
+					if i == 0 {
+						req.PostForm.Set(f, fv)
+					} else {
+						req.PostForm.Add(f, fv)
+					}
+				}
+			} else {
+				for _, fv := range fieldValue {
+					req.PostForm.Add(f, fv)
+				}
+			}
+		}
+	}
+
+	return &req.PostForm, nil
 }
