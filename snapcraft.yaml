@@ -1,0 +1,28 @@
+name: ponzu
+version: '1.0'
+summary: Headless CMS with automatic JSON API
+description: |
+  Headless CMS with automatic JSON API. Featuring auto-HTTPS from 
+  Lets Encrypt, HTTP/2 Server Push, and flexible server framework 
+  written in Go.
+grade: stable
+confinement: strict
+base: core18
+parts:
+  ponzu:
+    plugin: go
+    source: https://github.com/ponzu-cms/ponzu.git
+    go-importpath: github.com/ponzu-cms/ponzu
+    build-packages:
+      - build-essential
+    stage-packages:
+      - go  
+apps:
+  ponzu:
+    command: bin/ponzu
+    daemon: simple
+    restart-condition: on-abnormal
+    plugs:
+      - home
+      - network
+      - network-bind

@@ -150,12 +150,14 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 			external = form.find('.post-controls.external'),
 			id = form.find('input[name=id]'),
 			timestamp = $('.__ponzu.content-only'),
-			slug = $('input[name=slug]');
+			slug = $('input[name=slug]'),
+			allowEmptySlug = false;
 		
 		// hide if this is a new post, or a non-post editor page
 		if (id.val() === '-1' || form.attr('action') !== '/admin/edit') {
 			del.hide();
 			external.hide();
+			allowEmptySlug = true;
 		}
 
 		// hide approval if not on a pending content item
@@ -167,10 +169,18 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		if (form.attr('action') === '/admin/addon') {
 			timestamp.hide();
 			slug.parent().hide();
+			allowEmptySlug = true;
 		}
 
 		save.on('click', function(e) {
 			e.preventDefault();
+
+			if (!allowEmptySlug) {
+				if (slug.length > 1 && slug.eq(1).val() === "") {
+					alert("Slug cannot be empty");
+					return;
+				}
+			}
 
 			if (getParam('status') === 'pending') {
 				var action = form.attr('action');
@@ -238,8 +248,7 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 			View: Input("Slug", p, map[string]string{
 				"label":       "URL Slug",
 				"type":        "text",
-				"disabled":    "true",
-				"placeholder": "Will be set automatically",
+				"placeholder": "Can be left empty, only for new item",
 			}),
 		},
 		{
