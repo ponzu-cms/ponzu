@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 // batchInsert is effectively a specialized version of SetContentMulti from the

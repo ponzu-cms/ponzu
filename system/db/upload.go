@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/item"
+	bolt "go.etcd.io/bbolt"
 
-	"github.com/boltdb/bolt"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
 )

@@ -2,14 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.13
 
     steps:
       - checkout
 
       # generate and build project to test
-      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-setup.sh | sh
+      - run: .circleci/test-setup.sh
 
       # run tests
-      - run: curl https://raw.githubusercontent.com/ponzu-cms/ponzu/ponzu-dev/.circleci/test-run.sh | sh
-
+      - run: .circleci/test-run.sh

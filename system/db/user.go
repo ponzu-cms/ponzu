@@ -10,16 +10,16 @@ import (
 	"time"
 
 	"github.com/ponzu-cms/ponzu/system/admin/user"
+	bolt "go.etcd.io/bbolt"
 
-	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
 )
 
 // ErrUserExists is used for the db to report to admin user of existing user
-var ErrUserExists = errors.New("Error. User exists.")
+var ErrUserExists = errors.New("user exists")
 
 // ErrNoUserExists is used for the db to report to admin user of non-existing user
-var ErrNoUserExists = errors.New("Error. No user exists.")
+var ErrNoUserExists = errors.New("no user exists")
 
 // SetUser sets key:value pairs in the db for user settings
 func SetUser(usr *user.User) (int, error) {
@@ -192,7 +192,7 @@ func UserAll() ([][]byte, error) {
 // CurrentUser extracts the user from the request data and returns the current user from the db
 func CurrentUser(req *http.Request) ([]byte, error) {
 	if !user.IsValid(req) {
-		return nil, fmt.Errorf("Error. Invalid User.")
+		return nil, fmt.Errorf("invalid User")
 	}
 
 	token, err := req.Cookie("_token")
@@ -203,7 +203,7 @@ func CurrentUser(req *http.Request) ([]byte, error) {
 	claims := jwt.GetClaims(token.Value)
 	email, ok := claims["user"]
 	if !ok {
-		return nil, fmt.Errorf("Error. No user data found in request token.")
+		return nil, fmt.Errorf("no user data found in request token")
 	}
 
 	usr, err := User(email.(string))

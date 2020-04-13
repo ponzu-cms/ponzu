@@ -24,13 +24,13 @@ func init() {
 	// We store the compiled regex as the key
 	// and assign the replacement as the map's value.
 	rxList = map[*regexp.Regexp][]byte{
-		regexp.MustCompile("`[-]+`"):                                                                         []byte("-"),
-		regexp.MustCompile("[[:space:]]"):                                                                    []byte("-"),
-		regexp.MustCompile("[[:blank:]]"):                                                                    []byte(""),
-		regexp.MustCompile("`[^a-z0-9]`i"):                                                                   []byte("-"),
-		regexp.MustCompile("[!/:-@[-`{-~]"):                                                                  []byte(""),
-		regexp.MustCompile("/[^\x20-\x7F]/"):                                                                 []byte(""),
-		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"):                                                        []byte("-"),
+		regexp.MustCompile("`[-]+`"):                  []byte("-"),
+		regexp.MustCompile("[[:space:]]"):             []byte("-"),
+		regexp.MustCompile("[[:blank:]]"):             []byte(""),
+		regexp.MustCompile("`[^a-z0-9]`i"):            []byte("-"),
+		regexp.MustCompile("[!/:-@[-`{-~]"):           []byte(""),
+		regexp.MustCompile("/[^\x20-\x7F]/"):          []byte(""),
+		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"): []byte("-"),
 		regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i"): []byte("\\1"),
 	}
 }
@@ -47,7 +47,7 @@ type Sluggable interface {
 // Identifiable enables a struct to have its ID set/get. Typically this is done
 // to set an ID to -1 indicating it is new for DB inserts, since by default
 // a newly initialized struct would have an ID of 0, the int zero-value, and
-// BoltDB's starting key per bucket is 0, thus overwriting the first record.
+// bbolt's starting key per bucket is 0, thus overwriting the first record.
 type Identifiable interface {
 	ItemID() int
 	SetItemID(int)

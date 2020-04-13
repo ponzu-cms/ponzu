@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/blevesearch/bleve v1.0.5
-	github.com/boltdb/bolt v1.3.1
 	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/cznic/strutil v0.0.0-20181122101858-275e90344537 // indirect
@@ -21,6 +20,7 @@ require (
 	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/sjson v1.1.1
+	go.etcd.io/bbolt v1.3.4
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/text v0.3.2
 )

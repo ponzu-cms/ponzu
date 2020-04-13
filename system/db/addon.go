@@ -8,13 +8,13 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/boltdb/bolt"
 	"github.com/gorilla/schema"
+	bolt "go.etcd.io/bbolt"
 )
 
 var (
 	// ErrNoAddonExists indicates that there was not addon found in the db
-	ErrNoAddonExists = errors.New("No addon exists.")
+	ErrNoAddonExists = errors.New("no addon exists")
 )
 
 // Addon looks for an addon by its addon_reverse_dns as the key and returns
@@ -62,7 +62,7 @@ func SetAddon(data url.Values, kind interface{}) error {
 	k := data.Get("addon_reverse_dns")
 	if k == "" {
 		name := data.Get("addon_name")
-		return fmt.Errorf(`Addon "%s" has no identifier to use as key.`, name)
+		return fmt.Errorf(`addon "%s" has no identifier to use as key`, name)
 	}
 
 	err = store.Update(func(tx *bolt.Tx) error {

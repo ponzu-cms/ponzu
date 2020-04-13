@@ -14,8 +14,8 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
+	bolt "go.etcd.io/bbolt"
 
-	"github.com/boltdb/bolt"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
 )
@@ -39,7 +39,7 @@ func SetContent(target string, data url.Values) (int, error) {
 
 	// check if content id == -1 (indicating new post).
 	// if so, run an insert which will assign the next auto incremented int.
-	// this is done because boltdb begins its bucket auto increment value at 0,
+	// this is done because bbolt begins its bucket auto increment value at 0,
 	// which is the zero-value of an int in the Item struct field for ID.
 	// this is a problem when the original first post (with auto ID = 0) gets
 	// overwritten by any new post, originally having no ID, defauting to 0.

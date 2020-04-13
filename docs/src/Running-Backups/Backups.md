@@ -8,7 +8,7 @@ Here are some full backup scripts to use or modify to fit your needs:
 [https://github.com/ponzu-cms/backup-scripts](https://github.com/ponzu-cms/backup-scripts)
 
 ## System & Analytics
-The `system.db` & `analytics.db` data files are sent uncompressed in their original form as they exist on your server. No temporary copy is stored on the origin server, and it is possible that the backup could fail so checking for successful backups is recommended. See https://github.com/boltdb/bolt#database-backups for more information about how BoltDB handles HTTP backups.
+The `system.db` & `analytics.db` data files are sent uncompressed in their original form as they exist on your server. No temporary copy is stored on the origin server, and it is possible that the backup could fail so checking for successful backups is recommended. See https://go.etcd.io/bbolt#database-backups for more information about how BoltDB handles HTTP backups.
 
 An example backup request for the `system.db` data file would look like:
 ```bash

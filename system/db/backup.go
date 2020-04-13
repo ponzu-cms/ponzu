@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 // Backup writes a snapshot of the system.db database to an HTTP response. The

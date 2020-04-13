@@ -36,7 +36,7 @@ $ ponzu gen content song title:"string" artist:"string" rating:"int" opinion:"st
 - HTTP/2 and Server Push
 - Rapid development with CLI-controlled code generators
 - User-friendly, extensible CMS and administration dashboard
-- Simple deployment - single binary + assets, embedded DB ([BoltDB](https://github.com/boltdb/bolt))
+- Simple deployment - single binary + assets, embedded DB ([bbolt](https://go.etcd.io/bbolt))
 - Fast, helpful framework while maintaining control
 
 <sup id="f1">1</sup> *TLS*:
@@ -299,6 +299,7 @@ $ ponzu new --dev --fork=github.com/nilslice/ponzu /path/to/new/project
 - [golang.org/x/text/transform](https://golang.org/x/text/transform)
 - [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt)
 - [golang.org/x/net/http2](https://golang.org/x/net/http2)
+- [go.etcd.io/bbolt](https://go.etcd.io/bbolt)
 - [github.com/blevesearch/bleve](https://github.com/blevesearch/bleve)
 - [github.com/nilslice/jwt](https://github.com/nilslice/jwt)
 - [github.com/nilslice/email](https://github.com/nilslice/email)
@@ -306,7 +307,6 @@ $ ponzu new --dev --fork=github.com/nilslice/ponzu /path/to/new/project
 - [github.com/gofrs/uuid](https://github.com/gofrs/uuid)
 - [github.com/tidwall/gjson](https://github.com/tidwall/gjson)
 - [github.com/tidwall/sjson](https://github.com/tidwall/sjson)
-- [github.com/boltdb/bolt](https://github.com/boltdb/bolt)
 - [github.com/spf13/cobra](github.com/spf13/cobra)
 - [Materialnote Editor](https://github.com/Cerealkillerway/materialNote)
 - [Materialize.css](https://github.com/Dogfalo/materialize)
