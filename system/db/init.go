@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 
 	"github.com/ponzu-cms/ponzu/system/cfg"
+	bolt "go.etcd.io/bbolt"
 
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
 
-	"github.com/boltdb/bolt"
 	"github.com/nilslice/jwt"
 )
 
@@ -49,7 +49,7 @@ func Init() {
 	}
 
 	var err error
-	systemDb := filepath.Join(cfg.DataDir(),"system.db")
+	systemDb := filepath.Join(cfg.DataDir(), "system.db")
 	store, err = bolt.Open(systemDb, 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
