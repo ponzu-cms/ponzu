@@ -100,10 +100,6 @@ func Init() {
 	requestChan = make(chan apiRequest, 1024*64*runtime.NumCPU())
 
 	go serve()
-
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
 
 func serve() {
