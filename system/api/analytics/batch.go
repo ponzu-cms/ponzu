@@ -12,10 +12,10 @@ import (
 // db package, iterating over a []apiRequest instead of []url.Values
 func batchInsert(requests chan apiRequest) error {
 	var reqs []apiRequest
-	batchSize := len(requestChan)
+	batchSize := len(requests)
 
 	for i := 0; i < batchSize; i++ {
-		reqs = append(reqs, <-requestChan)
+		reqs = append(reqs, <-requests)
 	}
 
 	err := store.Update(func(tx *bolt.Tx) error {
