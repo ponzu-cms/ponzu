@@ -1,0 +1,66 @@
+<div class="card user-management">
+    <div class="card-title">Edit your account:</div>
+    <form class="row" enctype="multipart/form-data" action="/configure/users/edit" method="post">
+        <div class="col s9">
+            <label class="active">Email Address</label>
+            <input type="email" name="email" value="{{ .User.Email }}"/>
+        </div>
+
+        <div class="col s9">
+            <div>To approve changes, enter your password:</div>
+
+            <label class="active">Current Password</label>
+            <input type="password" name="password"/>
+        </div>
+
+        <div class="col s9">
+            <label class="active">New Password: (leave blank if no password change needed)</label>
+            <input name="new_password" type="password"/>
+        </div>
+
+        <div class="col s9">
+            <button class="btn waves-effect waves-light green right" type="submit">Save</button>
+        </div>
+    </form>
+
+    <div class="card-title">Add a new user:</div>
+    <form class="row" enctype="multipart/form-data" action="/configure/users" method="post">
+        <div class="col s9">
+            <label class="active">Email Address</label>
+            <input type="email" name="email" value=""/>
+        </div>
+
+        <div class="col s9">
+            <label class="active">Password</label>
+            <input type="password" name="password"/>
+        </div>
+
+        <div class="col s9">
+            <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
+        </div>
+    </form>
+
+    <div class="card-title">Remove Admin Users</div>
+    <ul class="users row">
+        {{ range .Users }}
+            <li class="col s9">
+                {{ .Email }}
+                <form enctype="multipart/form-data" class="delete-user __ponzu right" action="/configure/users/delete" method="post">
+                    <span>Delete</span>
+                    <input type="hidden" name="email" value="{{ .Email }}"/>
+                    <input type="hidden" name="id" value="{{ .ID }}"/>
+                </form>
+            </li>
+        {{ end }}
+    </ul>
+</div>
+<script>
+    $(function() {
+        var del = $('.delete-user.__ponzu span');
+        del.on('click', function(e) {
+            if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this user?\nThis cannot be undone.")) {
+                $(e.target).parent().submit();
+            }
+        });
+    });
+</script>

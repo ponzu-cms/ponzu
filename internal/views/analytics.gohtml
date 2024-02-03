@@ -1,0 +1,46 @@
+<div class="analytics">
+<div class="card">
+<div class="card-content">
+    <p class="right">Data range: {{ .from }} - {{ .to }} (UTC)</p>
+    <div class="card-title">API Requests</div>
+    <canvas id="analytics-chart"></canvas>
+    <script>
+    var target = document.getElementById("analytics-chart");
+    Chart.defaults.global.defaultFontColor = '#212121';
+    Chart.defaults.global.defaultFontFamily = "'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'";
+    Chart.defaults.global.title.position = 'right';
+    var chart = new Chart(target, {
+        type: 'bar',
+        data: {
+            labels: [{{ range $date := .dates }} "{{ $date }}",  {{ end }}],
+            datasets: [{
+                type: 'line',
+                label: 'Unique Clients',
+                data: $.parseJSON({{ .unique }}),
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 1
+            },
+            {
+                type: 'bar',
+                label: 'Total Requests',
+                data: $.parseJSON({{ .total }}),
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+</div>
+</div>
+</div>

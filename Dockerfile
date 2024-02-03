@@ -5,7 +5,7 @@ FROM golang:1.9
 # Note: The default golang docker image, already has the GOPATH env variable set.
 # GOPATH is located at /go
 ENV GO_SRC $GOPATH/src
-ENV PONZU_GITHUB github.com/ponzu-cms/ponzu
+ENV PONZU_GITHUB github.com/fanky5g/ponzu
 ENV PONZU_ROOT $GO_SRC/$PONZU_GITHUB
 
 # Consider updating package in the future. For instance ca-certificates etc.

@@ -1,0 +1,56 @@
+<div class="init col s5">
+    <div class="card">
+        <div class="card-content">
+            <div class="card-title">Welcome!</div>
+            <blockquote>You need to initialize your system by filling out the form below. All of
+                this information can be updated later on, but you will not be able to start
+                without first completing this step.</blockquote>
+            <form method="post" action="/init" class="row">
+                <div>Configuration</div>
+                <div class="input-field col s12">
+                    <input placeholder="Enter the name of your site (internal use only)" class="validate required" type="text" id="name" name="name"/>
+                    <label for="name" class="active">Site Name</label>
+                </div>
+                <div class="input-field col s12">
+                    <input placeholder="Used for acquiring SSL certificate (e.g. www.example.com or  example.com)" class="validate" type="text" id="domain" name="domain"/>
+                    <label for="domain" class="active">Domain</label>
+                </div>
+                <div>Admin Details</div>
+                <div class="input-field col s12">
+                    <input placeholder="Your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
+                    <label for="email" class="active">Email</label>
+                </div>
+                <div class="input-field col s12">
+                    <input placeholder="Enter a strong password" class="validate required" type="password" id="password" name="password"/>
+                    <label for="password" class="active">Password</label>
+                </div>
+                <button class="btn waves-effect waves-light right">Start</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('.nav-wrapper ul.right').hide();
+
+        var logo = $('a.brand-logo');
+        var name = $('input#name');
+        var domain = $('input#domain');
+        var hostname = domain.val();
+
+        if (hostname === '') {
+            hostname = window.location.host || window.location.hostname;
+        }
+
+        if (hostname.indexOf(':') !== -1) {
+            hostname = hostname.split(':')[0];
+        }
+
+        domain.val(hostname);
+
+        name.on('change', function(e) {
+            logo.text(e.target.value);
+        });
+
+    });
+</script>

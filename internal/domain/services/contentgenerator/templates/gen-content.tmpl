@@ -1,0 +1,73 @@
+package content
+
+import (
+	"fmt"
+	"reflect"
+	{{ if .HasReferences }}
+	"github.com/bosssauce/reference"
+	{{ end }}
+	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+)
+
+type {{ .Name }} struct {
+    item.Item
+
+    {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
+    {{ end }}	
+}
+
+// MarshalEditor writes a buffer of html to edit a {{ .Name }} within the CMS
+// and implements editor.Editable
+func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
+	view, err := editor.Form({{ .Initial }},
+        // Take note that the first argument to these Input-like functions 
+        // is the string version of each {{ .Name }} field, and must follow 
+        // this pattern for auto-decoding and auto-encoding reasons:
+        {{ range .Fields }}editor.Field{
+			{{ .View }}
+		},
+		{{ end }}
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to render {{ .Name }} editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	item.Types["{{ .Name }}"] = func() interface{} { return new({{ .Name }}) }
+}
+
+// String defines how a {{ .Name }} is printed. Update it using more descriptive
+// fields from the {{ .Name }} struct type
+func ({{ .Initial }} *{{ .Name }}) String() string {
+	return fmt.Sprintf("{{ .Name }}: %s", {{ .Initial }}.UUID)
+}
+
+// IndexContent determines if {{ .Name }} should be indexed for searching
+func ({{ .Initial }} *{{ .Name }}) IndexContent() bool {
+	return false
+}
+
+// GetSearchableAttributes defines fields of {{ .Name }} that should be indexed
+func ({{ .Initial }} *{{ .Name }}) GetSearchableAttributes() map[string]reflect.Type {
+	searchableAttributes := make(map[string]reflect.Type)
+	idField := "ID"
+	searchableAttributes[idField] = reflect.ValueOf({{ .Initial }}).FieldByName(idField).Type()
+
+	v := reflect.ValueOf({{ .Initial }})
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		fieldName := t.Field(i).Name
+
+		if fieldName != idField && field.Kind() == reflect.String {
+			searchableAttributes[fieldName] = field.Type()
+		}
+	}
+
+	return searchableAttributes
+}

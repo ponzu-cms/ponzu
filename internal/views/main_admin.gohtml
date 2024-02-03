@@ -1,0 +1,25 @@
+<div class="left-nav col s3">
+    <div class="card">
+        <ul class="card-content collection">
+            <div class="card-title">Content</div>
+
+            {{ range $t, $f := .Types }}
+                <div class="row collection-item">
+                    <li><a class="col s12" href="/contents?type={{ $t }}"><i class="tiny left material-icons">playlist_add</i>{{ $t }}</a></li>
+                </div>
+            {{ end }}
+
+            <div class="card-title">System</div>
+            <div class="row collection-item">
+                <li><a class="col s12" href="/configure"><i class="tiny left material-icons">settings</i>Configuration</a></li>
+                <li><a class="col s12" href="/configure/users"><i class="tiny left material-icons">supervisor_account</i>Admin Users</a></li>
+                <li><a class="col s12" href="/uploads"><i class="tiny left material-icons">swap_vert</i>Uploads</a></li>
+            </div>
+        </ul>
+    </div>
+</div>
+{{ if .Subview}}
+    <div class="subview col s9">
+        {{ .Subview }}
+    </div>
+{{ end }}

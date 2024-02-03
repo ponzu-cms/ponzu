@@ -1,0 +1,25 @@
+<div class="init col s5">
+    <div class="card">
+        <div class="card-content">
+            <div class="card-title">Welcome!</div>
+            <blockquote>Please log in to the system using your email address and password.</blockquote>
+            <form method="post" action="/login" class="row">
+                <div class="input-field col s12">
+                    <input placeholder="Enter your email address e.g. you@example.com" class="validate required" type="email" id="email" name="email"/>
+                    <label for="email" class="active">Email</label>
+                </div>
+                <div class="input-field col s12">
+                    <input placeholder="Enter your password" class="validate required" type="password" id="password" name="password"/>
+                    <a href="/recover">Forgot password?</a>
+                    <label for="password" class="active">Password</label>
+                </div>
+                <button class="btn waves-effect waves-light right">Log in</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('.nav-wrapper ul.right').hide();
+    });
+</script>

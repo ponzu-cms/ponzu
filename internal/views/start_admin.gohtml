@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>{{ .Logo }}</title>
+    <script type="text/javascript" src="/static/common/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="/static/common/js/util.js"></script>
+    <script type="text/javascript" src="/static/dashboard/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/static/dashboard/js/chart.bundle.min.js"></script>
+    <script type="text/javascript" src="/static/editor/js/materialNote.js"></script>
+    <script type="text/javascript" src="/static/editor/js/ckMaterializeOverrides.js"></script>
+
+    <link rel="stylesheet" href="/static/dashboard/css/material-icons.css" />
+    <link rel="stylesheet" href="/static/dashboard/css/materialize.min.css" />
+    <link rel="stylesheet" href="/static/editor/css/materialNote.css" />
+    <link rel="stylesheet" href="/static/dashboard/css/admin.css" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body class="grey lighten-4">
+<div class="navbar-fixed">
+    <nav class="grey darken-2">
+        <div class="nav-wrapper">
+            <a class="brand-logo" href="/">{{ .Logo }}</a>
+
+            <ul class="right">
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<div class="admin-ui row">
