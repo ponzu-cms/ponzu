@@ -13,10 +13,12 @@ import (
 // /api/content/delete?type=Review&id=1
 type Deleteable interface {
 	// Delete enables external clients to delete content of a specific type
+	// TODO: Add context.Context to Delete method
 	Delete(http.ResponseWriter, *http.Request) error
 }
 
 func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -77,7 +79,7 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		log.Println("Error unmarshalling ", t, "=", id, err, " Hooks will be called on a zero-value.")
 	}
 
-	err = hook.BeforeAPIDelete(res, req)
+	err = hook.BeforeAPIDelete(ctx, res, req)
 	if err != nil {
 		log.Println("[Delete] error calling BeforeAPIDelete:", err)
 		if err == ErrNoAuth {
@@ -87,6 +89,7 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// TODO: Pass ctx to ext.Delete if/when that method is updated
 	err = ext.Delete(res, req)
 	if err != nil {
 		log.Println("[Delete] error calling Delete:", err)
@@ -97,9 +100,9 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeDelete(res, req)
+	err = hook.BeforeDelete(ctx, res, req)
 	if err != nil {
-		log.Println("[Delete] error calling BeforeSave:", err)
+		log.Println("[Delete] error calling BeforeDelete:", err) // Corrected log
 		return
 	}
 
@@ -110,13 +113,13 @@ func deleteContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterDelete(res, req)
+	err = hook.AfterDelete(ctx, res, req)
 	if err != nil {
 		log.Println("[Delete] error calling AfterDelete:", err)
 		return
 	}
 
-	err = hook.AfterAPIDelete(res, req)
+	err = hook.AfterAPIDelete(ctx, res, req)
 	if err != nil {
 		log.Println("[Delete] error calling AfterAPIDelete:", err)
 		return

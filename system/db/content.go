@@ -15,7 +15,7 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
 )
@@ -97,7 +97,7 @@ func update(ns, id string, data url.Values, existingContent *[]byte) (int, error
 		}
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
@@ -183,7 +183,7 @@ func insert(ns string, data url.Values) (int, error) {
 
 	var j []byte
 	var cid string
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(ns + specifier))
 		if err != nil {
 			return err
@@ -229,7 +229,7 @@ func insert(ns string, data url.Values) (int, error) {
 		if specifier == "" {
 			ci := tx.Bucket([]byte("__contentIndex"))
 			if ci == nil {
-				return bolt.ErrBucketNotFound
+				return bbolt.ErrBucketNotFound
 			}
 
 			k := []byte(data.Get("slug"))
@@ -288,10 +288,10 @@ func DeleteContent(target string) error {
 		return err
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(ns))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := b.Delete([]byte(id))
@@ -303,7 +303,7 @@ func DeleteContent(target string) error {
 		if itm.Slug != "" {
 			ci := tx.Bucket([]byte("__contentIndex"))
 			if ci == nil {
-				return bolt.ErrBucketNotFound
+				return bbolt.ErrBucketNotFound
 			}
 
 			err := ci.Delete([]byte(itm.Slug))
@@ -351,10 +351,10 @@ func Content(target string) ([]byte, error) {
 	ns, id := t[0], t[1]
 
 	val := &bytes.Buffer{}
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(ns))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		_, err := val.Write(b.Get([]byte(id)))
@@ -395,10 +395,10 @@ func ContentMulti(targets []string) ([][]byte, error) {
 func ContentBySlug(slug string) (string, []byte, error) {
 	val := &bytes.Buffer{}
 	var t, id string
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 		idx := b.Get([]byte(slug))
 
@@ -414,7 +414,7 @@ func ContentBySlug(slug string) (string, []byte, error) {
 
 		c := tx.Bucket([]byte(t))
 		if c == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 		_, err := val.Write(c.Get([]byte(id)))
 		if err != nil {
@@ -433,10 +433,10 @@ func ContentBySlug(slug string) (string, []byte, error) {
 // ContentAll retrives all items from the database within the provided namespace
 func ContentAll(namespace string) [][]byte {
 	var posts [][]byte
-	store.View(func(tx *bolt.Tx) error {
+	store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		numKeys := b.Stats().KeyN
@@ -477,10 +477,10 @@ func Query(namespace string, opts QueryOptions) (int, [][]byte) {
 		opts.Offset = 0
 	}
 
-	store.View(func(tx *bolt.Tx) error {
+	store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(namespace))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		c := b.Cursor()
@@ -664,10 +664,10 @@ func SortContent(namespace string) {
 	}
 
 	// store in <namespace>_sorted bucket, first delete existing
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		bname := []byte(namespace + "__sorted")
 		err := tx.DeleteBucket(bname)
-		if err != nil && err != bolt.ErrBucketNotFound {
+		if err != nil && err != bbolt.ErrBucketNotFound {
 			return err
 		}
 
@@ -798,10 +798,10 @@ func postToJSON(ns string, data url.Values) ([]byte, error) {
 
 func checkSlugForDuplicate(slug string) (string, error) {
 	// check for existing slug in __contentIndex
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 		original := slug
 		exists := true

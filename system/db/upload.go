@@ -13,7 +13,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/item"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/schema"
 )
@@ -57,7 +57,7 @@ func SetUpload(target string, data url.Values) (int, error) {
 	// store in database
 	var id uint64
 	var err error
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__uploads"))
 		if err != nil {
 			return err
@@ -139,10 +139,10 @@ func Upload(target string) ([]byte, error) {
 		return nil, err
 	}
 
-	err = store.View(func(tx *bolt.Tx) error {
+	err = store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__uploads"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		j := b.Get(id)
@@ -157,10 +157,10 @@ func Upload(target string) ([]byte, error) {
 func UploadBySlug(slug string) ([]byte, error) {
 	val := &bytes.Buffer{}
 	// get target from __contentIndex or return nil if not exists
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__contentIndex"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		v := b.Get([]byte(slug))
@@ -184,10 +184,10 @@ func UploadBySlug(slug string) ([]byte, error) {
 // UploadAll returns a [][]byte containing all upload data from the system
 func UploadAll() [][]byte {
 	var uploads [][]byte
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__uploads"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		numKeys := b.Stats().KeyN
@@ -218,10 +218,10 @@ func DeleteUpload(target string) error {
 		return err
 	}
 
-	return store.Update(func(tx *bolt.Tx) error {
+	return store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(parts[0]))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		return b.Delete(id)

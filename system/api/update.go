@@ -20,10 +20,12 @@ import (
 // /api/content/update?type=Review&id=1
 type Updateable interface {
 	// Update enabled external clients to update content of a specific type
+	// TODO: Add context.Context to Update method
 	Update(http.ResponseWriter, *http.Request) error
 }
 
 func updateContentHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -160,7 +162,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeAPIUpdate(res, req)
+	err = hook.BeforeAPIUpdate(ctx, res, req)
 	if err != nil {
 		log.Println("[Update] error calling BeforeAPIUpdate:", err)
 		if err == ErrNoAuth {
@@ -170,6 +172,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// TODO: Pass ctx to ext.Update if/when that method is updated
 	err = ext.Update(res, req)
 	if err != nil {
 		log.Println("[Update] error calling Update:", err)
@@ -180,7 +183,7 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeSave(res, req)
+	err = hook.BeforeSave(ctx, res, req)
 	if err != nil {
 		log.Println("[Update] error calling BeforeSave:", err)
 		return
@@ -197,16 +200,16 @@ func updateContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// set the target in the context so user can get saved value from db in hook
-	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%s", t, id))
-	req = req.WithContext(ctx)
+	ctxWithTarget := context.WithValue(ctx, "target", fmt.Sprintf("%s:%s", t, id))
+	// req = req.WithContext(ctx) // no need, already have ctx
 
-	err = hook.AfterSave(res, req)
+	err = hook.AfterSave(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 	if err != nil {
 		log.Println("[Update] error calling AfterSave:", err)
 		return
 	}
 
-	err = hook.AfterAPIUpdate(res, req)
+	err = hook.AfterAPIUpdate(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 	if err != nil {
 		log.Println("[Update] error calling AfterAPIUpdate:", err)
 		return

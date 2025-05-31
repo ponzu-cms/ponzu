@@ -12,12 +12,12 @@ import (
 	"github.com/ponzu-cms/ponzu/system/item"
 	"github.com/ponzu-cms/ponzu/system/search"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/nilslice/jwt"
 )
 
 var (
-	store *bolt.DB
+	store *bbolt.DB
 
 	buckets = []string{
 		"__config", "__users",
@@ -28,8 +28,8 @@ var (
 	bucketsToAdd []string
 )
 
-// Store provides access to the underlying *bolt.DB store
-func Store() *bolt.DB {
+// Store provides access to the underlying *bbolt.DB store
+func Store() *bbolt.DB {
 	return store
 }
 
@@ -50,12 +50,12 @@ func Init() {
 
 	var err error
 	systemDb := filepath.Join(cfg.DataDir(),"system.db")
-	store, err = bolt.Open(systemDb, 0666, nil)
+	store, err = bbolt.Open(systemDb, 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		// initialize db with all content type buckets & sorted bucket for type
 		for t := range item.Types {
 			_, err := tx.CreateBucketIfNotExists([]byte(t))
@@ -129,10 +129,10 @@ func InitSearchIndex() {
 func SystemInitComplete() bool {
 	complete := false
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		users := tx.Bucket([]byte("__users"))
 		if users == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := users.ForEach(func(k, v []byte) error {

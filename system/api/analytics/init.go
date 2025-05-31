@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/ponzu-cms/ponzu/system/cfg"
 )
 
@@ -33,7 +33,7 @@ type apiMetric struct {
 }
 
 var (
-	store       *bolt.DB
+	store       *bbolt.DB
 	requestChan chan apiRequest
 )
 
@@ -75,12 +75,12 @@ func Close() {
 func Init() {
 	var err error
 	analyticsDb := filepath.Join(cfg.DataDir(),"analytics.db")
-	store, err = bolt.Open(analyticsDb, 0666, nil)
+	store, err = bbolt.Open(analyticsDb, 0666, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte("__requests"))
 		if err != nil {
 			return err
@@ -168,7 +168,7 @@ func ChartData() (map[string]interface{}, error) {
 	var requests = []apiRequest{}
 	currentMetrics := make(map[string]apiMetric)
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		m := tx.Bucket([]byte("__metrics"))
 		b := tx.Bucket([]byte("__requests"))
 
@@ -290,7 +290,7 @@ CHECK_REQUEST:
 
 	// loop through total and unique to see which dates are accounted for and
 	// insert data from metrics array where dates are not
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__metrics"))
 
 		for i := range dates {
