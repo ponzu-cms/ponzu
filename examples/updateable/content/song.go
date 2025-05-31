@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -83,7 +84,7 @@ func (s *Song) String() string { return s.Title }
 // BeforeAPIUpdate is only called if the Song type implements api.Updateable
 // It is called before Update, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
-func (s *Song) BeforeAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) BeforeAPIUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	// do initial user authentication here on the request, checking for a
 	// token or cookie, or that certain form fields are set and valid
 
@@ -132,7 +133,7 @@ func (s *Song) Update(res http.ResponseWriter, req *http.Request) error {
 // notifications, etc. after the data is saved to the database, etc.
 // The request has a context containing the databse 'target' affected by the
 // request.
-func (s *Song) AfterAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) AfterAPIUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
 	log.Println("Song updated by:", addr, "id:", req.URL.Query().Get("id"))
 

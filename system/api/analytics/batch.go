@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 )
 
 // batchInsert is effectively a specialized version of SetContentMulti from the
@@ -18,7 +18,7 @@ func batchInsert(requests chan apiRequest) error {
 		reqs = append(reqs, <-requestChan)
 	}
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__requests"))
 		if err != nil {
 			return err
@@ -63,7 +63,7 @@ func batchPrune(threshold time.Duration) error {
 	max := today.Add(threshold)
 
 	// iterate through all request data
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__requests"))
 
 		err := b.ForEach(func(k, v []byte) error {

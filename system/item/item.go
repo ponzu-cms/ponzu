@@ -4,6 +4,7 @@
 package item
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -65,45 +66,45 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
-	BeforeAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
-	AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
+	BeforeAPIResponse(context.Context, http.ResponseWriter, *http.Request, []byte) ([]byte, error)
+	AfterAPIResponse(context.Context, http.ResponseWriter, *http.Request, []byte) error
 
-	BeforeAPICreate(http.ResponseWriter, *http.Request) error
-	AfterAPICreate(http.ResponseWriter, *http.Request) error
+	BeforeAPICreate(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAPICreate(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeAPIUpdate(http.ResponseWriter, *http.Request) error
-	AfterAPIUpdate(http.ResponseWriter, *http.Request) error
+	BeforeAPIUpdate(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAPIUpdate(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeAPIDelete(http.ResponseWriter, *http.Request) error
-	AfterAPIDelete(http.ResponseWriter, *http.Request) error
+	BeforeAPIDelete(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAPIDelete(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeAdminCreate(http.ResponseWriter, *http.Request) error
-	AfterAdminCreate(http.ResponseWriter, *http.Request) error
+	BeforeAdminCreate(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAdminCreate(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeAdminUpdate(http.ResponseWriter, *http.Request) error
-	AfterAdminUpdate(http.ResponseWriter, *http.Request) error
+	BeforeAdminUpdate(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAdminUpdate(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeAdminDelete(http.ResponseWriter, *http.Request) error
-	AfterAdminDelete(http.ResponseWriter, *http.Request) error
+	BeforeAdminDelete(context.Context, http.ResponseWriter, *http.Request) error
+	AfterAdminDelete(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeSave(http.ResponseWriter, *http.Request) error
-	AfterSave(http.ResponseWriter, *http.Request) error
+	BeforeSave(context.Context, http.ResponseWriter, *http.Request) error
+	AfterSave(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeDelete(http.ResponseWriter, *http.Request) error
-	AfterDelete(http.ResponseWriter, *http.Request) error
+	BeforeDelete(context.Context, http.ResponseWriter, *http.Request) error
+	AfterDelete(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeApprove(http.ResponseWriter, *http.Request) error
-	AfterApprove(http.ResponseWriter, *http.Request) error
+	BeforeApprove(context.Context, http.ResponseWriter, *http.Request) error
+	AfterApprove(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeReject(http.ResponseWriter, *http.Request) error
-	AfterReject(http.ResponseWriter, *http.Request) error
+	BeforeReject(context.Context, http.ResponseWriter, *http.Request) error
+	AfterReject(context.Context, http.ResponseWriter, *http.Request) error
 
 	// Enable/Disable used for addons
-	BeforeEnable(http.ResponseWriter, *http.Request) error
-	AfterEnable(http.ResponseWriter, *http.Request) error
+	BeforeEnable(context.Context, http.ResponseWriter, *http.Request) error
+	AfterEnable(context.Context, http.ResponseWriter, *http.Request) error
 
-	BeforeDisable(http.ResponseWriter, *http.Request) error
-	AfterDisable(http.ResponseWriter, *http.Request) error
+	BeforeDisable(context.Context, http.ResponseWriter, *http.Request) error
+	AfterDisable(context.Context, http.ResponseWriter, *http.Request) error
 }
 
 // Hideable lets a user keep items hidden
@@ -181,132 +182,132 @@ func (i Item) String() string {
 }
 
 // BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) ([]byte, error) {
+func (i Item) BeforeAPIResponse(ctx context.Context, res http.ResponseWriter, req *http.Request, data []byte) ([]byte, error) {
 	return data, nil
 }
 
 // AfterAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) error {
+func (i Item) AfterAPIResponse(ctx context.Context, res http.ResponseWriter, req *http.Request, data []byte) error {
 	return nil
 }
 
 // BeforeAPICreate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAPICreate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAPICreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAPICreate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAPICreate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAPICreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeAPIUpdate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAPIUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAPIUpdate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAPIUpdate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAPIUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeAPIDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAPIDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAPIDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAPIDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAPIDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAPIDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeAdminCreate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAdminCreate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAdminCreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAdminCreate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAdminCreate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAdminCreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeAdminUpdate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAdminUpdate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAdminUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAdminUpdate is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAdminUpdate(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAdminUpdate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeAdminDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeAdminDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeAdminDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterAdminDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterAdminDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterAdminDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeSave is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeSave(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeSave(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterSave is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterSave(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterSave(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterDelete is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterDelete(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeApprove(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeApprove(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterApprove(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterApprove(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeReject is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeReject(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeReject(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterReject is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterReject(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterReject(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeEnable is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeEnable(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeEnable(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterEnable is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterEnable(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterEnable(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // BeforeDisable is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) BeforeDisable(res http.ResponseWriter, req *http.Request) error {
+func (i Item) BeforeDisable(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
 // AfterDisable is a no-op to ensure structs which embed Item implement Hookable
-func (i Item) AfterDisable(res http.ResponseWriter, req *http.Request) error {
+func (i Item) AfterDisable(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 

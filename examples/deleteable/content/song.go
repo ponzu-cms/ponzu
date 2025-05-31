@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -82,7 +83,7 @@ func (s *Song) String() string { return s.Title }
 // BeforeAPIDelete is only called if the Song type implements api.Deleteable
 // It is called before Delete, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
-func (s *Song) BeforeAPIDelete(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) BeforeAPIDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	// do initial user authentication here on the request, checking for a
 	// token or cookie, or that certain form fields are set and valid
 
@@ -108,7 +109,7 @@ func (s *Song) Delete(res http.ResponseWriter, req *http.Request) error {
 
 // AfterAPIDelete is called after Delete, and is useful for logging or triggering
 // notifications, etc. after the data is deleted frm the database, etc.
-func (s *Song) AfterAPIDelete(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) AfterAPIDelete(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
 	log.Println("Song deleted by:", addr, "id:", req.URL.Query().Get("id"))
 

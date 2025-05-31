@@ -17,6 +17,7 @@ import (
 )
 
 // Createable accepts or rejects external POST requests to endpoints such as:
+// TODO: Add context.Context to Create method
 // /api/content/create?type=Review
 type Createable interface {
 	// Create enables external clients to submit content of a specific type
@@ -26,10 +27,12 @@ type Createable interface {
 // Trustable allows external content to be auto-approved, meaning content sent
 // as an Createable will be stored in the public content bucket
 type Trustable interface {
+	// TODO: Add context.Context to AutoApprove method
 	AutoApprove(http.ResponseWriter, *http.Request) error
 }
 
 func createContentHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -145,19 +148,20 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeAPICreate(res, req)
+	err = hook.BeforeAPICreate(ctx, res, req)
 	if err != nil {
-		log.Println("[Create] error calling BeforeCreate:", err)
+		log.Println("[Create] error calling BeforeAPICreate:", err) // Corrected log
 		return
 	}
 
+	// TODO: Pass ctx to ext.Create if/when that method is updated
 	err = ext.Create(res, req)
 	if err != nil {
-		log.Println("[Create] error calling Accept:", err)
+		log.Println("[Create] error calling Create:", err) // Corrected log
 		return
 	}
 
-	err = hook.BeforeSave(res, req)
+	err = hook.BeforeSave(ctx, res, req)
 	if err != nil {
 		log.Println("[Create] error calling BeforeSave:", err)
 		return
@@ -172,6 +176,7 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	// if the type implements editor.Mergable
 	trusted, ok := post.(Trustable)
 	if ok {
+		// TODO: Pass ctx to trusted.AutoApprove if/when that method is updated
 		err := trusted.AutoApprove(res, req)
 		if err != nil {
 			log.Println("[Create] error calling AutoApprove:", err)
@@ -189,18 +194,18 @@ func createContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// set the target in the context so user can get saved value from db in hook
-	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
-	req = req.WithContext(ctx)
+	ctxWithTarget := context.WithValue(ctx, "target", fmt.Sprintf("%s:%d", t, id))
+	// req = req.WithContext(ctx) // no need, already have ctx
 
-	err = hook.AfterSave(res, req)
+	err = hook.AfterSave(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 	if err != nil {
 		log.Println("[Create] error calling AfterSave:", err)
 		return
 	}
 
-	err = hook.AfterAPICreate(res, req)
+	err = hook.AfterAPICreate(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 	if err != nil {
-		log.Println("[Create] error calling AfterAccept:", err)
+		log.Println("[Create] error calling AfterAPICreate:", err) // Corrected log
 		return
 	}
 

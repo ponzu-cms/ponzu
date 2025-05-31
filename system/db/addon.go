@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/gorilla/schema"
 )
 
@@ -22,10 +22,10 @@ var (
 func Addon(key string) ([]byte, error) {
 	buf := &bytes.Buffer{}
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		val := b.Get([]byte(key))
@@ -65,10 +65,10 @@ func SetAddon(data url.Values, kind interface{}) error {
 		return fmt.Errorf(`Addon "%s" has no identifier to use as key.`, name)
 	}
 
-	err = store.Update(func(tx *bolt.Tx) error {
+	err = store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := b.Put([]byte(k), v)
@@ -89,10 +89,10 @@ func SetAddon(data url.Values, kind interface{}) error {
 func AddonAll() [][]byte {
 	var all [][]byte
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := b.ForEach(func(k, v []byte) error {
@@ -116,10 +116,10 @@ func AddonAll() [][]byte {
 
 // DeleteAddon removes an addon from the db by its key, the addon_reverse_dns
 func DeleteAddon(key string) error {
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__addons"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		if err := b.Delete([]byte(key)); err != nil {
@@ -144,7 +144,7 @@ func AddonExists(key string) bool {
 		Init()
 	}
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__addons"))
 		if err != nil {
 			return err

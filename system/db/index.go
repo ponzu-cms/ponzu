@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 )
 
 // Index gets the value from the namespace at the key provided
 func Index(namespace, key string) ([]byte, error) {
 	val := &bytes.Buffer{}
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(index(namespace)))
 		if b == nil {
 			return nil
@@ -35,7 +35,7 @@ func Index(namespace, key string) ([]byte, error) {
 // SetIndex sets a key/value pair within the namespace provided and will return
 // an error if it fails
 func SetIndex(namespace, key string, value interface{}) error {
-	return store.Update(func(tx *bolt.Tx) error {
+	return store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(index(namespace)))
 		if err != nil {
 			return err
@@ -54,7 +54,7 @@ func SetIndex(namespace, key string, value interface{}) error {
 // return an error if it fails. It will return nil if there was no key/value in
 // the index to delete.
 func DeleteIndex(namespace, key string) error {
-	return store.Update(func(tx *bolt.Tx) error {
+	return store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(index(namespace)))
 		if b == nil {
 			return nil
@@ -66,9 +66,9 @@ func DeleteIndex(namespace, key string) error {
 
 // DropIndex removes the index and all key/value pairs in the namespace index
 func DropIndex(namespace string) error {
-	return store.Update(func(tx *bolt.Tx) error {
+	return store.Update(func(tx *bbolt.Tx) error {
 		err := tx.DeleteBucket([]byte(index(namespace)))
-		if err == bolt.ErrBucketNotFound {
+		if err == bbolt.ErrBucketNotFound {
 			return nil
 		}
 

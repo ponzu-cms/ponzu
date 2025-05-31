@@ -2,3 +2,5 @@
 /uploads
 /search
 /*.db
+vendor/
+cmd/ponzu/vendor/

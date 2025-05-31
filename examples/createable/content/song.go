@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -105,7 +106,7 @@ func (s *Song) Create(res http.ResponseWriter, req *http.Request) error {
 // BeforeAPICreate is only called if the Song type implements api.Createable
 // It is called before Create, and returning an error will cancel the request
 // causing the system to reject the data sent in the POST
-func (s *Song) BeforeAPICreate(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) BeforeAPICreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	// do initial user authentication here on the request, checking for a
 	// token or cookie, or that certain form fields are set and valid
 
@@ -124,7 +125,7 @@ func (s *Song) BeforeAPICreate(res http.ResponseWriter, req *http.Request) error
 // notifications, etc. after the data is saved to the database, etc.
 // The request has a context containing the databse 'target' affected by the
 // request. Ex. Song__pending:3 or Song:8 depending if Song implements api.Trustable
-func (s *Song) AfterAPICreate(res http.ResponseWriter, req *http.Request) error {
+func (s *Song) AfterAPICreate(ctx context.Context, res http.ResponseWriter, req *http.Request) error {
 	addr := req.RemoteAddr
 	log.Println("Song sent by:", addr, "titled:", req.PostFormValue("title"))
 

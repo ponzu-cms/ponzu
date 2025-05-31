@@ -11,7 +11,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/admin/user"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/nilslice/jwt"
 )
 
@@ -23,11 +23,11 @@ var ErrNoUserExists = errors.New("Error. No user exists.")
 
 // SetUser sets key:value pairs in the db for user settings
 func SetUser(usr *user.User) (int, error) {
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		email := []byte(usr.Email)
 		users := tx.Bucket([]byte("__users"))
 		if users == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		// check if user is found by email, fail if nil
@@ -70,10 +70,10 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 		updatedUsr.ID = usr.ID
 	}
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		users := tx.Bucket([]byte("__users"))
 		if users == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		// check if user is found by email, fail if nil
@@ -114,10 +114,10 @@ func UpdateUser(usr, updatedUsr *user.User) error {
 
 // DeleteUser deletes a user from the db by email
 func DeleteUser(email string) error {
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := b.Delete([]byte(email))
@@ -137,10 +137,10 @@ func DeleteUser(email string) error {
 // User gets the user by email from the db
 func User(email string) ([]byte, error) {
 	val := &bytes.Buffer{}
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		usr := b.Get([]byte(email))
@@ -166,10 +166,10 @@ func User(email string) ([]byte, error) {
 // UserAll returns all users from the db
 func UserAll() ([][]byte, error) {
 	var users [][]byte
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__users"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		err := b.ForEach(func(k, v []byte) error {
@@ -220,7 +220,7 @@ func SetRecoveryKey(email string) (string, error) {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	key := fmt.Sprintf("%d", r.Int63())
 
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("__recoveryKeys"))
 		if err != nil {
 			return err
@@ -245,10 +245,10 @@ func SetRecoveryKey(email string) (string, error) {
 func RecoveryKey(email string) (string, error) {
 	key := &bytes.Buffer{}
 
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__recoveryKeys"))
 		if b == nil {
-			return bolt.ErrBucketNotFound
+			return bbolt.ErrBucketNotFound
 		}
 
 		_, err := key.Write(b.Get([]byte(email)))

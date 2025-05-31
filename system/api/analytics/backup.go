@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 )
 
 // Backup writes a snapshot of the system.db database to an HTTP response. The
@@ -15,7 +15,7 @@ func Backup(ctx context.Context, res http.ResponseWriter) error {
 	errChan := make(chan error, 1)
 
 	go func() {
-		errChan <- store.View(func(tx *bolt.Tx) error {
+		errChan <- store.View(func(tx *bbolt.Tx) error {
 			ts := time.Now().Unix()
 			disposition := `attachment; filename="analytics-%d.db.bak"`
 

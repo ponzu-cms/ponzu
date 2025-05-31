@@ -32,6 +32,7 @@ import (
 )
 
 func adminHandler(res http.ResponseWriter, req *http.Request) {
+	// ctx := req.Context() // Not strictly needed for adminHandler as it doesn't call hooks directly
 	view, err := Dashboard()
 	if err != nil {
 		log.Println(err)
@@ -1098,6 +1099,7 @@ func uploadContentsHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func contentsHandler(res http.ResponseWriter, req *http.Request) {
+	// ctx := req.Context() // Not strictly needed for contentsHandler as it doesn't call hooks directly
 	q := req.URL.Query()
 	t := q.Get("type")
 	if t == "" {
@@ -1584,6 +1586,7 @@ func adminPostListItem(e editor.Editable, typeName, status string) []byte {
 }
 
 func approveContentHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		errView, err := Error405()
@@ -1660,26 +1663,27 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeApprove(res, req)
+	err = hook.BeforeApprove(ctx, res, req)
 	if err != nil {
 		log.Println("Error running BeforeApprove hook in approveContentHandler for:", t, err)
 		return
 	}
 
 	// call its Approve method
+	// TODO: Pass ctx to m.Approve if/when that method is updated
 	err = m.Approve(res, req)
 	if err != nil {
 		log.Println("Error running Approve method in approveContentHandler for:", t, err)
 		return
 	}
 
-	err = hook.AfterApprove(res, req)
+	err = hook.AfterApprove(ctx, res, req)
 	if err != nil {
 		log.Println("Error running AfterApprove hook in approveContentHandler for:", t, err)
 		return
 	}
 
-	err = hook.BeforeSave(res, req)
+	err = hook.BeforeSave(ctx, res, req)
 	if err != nil {
 		log.Println("Error running BeforeSave hook in approveContentHandler for:", t, err)
 		return
@@ -1700,10 +1704,10 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// set the target in the context so user can get saved value from db in hook
-	ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
-	req = req.WithContext(ctx)
+	ctxWithTarget := context.WithValue(ctx, "target", fmt.Sprintf("%s:%d", t, id))
+	// req = req.WithContext(ctx) // no need, already have ctx
 
-	err = hook.AfterSave(res, req)
+	err = hook.AfterSave(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 	if err != nil {
 		log.Println("Error running AfterSave hook in approveContentHandler for:", t, err)
 		return
@@ -1723,6 +1727,7 @@ func approveContentHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func editHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	switch req.Method {
 	case http.MethodGet:
 		q := req.URL.Query()
@@ -1955,20 +1960,20 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if cid == "-1" {
-			err = hook.BeforeAdminCreate(res, req)
+			err = hook.BeforeAdminCreate(ctx, res, req)
 			if err != nil {
 				log.Println("Error running BeforeAdminCreate method in editHandler for:", t, err)
 				return
 			}
 		} else {
-			err = hook.BeforeAdminUpdate(res, req)
+			err = hook.BeforeAdminUpdate(ctx, res, req)
 			if err != nil {
 				log.Println("Error running BeforeAdminUpdate method in editHandler for:", t, err)
 				return
 			}
 		}
 
-		err = hook.BeforeSave(res, req)
+		err = hook.BeforeSave(ctx, res, req)
 		if err != nil {
 			log.Println("Error running BeforeSave method in editHandler for:", t, err)
 			return
@@ -1988,23 +1993,23 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// set the target in the context so user can get saved value from db in hook
-		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%d", t, id))
-		req = req.WithContext(ctx)
+		ctxWithTarget := context.WithValue(ctx, "target", fmt.Sprintf("%s:%d", t, id))
+		// req = req.WithContext(ctx) // no need, already have ctx
 
-		err = hook.AfterSave(res, req)
+		err = hook.AfterSave(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 		if err != nil {
 			log.Println("Error running AfterSave method in editHandler for:", t, err)
 			return
 		}
 
 		if cid == "-1" {
-			err = hook.AfterAdminCreate(res, req)
+			err = hook.AfterAdminCreate(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 			if err != nil {
-				log.Println("Error running AfterAdminUpdate method in editHandler for:", t, err)
+				log.Println("Error running AfterAdminCreate method in editHandler for:", t, err) // Corrected log message
 				return
 			}
 		} else {
-			err = hook.AfterAdminUpdate(res, req)
+			err = hook.AfterAdminUpdate(ctxWithTarget, res, req.WithContext(ctxWithTarget))
 			if err != nil {
 				log.Println("Error running AfterAdminUpdate method in editHandler for:", t, err)
 				return
@@ -2029,6 +2034,7 @@ func editHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func deleteHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -2102,20 +2108,20 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 
 	reject := req.URL.Query().Get("reject")
 	if reject == "true" {
-		err = hook.BeforeReject(res, req)
+		err = hook.BeforeReject(ctx, res, req)
 		if err != nil {
 			log.Println("Error running BeforeReject method in deleteHandler for:", t, err)
 			return
 		}
 	}
 
-	err = hook.BeforeAdminDelete(res, req)
+	err = hook.BeforeAdminDelete(ctx, res, req)
 	if err != nil {
 		log.Println("Error running BeforeAdminDelete method in deleteHandler for:", t, err)
 		return
 	}
 
-	err = hook.BeforeDelete(res, req)
+	err = hook.BeforeDelete(ctx, res, req)
 	if err != nil {
 		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
 		return
@@ -2128,20 +2134,20 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterDelete(res, req)
+	err = hook.AfterDelete(ctx, res, req)
 	if err != nil {
 		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
 		return
 	}
 
-	err = hook.AfterAdminDelete(res, req)
+	err = hook.AfterAdminDelete(ctx, res, req)
 	if err != nil {
-		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
+		log.Println("Error running AfterAdminDelete method in deleteHandler for:", t, err) // Corrected log message
 		return
 	}
 
 	if reject == "true" {
-		err = hook.AfterReject(res, req)
+		err = hook.AfterReject(ctx, res, req)
 		if err != nil {
 			log.Println("Error running AfterReject method in deleteHandler for:", t, err)
 			return
@@ -2154,6 +2160,7 @@ func deleteHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -2194,9 +2201,9 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.BeforeDelete(res, req)
+	err = hook.BeforeDelete(ctx, res, req)
 	if err != nil {
-		log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
+		log.Println("Error running BeforeDelete method in deleteUploadHandler for:", t, err) // Corrected log
 		return
 	}
 
@@ -2218,9 +2225,9 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hook.AfterDelete(res, req)
+	err = hook.AfterDelete(ctx, res, req)
 	if err != nil {
-		log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
+		log.Println("Error running AfterDelete method in deleteUploadHandler for:", t, err) // Corrected log
 		return
 	}
 
@@ -2229,6 +2236,7 @@ func deleteUploadHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func editUploadHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	switch req.Method {
 	case http.MethodGet:
 		q := req.URL.Query()
@@ -2350,13 +2358,14 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = hook.BeforeSave(res, req)
+		err = hook.BeforeSave(ctx, res, req)
 		if err != nil {
-			log.Println("Error running BeforeSave method in editHandler for:", t, err)
+			log.Println("Error running BeforeSave method in editUploadHandler for:", t, err) // Corrected log
 			return
 		}
 
 		// StoreFiles has the SetUpload call (which is equivalent of SetContent in other handlers)
+		// Note: upload.StoreFiles itself might need ctx if it starts calling hooks or db functions that need it.
 		urlPaths, err := upload.StoreFiles(req)
 		if err != nil {
 			log.Println(err)
@@ -2421,9 +2430,9 @@ func editUploadHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 
-		err = hook.AfterSave(res, req)
+		err = hook.AfterSave(ctx, res, req)
 		if err != nil {
-			log.Println("Error running AfterSave method in editHandler for:", t, err)
+			log.Println("Error running AfterSave method in editUploadHandler for:", t, err) // Corrected log
 			return
 		}
 
@@ -2712,6 +2721,7 @@ func uploadSearchHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func addonsHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	switch req.Method {
 	case http.MethodGet:
 		all := db.AddonAll()
@@ -2893,7 +2903,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 
 		switch action {
 		case "enable":
-			err := h.BeforeEnable(res, req)
+			err := h.BeforeEnable(ctx, res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2919,7 +2929,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 
-			err = h.AfterEnable(res, req)
+			err = h.AfterEnable(ctx, res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2933,7 +2943,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 		case "disable":
-			err := h.BeforeDisable(res, req)
+			err := h.BeforeDisable(ctx, res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2959,7 +2969,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 
-			err = h.AfterDisable(res, req)
+			err = h.AfterDisable(ctx, res, req)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -2998,6 +3008,7 @@ func addonsHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func addonHandler(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
 	switch req.Method {
 	case http.MethodGet:
 		id := req.FormValue("id")
@@ -3085,7 +3096,7 @@ func addonHandler(res http.ResponseWriter, req *http.Request) {
 		// if Hookable, call BeforeSave prior to saving
 		h, ok := at().(item.Hookable)
 		if ok {
-			err := h.BeforeSave(res, req)
+			err := h.BeforeSave(ctx, res, req)
 			if err != nil {
 				log.Println("Error running BeforeSave method in addonHandler for:", id, err)
 				return

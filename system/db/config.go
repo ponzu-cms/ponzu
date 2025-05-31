@@ -10,7 +10,7 @@ import (
 
 	"github.com/ponzu-cms/ponzu/system/admin/config"
 
-	"github.com/boltdb/bolt"
+	"go.etcd.io/bbolt"
 	"github.com/gorilla/schema"
 )
 
@@ -29,7 +29,7 @@ func init() {
 // SetConfig sets key:value pairs in the db for configuration settings
 func SetConfig(data url.Values) error {
 	var j []byte
-	err := store.Update(func(tx *bolt.Tx) error {
+	err := store.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 
 		// check for any multi-value fields (ex. checkbox fields)
@@ -149,7 +149,7 @@ func Config(key string) ([]byte, error) {
 // ConfigAll gets the configuration from the db
 func ConfigAll() ([]byte, error) {
 	val := &bytes.Buffer{}
-	err := store.View(func(tx *bolt.Tx) error {
+	err := store.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte("__config"))
 		if b == nil {
 			return fmt.Errorf("Error finding bucket: %s", "__config")
