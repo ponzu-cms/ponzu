@@ -372,7 +372,7 @@ func Content(target string) ([]byte, error) {
 	return val.Bytes(), nil
 }
 
-// ContentMulti returns a set of content based on the the targets / identifiers
+// ContentMulti returns a set of content based on the targets / identifiers
 // provided in Ponzu target string format: Type:ID
 // NOTE: All targets should be of the same type
 func ContentMulti(targets []string) ([][]byte, error) {
@@ -391,7 +391,7 @@ func ContentMulti(targets []string) ([][]byte, error) {
 
 // ContentBySlug does a lookup in the content index to find the type and id of
 // the requested content. Subsequently, issues the lookup in the type bucket and
-// returns the the type and data at that ID or nil if nothing exists.
+// returns the type and data at that ID or nil if nothing exists.
 func ContentBySlug(slug string) (string, []byte, error) {
 	val := &bytes.Buffer{}
 	var t, id string
