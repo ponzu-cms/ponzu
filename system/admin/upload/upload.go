@@ -87,6 +87,7 @@ func StoreFiles(req *http.Request) (map[string]string, error) {
 			err := fmt.Errorf("Failed to create destination file for upload: %s", err)
 			return nil, err
 		}
+		defer dst.Close()
 
 		// copy file from src to dst on disk
 		var size int64
